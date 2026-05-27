@@ -27,7 +27,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   background:var(--bg2);border-right:1px solid var(--border);
   position:fixed;top:0;left:0;height:100vh;overflow-y:auto;
   padding:20px 0;z-index:10;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent;
 }
+#sidebar::-webkit-scrollbar{width:8px}
+#sidebar::-webkit-scrollbar-track{background:transparent}
+#sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
+#sidebar::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.16)}
 .sidebar-title{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text3);padding:0 16px 12px;text-transform:uppercase;display:block}
 .nav-group-label{font-size:9px;font-weight:700;color:var(--text3);padding:10px 16px 3px;letter-spacing:.5px;text-transform:uppercase;margin:0;display:block}
 #nav-all{display:flex;flex-direction:column;scroll-target-group:auto}
