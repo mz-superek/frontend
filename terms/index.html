@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FE 개발자 필수 용어</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root {
+  --bg:#0f1117;--bg2:#171922;--bg3:#1e2130;--border:rgba(255,255,255,0.08);
+  --text:#e8eaf0;--text2:#9096a8;--text3:#5a6070;
+  --teal:#2dd4bf;--teal-d:rgba(45,212,191,0.12);
+  --coral:#fb7185;--coral-d:rgba(251,113,133,0.12);
+  --amber:#fbbf24;--amber-d:rgba(251,191,36,0.12);
+  --purple:#a78bfa;--purple-d:rgba(167,139,250,0.12);
+  --blue:#60a5fa;--blue-d:rgba(96,165,250,0.12);
+  --green:#4ade80;--green-d:rgba(74,222,128,0.12);
+  --nav-w:200px;
+}
+html{scroll-behavior:smooth}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+
+/* 사이드바 fixed */
+#sidebar{
+  width:var(--nav-w);
+  background:var(--bg2);border-right:1px solid var(--border);
+  position:fixed;top:0;left:0;height:100vh;overflow-y:auto;
+  padding:20px 0;z-index:10;
+}
+.sidebar-title{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text3);padding:0 16px 12px;text-transform:uppercase;display:block}
+.nav-group-label{font-size:9px;font-weight:700;color:var(--text3);padding:10px 16px 3px;letter-spacing:.5px;text-transform:uppercase;margin:0;display:block}
+#nav-all{display:flex;flex-direction:column;scroll-target-group:auto}
+.nav-item{display:flex;align-items:center;padding:4px 16px;font-size:11px;color:var(--text2);text-decoration:none;border-left:2px solid transparent;line-height:1.4;transition:color .2s,background .2s,border-color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nav-item:target-current{color:var(--teal);border-left-color:var(--teal);background:var(--teal-d)}
+
+/* 메인 */
+main{margin-left:var(--nav-w);padding:48px 48px 48px 56px;max-width:calc(var(--nav-w) + 900px)}
+header{margin-bottom:48px}
+header h1{font-size:26px;font-weight:700;letter-spacing:-.5px;color:var(--teal);margin-bottom:6px}
+header p{color:var(--text2);font-size:14px}
+
+/* 용어 섹션 */
+.term{margin-bottom:64px;scroll-margin-top:24px}
+.term-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:8px}
+.term-title{flex:1}
+.term-title h2{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.term-title .sub{font-size:13px;color:var(--text2);font-weight:400}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.link-tag{font-size:11px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);color:var(--text2);text-decoration:none;transition:all .15s}
+.link-tag:hover{border-color:var(--teal);color:var(--teal)}
+.link-tag::before{content:'↗ '}
+
+/* 카드 공통 */
+.diagram{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:14px;overflow:hidden}
+.diagram svg{display:block;width:100%}
+.summary{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:12px;font-size:14px;color:var(--text2);line-height:1.8}
+.summary strong{color:var(--text);font-weight:500}
+.flow{background:var(--bg3);border-radius:10px;padding:18px 20px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:2;color:var(--text2)}
+.flow .lbl{font-family:'Noto Sans KR',sans-serif;font-size:10px;color:var(--text3);margin-bottom:6px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.flow .hi{color:var(--teal)}.flow .warn{color:var(--coral)}.flow .ok{color:var(--green)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.compare-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.card h4{font-size:13px;font-weight:700;margin-bottom:8px}
+.card ul{list-style:none;font-size:12.5px;color:var(--text2);line-height:2}
+.card ul li::before{content:'· ';color:var(--text3)}
+.tip{border-left:3px solid var(--teal);padding:12px 16px;background:var(--teal-d);border-radius:0 8px 8px 0;font-size:13px;margin-top:10px}
+.tip .tip-l{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
+.warn-box{border-left:3px solid var(--coral);padding:12px 16px;background:var(--coral-d);border-radius:0 8px 8px 0;font-size:13px;margin-top:10px}
+.warn-box .tip-l{font-size:10px;font-weight:700;color:var(--coral);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
+.info-box{border-left:3px solid var(--blue);padding:12px 16px;background:var(--blue-d);border-radius:0 8px 8px 0;font-size:13px;margin-top:10px}
+.info-box .tip-l{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
+.divider{border:none;border-top:1px solid var(--border);margin:64px 0}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--teal)}
+svg text{font-family:'Noto Sans KR',sans-serif}
+
+/* fallback */
+.nav-item.active{color:var(--teal);border-left-color:var(--teal);background:var(--teal-d)}
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <span class="sidebar-title">FE 개발자 용어</span>
+  <div id="nav-all">
+    <span class="nav-group-label">아키텍처</span>
+    <a class="nav-item" href="#msa">MSA</a>
+    <a class="nav-item" href="#fanout">Fanout</a>
+    <a class="nav-item" href="#bff">BFF</a>
+    <a class="nav-item" href="#api-gateway">API Gateway</a>
+    <a class="nav-item" href="#circuit-breaker">Circuit Breaker</a>
+    <a class="nav-item" href="#turborepo">Turborepo · pnpm</a>
+    <a class="nav-item" href="#bundler">Vite · Turbopack</a>
+    <a class="nav-item" href="#module-federation">Module Federation</a>
+
+    <span class="nav-group-label">실시간 · 데이터</span>
+    <a class="nav-item" href="#realtime">Polling · SSE · WS</a>
+    <a class="nav-item" href="#optimistic">Optimistic Update</a>
+    <a class="nav-item" href="#swr">Stale-While-Revalidate</a>
+    <a class="nav-item" href="#react-query">React Query 심화</a>
+
+    <span class="nav-group-label">Next.js 심화</span>
+    <a class="nav-item" href="#hydration">Hydration</a>
+    <a class="nav-item" href="#edge-runtime">Edge Runtime</a>
+    <a class="nav-item" href="#rsc">RSC vs RCC</a>
+    <a class="nav-item" href="#streaming">Streaming · Suspense</a>
+
+    <span class="nav-group-label">인증 · 보안</span>
+    <a class="nav-item" href="#cors">CORS</a>
+    <a class="nav-item" href="#token">Token 저장 전략</a>
+    <a class="nav-item" href="#oauth">OAuth · OIDC</a>
+    <a class="nav-item" href="#csrf">CSRF · SameSite</a>
+
+    <span class="nav-group-label">성능 최적화</span>
+    <a class="nav-item" href="#web-vitals">Web Vitals</a>
+    <a class="nav-item" href="#code-splitting">Code Splitting</a>
+    <a class="nav-item" href="#tree-shaking">Tree Shaking</a>
+    <a class="nav-item" href="#memoization">Memoization</a>
+    <a class="nav-item" href="#crp">Critical Rendering Path</a>
+    <a class="nav-item" href="#reflow">Reflow · Repaint</a>
+
+    <span class="nav-group-label">브라우저 내부</span>
+    <a class="nav-item" href="#render-pipeline">렌더링 파이프라인</a>
+    <a class="nav-item" href="#compositor">Compositor Layer</a>
+    <a class="nav-item" href="#event-loop">이벤트 루프</a>
+    <a class="nav-item" href="#main-thread">메인 스레드 최적화</a>
+
+    <span class="nav-group-label">JS 런타임</span>
+    <a class="nav-item" href="#v8">V8 · JIT</a>
+    <a class="nav-item" href="#gc">가비지 컬렉션</a>
+    <a class="nav-item" href="#memory">메모리 구조</a>
+
+    <span class="nav-group-label">React 내부</span>
+    <a class="nav-item" href="#fiber">Fiber 아키텍처</a>
+    <a class="nav-item" href="#reconciliation">Reconciliation</a>
+    <a class="nav-item" href="#concurrent">Concurrent Mode</a>
+
+    <span class="nav-group-label">웹 플랫폼 API</span>
+    <a class="nav-item" href="#observers">Observer APIs</a>
+    <a class="nav-item" href="#raf">requestAnimationFrame</a>
+    <a class="nav-item" href="#performance-api">Performance API</a>
+    <a class="nav-item" href="#web-worker">Web Worker</a>
+
+    <span class="nav-group-label">디자인 시스템</span>
+    <a class="nav-item" href="#storybook">Storybook · Chromatic</a>
+    <a class="nav-item" href="#design-token">Design Token</a>
+    <a class="nav-item" href="#semver">SemVer</a>
+
+    <span class="nav-group-label">모니터링 · 배포</span>
+    <a class="nav-item" href="#rum">Datadog RUM</a>
+    <a class="nav-item" href="#lighthouse-ci">Lighthouse CI</a>
+    <a class="nav-item" href="#sentry">Sentry · Source Map</a>
+    <a class="nav-item" href="#feature-flag">Feature Flag</a>
+    <a class="nav-item" href="#open-tracing">Open Tracing</a>
+
+    <span class="nav-group-label">접근성</span>
+    <a class="nav-item" href="#aria">ARIA</a>
+    <a class="nav-item" href="#focus-trap">Focus Trap</a>
+  </div>
+</nav>
+
+<main>
+<header>
+  <h1>FE 개발자 필수 용어</h1>
+  <p>아키텍처·브라우저 내부·JS 런타임·React 내부·웹 플랫폼 API까지 — PBU Cross-cutting 평가 대비</p>
+</header>
+<!-- ===== MSA ===== -->
+<section class="term" id="msa">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="msa-h">MSA <span class="sub">Microservices Architecture</span></h2>
+    <div class="links"><a class="link-tag" href="#fanout">Fanout</a><a class="link-tag" href="#bff">BFF</a><a class="link-tag" href="#api-gateway">API Gateway</a><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 180" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="20" width="290" height="140" rx="10" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="165" y="44" text-anchor="middle" fill="#2dd4bf" font-size="12" font-weight="700">모놀리스</text>
+  <rect x="40" y="56" width="250" height="28" rx="5" fill="#171922" stroke="#2a3040" stroke-width="0.5"/>
+  <text x="165" y="74" text-anchor="middle" fill="#9096a8" font-size="11">인증 + 사용자 + 결제 + 알림</text>
+  <text x="165" y="110" text-anchor="middle" fill="#fb7185" font-size="10">하나가 죽으면 전체가 죽음</text>
+  <text x="165" y="148" text-anchor="middle" fill="#5a6070" font-size="10">배포도 전체를 한 번에</text>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <line x1="310" y1="90" x2="350" y2="90" stroke="#5a6070" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="350" y="20" width="390" height="140" rx="10" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="545" y="44" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="700">MSA</text>
+  <rect x="366" y="56" width="80" height="28" rx="5" fill="#171922" stroke="#2dd4bf" stroke-width="0.5"/><text x="406" y="74" text-anchor="middle" fill="#2dd4bf" font-size="10">인증</text>
+  <rect x="456" y="56" width="80" height="28" rx="5" fill="#171922" stroke="#fbbf24" stroke-width="0.5"/><text x="496" y="74" text-anchor="middle" fill="#fbbf24" font-size="10">사용자</text>
+  <rect x="546" y="56" width="80" height="28" rx="5" fill="#171922" stroke="#fb7185" stroke-width="0.5"/><text x="586" y="74" text-anchor="middle" fill="#fb7185" font-size="10">결제</text>
+  <rect x="636" y="56" width="80" height="28" rx="5" fill="#171922" stroke="#4ade80" stroke-width="0.5"/><text x="676" y="74" text-anchor="middle" fill="#4ade80" font-size="10">알림</text>
+  <text x="545" y="116" text-anchor="middle" fill="#4ade80" font-size="10">각자 독립 배포 · 하나 죽어도 나머지 멀쩡</text>
+  <text x="545" y="148" text-anchor="middle" fill="#5a6070" font-size="10">서비스 간 통신 복잡도 증가 → Fanout 문제</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">모놀리스</h4><ul><li>하나의 코드베이스·배포 단위</li><li>하나가 죽으면 전체 죽음</li><li>초기 개발엔 단순</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">MSA</h4><ul><li>서비스별 독립 배포</li><li>서비스마다 다른 언어·DB 가능</li><li>서비스 간 통신 복잡도 ↑</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">Front 입장</div>"백엔드가 여러 개"라는 뜻. 화면 하나를 그리려면 여러 서비스를 호출 → Fanout 문제 발생</div>
+</section><hr class="divider">
+
+<!-- ===== Fanout ===== -->
+<section class="term" id="fanout">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="fanout-h">Fanout <span class="sub">팬아웃</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#bff">BFF로 해결</a></div>
+  </div>
+</div>
+<div class="summary">하나의 클라이언트 요청을 처리하기 위해 <strong>다수의 내부 서비스 요청이 발생</strong>하는 현상. MSA 구조에서 필연적으로 발생.</div>
+<div class="diagram"><svg viewBox="0 0 760 160" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round"/></marker><marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="60" width="100" height="40" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="60" y="76" text-anchor="middle" fill="#e8eaf0" font-size="11" font-weight="700">브라우저</text>
+  <text x="60" y="92" text-anchor="middle" fill="#9096a8" font-size="9">요청 1개</text>
+  <line x1="110" y1="80" x2="148" y2="80" stroke="#5a6070" stroke-width="1.5" marker-end="url(#ag)"/>
+  <rect x="148" y="60" width="110" height="40" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="203" y="78" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="700">프론트엔드</text>
+  <text x="203" y="92" text-anchor="middle" fill="#9096a8" font-size="9">데이터 필요</text>
+  <path d="M258 80 L320 30" fill="none" stroke="#fb7185" stroke-width="1.5" marker-end="url(#ar)"/>
+  <path d="M258 80 L320 80" fill="none" stroke="#fb7185" stroke-width="1.5" marker-end="url(#ar)"/>
+  <path d="M258 80 L320 130" fill="none" stroke="#fb7185" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="290" y="50" text-anchor="middle" fill="#fb7185" font-size="9">API 3개 동시 호출</text>
+  <rect x="320" y="14" width="130" height="32" rx="6" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/><text x="385" y="34" text-anchor="middle" fill="#2dd4bf" font-size="10">사용자 서비스</text>
+  <rect x="320" y="64" width="130" height="32" rx="6" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="385" y="84" text-anchor="middle" fill="#fbbf24" font-size="10">결제 서비스</text>
+  <rect x="320" y="114" width="130" height="32" rx="6" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/><text x="385" y="134" text-anchor="middle" fill="#a78bfa" font-size="10">알림 서비스</text>
+  <rect x="480" y="30" width="270" height="100" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="615" y="56" text-anchor="middle" fill="#fb7185" font-size="11" font-weight="700">문제점</text>
+  <text x="615" y="76" text-anchor="middle" fill="#9096a8" font-size="10">하나가 느리면 전체 화면 느림</text>
+  <text x="615" y="94" text-anchor="middle" fill="#9096a8" font-size="10">하나가 죽으면 화면 깨짐</text>
+  <text x="615" y="114" text-anchor="middle" fill="#2dd4bf" font-size="10">→ BFF로 해결</text>
+</svg></div>
+</section><hr class="divider">
+
+<!-- ===== BFF ===== -->
+<section class="term" id="bff">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="bff-h">BFF <span class="sub">Backend For Frontend</span></h2>
+    <div class="links"><a class="link-tag" href="#fanout">Fanout 해결</a><a class="link-tag" href="#api-gateway">API Gateway와 차이</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 180" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="abg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="abgg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="70" width="90" height="40" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="55" y="86" text-anchor="middle" fill="#e8eaf0" font-size="11" font-weight="700">브라우저</text>
+  <text x="55" y="102" text-anchor="middle" fill="#9096a8" font-size="9">요청 1개</text>
+  <line x1="100" y1="84" x2="138" y2="84" stroke="#5a6070" stroke-width="1.5" marker-end="url(#abg)"/>
+  <line x1="138" y1="96" x2="100" y2="96" stroke="#4ade80" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#abgg)"/>
+  <text x="119" y="116" text-anchor="middle" fill="#4ade80" font-size="9">1개로 합쳐 응답</text>
+  <rect x="138" y="50" width="140" height="80" rx="10" fill="#1e2130" stroke="#a78bfa" stroke-width="1"/>
+  <text x="208" y="80" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="700">BFF</text>
+  <text x="208" y="98" text-anchor="middle" fill="#9096a8" font-size="9">서비스 조합 +</text>
+  <text x="208" y="112" text-anchor="middle" fill="#9096a8" font-size="9">데이터 가공</text>
+  <path d="M278 80 L340 30" fill="none" stroke="#5a6070" stroke-width="1.5" marker-end="url(#abg)"/>
+  <path d="M278 90" fill="none" stroke="#5a6070" stroke-width="1.5"/>
+  <line x1="278" y1="90" x2="340" y2="90" stroke="#5a6070" stroke-width="1.5" marker-end="url(#abg)"/>
+  <path d="M278 100 L340 150" fill="none" stroke="#5a6070" stroke-width="1.5" marker-end="url(#abg)"/>
+  <rect x="340" y="14" width="120" height="32" rx="7" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/><text x="400" y="34" text-anchor="middle" fill="#2dd4bf" font-size="11">사용자 서비스</text>
+  <rect x="340" y="74" width="120" height="32" rx="7" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="400" y="94" text-anchor="middle" fill="#fbbf24" font-size="11">결제 서비스</text>
+  <rect x="340" y="134" width="120" height="32" rx="7" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/><text x="400" y="154" text-anchor="middle" fill="#a78bfa" font-size="11">알림 서비스</text>
+  <rect x="490" y="50" width="210" height="80" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="595" y="74" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="700">BFF 장점</text>
+  <text x="595" y="94" text-anchor="middle" fill="#9096a8" font-size="10">프론트는 API 1번만 호출</text>
+  <text x="595" y="112" text-anchor="middle" fill="#9096a8" font-size="10">서비스 실패 시 BFF가 대응</text>
+  <text x="595" y="124" text-anchor="middle" fill="#9096a8" font-size="9">데이터 가공도 여기</text>
+  <text x="380" y="175" text-anchor="middle" fill="#5a6070" font-size="9">프론트는 BFF만 알면 됨 — 서비스가 몇 개든 상관없음</text>
+</svg></div>
+<div class="summary">프론트엔드 전용 백엔드. 여러 마이크로서비스를 호출하고 <strong>프론트가 필요한 모양으로 가공해서 단일 응답</strong>으로 내려줌.<br>Gateway = 경비원 (모든 요청 공통 관문) / BFF = 비서 (프론트 전용, 데이터 조합·가공)</div>
+</section><hr class="divider">
+
+<!-- ===== API Gateway ===== -->
+<section class="term" id="api-gateway">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="api-gateway-h">API Gateway</h2>
+    <div class="links"><a class="link-tag" href="#bff">BFF와 차이</a><a class="link-tag" href="#oauth">OAuth·OIDC</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 160" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="aag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="80" height="30" rx="6" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/><text x="50" y="39" text-anchor="middle" fill="#9096a8" font-size="10">웹 브라우저</text>
+  <rect x="10" y="65" width="80" height="30" rx="6" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/><text x="50" y="84" text-anchor="middle" fill="#9096a8" font-size="10">모바일 앱</text>
+  <rect x="10" y="110" width="80" height="30" rx="6" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/><text x="50" y="129" text-anchor="middle" fill="#9096a8" font-size="10">외부 서비스</text>
+  <path d="M90 35 L160 75" fill="none" stroke="#5a6070" stroke-width="1" marker-end="url(#aag)"/>
+  <path d="M90 80 L160 80" fill="none" stroke="#5a6070" stroke-width="1" marker-end="url(#aag)"/>
+  <path d="M90 125 L160 90" fill="none" stroke="#5a6070" stroke-width="1" marker-end="url(#aag)"/>
+  <rect x="160" y="44" width="160" height="72" rx="10" fill="#1e2130" stroke="#60a5fa" stroke-width="1"/>
+  <text x="240" y="68" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="700">API Gateway</text>
+  <text x="240" y="84" text-anchor="middle" fill="#9096a8" font-size="9">① 인증·인가 확인</text>
+  <text x="240" y="98" text-anchor="middle" fill="#9096a8" font-size="9">② 라우팅 · Rate Limiting · 로깅</text>
+  <path d="M320 66 L390 36" fill="none" stroke="#5a6070" stroke-width="1" marker-end="url(#aag)"/>
+  <path d="M320 80 L390 80" fill="none" stroke="#5a6070" stroke-width="1" marker-end="url(#aag)"/>
+  <path d="M320 94 L390 124" fill="none" stroke="#5a6070" stroke-width="1" marker-end="url(#aag)"/>
+  <rect x="390" y="18" width="120" height="36" rx="7" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/><text x="450" y="40" text-anchor="middle" fill="#2dd4bf" font-size="11">인증 서비스</text>
+  <rect x="390" y="62" width="120" height="36" rx="7" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="450" y="84" text-anchor="middle" fill="#fbbf24" font-size="11">사용자 서비스</text>
+  <rect x="390" y="106" width="120" height="36" rx="7" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/><text x="450" y="128" text-anchor="middle" fill="#a78bfa" font-size="11">결제 서비스</text>
+  <text x="600" y="50" text-anchor="middle" fill="#9096a8" font-size="10">Gateway = 공통 관문</text>
+  <text x="600" y="66" text-anchor="middle" fill="#9096a8" font-size="10">BFF = 프론트 전용</text>
+  <text x="600" y="90" text-anchor="middle" fill="#5a6070" font-size="9">로그인 안 하고 API 호출 →</text>
+  <text x="600" y="104" text-anchor="middle" fill="#fb7185" font-size="9">401은 Gateway가 막은 것</text>
+  <text x="600" y="124" text-anchor="middle" fill="#5a6070" font-size="9">실제로는 Gateway 뒤에</text>
+  <text x="600" y="138" text-anchor="middle" fill="#5a6070" font-size="9">BFF를 두는 구조가 많음</text>
+</svg></div>
+<div class="summary">모든 클라이언트 요청이 반드시 거치는 <strong>공통 관문</strong>. 인증 확인·라우팅·Rate Limiting·로깅·SSL 종단 담당.<br>로그인 안 하고 API 호출했을 때 401 뜨는 게 Gateway가 막은 것.</div>
+</section><hr class="divider">
+
+<!-- ===== Circuit Breaker ===== -->
+<section class="term" id="circuit-breaker">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="circuit-breaker-h">Circuit Breaker <span class="sub">서킷 브레이커</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 140" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="acb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="acbr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="acby" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="acbg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="20" y="30" width="170" height="70" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="1"/>
+  <text x="105" y="54" text-anchor="middle" fill="#4ade80" font-size="12" font-weight="700">Closed (정상)</text>
+  <text x="105" y="72" text-anchor="middle" fill="#9096a8" font-size="9">요청 정상 통과 · 실패 카운트</text>
+  <text x="105" y="88" text-anchor="middle" fill="#9096a8" font-size="9">5회 초과 → Open 전환</text>
+  <path d="M190 60 L228 60" fill="none" stroke="#fb7185" stroke-width="1.5" marker-end="url(#acbr)"/>
+  <text x="209" y="54" text-anchor="middle" fill="#fb7185" font-size="8">5회 실패</text>
+  <rect x="228" y="30" width="170" height="70" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="1"/>
+  <text x="313" y="54" text-anchor="middle" fill="#fb7185" font-size="12" font-weight="700">Open (차단)</text>
+  <text x="313" y="72" text-anchor="middle" fill="#9096a8" font-size="9">요청 즉시 차단 · Fallback UI</text>
+  <text x="313" y="88" text-anchor="middle" fill="#9096a8" font-size="9">30초 후 → Half-Open 전환</text>
+  <path d="M398 60 L436 60" fill="none" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#acby)"/>
+  <text x="417" y="54" text-anchor="middle" fill="#fbbf24" font-size="8">30초 후</text>
+  <rect x="436" y="30" width="170" height="70" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="1"/>
+  <text x="521" y="50" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">Half-Open (테스트)</text>
+  <text x="521" y="68" text-anchor="middle" fill="#9096a8" font-size="9">요청 1개만 보내봄</text>
+  <text x="521" y="84" text-anchor="middle" fill="#9096a8" font-size="9">성공 → Closed / 실패 → Open</text>
+  <path d="M521 30 Q521 10 105 10 Q105 28 105 30" fill="none" stroke="#4ade80" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#acbg)"/>
+  <text x="313" y="8" text-anchor="middle" fill="#4ade80" font-size="8">회복 성공 → Closed 복귀</text>
+  <rect x="634" y="30" width="116" height="70" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="692" y="52" text-anchor="middle" fill="#e8eaf0" font-size="10" font-weight="700">Front 할 일</text>
+  <text x="692" y="68" text-anchor="middle" fill="#fb7185" font-size="9">스피너 무한 ✗</text>
+  <text x="692" y="84" text-anchor="middle" fill="#4ade80" font-size="9">Fallback UI ✓</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--green)">Closed (정상)</h4><ul><li>요청 정상 통과</li><li>실패 횟수 카운트</li><li>5회 초과 → Open</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">Open (차단)</h4><ul><li>요청 즉시 차단</li><li>에러 즉시 반환</li><li>30초 후 → Half-Open</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Half-Open (테스트)</h4><ul><li>요청 1개만 보내봄</li><li>성공 → Closed</li><li>실패 → Open 유지</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">Front 할 일</div>Open 상태일 때 스피너 무한 돌리지 말고 → Fallback UI 보여주기</div>
+</section><hr class="divider">
+
+<!-- ===== Turborepo ===== -->
+<section class="term" id="turborepo">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="turborepo-h">Turborepo + pnpm workspace <span class="sub">모노레포 빌드 도구</span></h2>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="atrb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="270" y="10" width="220" height="36" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="380" y="26" text-anchor="middle" fill="#e8eaf0" font-size="11" font-weight="700">모노레포 루트</text>
+  <text x="380" y="40" text-anchor="middle" fill="#5a6070" font-size="9">turbo.json + pnpm-workspace.yaml</text>
+  <rect x="80" y="70" width="160" height="40" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="160" y="88" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">Turborepo</text>
+  <text x="160" y="102" text-anchor="middle" fill="#9096a8" font-size="9">태스크 캐싱 + 병렬 실행</text>
+  <rect x="480" y="70" width="160" height="40" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="560" y="88" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="700">pnpm workspace</text>
+  <text x="560" y="102" text-anchor="middle" fill="#9096a8" font-size="9">패키지 의존성 관리</text>
+  <line x1="380" y1="46" x2="210" y2="70" stroke="#5a6070" stroke-width="1" marker-end="url(#atrb)"/>
+  <line x1="380" y1="46" x2="530" y2="70" stroke="#5a6070" stroke-width="1" marker-end="url(#atrb)"/>
+  <rect x="20" y="128" width="100" height="16" rx="4" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/><text x="70" y="140" text-anchor="middle" fill="#60a5fa" font-size="9">apps/admin</text>
+  <rect x="130" y="128" width="110" height="16" rx="4" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/><text x="185" y="140" text-anchor="middle" fill="#60a5fa" font-size="9">apps/launcher</text>
+  <rect x="250" y="128" width="120" height="16" rx="4" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/><text x="310" y="140" text-anchor="middle" fill="#60a5fa" font-size="9">apps/myaccount</text>
+  <rect x="420" y="128" width="110" height="16" rx="4" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="475" y="140" text-anchor="middle" fill="#fbbf24" font-size="9">packages/ui</text>
+  <rect x="540" y="128" width="120" height="16" rx="4" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="600" y="140" text-anchor="middle" fill="#fbbf24" font-size="9">packages/shared</text>
+  <line x1="160" y1="110" x2="100" y2="128" stroke="#5a6070" stroke-width="0.5" marker-end="url(#atrb)"/>
+  <line x1="160" y1="110" x2="185" y2="128" stroke="#5a6070" stroke-width="0.5" marker-end="url(#atrb)"/>
+  <line x1="160" y1="110" x2="310" y2="128" stroke="#5a6070" stroke-width="0.5" marker-end="url(#atrb)"/>
+  <line x1="560" y1="110" x2="475" y2="128" stroke="#5a6070" stroke-width="0.5" marker-end="url(#atrb)"/>
+  <line x1="560" y1="110" x2="600" y2="128" stroke="#5a6070" stroke-width="0.5" marker-end="url(#atrb)"/>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--purple)">Turborepo</h4><ul><li>빌드 결과 캐싱 → CI 속도 단축</li><li>의존 관계 파악 후 병렬 실행</li><li>원격 캐시로 팀원 간 공유</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">pnpm workspace</h4><ul><li><code>workspace:*</code> 프로토콜로 내부 패키지 연결</li><li>node_modules 중복 제거</li><li>v2 레포: pnpm 10 + Turborepo 조합</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Bundler ===== -->
+<section class="term" id="bundler">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="bundler-h">Vite vs Turbopack <span class="sub">번들러</span></h2>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 110" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="abnd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="16" width="340" height="80" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="180" y="36" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">Vite — ESM 기반</text>
+  <text x="180" y="54" text-anchor="middle" fill="#9096a8" font-size="9">소스를 번들링 없이 ESM으로 직접 제공</text>
+  <text x="180" y="70" text-anchor="middle" fill="#9096a8" font-size="9">브라우저가 필요한 파일만 그때그때 요청</text>
+  <text x="180" y="86" text-anchor="middle" fill="#5a6070" font-size="8">React SPA, Storybook에 적합 · v1 레포</text>
+  <rect x="410" y="16" width="340" height="80" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="580" y="36" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="700">Turbopack — Rust 기반</text>
+  <text x="580" y="54" text-anchor="middle" fill="#9096a8" font-size="9">Rust로 작성 → Webpack 대비 압도적 속도</text>
+  <text x="580" y="70" text-anchor="middle" fill="#9096a8" font-size="9">Next.js 15+ 기본 번들러, SSR·RSC 통합</text>
+  <text x="580" y="86" text-anchor="middle" fill="#5a6070" font-size="8">v2 레포에서 사용</text>
+  <text x="380" y="60" text-anchor="middle" fill="#5a6070" font-size="18">↔</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">Vite</h4><ul><li>소스를 ESM으로 직접 제공, 번들링 없음</li><li>초기 서버 시작 매우 빠름</li><li>React SPA, Storybook에 적합</li><li>v1 레포에서 사용</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">Turbopack</h4><ul><li>Rust로 작성 → Webpack 대비 압도적 속도</li><li>Next.js 15+ 기본 번들러</li><li>SSR·RSC와 완벽 통합</li><li>v2 레포에서 사용</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">HMR이란</div>코드 수정 시 페이지 전체 새로고침 없이 변경된 모듈만 교체. 상태(state) 유지한 채로 UI만 바뀜.</div>
+</section><hr class="divider">
+
+<!-- ===== Module Federation ===== -->
+<section class="term" id="module-federation">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="module-federation-h">Module Federation <span class="sub">마이크로 프론트엔드</span></h2>
+    <div class="links"><a class="link-tag" href="#turborepo">모노레포 공통 패키지와 차이</a></div>
+  </div>
+</div>
+<div class="summary"><strong>런타임에</strong> 각 팀이 독립 배포한 앱들이 서로 컴포넌트를 빌려 쓰는 방식.</div>
+<div class="diagram"><svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="amf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="10" width="740" height="100" rx="10" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="380" y="34" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="700">Host 앱 (Shell) — Console</text>
+  <text x="380" y="50" text-anchor="middle" fill="#9096a8" font-size="9">전체 레이아웃·GNB 담당. Remote 앱들을 런타임에 불러와 조합</text>
+  <rect x="30" y="62" width="160" height="38" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="110" y="80" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="700">Remote: SaaSOps</text>
+  <text x="110" y="94" text-anchor="middle" fill="#5a6070" font-size="8">독립 빌드·배포</text>
+  <rect x="300" y="62" width="160" height="38" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="380" y="80" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">Remote: CloudOps</text>
+  <text x="380" y="94" text-anchor="middle" fill="#5a6070" font-size="8">독립 빌드·배포</text>
+  <rect x="570" y="62" width="160" height="38" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="650" y="80" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">Remote: Billing</text>
+  <text x="650" y="94" text-anchor="middle" fill="#5a6070" font-size="8">독립 빌드·배포</text>
+  <text x="380" y="130" text-anchor="middle" fill="#5a6070" font-size="9">↑ 런타임에 동적으로 로딩 — 빌드 타임 아님. 다른 레포여도 공유 가능</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">모노레포 공통 패키지 (현재)</h4><ul><li>빌드 타임에 코드 포함</li><li>같은 레포에 있어야 함</li><li>v2 레포 방식</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">Module Federation</h4><ul><li>런타임에 동적 로딩</li><li>다른 레포여도 공유 가능</li><li>PBU Console 통합 장기 방향</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Polling·SSE·WS ===== -->
+<section class="term" id="realtime">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="realtime-h">Polling · SSE · WebSocket <span class="sub">실시간 통신</span></h2>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="art" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="artg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="arty" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="10" width="220" height="24" rx="5" fill="#fb7185" fill-opacity=".15" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="120" y="26" text-anchor="middle" fill="#fb7185" font-size="11" font-weight="700">Polling — 계속 물어봄</text>
+  <line x1="40" y1="46" x2="40" y2="170" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="190" y1="46" x2="190" y2="170" stroke="#2a3040" stroke-width="1.5"/>
+  <text x="40" y="42" text-anchor="middle" fill="#5a6070" font-size="9">프론트</text>
+  <text x="190" y="42" text-anchor="middle" fill="#5a6070" font-size="9">서버</text>
+  <line x1="40" y1="62" x2="186" y2="62" stroke="#fb7185" stroke-width="1.5" marker-end="url(#art)"/>
+  <text x="115" y="58" text-anchor="middle" fill="#fb7185" font-size="9">있어?</text>
+  <line x1="186" y1="78" x2="44" y2="78" stroke="#5a6070" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#art)"/>
+  <text x="115" y="92" text-anchor="middle" fill="#5a6070" font-size="9">없어</text>
+  <line x1="40" y1="102" x2="186" y2="102" stroke="#fb7185" stroke-width="1.5" marker-end="url(#art)"/>
+  <text x="115" y="98" text-anchor="middle" fill="#fb7185" font-size="9">있어?</text>
+  <line x1="186" y1="118" x2="44" y2="118" stroke="#5a6070" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#art)"/>
+  <text x="115" y="132" text-anchor="middle" fill="#5a6070" font-size="9">없어</text>
+  <line x1="40" y1="142" x2="186" y2="142" stroke="#fb7185" stroke-width="1.5" marker-end="url(#art)"/>
+  <text x="115" y="138" text-anchor="middle" fill="#fb7185" font-size="9">있어?</text>
+  <line x1="186" y1="156" x2="44" y2="156" stroke="#4ade80" stroke-width="1.5" marker-end="url(#artg)"/>
+  <text x="115" y="172" text-anchor="middle" fill="#4ade80" font-size="9">있어! 데이터↓</text>
+  <text x="120" y="196" text-anchor="middle" fill="#fb7185" font-size="9">불필요한 요청 폭탄</text>
+  <rect x="270" y="10" width="200" height="24" rx="5" fill="#fbbf24" fill-opacity=".15" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="370" y="26" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">SSE — 서버가 밀어줌</text>
+  <line x1="290" y1="46" x2="290" y2="170" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="450" y1="46" x2="450" y2="170" stroke="#2a3040" stroke-width="1.5"/>
+  <text x="290" y="42" text-anchor="middle" fill="#5a6070" font-size="9">프론트</text>
+  <text x="450" y="42" text-anchor="middle" fill="#5a6070" font-size="9">서버</text>
+  <line x1="290" y1="62" x2="446" y2="62" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arty)"/>
+  <text x="368" y="58" text-anchor="middle" fill="#fbbf24" font-size="9">연결 1번</text>
+  <line x1="446" y1="90" x2="294" y2="90" stroke="#4ade80" stroke-width="1.5" marker-end="url(#artg)"/>
+  <text x="368" y="86" text-anchor="middle" fill="#4ade80" font-size="9">push →</text>
+  <line x1="446" y1="118" x2="294" y2="118" stroke="#4ade80" stroke-width="1.5" marker-end="url(#artg)"/>
+  <text x="368" y="114" text-anchor="middle" fill="#4ade80" font-size="9">push →</text>
+  <line x1="446" y1="146" x2="294" y2="146" stroke="#4ade80" stroke-width="1.5" marker-end="url(#artg)"/>
+  <text x="368" y="142" text-anchor="middle" fill="#4ade80" font-size="9">push →</text>
+  <text x="370" y="196" text-anchor="middle" fill="#fbbf24" font-size="9">단방향. 클→서버 불가</text>
+  <rect x="510" y="10" width="240" height="24" rx="5" fill="#2dd4bf" fill-opacity=".12" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="630" y="26" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="700">WebSocket — 양방향</text>
+  <line x1="530" y1="46" x2="530" y2="170" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="740" y1="46" x2="740" y2="170" stroke="#2a3040" stroke-width="1.5"/>
+  <text x="530" y="42" text-anchor="middle" fill="#5a6070" font-size="9">프론트</text>
+  <text x="740" y="42" text-anchor="middle" fill="#5a6070" font-size="9">서버</text>
+  <line x1="530" y1="62" x2="736" y2="62" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arty)"/>
+  <text x="635" y="58" text-anchor="middle" fill="#fbbf24" font-size="9">Handshake</text>
+  <line x1="736" y1="86" x2="534" y2="86" stroke="#4ade80" stroke-width="1.5" marker-end="url(#artg)"/>
+  <line x1="530" y1="108" x2="736" y2="108" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#arty)"/>
+  <line x1="736" y1="130" x2="534" y2="130" stroke="#4ade80" stroke-width="1.5" marker-end="url(#artg)"/>
+  <line x1="530" y1="152" x2="736" y2="152" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#arty)"/>
+  <text x="635" y="196" text-anchor="middle" fill="#2dd4bf" font-size="9">양방향. 채팅·협업</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--coral)">Polling</h4><ul><li>클라이언트가 주기적으로 물어봄</li><li>불필요한 요청 폭탄</li><li>구현 가장 단순</li><li>대시보드 5분 갱신</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">SSE</h4><ul><li>연결 1번, 서버가 push</li><li>단방향 (서버→클라이언트)</li><li>로그아웃 알림, AI 스트리밍</li><li>v2 레포 로그아웃 동기화에 사용</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">WebSocket</h4><ul><li>연결 1번, 양방향 자유롭게</li><li>채팅, 협업 에디터, 게임</li><li>구현 복잡도 가장 높음</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">면접 포인트</div>로그아웃 동기화에 SSE 쓴 이유 → 서버→클 단방향으로 충분. WebSocket 대비 구현 복잡도 낮음.</div>
+</section><hr class="divider">
+
+<!-- ===== Optimistic Update ===== -->
+<section class="term" id="optimistic">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="optimistic-h">Optimistic Update <span class="sub">낙관적 업데이트</span></h2>
+    <div class="links"><a class="link-tag" href="#react-query">React Query 심화</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="aop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="aopg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="aopr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="8" width="340" height="22" rx="5" fill="#fb7185" fill-opacity=".1" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="180" y="23" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">일반 방식 — 기다렸다가 바꿈</text>
+  <line x1="30" y1="42" x2="30" y2="130" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="200" y1="42" x2="200" y2="130" stroke="#2a3040" stroke-width="1.5"/>
+  <text x="30" y="38" text-anchor="middle" fill="#5a6070" font-size="9">사용자</text>
+  <text x="200" y="38" text-anchor="middle" fill="#5a6070" font-size="9">서버</text>
+  <line x1="30" y1="56" x2="196" y2="56" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aop)"/>
+  <text x="113" y="52" text-anchor="middle" fill="#9096a8" font-size="9">좋아요 클릭</text>
+  <rect x="16" y="62" width="28" height="46" rx="4" fill="#1e2130" stroke="#2a3040" stroke-width="0.5"/>
+  <text x="30" y="82" text-anchor="middle" fill="#5a6070" font-size="8">대기</text>
+  <text x="30" y="96" text-anchor="middle" fill="#5a6070" font-size="8">⏳</text>
+  <line x1="196" y1="110" x2="34" y2="110" stroke="#4ade80" stroke-width="1.5" marker-end="url(#aopg)"/>
+  <text x="113" y="106" text-anchor="middle" fill="#4ade80" font-size="9">성공 응답</text>
+  <text x="30" y="130" text-anchor="middle" fill="#9096a8" font-size="9">❤️ 반영</text>
+  <rect x="390" y="8" width="360" height="22" rx="5" fill="#2dd4bf" fill-opacity=".1" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="570" y="23" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">Optimistic — 먼저 바꾸고 확인</text>
+  <line x1="410" y1="42" x2="410" y2="130" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="620" y1="42" x2="620" y2="130" stroke="#2a3040" stroke-width="1.5"/>
+  <text x="410" y="38" text-anchor="middle" fill="#5a6070" font-size="9">사용자</text>
+  <text x="620" y="38" text-anchor="middle" fill="#5a6070" font-size="9">서버</text>
+  <line x1="410" y1="56" x2="616" y2="56" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aop)"/>
+  <text x="513" y="52" text-anchor="middle" fill="#9096a8" font-size="9">좋아요 클릭</text>
+  <text x="410" y="76" text-anchor="middle" fill="#4ade80" font-size="11">❤️ 즉시 반영!</text>
+  <text x="410" y="90" text-anchor="middle" fill="#5a6070" font-size="8">(서버 응답 전)</text>
+  <line x1="616" y1="108" x2="414" y2="108" stroke="#4ade80" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#aopg)"/>
+  <text x="513" y="104" text-anchor="middle" fill="#5a6070" font-size="9">성공 확인 (조용히)</text>
+  <text x="660" y="76" text-anchor="middle" fill="#fb7185" font-size="9">실패 시</text>
+  <text x="660" y="90" text-anchor="middle" fill="#9096a8" font-size="8">🤍 롤백</text>
+  <text x="660" y="104" text-anchor="middle" fill="#9096a8" font-size="8">onError에서</text>
+</svg></div>
+<div class="summary">서버 응답을 기다리지 않고 <strong>UI를 먼저 바꾸고, 실패하면 이전 상태로 되돌리는 패턴</strong>.</div>
+<div class="flow">
+<div class="lbl">흐름</div>
+클릭 → <span class="ok">❤️ 즉시 반영</span> → 서버 요청 (뒤에서 조용히) → 성공 확인
+실패 시: <span class="warn">🤍 롤백</span> + "저장 실패" 토스트
+
+<div class="lbl" style="margin-top:12px">TanStack Query</div>
+<span class="hi">useMutation</span>({
+  onMutate: async () => { <span class="ok">/* 즉시 UI 반영 + 이전 상태 저장 */</span> },
+  onError: (err, _, context) => { <span class="warn">/* 실패 시 롤백 */</span> }
+})
+</div>
+<div class="warn-box"><div class="tip-l">쓰면 안 되는 곳</div>결제·회원가입처럼 실패 영향이 큰 작업</div>
+</section><hr class="divider">
+
+<!-- ===== SWR ===== -->
+<section class="term" id="swr">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="swr-h">Stale-While-Revalidate <span class="sub">캐시 전략</span></h2>
+    <div class="links"><a class="link-tag" href="#react-query">React Query 심화</a></div>
+  </div>
+</div>
+<div class="summary">캐시된 데이터를 <strong>즉시 보여주고, 뒤에서 조용히 최신 데이터를 가져와서 교체</strong>하는 패턴. 로딩 스피너 없이 즉각 반응.</div>
+<div class="diagram"><svg viewBox="0 0 760 110" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="aswr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="aswrg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="130" height="60" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="75" y="42" text-anchor="middle" fill="#9096a8" font-size="9" font-weight="700">① 페이지 진입</text>
+  <rect x="75" y="50" width="40" height="12" rx="2" fill="#2a3040"/>
+  <rect x="75" y="64" width="30" height="12" rx="2" fill="#2a3040"/>
+  <text x="75" y="88" text-anchor="middle" fill="#5a6070" font-size="8">로딩중...</text>
+  <line x1="140" y1="50" x2="178" y2="50" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aswr)"/>
+  <rect x="178" y="20" width="190" height="60" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="273" y="40" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">② 캐시 즉시 표시 (stale)</text>
+  <rect x="188" y="48" width="155" height="10" rx="2" fill="#2a3040" stroke="#fbbf24" stroke-width="0.3"/>
+  <rect x="188" y="62" width="120" height="10" rx="2" fill="#2a3040" stroke="#fbbf24" stroke-width="0.3"/>
+  <text x="273" y="90" text-anchor="middle" fill="#5a6070" font-size="8">오래됐을 수 있음</text>
+  <line x1="368" y1="50" x2="406" y2="50" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#aswr)"/>
+  <text x="387" y="44" text-anchor="middle" fill="#fbbf24" font-size="7">백그라운드</text>
+  <text x="387" y="54" text-anchor="middle" fill="#fbbf24" font-size="7">재검증</text>
+  <rect x="406" y="20" width="190" height="60" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="501" y="40" text-anchor="middle" fill="#4ade80" font-size="9" font-weight="700">③ 최신 데이터로 교체</text>
+  <rect x="416" y="48" width="155" height="10" rx="2" fill="#4ade80" fill-opacity=".4"/>
+  <rect x="416" y="62" width="120" height="10" rx="2" fill="#4ade80" fill-opacity=".4"/>
+  <text x="501" y="90" text-anchor="middle" fill="#4ade80" font-size="8">사용자는 깜빡임 없음</text>
+  <rect x="616" y="20" width="134" height="60" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="683" y="44" text-anchor="middle" fill="#9096a8" font-size="8">로딩 스피너 없이</text>
+  <text x="683" y="58" text-anchor="middle" fill="#2dd4bf" font-size="9" font-weight="700">즉각 반응</text>
+</svg></div>
+<div class="tip"><div class="tip-l">TanStack Query에서</div><code>staleTime</code>: 이 시간 동안 캐시를 fresh로 간주 (재검증 안 함) / <code>gcTime</code>: 이 시간 후 캐시 제거</div>
+</section><hr class="divider">
+
+<!-- ===== React Query 심화 ===== -->
+<section class="term" id="react-query">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="react-query-h">React Query 심화 <span class="sub">캐시 생명주기</span></h2>
+    <div class="links"><a class="link-tag" href="#optimistic">Optimistic Update</a><a class="link-tag" href="#swr">Stale-While-Revalidate</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arq" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="arqr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="120" height="40" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="1"/>
+  <text x="70" y="38" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="700">fresh</text>
+  <text x="70" y="52" text-anchor="middle" fill="#9096a8" font-size="8">staleTime 내</text>
+  <line x1="130" y1="40" x2="168" y2="40" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arq)"/>
+  <text x="149" y="34" text-anchor="middle" fill="#fbbf24" font-size="7">만료</text>
+  <rect x="168" y="20" width="120" height="40" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="1"/>
+  <text x="228" y="38" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">stale</text>
+  <text x="228" y="52" text-anchor="middle" fill="#9096a8" font-size="8">백그라운드 재검증</text>
+  <line x1="288" y1="40" x2="326" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#arq)"/>
+  <text x="307" y="34" text-anchor="middle" fill="#5a6070" font-size="7">언마운트</text>
+  <rect x="326" y="20" width="130" height="40" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="1"/>
+  <text x="391" y="38" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">inactive</text>
+  <text x="391" y="52" text-anchor="middle" fill="#9096a8" font-size="8">gcTime 카운트</text>
+  <line x1="456" y1="40" x2="494" y2="40" stroke="#fb7185" stroke-width="1.5" marker-end="url(#arqr)"/>
+  <text x="475" y="34" text-anchor="middle" fill="#fb7185" font-size="7">gcTime 만료</text>
+  <rect x="494" y="20" width="120" height="40" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="1"/>
+  <text x="554" y="38" text-anchor="middle" fill="#fb7185" font-size="11" font-weight="700">deleted</text>
+  <text x="554" y="52" text-anchor="middle" fill="#9096a8" font-size="8">캐시에서 제거</text>
+  <rect x="634" y="14" width="120" height="52" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="694" y="32" text-anchor="middle" fill="#e8eaf0" font-size="9" font-weight="700">invalidateQueries</text>
+  <text x="694" y="46" text-anchor="middle" fill="#9096a8" font-size="8">→ stale로 표시</text>
+  <text x="694" y="58" text-anchor="middle" fill="#9096a8" font-size="8">다음 사용 시 재검증</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">캐시 상태</h4><ul><li><strong>fresh</strong>: staleTime 내 → 재검증 안 함</li><li><strong>stale</strong>: 만료됨 → 백그라운드 재검증</li><li><strong>inactive</strong>: 언마운트됨 → gcTime 카운트</li><li><strong>deleted</strong>: gcTime 후 캐시 제거</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">주요 함수</h4><ul><li><code>invalidateQueries</code>: stale로 표시 → 다음 사용 시 재검증</li><li><code>refetchQueries</code>: 즉시 재요청</li><li><code>setQueryData</code>: 캐시 직접 수정 (Optimistic에 사용)</li><li><code>prefetchQuery</code>: 미리 가져오기</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Hydration ===== -->
+<section class="term" id="hydration">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="hydration-h">Hydration / Dehydration</h2>
+    <div class="links"><a class="link-tag" href="#rsc">RSC vs RCC</a><a class="link-tag" href="#streaming">Streaming·Suspense</a><a class="link-tag" href="#crp">Critical Rendering Path</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ahy" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="24" width="130" height="52" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="75" y="46" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700">서버</text>
+  <text x="75" y="62" text-anchor="middle" fill="#9096a8" font-size="9">React → HTML 생성</text>
+  <text x="75" y="74" text-anchor="middle" fill="#5a6070" font-size="8">(Dehydration)</text>
+  <line x1="140" y1="50" x2="178" y2="50" stroke="#5a6070" stroke-width="1.5" marker-end="url(#ahy)"/>
+  <text x="159" y="44" text-anchor="middle" fill="#5a6070" font-size="8">전송</text>
+  <rect x="178" y="24" width="150" height="52" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="253" y="44" text-anchor="middle" fill="#e8eaf0" font-size="10" font-weight="700">브라우저 수신</text>
+  <text x="253" y="60" text-anchor="middle" fill="#9096a8" font-size="9">HTML만 있음</text>
+  <text x="253" y="72" text-anchor="middle" fill="#fb7185" font-size="8">클릭해도 반응 없음 ✗</text>
+  <line x1="328" y1="50" x2="366" y2="50" stroke="#5a6070" stroke-width="1.5" marker-end="url(#ahy)"/>
+  <text x="347" y="44" text-anchor="middle" fill="#5a6070" font-size="8">JS 로드</text>
+  <rect x="366" y="16" width="170" height="68" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="1"/>
+  <text x="451" y="38" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="700">Hydration</text>
+  <text x="451" y="54" text-anchor="middle" fill="#9096a8" font-size="9">React가 HTML에</text>
+  <text x="451" y="68" text-anchor="middle" fill="#9096a8" font-size="9">이벤트 핸들러 부착</text>
+  <line x1="536" y1="50" x2="574" y2="50" stroke="#5a6070" stroke-width="1.5" marker-end="url(#ahy)"/>
+  <rect x="574" y="24" width="176" height="52" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="662" y="44" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="700">완성 ✓</text>
+  <text x="662" y="60" text-anchor="middle" fill="#9096a8" font-size="9">인터랙티브 앱</text>
+  <text x="662" y="72" text-anchor="middle" fill="#5a6070" font-size="8">"use client" = Hydration 경계</text>
+</svg></div>
+<div class="summary">SSR에서 서버가 만든 HTML에 <strong>React가 이벤트 핸들러를 붙이는 과정</strong>이 Hydration. <code>"use client"</code> 경계가 바로 이 구분선.</div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">Dehydration (건조)</h4><ul><li>React 상태를 JSON으로 직렬화</li><li>HTML에 담아서 전송</li><li>서버에서 일어남</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">Hydration (수화)</h4><ul><li>JSON을 브라우저에서 React 상태로 복원</li><li>이벤트 핸들러 부착</li><li>이 시점 전까지 클릭해도 반응 없음</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Edge Runtime ===== -->
+<section class="term" id="edge-runtime">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="edge-runtime-h">Edge Runtime vs Node.js Runtime</h2>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="aedge" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="28" width="80" height="44" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="50" y="48" text-anchor="middle" fill="#9096a8" font-size="10" font-weight="700">사용자</text>
+  <text x="50" y="64" text-anchor="middle" fill="#5a6070" font-size="9">브라우저</text>
+  <line x1="90" y1="50" x2="128" y2="50" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aedge)"/>
+  <rect x="128" y="16" width="160" height="68" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="1"/>
+  <text x="208" y="38" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="700">Edge Runtime</text>
+  <text x="208" y="54" text-anchor="middle" fill="#9096a8" font-size="9">CDN 가까이 · 초고속</text>
+  <text x="208" y="68" text-anchor="middle" fill="#fb7185" font-size="8">Node.js API 사용 불가</text>
+  <line x1="288" y1="50" x2="326" y2="50" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aedge)"/>
+  <rect x="326" y="16" width="170" height="68" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="1"/>
+  <text x="411" y="38" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">Node.js Runtime</text>
+  <text x="411" y="54" text-anchor="middle" fill="#9096a8" font-size="9">원격 서버 · DB 접근 가능</text>
+  <text x="411" y="68" text-anchor="middle" fill="#4ade80" font-size="8">Prisma, fs 모듈 사용 가능</text>
+  <line x1="496" y1="50" x2="534" y2="50" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aedge)"/>
+  <rect x="534" y="28" width="90" height="44" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="579" y="54" text-anchor="middle" fill="#9096a8" font-size="9">DB / 외부 API</text>
+  <rect x="644" y="16" width="106" height="68" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="697" y="34" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="700">흔한 실수</text>
+  <text x="697" y="50" text-anchor="middle" fill="#9096a8" font-size="8">미들웨어에서</text>
+  <text x="697" y="64" text-anchor="middle" fill="#9096a8" font-size="8">Prisma 사용</text>
+  <text x="697" y="78" text-anchor="middle" fill="#fb7185" font-size="8">→ Edge 에러!</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Edge Runtime</h4><ul><li>CDN 가까이 실행 → 초고속</li><li>Node.js API 사용 불가</li><li>미들웨어 기본값</li><li>인증 체크, 리다이렉트에 적합</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">Node.js Runtime</h4><ul><li>원격 서버 실행</li><li>모든 Node.js API 가능</li><li>DB 직접 쿼리 (Prisma 등)</li><li>파일 시스템 접근 가능</li></ul></div>
+</div>
+<div class="warn-box"><div class="tip-l">흔한 실수</div>미들웨어에서 Prisma 쓰다 에러 → Edge에서 Node.js API 호출한 것</div>
+</section><hr class="divider">
+
+<!-- ===== RSC ===== -->
+<section class="term" id="rsc">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="rsc-h">RSC vs RCC <span class="sub">Server Component vs Client Component</span></h2>
+    <div class="links"><a class="link-tag" href="#hydration">Hydration</a><a class="link-tag" href="#fiber">Fiber 아키텍처</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 140" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arsc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="340" height="110" rx="10" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="180" y="44" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="700">서버 (Node.js)</text>
+  <rect x="30" y="56" width="140" height="62" rx="8" fill="#171922" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="100" y="76" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">RSC</text>
+  <text x="100" y="92" text-anchor="middle" fill="#9096a8" font-size="8">서버에서만 실행</text>
+  <text x="100" y="106" text-anchor="middle" fill="#9096a8" font-size="8">DB 직접 접근 가능</text>
+  <text x="100" y="118" text-anchor="middle" fill="#4ade80" font-size="8">번들에 포함 안 됨 ✓</text>
+  <rect x="190" y="56" width="140" height="62" rx="8" fill="#171922" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="260" y="74" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="700">RCC</text>
+  <text x="260" y="90" text-anchor="middle" fill="#9096a8" font-size="8">"use client" 선언</text>
+  <text x="260" y="106" text-anchor="middle" fill="#fbbf24" font-size="8">Hydration 대상</text>
+  <text x="260" y="118" text-anchor="middle" fill="#9096a8" font-size="8">useState/useEffect 가능</text>
+  <line x1="350" y1="80" x2="398" y2="80" stroke="#5a6070" stroke-width="1.5" marker-end="url(#arsc)"/>
+  <rect x="398" y="20" width="352" height="110" rx="10" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="574" y="44" text-anchor="middle" fill="#2dd4bf" font-size="12" font-weight="700">브라우저</text>
+  <rect x="418" y="56" width="140" height="62" rx="8" fill="#171922" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="488" y="76" text-anchor="middle" fill="#5a6070" font-size="11">RSC 결과</text>
+  <text x="488" y="92" text-anchor="middle" fill="#5a6070" font-size="8">HTML로 전달됨</text>
+  <text x="488" y="108" text-anchor="middle" fill="#5a6070" font-size="8">JS 없음</text>
+  <rect x="578" y="56" width="152" height="62" rx="8" fill="#171922" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="654" y="74" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">RCC (Hydrated)</text>
+  <text x="654" y="90" text-anchor="middle" fill="#9096a8" font-size="8">이벤트 핸들러 작동</text>
+  <text x="654" y="106" text-anchor="middle" fill="#9096a8" font-size="8">상태 관리 가능</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--purple)">RSC (Server Component)</h4><ul><li>기본값 (선언 없어도 RSC)</li><li>DB, 파일 시스템 직접 접근</li><li>useState, useEffect 사용 불가</li><li>번들 사이즈에 포함 안 됨 → 성능 유리</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">RCC (Client Component)</h4><ul><li>"use client" 선언 필요</li><li>useState, useEffect 사용 가능</li><li>이벤트 핸들러 사용 가능</li><li>Hydration 대상 → JS 번들에 포함</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">판단 기준</div>상호작용(클릭, 입력, 상태)이 필요하면 RCC. 데이터 fetching·서버 전용 로직은 RSC. 가능하면 RSC 우선 → 번들 사이즈 감소.</div>
+</section><hr class="divider">
+
+<!-- ===== Streaming ===== -->
+<section class="term" id="streaming">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="streaming-h">Streaming + Suspense <span class="sub">점진적 렌더링</span></h2>
+    <div class="links"><a class="link-tag" href="#rsc">RSC</a><a class="link-tag" href="#hydration">Hydration</a></div>
+  </div>
+</div>
+<div class="summary">전체 페이지가 준비될 때까지 기다리지 않고 <strong>준비된 부분부터 즉시 전송</strong>. Suspense로 감싼 컴포넌트는 데이터 준비될 때 채워짐.</div>
+<div class="diagram"><svg viewBox="0 0 760 130" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="350" height="26" rx="5" fill="#fb7185" fill-opacity=".1" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="185" y="27" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">기존 SSR — 전부 준비될 때까지 기다림</text>
+  <rect x="10" y="44" width="350" height="22" rx="5" fill="#2a3040"/>
+  <text x="185" y="59" text-anchor="middle" fill="#5a6070" font-size="9">헤더 + 사이드바 + 느린API + 댓글 다 기다림... (2초)</text>
+  <rect x="10" y="76" width="350" height="22" rx="5" fill="#2dd4bf" fill-opacity=".3"/>
+  <text x="185" y="91" text-anchor="middle" fill="#2dd4bf" font-size="9">→ 2초 후 한번에 전체 화면 표시</text>
+  <rect x="400" y="10" width="350" height="26" rx="5" fill="#4ade80" fill-opacity=".1" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="575" y="27" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">Streaming — 준비된 것부터 즉시 전송</text>
+  <rect x="400" y="44" width="140" height="20" rx="4" fill="#4ade80" fill-opacity=".3"/>
+  <text x="470" y="58" text-anchor="middle" fill="#4ade80" font-size="9">헤더 (즉시)</text>
+  <rect x="548" y="44" width="194" height="20" rx="4" fill="#4ade80" fill-opacity=".3"/>
+  <text x="645" y="58" text-anchor="middle" fill="#4ade80" font-size="9">사이드바 (즉시)</text>
+  <rect x="400" y="72" width="140" height="20" rx="4" fill="#2a3040" stroke="#fbbf24" stroke-width="0.5" stroke-dasharray="3 2"/>
+  <text x="470" y="86" text-anchor="middle" fill="#fbbf24" font-size="9">느린API (로딩중)</text>
+  <rect x="548" y="72" width="194" height="20" rx="4" fill="#2a3040" stroke="#fbbf24" stroke-width="0.5" stroke-dasharray="3 2"/>
+  <text x="645" y="86" text-anchor="middle" fill="#fbbf24" font-size="9">댓글 (로딩중)</text>
+  <rect x="400" y="100" width="350" height="22" rx="4" fill="#4ade80" fill-opacity=".2"/>
+  <text x="575" y="115" text-anchor="middle" fill="#4ade80" font-size="9">2초 후 → Suspense fallback 대체</text>
+</svg></div>
+<div class="flow">
+<div class="lbl">Next.js 사용법</div>
+&lt;<span class="hi">Suspense</span> fallback={&lt;Skeleton /&gt;}&gt;
+  &lt;<span class="hi">SlowDataComponent</span> /&gt;  <span class="ok">// 2초 걸리는 API</span>
+&lt;/Suspense&gt;
+<span class="ok">// 나머지 페이지는 즉시 표시, SlowDataComponent만 나중에 채워짐</span>
+</div>
+</section><hr class="divider">
+
+<!-- ===== CORS ===== -->
+<section class="term" id="cors">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="cors-h">CORS <span class="sub">교차 출처 리소스 공유</span></h2>
+    <div class="links"><a class="link-tag" href="#token">Token 저장 전략</a><a class="link-tag" href="#csrf">CSRF·SameSite</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="acors" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="acorsr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="14" width="330" height="22" rx="5" fill="#4ade80" fill-opacity=".1" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="175" y="29" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">Same-Origin — 허용 ✓</text>
+  <rect x="10" y="44" width="100" height="30" rx="6" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="60" y="63" text-anchor="middle" fill="#9096a8" font-size="9">app.com (브라우저)</text>
+  <line x1="110" y1="59" x2="148" y2="59" stroke="#4ade80" stroke-width="1.5" marker-end="url(#acors)"/>
+  <rect x="148" y="44" width="192" height="30" rx="6" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="244" y="63" text-anchor="middle" fill="#4ade80" font-size="9">app.com/api (같은 출처)</text>
+  <rect x="400" y="14" width="350" height="22" rx="5" fill="#fb7185" fill-opacity=".1" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="575" y="29" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">Cross-Origin — 차단 ✗</text>
+  <rect x="400" y="44" width="110" height="30" rx="6" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="455" y="63" text-anchor="middle" fill="#9096a8" font-size="9">app.com (브라우저)</text>
+  <line x1="510" y1="59" x2="548" y2="59" stroke="#fb7185" stroke-width="1.5" marker-end="url(#acorsr)"/>
+  <rect x="548" y="44" width="202" height="30" rx="6" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="649" y="63" text-anchor="middle" fill="#fb7185" font-size="9">api.other.com (다른 출처)</text>
+  <text x="380" y="96" text-anchor="middle" fill="#9096a8" font-size="9">해결: 백엔드가 Access-Control-Allow-Origin 헤더 추가. 브라우저 보안 정책 — 서버끼리 통신엔 없음</text>
+</svg></div>
+<div class="summary">브라우저가 <strong>다른 출처(Origin)의 API 요청을 기본으로 차단</strong>하는 보안 정책. 서버끼리 통신에는 없음.<br>해결: 백엔드가 <code>Access-Control-Allow-Origin</code> 헤더 추가.</div>
+</section><hr class="divider">
+
+<!-- ===== Token ===== -->
+<section class="term" id="token">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="token-h">Token 저장 전략 <span class="sub">Cookie vs LocalStorage</span></h2>
+    <div class="links"><a class="link-tag" href="#oauth">OAuth·OIDC</a><a class="link-tag" href="#csrf">CSRF·SameSite</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="14" width="350" height="22" rx="5" fill="#fb7185" fill-opacity=".1" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="185" y="29" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">LocalStorage ⚠ — XSS에 취약</text>
+  <rect x="10" y="44" width="110" height="46" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="65" y="62" text-anchor="middle" fill="#9096a8" font-size="8">악성 JS</text>
+  <text x="65" y="76" text-anchor="middle" fill="#fb7185" font-size="8">localStorage 접근</text>
+  <text x="65" y="88" text-anchor="middle" fill="#fb7185" font-size="8">→ 토큰 훔침 😱</text>
+  <rect x="130" y="44" width="120" height="46" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="190" y="62" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">LocalStorage</text>
+  <text x="190" y="78" text-anchor="middle" fill="#9096a8" font-size="8">JWT 저장</text>
+  <text x="190" y="90" text-anchor="middle" fill="#fb7185" font-size="8">JS 접근 가능 ⚠</text>
+  <rect x="400" y="14" width="350" height="22" rx="5" fill="#4ade80" fill-opacity=".1" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="575" y="29" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">HttpOnly Cookie ✓ — JS 접근 불가</text>
+  <rect x="400" y="44" width="130" height="46" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="465" y="62" text-anchor="middle" fill="#9096a8" font-size="8">악성 JS</text>
+  <text x="465" y="76" text-anchor="middle" fill="#9096a8" font-size="8">document.cookie</text>
+  <text x="465" y="88" text-anchor="middle" fill="#4ade80" font-size="8">→ 접근 불가 ✓</text>
+  <rect x="540" y="44" width="160" height="46" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="620" y="60" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">HttpOnly Cookie</text>
+  <text x="620" y="76" text-anchor="middle" fill="#9096a8" font-size="8">서버만 읽을 수 있음</text>
+  <text x="620" y="88" text-anchor="middle" fill="#4ade80" font-size="8">XSS로 훔칠 수 없음 ✓</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">LocalStorage ⚠</h4><ul><li>JS로 자유롭게 읽기 가능</li><li>XSS 공격 시 토큰 탈취 가능</li><li>악성 스크립트가 <code>getItem</code>으로 훔쳐감</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">HttpOnly Cookie ✓</h4><ul><li>JS에서 접근 불가</li><li>서버만 읽을 수 있음</li><li>XSS로 훔칠 수 없음</li><li>CSRF 주의 → SameSite로 완화</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== OAuth ===== -->
+<section class="term" id="oauth">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="oauth-h">OAuth 2.0 / OIDC <span class="sub">인증·인가 프로토콜</span></h2>
+    <div class="links"><a class="link-tag" href="#token">Token 저장 전략</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 140" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="aoauth" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="aoauthg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="aoauthy" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <line x1="60" y1="20" x2="60" y2="130" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="350" y1="20" x2="350" y2="130" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="620" y1="20" x2="620" y2="130" stroke="#2a3040" stroke-width="1.5"/>
+  <text x="60" y="16" text-anchor="middle" fill="#5a6070" font-size="9">브라우저</text>
+  <text x="350" y="16" text-anchor="middle" fill="#5a6070" font-size="9">IdP (SaaSOps)</text>
+  <text x="620" y="16" text-anchor="middle" fill="#5a6070" font-size="9">백엔드 서버</text>
+  <line x1="60" y1="32" x2="346" y2="32" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aoauth)"/>
+  <text x="205" y="28" text-anchor="middle" fill="#9096a8" font-size="8">① 로그인 요청</text>
+  <line x1="346" y1="46" x2="64" y2="46" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#aoauthy)"/>
+  <text x="205" y="58" text-anchor="middle" fill="#fbbf24" font-size="8">② 로그인 화면 리다이렉트</text>
+  <line x1="60" y1="68" x2="346" y2="68" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aoauth)"/>
+  <text x="205" y="64" text-anchor="middle" fill="#9096a8" font-size="8">③ 인증</text>
+  <line x1="346" y1="80" x2="64" y2="80" stroke="#4ade80" stroke-width="1.5" marker-end="url(#aoauthg)"/>
+  <text x="205" y="76" text-anchor="middle" fill="#4ade80" font-size="8">④ Authorization Code 발급</text>
+  <line x1="60" y1="92" x2="616" y2="92" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aoauth)"/>
+  <text x="340" y="88" text-anchor="middle" fill="#9096a8" font-size="8">⑤ Code → 백엔드 전달</text>
+  <line x1="616" y1="104" x2="354" y2="104" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aoauth)"/>
+  <text x="483" y="100" text-anchor="middle" fill="#9096a8" font-size="8">⑥ Code → Access Token 교환</text>
+  <line x1="616" y1="118" x2="64" y2="118" stroke="#4ade80" stroke-width="1.5" marker-end="url(#aoauthg)"/>
+  <text x="340" y="132" text-anchor="middle" fill="#4ade80" font-size="8">⑦ 세션 쿠키 발급 (로그인 완료)</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">OAuth 2.0</h4><ul><li>권한 위임(Authorization) 프로토콜</li><li>"이 앱이 내 데이터에 접근해도 돼"</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">OIDC</h4><ul><li>OAuth 위에 인증(Authentication) 레이어</li><li>"이 사람이 누구인지" 신원 확인</li></ul></div>
+</div>
+<div class="flow">
+<div class="lbl">Authorization Code Flow</div>
+① 브라우저 → IdP: 로그인 요청<br>② IdP → 브라우저: <span class="hi">Authorization Code</span> 발급<br>③ 브라우저 → 백엔드: Code 전달<br>④ 백엔드 → IdP: Code → <span class="hi">Access Token</span> 교환<br>⑤ 백엔드 → 브라우저: 세션 쿠키 발급
+</div>
+<div class="tip"><div class="tip-l">SaaSOps와 연결</div>SaaSOps가 IdP 역할 → PBU 전체 SSO를 SaaSOps IdP가 공급. 템플릿 C-3에 쓴 근거.</div>
+</section><hr class="divider">
+
+<!-- ===== CSRF ===== -->
+<section class="term" id="csrf">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="csrf-h">CSRF + SameSite <span class="sub">쿠키 보안</span></h2>
+  </div>
+</div>
+<div class="summary"><strong>CSRF</strong> — 로그인된 사용자 모르게 악성 사이트에서 요청을 보내는 공격. 브라우저가 쿠키를 자동으로 보내는 것을 악용.</div>
+<div class="diagram"><svg viewBox="0 0 760 130" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="acsrf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="acsrfr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <line x1="60" y1="16" x2="60" y2="110" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="300" y1="16" x2="300" y2="110" stroke="#2a3040" stroke-width="1.5"/>
+  <line x1="560" y1="16" x2="560" y2="110" stroke="#2a3040" stroke-width="1.5"/>
+  <text x="60" y="12" text-anchor="middle" fill="#5a6070" font-size="9">사용자</text>
+  <text x="300" y="12" text-anchor="middle" fill="#5a6070" font-size="9">악성 사이트</text>
+  <text x="560" y="12" text-anchor="middle" fill="#5a6070" font-size="9">정상 서버</text>
+  <line x1="60" y1="30" x2="296" y2="30" stroke="#5a6070" stroke-width="1.5" marker-end="url(#acsrf)"/>
+  <text x="180" y="26" text-anchor="middle" fill="#9096a8" font-size="8">evil.com 방문</text>
+  <line x1="296" y1="50" x2="64" y2="50" stroke="#fb7185" stroke-width="1.5" marker-end="url(#acsrfr)"/>
+  <text x="180" y="46" text-anchor="middle" fill="#fb7185" font-size="8">숨겨진 폼 자동 실행</text>
+  <line x1="60" y1="70" x2="556" y2="70" stroke="#fb7185" stroke-width="1.5" marker-end="url(#acsrfr)"/>
+  <text x="310" y="66" text-anchor="middle" fill="#fb7185" font-size="8">쿠키 자동 포함 → 계좌이체 요청!</text>
+  <line x1="556" y1="90" x2="64" y2="90" stroke="#9096a8" stroke-width="1" marker-end="url(#acsrf)"/>
+  <text x="310" y="110" text-anchor="middle" fill="#9096a8" font-size="8">정상 요청으로 처리 😱 → SameSite=Lax 설정으로 방어</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4>Strict</h4><ul><li>다른 사이트 요청엔 쿠키 절대 안 보냄</li><li>가장 안전, UX 불편</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">Lax (기본값)</h4><ul><li>링크 클릭 등 GET만 허용</li><li>POST 차단, 일반적으로 권장</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">None</h4><ul><li>모든 요청에 쿠키 포함</li><li>CSRF 취약, Secure 필수</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Web Vitals ===== -->
+<section class="term" id="web-vitals">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="web-vitals-h">Core Web Vitals <span class="sub">LCP · INP · CLS</span></h2>
+    <div class="links"><a class="link-tag" href="#rum">Datadog RUM</a><a class="link-tag" href="#lighthouse-ci">Lighthouse CI</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 110" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="230" height="90" rx="10" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="125" y="34" text-anchor="middle" fill="#2dd4bf" font-size="18" font-weight="700">LCP</text>
+  <text x="125" y="50" text-anchor="middle" fill="#5a6070" font-size="8">Largest Contentful Paint</text>
+  <text x="125" y="66" text-anchor="middle" fill="#9096a8" font-size="9">가장 큰 콘텐츠가 그려지는 시간</text>
+  <text x="125" y="82" text-anchor="middle" fill="#4ade80" font-size="8">✓ 2.5s 이하</text>
+  <text x="125" y="94" text-anchor="middle" fill="#fb7185" font-size="8">✗ 4.0s 초과</text>
+  <rect x="265" y="10" width="230" height="90" rx="10" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="380" y="34" text-anchor="middle" fill="#a78bfa" font-size="18" font-weight="700">INP</text>
+  <text x="380" y="50" text-anchor="middle" fill="#5a6070" font-size="8">Interaction to Next Paint</text>
+  <text x="380" y="66" text-anchor="middle" fill="#9096a8" font-size="9">인터랙션 후 화면 업데이트 시간</text>
+  <text x="380" y="82" text-anchor="middle" fill="#4ade80" font-size="8">✓ 200ms 이하</text>
+  <text x="380" y="94" text-anchor="middle" fill="#fb7185" font-size="8">✗ 500ms 초과</text>
+  <rect x="520" y="10" width="230" height="90" rx="10" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="635" y="34" text-anchor="middle" fill="#fbbf24" font-size="18" font-weight="700">CLS</text>
+  <text x="635" y="50" text-anchor="middle" fill="#5a6070" font-size="8">Cumulative Layout Shift</text>
+  <text x="635" y="66" text-anchor="middle" fill="#9096a8" font-size="9">콘텐츠가 밀려나는 정도</text>
+  <text x="635" y="82" text-anchor="middle" fill="#4ade80" font-size="8">✓ 0.1 이하</text>
+  <text x="635" y="94" text-anchor="middle" fill="#fb7185" font-size="8">✗ 0.25 초과</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--teal)">LCP</h4><ul><li>가장 큰 콘텐츠가 그려지는 시간</li><li>✓ 2.5s 이하</li><li>히어로 이미지, 큰 텍스트</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">INP</h4><ul><li>인터랙션 후 화면 업데이트 시간</li><li>✓ 200ms 이하</li><li>버튼 누르고 반응까지</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">CLS</h4><ul><li>콘텐츠가 밀려나는 정도</li><li>✓ 0.1 이하</li><li>이미지 크기 미지정 시 발생</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Code Splitting ===== -->
+<section class="term" id="code-splitting">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="code-splitting-h">Code Splitting + Lazy Loading <span class="sub">번들 분할</span></h2>
+    <div class="links"><a class="link-tag" href="#tree-shaking">Tree Shaking</a></div>
+  </div>
+</div>
+<div class="summary">초기 로딩에 필요한 코드만 먼저 다운로드하고, 나머지는 <strong>필요할 때 동적으로 가져오는 패턴</strong>.</div>
+<div class="diagram"><svg viewBox="0 0 760 110" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="14" width="330" height="26" rx="5" fill="#fb7185" fill-opacity=".1" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="175" y="31" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">분할 전 — 전체를 한 번에</text>
+  <rect x="10" y="48" width="330" height="48" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="175" y="68" text-anchor="middle" fill="#fb7185" font-size="11">main.js (2.4MB)</text>
+  <text x="175" y="84" text-anchor="middle" fill="#9096a8" font-size="9">홈 + 대시보드 + 설정 + 차트 라이브러리 전부</text>
+  <text x="175" y="98" text-anchor="middle" fill="#fb7185" font-size="8">초기 로딩 느림 ⚠</text>
+  <rect x="400" y="14" width="350" height="26" rx="5" fill="#4ade80" fill-opacity=".1" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="575" y="31" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">분할 후 — 필요할 때만</text>
+  <rect x="400" y="48" width="100" height="48" rx="6" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="450" y="68" text-anchor="middle" fill="#4ade80" font-size="9">main.js</text>
+  <text x="450" y="82" text-anchor="middle" fill="#5a6070" font-size="8">400KB</text>
+  <text x="450" y="94" text-anchor="middle" fill="#4ade80" font-size="7">즉시 로딩</text>
+  <rect x="508" y="48" width="110" height="48" rx="6" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="563" y="66" text-anchor="middle" fill="#fbbf24" font-size="8">dashboard.js</text>
+  <text x="563" y="80" text-anchor="middle" fill="#5a6070" font-size="8">800KB</text>
+  <text x="563" y="94" text-anchor="middle" fill="#5a6070" font-size="7">페이지 진입 시</text>
+  <rect x="626" y="48" width="120" height="48" rx="6" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="686" y="66" text-anchor="middle" fill="#a78bfa" font-size="8">chart-lib.js</text>
+  <text x="686" y="80" text-anchor="middle" fill="#5a6070" font-size="8">1.2MB</text>
+  <text x="686" y="94" text-anchor="middle" fill="#5a6070" font-size="7">차트 열 때만</text>
+</svg></div>
+<div class="flow">
+<div class="lbl">React에서 구현</div>
+<span class="hi">const</span> Dashboard = React.<span class="hi">lazy</span>(() => import('./Dashboard'))
+&lt;<span class="hi">Suspense</span> fallback={&lt;Spinner /&gt;}&gt;
+  &lt;<span class="hi">Dashboard</span> /&gt;  <span class="ok">// 대시보드 진입 시에만 다운로드</span>
+&lt;/Suspense&gt;
+</div>
+</section><hr class="divider">
+
+<!-- ===== Tree Shaking ===== -->
+<section class="term" id="tree-shaking">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="tree-shaking-h">Tree Shaking <span class="sub">사용하지 않는 코드 제거</span></h2>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 90" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="16" width="300" height="58" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="160" y="36" text-anchor="middle" fill="#9096a8" font-size="9">라이브러리 전체 (lodash 100KB)</text>
+  <rect x="24" y="44" width="58" height="20" rx="4" fill="#4ade80" fill-opacity=".3"/><text x="53" y="58" text-anchor="middle" fill="#4ade80" font-size="8">debounce ✓</text>
+  <rect x="90" y="44" width="56" height="20" rx="4" fill="#2a3040"/><text x="118" y="58" text-anchor="middle" fill="#5a6070" font-size="8">merge</text>
+  <rect x="154" y="44" width="50" height="20" rx="4" fill="#2a3040"/><text x="179" y="58" text-anchor="middle" fill="#5a6070" font-size="8">chunk</text>
+  <rect x="212" y="44" width="58" height="20" rx="4" fill="#2a3040"/><text x="241" y="58" text-anchor="middle" fill="#5a6070" font-size="8">flatten</text>
+  <text x="340" y="50" text-anchor="middle" fill="#2dd4bf" font-size="18">→</text>
+  <text x="340" y="66" text-anchor="middle" fill="#5a6070" font-size="8">Tree Shaking</text>
+  <rect x="380" y="16" width="360" height="58" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="560" y="36" text-anchor="middle" fill="#4ade80" font-size="9">번들 결과 (사용한 것만)</text>
+  <rect x="394" y="44" width="80" height="20" rx="4" fill="#4ade80" fill-opacity=".3"/><text x="434" y="58" text-anchor="middle" fill="#4ade80" font-size="8">debounce만 포함</text>
+  <text x="560" y="58" text-anchor="middle" fill="#9096a8" font-size="8">나머지 97KB 제거 → 3KB ✓</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">Tree Shaking 안 되는 경우</h4><ul><li><code>import _ from 'lodash'</code> (전체 import)</li><li>CommonJS 모듈 (require)</li><li>Side effect 있는 코드</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">Tree Shaking 잘 되는 경우</h4><ul><li><code>import { debounce } from 'lodash-es'</code></li><li>ESM 모듈 (import/export)</li><li>Named export 사용</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Memoization ===== -->
+<section class="term" id="memoization">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="memoization-h">Memoization <span class="sub">useMemo · useCallback · React.memo</span></h2>
+    <div class="links"><a class="link-tag" href="#reconciliation">Reconciliation</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="amemo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linecap="round"/></marker>
+  <marker id="amemog" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="180" height="62" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="100" y="40" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="700">부모 리렌더링</text>
+  <rect x="20" y="50" width="160" height="24" rx="5" fill="#2a3040"/>
+  <text x="100" y="66" text-anchor="middle" fill="#9096a8" font-size="9">자식도 리렌더링 😱</text>
+  <text x="210" y="52" text-anchor="middle" fill="#2dd4bf" font-size="18">→</text>
+  <rect x="240" y="20" width="220" height="62" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="350" y="40" text-anchor="middle" fill="#4ade80" font-size="9" font-weight="700">React.memo 적용</text>
+  <rect x="250" y="50" width="200" height="24" rx="5" fill="#4ade80" fill-opacity=".2"/>
+  <text x="350" y="66" text-anchor="middle" fill="#4ade80" font-size="9">props 같으면 리렌더링 스킵 ✓</text>
+  <rect x="490" y="10" width="260" height="80" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="620" y="30" text-anchor="middle" fill="#e8eaf0" font-size="9" font-weight="700">언제 쓸지 판단</div>
+  <text x="620" y="48" text-anchor="middle" fill="#fbbf24" font-size="8">useMemo — 계산 비용 클 때</text>
+  <text x="620" y="62" text-anchor="middle" fill="#a78bfa" font-size="8">useCallback — 자식에 함수 전달 시</text>
+  <text x="620" y="76" text-anchor="middle" fill="#fb7185" font-size="8">남용 주의 — 먼저 측정하고 최적화</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--purple)">React.memo</h4><ul><li>컴포넌트를 메모이제이션</li><li>props가 바뀌지 않으면 리렌더링 스킵</li><li>무거운 리스트 아이템에 적합</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">useMemo</h4><ul><li>계산된 값을 메모이제이션</li><li>의존성 바뀔 때만 재계산</li><li>대용량 데이터 필터링·정렬</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">useCallback</h4><ul><li>함수를 메모이제이션</li><li>자식에게 함수 prop 전달 시 유용</li><li>React.memo와 함께 사용</li></ul></div>
+</div>
+<div class="warn-box"><div class="tip-l">남용 주의</div>메모이제이션 자체도 비용. 실제 성능 병목이 있을 때만 적용. 먼저 측정하고, 그다음 최적화.</div>
+</section><hr class="divider">
+
+<!-- ===== CRP ===== -->
+<section class="term" id="crp">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="crp-h">Critical Rendering Path <span class="sub">브라우저가 화면을 그리는 과정</span></h2>
+    <div class="links"><a class="link-tag" href="#reflow">Reflow·Repaint</a><a class="link-tag" href="#render-pipeline">렌더링 파이프라인</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="acrp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="100" height="40" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/><text x="60" y="38" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="700">HTML 파싱</text><text x="60" y="52" text-anchor="middle" fill="#9096a8" font-size="9">DOM 트리</text>
+  <line x1="110" y1="40" x2="128" y2="40" stroke="#5a6070" stroke-width="1" marker-end="url(#acrp)"/>
+  <rect x="128" y="20" width="100" height="40" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/><text x="178" y="38" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700">CSS 파싱</text><text x="178" y="52" text-anchor="middle" fill="#9096a8" font-size="9">CSSOM</text>
+  <line x1="228" y1="40" x2="246" y2="40" stroke="#5a6070" stroke-width="1" marker-end="url(#acrp)"/>
+  <rect x="246" y="20" width="110" height="40" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="301" y="38" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">Render Tree</text><text x="301" y="52" text-anchor="middle" fill="#9096a8" font-size="9">DOM + CSSOM</text>
+  <line x1="356" y1="40" x2="374" y2="40" stroke="#5a6070" stroke-width="1" marker-end="url(#acrp)"/>
+  <rect x="374" y="20" width="90" height="40" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/><text x="419" y="38" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">Layout</text><text x="419" y="52" text-anchor="middle" fill="#9096a8" font-size="9">위치·크기 계산</text>
+  <line x1="464" y1="40" x2="482" y2="40" stroke="#5a6070" stroke-width="1" marker-end="url(#acrp)"/>
+  <rect x="482" y="20" width="90" height="40" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/><text x="527" y="38" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">Paint</text><text x="527" y="52" text-anchor="middle" fill="#9096a8" font-size="9">픽셀 채우기</text>
+  <line x1="572" y1="40" x2="590" y2="40" stroke="#5a6070" stroke-width="1" marker-end="url(#acrp)"/>
+  <rect x="590" y="20" width="110" height="40" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/><text x="645" y="38" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">Composite</text><text x="645" y="52" text-anchor="middle" fill="#9096a8" font-size="9">레이어 합성 (GPU)</text>
+</svg></div>
+<div class="tip"><div class="tip-l">최적화 포인트</div>CSS는 렌더링 블로킹 리소스. <code>script</code>는 defer/async. 크리티컬 CSS 인라인화 → LCP 개선.</div>
+</section><hr class="divider">
+
+<!-- ===== Reflow / Repaint ===== -->
+<section class="term" id="reflow">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="reflow-h">Reflow + Repaint <span class="sub">렌더링 성능</span></h2>
+    <div class="links"><a class="link-tag" href="#crp">Critical Rendering Path</a><a class="link-tag" href="#compositor">Compositor Layer</a></div>
+  </div>
+</div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">Reflow (비쌈)</h4><ul><li>요소의 위치·크기 재계산</li><li>width, height, margin, top 변경 시</li><li>DOM 추가·제거 시</li><li>전체 렌더 트리 영향 → 느림</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Repaint (상대적으로 쌈)</h4><ul><li>레이아웃 변경 없이 시각적 속성만 변경</li><li>color, background, border-color 변경 시</li><li>Reflow는 항상 Repaint를 유발</li></ul></div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 90" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="340" height="70" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="180" y="30" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">Reflow 유발 속성 (비쌈)</text>
+  <text x="180" y="48" text-anchor="middle" fill="#9096a8" font-size="9">width · height · margin · padding · top · left</text>
+  <text x="180" y="64" text-anchor="middle" fill="#9096a8" font-size="8">변경 시 → Layout → Paint → Composite 전체 재실행</text>
+  <rect x="410" y="10" width="340" height="70" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="580" y="30" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">Composite만 (저렴)</text>
+  <text x="580" y="48" text-anchor="middle" fill="#9096a8" font-size="9">transform · opacity</text>
+  <text x="580" y="64" text-anchor="middle" fill="#9096a8" font-size="8">GPU에서 처리 → Reflow/Repaint 없음 → 60fps</text>
+</svg></div>
+<div class="flow">
+<div class="lbl">최소화 방법</div>
+<span class="warn">// ✗ 매번 Reflow</span>
+el.style.width = '100px'; el.style.height = '200px'
+
+<span class="ok">// ✓ 클래스로 한번에</span>
+el.classList.add('expanded')
+
+<span class="ok">// ✓ transform은 Reflow 없이 GPU 처리 → CLS 영향 없음</span>
+el.style.transform = 'translateX(100px)'
+</div>
+</section><hr class="divider">
+
+<!-- ===== 렌더링 파이프라인 ===== -->
+<section class="term" id="render-pipeline">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="render-pipeline-h">렌더링 파이프라인 <span class="sub">브라우저 내부 동작</span></h2>
+    <div class="links"><a class="link-tag" href="#compositor">Compositor Layer</a><a class="link-tag" href="#crp">Critical Rendering Path</a><a class="link-tag" href="#main-thread">메인 스레드 최적화</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <!-- 메인 스레드 -->
+  <rect x="10" y="10" width="740" height="100" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="20" y="30" fill="#a78bfa" font-size="10" font-weight="700">메인 스레드 (Main Thread)</text>
+  <rect x="20" y="38" width="100" height="36" rx="5" fill="#171922" stroke="#60a5fa" stroke-width="0.5"/><text x="70" y="58" text-anchor="middle" fill="#60a5fa" font-size="10">JavaScript</text>
+  <line x1="120" y1="56" x2="138" y2="56" stroke="#5a6070" stroke-width="1" marker-end="url(#arp)"/>
+  <rect x="138" y="38" width="100" height="36" rx="5" fill="#171922" stroke="#fbbf24" stroke-width="0.5"/><text x="188" y="58" text-anchor="middle" fill="#fbbf24" font-size="10">Style</text>
+  <line x1="238" y1="56" x2="256" y2="56" stroke="#5a6070" stroke-width="1" marker-end="url(#arp)"/>
+  <rect x="256" y="38" width="100" height="36" rx="5" fill="#171922" stroke="#fb7185" stroke-width="0.5"/><text x="306" y="58" text-anchor="middle" fill="#fb7185" font-size="10">Layout</text>
+  <line x1="356" y1="56" x2="374" y2="56" stroke="#5a6070" stroke-width="1" marker-end="url(#arp)"/>
+  <rect x="374" y="38" width="100" height="36" rx="5" fill="#171922" stroke="#fb7185" stroke-width="0.5"/><text x="424" y="58" text-anchor="middle" fill="#fb7185" font-size="10">Paint</text>
+  <line x1="474" y1="56" x2="492" y2="56" stroke="#5a6070" stroke-width="1" marker-end="url(#arp)"/>
+  <rect x="492" y="38" width="120" height="36" rx="5" fill="#171922" stroke="#2dd4bf" stroke-width="0.5"/><text x="552" y="58" text-anchor="middle" fill="#2dd4bf" font-size="10">Composite Record</text>
+  <!-- 컴포지터 스레드 -->
+  <rect x="10" y="120" width="740" height="60" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="20" y="140" fill="#4ade80" font-size="10" font-weight="700">컴포지터 스레드 (GPU Process)</text>
+  <rect x="20" y="148" width="200" height="24" rx="5" fill="#171922" stroke="#4ade80" stroke-width="0.5"/><text x="120" y="164" text-anchor="middle" fill="#4ade80" font-size="10">Composite Layers (GPU)</text>
+  <text x="240" y="164" fill="#9096a8" font-size="9">← transform, opacity는 여기서만 처리 → 메인 스레드 건드리지 않음 → 60fps 유지 가능</text>
+  <!-- 핵심 포인트 -->
+  <text x="380" y="195" text-anchor="middle" fill="#5a6070" font-size="9">JS 실행이 길어지면 Style~Paint가 밀림 → 프레임 드랍 → INP 악화</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">메인 스레드에서 일어나는 것</h4><ul><li>JavaScript 실행</li><li>Style 계산 (CSS 적용)</li><li>Layout (위치·크기)</li><li>Paint (픽셀 기록)</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">컴포지터 스레드에서 일어나는 것</h4><ul><li>레이어 합성 (GPU)</li><li>transform, opacity 애니메이션</li><li>스크롤 (메인 스레드 없이 가능)</li><li>메인 스레드 블로킹 없이 60fps</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무 적용</div>애니메이션은 <code>transform</code>/<code>opacity</code>만 써야 컴포지터 스레드에서 처리됨. <code>width</code>/<code>height</code> 애니메이션은 매 프레임마다 Layout + Paint → 버벅임.</div>
+</section><hr class="divider">
+
+<!-- ===== Compositor Layer ===== -->
+<section class="term" id="compositor">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="compositor-h">Compositor Layer <span class="sub">레이어 분리</span></h2>
+    <div class="links"><a class="link-tag" href="#render-pipeline">렌더링 파이프라인</a><a class="link-tag" href="#reflow">Reflow·Repaint</a></div>
+  </div>
+</div>
+<div class="summary">브라우저가 특정 요소를 <strong>별도 레이어로 분리해서 GPU에서 독립적으로 합성</strong>하는 것. 메인 스레드 없이 애니메이션 가능.</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="16" width="740" height="30" rx="6" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="380" y="28" text-anchor="middle" fill="#9096a8" font-size="9">일반 요소 (레이어 없음) — 메인 스레드에서 Paint</text>
+  <text x="380" y="40" text-anchor="middle" fill="#5a6070" font-size="8">변경 시 → Layout → Paint → Composite 전부 재실행</text>
+  <rect x="10" y="56" width="500" height="30" rx="6" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="255" y="68" text-anchor="middle" fill="#4ade80" font-size="9">Compositor Layer (transform/will-change 적용)</text>
+  <text x="255" y="80" text-anchor="middle" fill="#9096a8" font-size="8">GPU에서 독립적으로 합성 → 메인 스레드 블로킹 없이 60fps</text>
+  <rect x="530" y="56" width="220" height="30" rx="6" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="640" y="68" text-anchor="middle" fill="#fbbf24" font-size="9">레이어 과다 주의</text>
+  <text x="640" y="80" text-anchor="middle" fill="#5a6070" font-size="8">메모리 낭비 → 필요한 곳만</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">레이어 생성 조건</h4><ul><li><code>transform: translateZ(0)</code> (레이어 강제 생성)</li><li><code>will-change: transform</code></li><li><code>position: fixed</code></li><li><code>video</code>, <code>canvas</code> 요소</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">주의사항</h4><ul><li>레이어가 너무 많으면 메모리 낭비</li><li>불필요한 <code>will-change</code> 남용 금지</li><li>Chrome DevTools Layers 패널로 확인</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== 이벤트 루프 ===== -->
+<section class="term" id="event-loop">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="event-loop-h">이벤트 루프 <span class="sub">JavaScript 비동기 동작 원리</span></h2>
+    <div class="links"><a class="link-tag" href="#main-thread">메인 스레드 최적화</a><a class="link-tag" href="#gc">가비지 컬렉션</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 160" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ael" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="140" height="120" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="80" y="40" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">Call Stack</text>
+  <rect x="20" y="48" width="120" height="22" rx="4" fill="#a78bfa" fill-opacity=".3"/><text x="80" y="63" text-anchor="middle" fill="#a78bfa" font-size="9">현재 실행 중인 함수</text>
+  <rect x="20" y="76" width="120" height="22" rx="4" fill="#2a3040"/><text x="80" y="91" text-anchor="middle" fill="#5a6070" font-size="9">이전 함수</text>
+  <rect x="20" y="104" width="120" height="22" rx="4" fill="#2a3040"/><text x="80" y="119" text-anchor="middle" fill="#5a6070" font-size="9">더 이전 함수</text>
+  <line x1="150" y1="80" x2="188" y2="80" stroke="#5a6070" stroke-width="1.5" marker-end="url(#ael)"/>
+  <rect x="188" y="20" width="150" height="120" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="263" y="40" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="700">Web APIs</text>
+  <rect x="198" y="52" width="130" height="20" rx="4" fill="#60a5fa" fill-opacity=".2"/><text x="263" y="66" text-anchor="middle" fill="#60a5fa" font-size="9">setTimeout (타이머)</text>
+  <rect x="198" y="78" width="130" height="20" rx="4" fill="#60a5fa" fill-opacity=".2"/><text x="263" y="92" text-anchor="middle" fill="#60a5fa" font-size="9">fetch (네트워크)</text>
+  <rect x="198" y="104" width="130" height="20" rx="4" fill="#60a5fa" fill-opacity=".2"/><text x="263" y="118" text-anchor="middle" fill="#60a5fa" font-size="9">DOM 이벤트</text>
+  <line x1="338" y1="60" x2="376" y2="50" stroke="#fbbf24" stroke-width="1" marker-end="url(#ael)"/>
+  <line x1="338" y1="100" x2="376" y2="110" stroke="#4ade80" stroke-width="1" marker-end="url(#ael)"/>
+  <rect x="376" y="20" width="150" height="50" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="451" y="40" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">Task Queue</text>
+  <text x="451" y="58" text-anchor="middle" fill="#9096a8" font-size="9">setTimeout, 이벤트 핸들러</text>
+  <rect x="376" y="90" width="150" height="50" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="451" y="108" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">Microtask Queue</text>
+  <text x="451" y="124" text-anchor="middle" fill="#9096a8" font-size="9">Promise.then, async/await</text>
+  <text x="451" y="136" text-anchor="middle" fill="#4ade80" font-size="8">Task보다 먼저 처리!</text>
+  <rect x="560" y="55" width="130" height="50" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="1"/>
+  <text x="625" y="75" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="700">이벤트 루프</text>
+  <text x="625" y="92" text-anchor="middle" fill="#9096a8" font-size="9">Stack 비면 Queue에서 가져옴</text>
+  <path d="M625 55 Q625 10 80 10 Q80 20 80 20" fill="none" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#ael)"/>
+  <line x1="526" y1="45" x2="558" y2="68" stroke="#fbbf24" stroke-width="1" marker-end="url(#ael)"/>
+  <line x1="526" y1="115" x2="558" y2="92" stroke="#4ade80" stroke-width="1" marker-end="url(#ael)"/>
+</svg></div>
+<div class="flow">
+<div class="lbl">실행 순서 예시</div>
+console.log('1')  <span class="ok">// Call Stack → 즉시</span>
+setTimeout(() => console.log('2'), 0)  <span class="warn">// Task Queue</span>
+Promise.resolve().then(() => console.log('3'))  <span class="hi">// Microtask Queue</span>
+console.log('4')  <span class="ok">// Call Stack → 즉시</span>
+
+<span class="ok">// 출력: 1 → 4 → 3 → 2</span>
+<span class="ok">// Microtask(Promise)가 Task(setTimeout)보다 먼저!</span>
+</div>
+</section><hr class="divider">
+
+<!-- ===== 메인 스레드 최적화 ===== -->
+<section class="term" id="main-thread">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="main-thread-h">메인 스레드 최적화 <span class="sub">Long Task · Web Worker · rIC</span></h2>
+    <div class="links"><a class="link-tag" href="#render-pipeline">렌더링 파이프라인</a><a class="link-tag" href="#event-loop">이벤트 루프</a><a class="link-tag" href="#web-worker">Web Worker</a></div>
+  </div>
+</div>
+<div class="summary">JS는 싱글 스레드. <strong>메인 스레드가 50ms 이상 블로킹되면 Long Task</strong>로 분류되고 INP가 악화됨.</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <text x="20" y="20" fill="#9096a8" font-size="9">타임라인</text>
+  <rect x="10" y="28" width="760" height="20" rx="3" fill="#1e2130" stroke="#2a3040" stroke-width="0.5"/>
+  <rect x="10" y="28" width="60" height="20" rx="3" fill="#4ade80" fill-opacity=".4"/>
+  <text x="40" y="42" text-anchor="middle" fill="#4ade80" font-size="7">JS</text>
+  <rect x="74" y="28" width="180" height="20" rx="3" fill="#fb7185" fill-opacity=".6"/>
+  <text x="164" y="42" text-anchor="middle" fill="#fb7185" font-size="8">Long Task (180ms) — 이 동안 클릭 반응 없음 😱</text>
+  <text x="164" y="58" text-anchor="middle" fill="#fb7185" font-size="7">50ms 초과 → Long Task 분류</text>
+  <rect x="258" y="28" width="40" height="20" rx="3" fill="#4ade80" fill-opacity=".4"/>
+  <text x="278" y="42" text-anchor="middle" fill="#4ade80" font-size="7">JS</text>
+  <rect x="302" y="28" width="50" height="20" rx="3" fill="#fbbf24" fill-opacity=".4"/>
+  <text x="327" y="42" text-anchor="middle" fill="#fbbf24" font-size="7">분할됨 ✓</text>
+  <rect x="356" y="28" width="50" height="20" rx="3" fill="#fbbf24" fill-opacity=".4"/>
+  <text x="381" y="42" text-anchor="middle" fill="#fbbf24" font-size="7">분할됨 ✓</text>
+  <text x="590" y="42" text-anchor="middle" fill="#9096a8" font-size="8">Web Worker / setTimeout / rIC으로 분할</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">Long Task란</h4><ul><li>메인 스레드를 50ms 이상 점유하는 작업</li><li>이 동안 클릭·키보드 입력 반응 없음</li><li>Chrome DevTools Performance 패널에서 확인</li><li>INP 악화의 주원인</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">해결 방법</h4><ul><li><code>setTimeout(fn, 0)</code>으로 작업 분할</li><li>무거운 연산은 Web Worker로 오프로드</li><li><code>requestIdleCallback</code>으로 유휴 시간 활용</li><li>가상화 (react-window)로 DOM 노드 최소화</li></ul></div>
+</div>
+<div class="flow">
+<div class="lbl">requestIdleCallback — 유휴 시간에 실행</div>
+<span class="hi">requestIdleCallback</span>((deadline) => {
+  while (deadline.timeRemaining() > 0 && tasks.length > 0) {
+    doWork(tasks.pop())  <span class="ok">// 브라우저가 바쁘면 알아서 멈춤</span>
+  }
+})
+</div>
+</section><hr class="divider">
+
+<!-- ===== V8 / JIT ===== -->
+<section class="term" id="v8">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="v8-h">V8 엔진 · JIT 컴파일 <span class="sub">JS가 빠른 이유</span></h2>
+    <div class="links"><a class="link-tag" href="#gc">가비지 컬렉션</a><a class="link-tag" href="#memory">메모리 구조</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 120" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="av8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="30" width="100" height="60" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/><text x="60" y="56" text-anchor="middle" fill="#9096a8" font-size="10" font-weight="700">JS 소스코드</text><text x="60" y="72" text-anchor="middle" fill="#5a6070" font-size="9">function add() {}</text>
+  <line x1="110" y1="60" x2="148" y2="60" stroke="#5a6070" stroke-width="1" marker-end="url(#av8)"/>
+  <rect x="148" y="30" width="120" height="60" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/><text x="208" y="54" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="700">Parser</text><text x="208" y="70" text-anchor="middle" fill="#9096a8" font-size="9">AST 생성</text><text x="208" y="82" text-anchor="middle" fill="#5a6070" font-size="8">(Abstract Syntax Tree)</text>
+  <line x1="268" y1="60" x2="306" y2="60" stroke="#5a6070" stroke-width="1" marker-end="url(#av8)"/>
+  <rect x="306" y="30" width="130" height="60" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="371" y="52" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">Ignition</text><text x="371" y="68" text-anchor="middle" fill="#9096a8" font-size="9">바이트코드로 변환</text><text x="371" y="82" text-anchor="middle" fill="#5a6070" font-size="8">인터프리터 (빠른 시작)</text>
+  <line x1="436" y1="60" x2="474" y2="60" stroke="#5a6070" stroke-width="1" marker-end="url(#av8)"/>
+  <rect x="474" y="20" width="140" height="80" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="1"/><text x="544" y="46" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">TurboFan (JIT)</text><text x="544" y="64" text-anchor="middle" fill="#9096a8" font-size="9">자주 실행되는 코드를</text><text x="544" y="78" text-anchor="middle" fill="#9096a8" font-size="9">머신 코드로 최적화</text>
+  <rect x="634" y="30" width="116" height="60" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/><text x="692" y="54" text-anchor="middle" fill="#e8eaf0" font-size="10" font-weight="700">머신 코드</text><text x="692" y="70" text-anchor="middle" fill="#4ade80" font-size="9">CPU가 직접 실행</text>
+  <line x1="614" y1="60" x2="632" y2="60" stroke="#5a6070" stroke-width="1" marker-end="url(#av8)"/>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">JIT (Just-In-Time) 컴파일</h4><ul><li>처음엔 인터프리터로 빠르게 시작</li><li>자주 실행되는 코드(Hot Code) 감지</li><li>감지된 코드를 머신 코드로 최적화</li><li>타입이 일정하면 최적화 유지</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">Deoptimization (역최적화)</h4><ul><li>타입이 바뀌면 최적화 코드 폐기</li><li>다시 인터프리터로 돌아감</li><li>예: 배열에 다른 타입 섞기</li><li>타입 일관성이 성능에 직결</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무 적용</div>TypeScript로 타입을 일관되게 유지하면 V8이 최적화 코드를 안정적으로 유지. 배열에 타입을 섞거나 객체 shape을 동적으로 바꾸면 deopt 발생.</div>
+</section><hr class="divider">
+
+<!-- ===== GC ===== -->
+<section class="term" id="gc">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="gc-h">가비지 컬렉션 <span class="sub">Mark & Sweep</span></h2>
+    <div class="links"><a class="link-tag" href="#memory">메모리 구조</a><a class="link-tag" href="#v8">V8 엔진</a></div>
+  </div>
+</div>
+<div class="summary">JS는 메모리를 자동 관리함. <strong>참조되지 않는 객체를 탐지해서 메모리를 해제</strong>하는 과정이 GC(Garbage Collection).</div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Mark & Sweep 동작</h4><ul><li><strong>Mark</strong>: root에서 시작해 도달 가능한 객체에 표시</li><li><strong>Sweep</strong>: 표시 안 된 객체(참조 없음) 메모리 해제</li><li>V8은 Minor GC(Young Gen)와 Major GC(Old Gen) 분리</li><li>GC 실행 중 메인 스레드 멈춤 → 주의</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">메모리 누수 원인</h4><ul><li>전역 변수에 객체 계속 추가</li><li>이벤트 리스너 미제거</li><li>클로저가 큰 객체 참조 유지</li><li>setInterval 미해제</li></ul></div>
+</div>
+<div class="flow">
+<div class="lbl">메모리 누수 예시 vs 올바른 패턴</div>
+<span class="warn">// ✗ 누수: 이벤트 리스너 미제거</span>
+useEffect(() => {
+  window.addEventListener('resize', handler)
+}, [])
+
+<span class="ok">// ✓ cleanup 함수로 제거</span>
+useEffect(() => {
+  window.addEventListener('resize', handler)
+  return () => window.removeEventListener('resize', handler)
+}, [])
+</div>
+</section><hr class="divider">
+
+<!-- ===== 메모리 구조 ===== -->
+<section class="term" id="memory">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="memory-h">메모리 구조 <span class="sub">Stack vs Heap</span></h2>
+    <div class="links"><a class="link-tag" href="#gc">가비지 컬렉션</a><a class="link-tag" href="#v8">V8 엔진</a></div>
+  </div>
+</div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Stack</h4><ul><li>원시값 (number, boolean, string)</li><li>함수 호출 정보 (실행 컨텍스트)</li><li>크기 고정, 빠른 접근</li><li>함수 종료 시 자동 해제</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Heap</h4><ul><li>객체, 배열, 함수</li><li>크기 동적, 상대적으로 느림</li><li>GC가 관리</li><li>참조 없으면 GC가 해제</li></ul></div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="16" width="340" height="70" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="180" y="36" text-anchor="middle" fill="#2dd4bf" font-size="11" font-weight="700">Stack</text>
+  <rect x="24" y="44" width="80" height="32" rx="5" fill="#2dd4bf" fill-opacity=".2"/>
+  <text x="64" y="58" text-anchor="middle" fill="#2dd4bf" font-size="8">원시값</text>
+  <text x="64" y="70" text-anchor="middle" fill="#9096a8" font-size="7">number, boolean</text>
+  <rect x="116" y="44" width="80" height="32" rx="5" fill="#2dd4bf" fill-opacity=".2"/>
+  <text x="156" y="58" text-anchor="middle" fill="#2dd4bf" font-size="8">실행 컨텍스트</text>
+  <text x="156" y="70" text-anchor="middle" fill="#9096a8" font-size="7">함수 호출 정보</text>
+  <rect x="208" y="44" width="120" height="32" rx="5" fill="#2dd4bf" fill-opacity=".2"/>
+  <text x="268" y="58" text-anchor="middle" fill="#2dd4bf" font-size="8">참조값 (주소)</text>
+  <text x="268" y="70" text-anchor="middle" fill="#9096a8" font-size="7">객체를 가리키는 포인터</text>
+  <rect x="410" y="16" width="340" height="70" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="580" y="36" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">Heap</text>
+  <rect x="424" y="44" width="90" height="32" rx="5" fill="#fbbf24" fill-opacity=".2"/>
+  <text x="469" y="58" text-anchor="middle" fill="#fbbf24" font-size="8">객체 · 배열</text>
+  <text x="469" y="70" text-anchor="middle" fill="#9096a8" font-size="7">크기 동적</text>
+  <rect x="524" y="44" width="80" height="32" rx="5" fill="#fbbf24" fill-opacity=".2"/>
+  <text x="564" y="58" text-anchor="middle" fill="#fbbf24" font-size="8">함수</text>
+  <text x="564" y="70" text-anchor="middle" fill="#9096a8" font-size="7">클로저 포함</text>
+  <rect x="614" y="44" width="120" height="32" rx="5" fill="#fbbf24" fill-opacity=".2"/>
+  <text x="674" y="56" text-anchor="middle" fill="#fbbf24" font-size="8">GC가 관리</text>
+  <text x="674" y="68" text-anchor="middle" fill="#9096a8" font-size="7">참조 없으면 해제</text>
+</svg></div>
+<div class="flow">
+<div class="lbl">예시</div>
+<span class="hi">const</span> a = 1          <span class="ok">// Stack에 저장 (원시값)</span>
+<span class="hi">const</span> obj = {}      <span class="ok">// Heap에 저장, Stack에는 참조(주소)만</span>
+<span class="hi">const</span> b = a         <span class="ok">// Stack: 값 복사 → a와 독립</span>
+<span class="hi">const</span> ref = obj     <span class="ok">// Stack: 주소 복사 → 같은 Heap 객체 참조</span>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Fiber ===== -->
+<section class="term" id="fiber">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="fiber-h">Fiber 아키텍처 <span class="sub">React의 내부 표현</span></h2>
+    <div class="links"><a class="link-tag" href="#reconciliation">Reconciliation</a><a class="link-tag" href="#concurrent">Concurrent Mode</a></div>
+  </div>
+</div>
+<div class="summary">React 16에서 도입된 내부 아키텍처. 각 컴포넌트를 <strong>Fiber 노드</strong>라는 단위로 표현하고, 작업을 잘게 쪼개서 중단·재개할 수 있게 함.</div>
+<div class="diagram"><svg viewBox="0 0 760 120" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="afib" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="16" width="340" height="90" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="180" y="40" text-anchor="middle" fill="#fb7185" font-size="12" font-weight="700">Stack Reconciler (React 15)</text>
+  <text x="180" y="58" text-anchor="middle" fill="#9096a8" font-size="9">재귀 호출 → 동기 처리</text>
+  <text x="180" y="74" text-anchor="middle" fill="#9096a8" font-size="9">한 번 시작하면 끝까지 실행</text>
+  <text x="180" y="90" text-anchor="middle" fill="#fb7185" font-size="9">메인 스레드 블로킹 → 프레임 드랍</text>
+  <line x1="350" y1="61" x2="400" y2="61" stroke="#5a6070" stroke-width="1.5" marker-end="url(#afib)"/>
+  <text x="375" y="55" text-anchor="middle" fill="#5a6070" font-size="8">React 16</text>
+  <rect x="400" y="16" width="350" height="90" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="1"/>
+  <text x="575" y="40" text-anchor="middle" fill="#2dd4bf" font-size="12" font-weight="700">Fiber (React 16+)</text>
+  <text x="575" y="58" text-anchor="middle" fill="#9096a8" font-size="9">작업을 Fiber 단위로 쪼갬</text>
+  <text x="575" y="74" text-anchor="middle" fill="#9096a8" font-size="9">우선순위에 따라 중단·재개 가능</text>
+  <text x="575" y="90" text-anchor="middle" fill="#4ade80" font-size="9">메인 스레드 양보 → Concurrent Mode 기반</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">React 15 이전 (Stack Reconciler)</h4><ul><li>재귀 호출로 동기 처리</li><li>한 번 시작하면 끝까지 실행</li><li>메인 스레드 블로킹</li><li>큰 트리에서 프레임 드랍</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">React 16+ (Fiber)</h4><ul><li>작업을 Fiber 단위로 쪼갬</li><li>우선순위에 따라 중단·재개 가능</li><li>메인 스레드를 양보할 수 있음</li><li>Concurrent Mode의 기반</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">훅 규칙과의 연결</div>훅을 조건문 안에 쓰면 안 되는 이유 → Fiber는 훅을 순서(인덱스)로 관리. 조건문으로 순서가 바뀌면 Fiber가 잘못된 훅 상태를 참조.</div>
+</section><hr class="divider">
+
+<!-- ===== Reconciliation ===== -->
+<section class="term" id="reconciliation">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="reconciliation-h">Reconciliation <span class="sub">Virtual DOM 비교</span></h2>
+    <div class="links"><a class="link-tag" href="#fiber">Fiber 아키텍처</a><a class="link-tag" href="#memoization">Memoization</a></div>
+  </div>
+</div>
+<div class="summary">상태 변경 시 React가 <strong>이전 Virtual DOM과 새 Virtual DOM을 비교해서 실제 DOM 변경을 최소화</strong>하는 과정.</div>
+<div class="diagram"><svg viewBox="0 0 760 110" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arec" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="16" width="200" height="80" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="110" y="36" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">이전 Virtual DOM</text>
+  <rect x="30" y="46" width="60" height="36" rx="4" fill="#171922" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="60" y="66" text-anchor="middle" fill="#fbbf24" font-size="9">&lt;Button&gt;</text>
+  <rect x="110" y="46" width="80" height="36" rx="4" fill="#171922" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="150" y="66" text-anchor="middle" fill="#fbbf24" font-size="9">&lt;Input /&gt;</text>
+  <rect x="290" y="16" width="200" height="80" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="390" y="36" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">새 Virtual DOM</text>
+  <rect x="310" y="46" width="60" height="36" rx="4" fill="#171922" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="340" y="62" text-anchor="middle" fill="#2dd4bf" font-size="9">&lt;Button&gt;</text>
+  <text x="340" y="74" text-anchor="middle" fill="#4ade80" font-size="8">color 변경</text>
+  <rect x="390" y="46" width="80" height="36" rx="4" fill="#171922" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="430" y="66" text-anchor="middle" fill="#2dd4bf" font-size="9">&lt;Input /&gt;</text>
+  <line x1="210" y1="56" x2="288" y2="56" stroke="#5a6070" stroke-width="1.5" marker-end="url(#arec)"/>
+  <text x="249" y="50" text-anchor="middle" fill="#5a6070" font-size="8">Diff</text>
+  <rect x="530" y="16" width="220" height="80" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="640" y="36" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">실제 DOM 변경 (최소)</text>
+  <text x="640" y="56" text-anchor="middle" fill="#4ade80" font-size="9">Button의 color만 업데이트</text>
+  <text x="640" y="72" text-anchor="middle" fill="#5a6070" font-size="8">Input은 그대로 — DOM 조작 최소화</text>
+  <line x1="490" y1="56" x2="528" y2="56" stroke="#5a6070" stroke-width="1.5" marker-end="url(#arec)"/>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Diffing 알고리즘 규칙</h4><ul><li>같은 타입이면 속성만 업데이트</li><li>타입이 다르면 트리 전체 교체</li><li><code>key</code>로 리스트 아이템 추적</li><li>O(n) 복잡도 (일반 트리 비교는 O(n³))</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">key가 중요한 이유</h4><ul><li>key 없으면 순서로만 비교</li><li>리스트 앞에 추가 시 전체 리렌더링</li><li>key 있으면 같은 항목 재사용</li><li>인덱스를 key로 쓰면 역효과 가능</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Concurrent Mode ===== -->
+<section class="term" id="concurrent">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="concurrent-h">Concurrent Mode <span class="sub">우선순위 기반 렌더링</span></h2>
+    <div class="links"><a class="link-tag" href="#fiber">Fiber 아키텍처</a><a class="link-tag" href="#streaming">Streaming·Suspense</a></div>
+  </div>
+</div>
+<div class="summary">Fiber를 기반으로 <strong>렌더링 작업에 우선순위를 부여하고, 급한 작업이 오면 기존 렌더링을 중단</strong>할 수 있는 모드.</div>
+<div class="diagram"><svg viewBox="0 0 760 90" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="acon" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <text x="20" y="20" fill="#9096a8" font-size="9">일반 (동기)</text>
+  <rect x="10" y="26" width="740" height="16" rx="3" fill="#1e2130" stroke="#2a3040" stroke-width="0.5"/>
+  <rect x="10" y="26" width="400" height="16" rx="3" fill="#fb7185" fill-opacity=".4"/>
+  <text x="210" y="38" text-anchor="middle" fill="#fb7185" font-size="8">대용량 리렌더링 (400ms) — 이 동안 입력 막힘</text>
+  <text x="20" y="62" fill="#9096a8" font-size="9">Concurrent (startTransition)</text>
+  <rect x="10" y="68" width="740" height="16" rx="3" fill="#1e2130" stroke="#2a3040" stroke-width="0.5"/>
+  <rect x="10" y="68" width="40" height="16" rx="3" fill="#4ade80" fill-opacity=".4"/>
+  <text x="30" y="80" text-anchor="middle" fill="#4ade80" font-size="7">입력</text>
+  <rect x="54" y="68" width="80" height="16" rx="3" fill="#fbbf24" fill-opacity=".4"/>
+  <text x="94" y="80" text-anchor="middle" fill="#fbbf24" font-size="7">렌더 청크</text>
+  <rect x="138" y="68" width="40" height="16" rx="3" fill="#4ade80" fill-opacity=".4"/>
+  <text x="158" y="80" text-anchor="middle" fill="#4ade80" font-size="7">입력</text>
+  <rect x="182" y="68" width="80" height="16" rx="3" fill="#fbbf24" fill-opacity=".4"/>
+  <text x="222" y="80" text-anchor="middle" fill="#fbbf24" font-size="7">렌더 청크</text>
+  <text x="400" y="80" text-anchor="middle" fill="#4ade80" font-size="8">입력 우선처리 → 끊김 없이 렌더링 ✓</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">주요 API</h4><ul><li><code>startTransition</code>: 낮은 우선순위로 상태 업데이트</li><li><code>useTransition</code>: 전환 중 isPending 상태 제공</li><li><code>useDeferredValue</code>: 값 업데이트를 늦게 반영</li><li><code>Suspense</code>: 데이터 로딩 중 fallback 표시</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">언제 쓰나</h4><ul><li>검색 입력 → 결과 필터링 (입력 우선)</li><li>탭 전환 → 콘텐츠 로딩 (전환 즉시 반응)</li><li>대용량 리스트 렌더링 중 UI 반응성 유지</li></ul></div>
+</div>
+<div class="flow">
+<div class="lbl">startTransition 예시</div>
+<span class="hi">const</span> [isPending, startTransition] = useTransition()
+
+<span class="hi">const</span> handleSearch = (value) => {
+  setInput(value)  <span class="ok">// 즉시 반영 (높은 우선순위)</span>
+  startTransition(() => {
+    setResults(filter(value))  <span class="ok">// 나중에 반영 (낮은 우선순위)</span>
+  })
+}
+</div>
+</section><hr class="divider">
+
+<!-- ===== Observer APIs ===== -->
+<section class="term" id="observers">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="observers-h">Observer APIs <span class="sub">IntersectionObserver · ResizeObserver · MutationObserver</span></h2>
+    <div class="links"><a class="link-tag" href="#main-thread">메인 스레드 최적화</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="16" width="230" height="72" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="125" y="36" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">IntersectionObserver</text>
+  <text x="125" y="52" text-anchor="middle" fill="#9096a8" font-size="8">요소가 뷰포트에 진입/이탈 감지</text>
+  <text x="125" y="66" text-anchor="middle" fill="#5a6070" font-size="8">lazy loading, 무한 스크롤, ScrollSpy</text>
+  <text x="125" y="80" text-anchor="middle" fill="#4ade80" font-size="8">스크롤 이벤트보다 성능 우수</text>
+  <rect x="265" y="16" width="230" height="72" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="380" y="36" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">ResizeObserver</text>
+  <text x="380" y="52" text-anchor="middle" fill="#9096a8" font-size="8">요소의 크기 변화 감지</text>
+  <text x="380" y="66" text-anchor="middle" fill="#5a6070" font-size="8">window resize보다 정밀</text>
+  <text x="380" y="80" text-anchor="middle" fill="#5a6070" font-size="8">CSS Container Query의 JS 버전</text>
+  <rect x="520" y="16" width="230" height="72" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="635" y="36" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700">MutationObserver</text>
+  <text x="635" y="52" text-anchor="middle" fill="#9096a8" font-size="8">DOM 변화 감지</text>
+  <text x="635" y="66" text-anchor="middle" fill="#5a6070" font-size="8">속성·자식 노드 추가·텍스트 변경</text>
+  <text x="635" y="80" text-anchor="middle" fill="#fb7185" font-size="8">남용 시 성능 저하 주의</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--teal)">IntersectionObserver</h4><ul><li>요소가 뷰포트에 진입/이탈 감지</li><li>lazy loading, 무한 스크롤</li><li>스크롤 이벤트보다 성능 우수</li><li>ScrollSpy에 활용</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">ResizeObserver</h4><ul><li>요소의 크기 변화 감지</li><li>window resize보다 정밀</li><li>컨테이너 크기 기반 반응형</li><li>CSS Container Query의 JS 버전</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">MutationObserver</h4><ul><li>DOM 변화 감지</li><li>속성·자식 노드 추가·텍스트 변경</li><li>외부 라이브러리 DOM 변화 추적</li><li>남용 시 성능 저하 주의</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== rAF ===== -->
+<section class="term" id="raf">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="raf-h">requestAnimationFrame <span class="sub">rAF</span></h2>
+    <div class="links"><a class="link-tag" href="#render-pipeline">렌더링 파이프라인</a><a class="link-tag" href="#compositor">Compositor Layer</a></div>
+  </div>
+</div>
+<div class="summary">브라우저가 <strong>다음 프레임을 그리기 직전에 콜백을 실행</strong>. 애니메이션을 60fps에 맞춰 실행할 수 있는 유일한 올바른 방법.</div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">setInterval로 애니메이션 ✗</h4><ul><li>16ms 타이머가 프레임과 어긋날 수 있음</li><li>탭 비활성화 시에도 계속 실행</li><li>프레임 드랍 유발</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">rAF 사용 ✓</h4><ul><li>브라우저 프레임 주기에 정확히 맞춤</li><li>탭 비활성화 시 자동 일시정지</li><li>배터리·CPU 효율적</li></ul></div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="14" width="340" height="52" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="180" y="34" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">setInterval ✗</text>
+  <text x="180" y="50" text-anchor="middle" fill="#9096a8" font-size="8">16ms 타이머가 프레임과 어긋날 수 있음</text>
+  <text x="180" y="62" text-anchor="middle" fill="#9096a8" font-size="8">탭 비활성화 시에도 계속 실행 → 배터리 낭비</text>
+  <rect x="410" y="14" width="340" height="52" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="580" y="34" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">requestAnimationFrame ✓</text>
+  <text x="580" y="50" text-anchor="middle" fill="#9096a8" font-size="8">브라우저 프레임 주기에 정확히 맞춤 (60fps)</text>
+  <text x="580" y="62" text-anchor="middle" fill="#9096a8" font-size="8">탭 비활성화 시 자동 일시정지</text>
+</svg></div>
+<div class="flow">
+<div class="lbl">사용 패턴</div>
+<span class="hi">function</span> animate() {
+  <span class="ok">// 매 프레임마다 실행</span>
+  element.style.transform = `translateX(${x++}px)`
+  <span class="hi">requestAnimationFrame</span>(animate)
+}
+<span class="hi">requestAnimationFrame</span>(animate)
+</div>
+</section><hr class="divider">
+
+<!-- ===== Performance API ===== -->
+<section class="term" id="performance-api">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="performance-api-h">Performance API <span class="sub">브라우저 성능 측정</span></h2>
+    <div class="links"><a class="link-tag" href="#web-vitals">Web Vitals</a><a class="link-tag" href="#rum">Datadog RUM</a></div>
+  </div>
+</div>
+<div class="summary">브라우저 내장 API로 <strong>정밀한 타이밍과 리소스 로딩 성능을 측정</strong>. Web Vitals 라이브러리도 이 API를 기반으로 동작.</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="225" height="60" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="122" y="30" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">performance.now()</text>
+  <text x="122" y="46" text-anchor="middle" fill="#9096a8" font-size="8">정밀 타이밍 측정</text>
+  <text x="122" y="60" text-anchor="middle" fill="#5a6070" font-size="7">Date.now()보다 소수점까지 정확</text>
+  <rect x="248" y="10" width="225" height="60" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="360" y="30" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700">performance.mark/measure</text>
+  <text x="360" y="46" text-anchor="middle" fill="#9096a8" font-size="8">커스텀 성능 구간 측정</text>
+  <text x="360" y="60" text-anchor="middle" fill="#5a6070" font-size="7">DevTools Performance 패널에서 확인</text>
+  <rect x="486" y="10" width="264" height="60" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="618" y="30" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">getEntriesByType</text>
+  <text x="618" y="46" text-anchor="middle" fill="#9096a8" font-size="8">리소스 로딩 타이밍</text>
+  <text x="618" y="60" text-anchor="middle" fill="#5a6070" font-size="7">navigation, resource, paint 엔트리</text>
+</svg></div>
+<div class="flow">
+<div class="lbl">주요 API</div>
+<span class="ok">// 정밀 타이밍 측정 (Date.now()보다 정확)</span>
+<span class="hi">performance</span>.now()  <span class="ok">// 밀리초, 소수점까지</span>
+
+<span class="ok">// 커스텀 마크·측정</span>
+<span class="hi">performance</span>.mark('start')
+doHeavyWork()
+<span class="hi">performance</span>.mark('end')
+<span class="hi">performance</span>.measure('작업 시간', 'start', 'end')
+
+<span class="ok">// 리소스 로딩 타이밍</span>
+<span class="hi">performance</span>.getEntriesByType('navigation')[0].domContentLoadedEventEnd
+</div>
+</section><hr class="divider">
+
+<!-- ===== Web Worker ===== -->
+<section class="term" id="web-worker">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="web-worker-h">Web Worker <span class="sub">멀티 스레딩</span></h2>
+    <div class="links"><a class="link-tag" href="#main-thread">메인 스레드 최적화</a><a class="link-tag" href="#event-loop">이벤트 루프</a></div>
+  </div>
+</div>
+<div class="summary">JS는 싱글 스레드지만 Web Worker로 <strong>백그라운드 스레드에서 무거운 연산을 처리</strong>할 수 있음. 메인 스레드 블로킹 없이.</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="aww" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="16" width="200" height="68" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="1"/>
+  <text x="110" y="36" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700">메인 스레드</text>
+  <text x="110" y="52" text-anchor="middle" fill="#9096a8" font-size="8">UI 렌더링 · 이벤트 처리</text>
+  <text x="110" y="66" text-anchor="middle" fill="#4ade80" font-size="8">무거운 연산 없이 빠른 반응 ✓</text>
+  <line x1="210" y1="40" x2="248" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aww)"/>
+  <text x="229" y="34" text-anchor="middle" fill="#5a6070" font-size="7">postMessage</text>
+  <line x1="248" y1="56" x2="210" y2="56" stroke="#4ade80" stroke-width="1.5" marker-end="url(#aww)"/>
+  <text x="229" y="70" text-anchor="middle" fill="#4ade80" font-size="7">결과 반환</text>
+  <rect x="248" y="16" width="210" height="68" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="1"/>
+  <text x="353" y="36" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">Web Worker</text>
+  <text x="353" y="52" text-anchor="middle" fill="#9096a8" font-size="8">별도 스레드 · DOM 접근 불가</text>
+  <text x="353" y="66" text-anchor="middle" fill="#9096a8" font-size="8">무거운 연산 처리</text>
+  <rect x="490" y="16" width="260" height="68" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="620" y="34" text-anchor="middle" fill="#e8eaf0" font-size="9" font-weight="700">적합한 작업</text>
+  <text x="620" y="50" text-anchor="middle" fill="#9096a8" font-size="8">이미지 처리 · 암호화 · 데이터 파싱</text>
+  <text x="620" y="64" text-anchor="middle" fill="#9096a8" font-size="8">대용량 정렬 · JSON 파싱</text>
+  <text x="620" y="78" text-anchor="middle" fill="#fbbf24" font-size="8">메인 스레드 Long Task 대신</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Web Worker 특징</h4><ul><li>별도 스레드에서 실행</li><li>DOM 접근 불가</li><li>postMessage로 데이터 교환</li><li>무거운 연산, 이미지 처리, 암호화에 적합</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">SharedArrayBuffer</h4><ul><li>Worker와 메인 스레드가 메모리 공유</li><li>복사 없이 빠른 데이터 교환</li><li>COOP/COEP 헤더 필요</li></ul></div>
+</div>
+<div class="flow">
+<div class="lbl">기본 사용법</div>
+<span class="ok">// main.js</span>
+<span class="hi">const</span> worker = new Worker('worker.js')
+worker.postMessage({ data: bigArray })
+worker.onmessage = (e) => console.log(e.data)  <span class="ok">// 결과 수신</span>
+
+<span class="ok">// worker.js</span>
+self.onmessage = (e) => {
+  <span class="hi">const</span> result = heavyComputation(e.data)
+  self.postMessage(result)
+}
+</div>
+</section><hr class="divider">
+
+<!-- ===== Storybook ===== -->
+<section class="term" id="storybook">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="storybook-h">Storybook + Chromatic <span class="sub">컴포넌트 문서화·시각 테스트</span></h2>
+    <div class="links"><a class="link-tag" href="#design-token">Design Token</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 90" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="astb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="16" width="200" height="58" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="110" y="36" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">Storybook</text>
+  <text x="110" y="52" text-anchor="middle" fill="#9096a8" font-size="8">컴포넌트 독립 실행 · 문서화</text>
+  <text x="110" y="66" text-anchor="middle" fill="#5a6070" font-size="7">디자이너·개발자 공통 참조 공간</text>
+  <line x1="210" y1="45" x2="248" y2="45" stroke="#5a6070" stroke-width="1.5" marker-end="url(#astb)"/>
+  <text x="229" y="39" text-anchor="middle" fill="#5a6070" font-size="7">연동</text>
+  <rect x="248" y="16" width="200" height="58" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="348" y="36" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700">Chromatic</text>
+  <text x="348" y="52" text-anchor="middle" fill="#9096a8" font-size="8">PR마다 스크린샷 비교</text>
+  <text x="348" y="66" text-anchor="middle" fill="#9096a8" font-size="7">픽셀 단위 변경 감지 · 승인 시 baseline</text>
+  <rect x="490" y="16" width="260" height="58" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="620" y="34" text-anchor="middle" fill="#e8eaf0" font-size="9" font-weight="700">PR 올리면 자동으로</text>
+  <text x="620" y="50" text-anchor="middle" fill="#9096a8" font-size="8">이전 버전과 스크린샷 비교</text>
+  <text x="620" y="64" text-anchor="middle" fill="#4ade80" font-size="8">의도치 않은 UI 변경 자동 감지 ✓</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">Storybook</h4><ul><li>컴포넌트를 앱과 분리해서 독립 실행</li><li>다양한 props 조합을 Story로 문서화</li><li>디자이너·개발자 공통 참조 공간</li><li>v2 레포: Storybook v10</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">Chromatic</h4><ul><li>PR마다 스크린샷 자동 촬영·비교</li><li>픽셀 단위로 변경 감지</li><li>승인 시 새 baseline으로 저장</li><li>Storybook 위에서 동작</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Design Token ===== -->
+<section class="term" id="design-token">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="design-token-h">Design Token + Style Dictionary</h2>
+  </div>
+</div>
+<div class="summary"><strong>Design Token</strong> — 색상·간격·폰트 등 디자인 결정을 변수로 저장.<br><strong>Style Dictionary</strong> — Figma 토큰을 CSS 변수·Tailwind로 자동 변환.</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="adt" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="120" height="40" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="70" y="38" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="700">Figma</text>
+  <text x="70" y="52" text-anchor="middle" fill="#9096a8" font-size="8">디자이너 작업</text>
+  <line x1="130" y1="40" x2="168" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#adt)"/>
+  <rect x="168" y="20" width="130" height="40" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="233" y="38" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">tokens.json</text>
+  <text x="233" y="52" text-anchor="middle" fill="#9096a8" font-size="7">플러그인 추출</text>
+  <line x1="298" y1="40" x2="336" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#adt)"/>
+  <rect x="336" y="20" width="140" height="40" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="406" y="38" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="700">Style Dictionary</text>
+  <text x="406" y="52" text-anchor="middle" fill="#9096a8" font-size="7">변환 도구</text>
+  <line x1="476" y1="40" x2="514" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#adt)"/>
+  <rect x="514" y="20" width="220" height="40" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="624" y="36" text-anchor="middle" fill="#2dd4bf" font-size="9" font-weight="700">CSS Variables / Tailwind 토큰</text>
+  <text x="624" y="50" text-anchor="middle" fill="#9096a8" font-size="7">코드에서 사용 가능</text>
+</svg></div>
+<div class="flow">
+<div class="lbl">자동화 파이프라인</div>
+Figma → <span class="hi">tokens.json</span> (플러그인 추출) → <span class="hi">Style Dictionary</span> → CSS Variables / Tailwind 토큰
+</div>
+<div class="warn-box"><div class="tip-l">현재 v2 레포 상태</div>자동화 없음 — 수동 반영 중. Figma Code Connect 도입 검토 가치 있음.</div>
+</section><hr class="divider">
+
+<!-- ===== SemVer ===== -->
+<section class="term" id="semver">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="semver-h">SemVer + Breaking Change <span class="sub">버전 관리 규칙</span></h2>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 70" xmlns="http://www.w3.org/2000/svg">
+  <rect x="180" y="10" width="400" height="50" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="380" y="30" text-anchor="middle" fill="#e8eaf0" font-size="18" font-weight="700" letter-spacing="2">2 . 4 . 1</text>
+  <text x="220" y="52" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">MAJOR</text>
+  <text x="380" y="52" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">MINOR</text>
+  <text x="540" y="52" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">PATCH</text>
+  <rect x="10" y="10" width="160" height="50" rx="8" fill="#fb7185" fill-opacity=".1" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="90" y="34" text-anchor="middle" fill="#fb7185" font-size="9">Breaking Change</text>
+  <text x="90" y="50" text-anchor="middle" fill="#5a6070" font-size="8">기존 코드 수정 필요</text>
+  <rect x="590" y="10" width="160" height="50" rx="8" fill="#2dd4bf" fill-opacity=".1" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="670" y="34" text-anchor="middle" fill="#2dd4bf" font-size="9">버그 수정만</text>
+  <text x="670" y="50" text-anchor="middle" fill="#5a6070" font-size="8">기능 변경 없음</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--coral)">MAJOR</h4><ul><li>Breaking Change 있음</li><li>기존 코드 수정 필요</li><li>예: React 18 → 19</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">MINOR</h4><ul><li>하위 호환 새 기능 추가</li><li>기존 코드 그대로 동작</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">PATCH</h4><ul><li>버그 수정만</li><li>기능 변경 없음</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== RUM ===== -->
+<section class="term" id="rum">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="rum-h">Datadog RUM <span class="sub">Real User Monitoring</span></h2>
+    <div class="links"><a class="link-tag" href="#web-vitals">Web Vitals</a><a class="link-tag" href="#sentry">Sentry·Source Map</a><a class="link-tag" href="#performance-api">Performance API</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arum" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="16" width="110" height="48" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="65" y="36" text-anchor="middle" fill="#9096a8" font-size="9" font-weight="700">실제 사용자</text>
+  <text x="65" y="52" text-anchor="middle" fill="#5a6070" font-size="8">브라우저에서 사용</text>
+  <line x1="120" y1="40" x2="158" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#arum)"/>
+  <rect x="158" y="16" width="160" height="48" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="238" y="36" text-anchor="middle" fill="#60a5fa" font-size="9" font-weight="700">web-vitals SDK</text>
+  <text x="238" y="52" text-anchor="middle" fill="#9096a8" font-size="8">LCP·INP·CLS·에러 수집</text>
+  <line x1="318" y1="40" x2="356" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#arum)"/>
+  <rect x="356" y="16" width="130" height="48" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="421" y="36" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">Datadog</text>
+  <text x="421" y="52" text-anchor="middle" fill="#9096a8" font-size="8">수집·집계·대시보드</text>
+  <line x1="486" y1="40" x2="524" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#arum)"/>
+  <rect x="524" y="16" width="220" height="48" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="634" y="34" text-anchor="middle" fill="#2dd4bf" font-size="9" font-weight="700">개발팀 알림·개선</text>
+  <text x="634" y="50" text-anchor="middle" fill="#9096a8" font-size="8">BE와 동일 채널 → 운영 단일화</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">Lab 데이터 (Lighthouse)</h4><ul><li>개발자 머신에서 측정</li><li>네트워크·기기 조건 고정</li><li>재현 가능하지만 실제와 다를 수 있음</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">Field 데이터 (RUM)</h4><ul><li>실제 사용자 환경에서 측정</li><li>다양한 기기·네트워크 반영</li><li>진짜 사용자 경험 = 더 정확</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">Datadog 일원화 이유</div>BE에서 이미 Datadog 사용 중 → FE도 같은 백엔드로 통합. 운영 채널 단일화, 통합 비용 최소.</div>
+</section><hr class="divider">
+
+<!-- ===== Lighthouse CI ===== -->
+<section class="term" id="lighthouse-ci">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="lighthouse-ci-h">Lighthouse CI + size-limit <span class="sub">CI 성능 게이트</span></h2>
+    <div class="links"><a class="link-tag" href="#rum">Datadog RUM</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="alci" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="20" width="100" height="40" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="60" y="38" text-anchor="middle" fill="#9096a8" font-size="10" font-weight="700">PR 생성</text>
+  <line x1="110" y1="40" x2="148" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#alci)"/>
+  <rect x="148" y="20" width="130" height="40" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="213" y="38" text-anchor="middle" fill="#60a5fa" font-size="9" font-weight="700">CI 파이프라인</text>
+  <line x1="278" y1="32" x2="316" y2="24" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#alci)"/>
+  <line x1="278" y1="48" x2="316" y2="56" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#alci)"/>
+  <rect x="316" y="10" width="150" height="30" rx="6" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="391" y="28" text-anchor="middle" fill="#fbbf24" font-size="9">Lighthouse CI</text>
+  <rect x="316" y="48" width="150" height="30" rx="6" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="391" y="66" text-anchor="middle" fill="#a78bfa" font-size="9">size-limit</text>
+  <line x1="466" y1="24" x2="504" y2="40" stroke="#5a6070" stroke-width="1.5" marker-end="url(#alci)"/>
+  <line x1="466" y1="62" x2="504" y2="48" stroke="#5a6070" stroke-width="1.5" marker-end="url(#alci)"/>
+  <rect x="504" y="20" width="240" height="40" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="624" y="36" text-anchor="middle" fill="#4ade80" font-size="9" font-weight="700">PR 코멘트 자동 게시</text>
+  <text x="624" y="52" text-anchor="middle" fill="#9096a8" font-size="8">임계치 초과 시 CI 실패</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">Lighthouse CI</h4><ul><li>PR마다 성능·접근성·SEO 점수 측정</li><li>임계치 미달 시 CI 실패</li><li>결과를 PR 코멘트로 자동 게시</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">size-limit</h4><ul><li>번들 사이즈 한도 설정</li><li>초과 시 CI 실패</li><li>PR 코멘트에 변화량 표시</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Sentry ===== -->
+<section class="term" id="sentry">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="sentry-h">Sentry + Source Map <span class="sub">에러 모니터링</span></h2>
+    <div class="links"><a class="link-tag" href="#open-tracing">Open Tracing</a></div>
+  </div>
+</div>
+<div class="summary"><strong>Sentry</strong> — 운영 환경 에러 자동 수집·알림.<br><strong>Source Map</strong> — 압축된 코드의 에러 위치를 원본 코드로 역추적.</div>
+<div class="diagram"><svg viewBox="0 0 760 90" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="asent" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="24" width="100" height="40" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/>
+  <text x="60" y="42" text-anchor="middle" fill="#9096a8" font-size="9" font-weight="700">사용자</text>
+  <text x="60" y="56" text-anchor="middle" fill="#fb7185" font-size="8">에러 발생</text>
+  <line x1="110" y1="44" x2="148" y2="44" stroke="#5a6070" stroke-width="1.5" marker-end="url(#asent)"/>
+  <rect x="148" y="24" width="130" height="40" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="213" y="40" text-anchor="middle" fill="#60a5fa" font-size="9" font-weight="700">Sentry SDK</text>
+  <text x="213" y="56" text-anchor="middle" fill="#9096a8" font-size="8">자동 수집·전송</text>
+  <line x1="278" y1="44" x2="316" y2="44" stroke="#5a6070" stroke-width="1.5" marker-end="url(#asent)"/>
+  <rect x="316" y="16" width="150" height="56" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/>
+  <text x="391" y="38" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="700">Sentry 서버</text>
+  <text x="391" y="54" text-anchor="middle" fill="#9096a8" font-size="8">Source Map으로</text>
+  <text x="391" y="66" text-anchor="middle" fill="#9096a8" font-size="7">원본 위치 복원</text>
+  <line x1="466" y1="44" x2="504" y2="44" stroke="#5a6070" stroke-width="1.5" marker-end="url(#asent)"/>
+  <rect x="504" y="24" width="240" height="40" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="624" y="40" text-anchor="middle" fill="#4ade80" font-size="9" font-weight="700">개발팀 Slack 알림</text>
+  <text x="624" y="56" text-anchor="middle" fill="#9096a8" font-size="8">어디서 왜 났는지 원본 코드로 확인</text>
+</svg></div>
+<div class="warn-box"><div class="tip-l">⚠ 주의</div>Source Map을 운영 서버에 노출하면 원본 코드 유출. CI 빌드 후 Sentry에만 업로드하고 서버에서 삭제.</div>
+</section><hr class="divider">
+
+<!-- ===== Feature Flag ===== -->
+<section class="term" id="feature-flag">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="feature-flag-h">Feature Flag + Canary Release <span class="sub">점진적 배포</span></h2>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="14" width="340" height="52" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/>
+  <text x="180" y="34" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">Feature Flag</text>
+  <rect x="24" y="42" width="140" height="16" rx="4" fill="#2dd4bf" fill-opacity=".3"/>
+  <text x="94" y="54" text-anchor="middle" fill="#2dd4bf" font-size="8">새 기능 (flag: ON)</text>
+  <rect x="176" y="42" width="140" height="16" rx="4" fill="#2a3040"/>
+  <text x="246" y="54" text-anchor="middle" fill="#5a6070" font-size="8">기존 기능 (flag: OFF)</text>
+  <text x="180" y="76" text-anchor="middle" fill="#9096a8" font-size="7">재배포 없이 서버 설정만 변경 → 즉시 전환</text>
+  <rect x="410" y="14" width="340" height="52" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="580" y="34" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">Canary Release</text>
+  <rect x="424" y="42" width="40" height="16" rx="4" fill="#fbbf24" fill-opacity=".4"/>
+  <text x="444" y="54" text-anchor="middle" fill="#fbbf24" font-size="7">5%</text>
+  <rect x="472" y="42" width="80" height="16" rx="4" fill="#fbbf24" fill-opacity=".6"/>
+  <text x="512" y="54" text-anchor="middle" fill="#fbbf24" font-size="7">20%</text>
+  <rect x="560" y="42" width="176" height="16" rx="4" fill="#fbbf24"/>
+  <text x="648" y="54" text-anchor="middle" fill="#1e2130" font-size="7" font-weight="700">100% (문제 없으면)</text>
+  <text x="580" y="76" text-anchor="middle" fill="#9096a8" font-size="7">문제 발생 시 즉시 롤백 가능</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Feature Flag</h4><ul><li>재배포 없이 기능 on/off</li><li>A/B 테스트</li><li>베타 사용자에게만 먼저 노출</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Canary Release</h4><ul><li>5% → 20% → 100% 점진적 전환</li><li>문제 발생 시 즉시 롤백</li><li>대규모 변경사항 안전 배포</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Open Tracing ===== -->
+<section class="term" id="open-tracing">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="open-tracing-h">Open Tracing <span class="sub">분산 추적</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#sentry">Sentry</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 120" xmlns="http://www.w3.org/2000/svg">
+  <text x="380" y="16" text-anchor="middle" fill="#a78bfa" font-size="9">Trace ID: abc-123 (요청 전체를 묶는 고유 ID)</text>
+  <text x="20" y="40" fill="#5a6070" font-size="8">브라우저</text>
+  <rect x="80" y="30" width="200" height="18" rx="3" fill="#60a5fa" fill-opacity=".3"/><text x="180" y="42" text-anchor="middle" fill="#60a5fa" font-size="8">요청 전송 (10ms)</text>
+  <text x="20" y="62" fill="#5a6070" font-size="8">API Gateway</text>
+  <rect x="80" y="52" width="260" height="18" rx="3" fill="#fbbf24" fill-opacity=".3"/><text x="210" y="64" text-anchor="middle" fill="#fbbf24" font-size="8">인증 체크 (25ms)</text>
+  <text x="20" y="84" fill="#5a6070" font-size="8">BFF</text>
+  <rect x="80" y="74" width="380" height="18" rx="3" fill="#4ade80" fill-opacity=".3"/><text x="270" y="86" text-anchor="middle" fill="#4ade80" font-size="8">서비스 조합 (120ms)</text>
+  <text x="20" y="106" fill="#5a6070" font-size="8">결제 서비스</text>
+  <rect x="80" y="96" width="160" height="18" rx="3" fill="#fb7185" fill-opacity=".4"/><text x="160" y="108" text-anchor="middle" fill="#fb7185" font-size="8">외부 API (80ms) ← 병목!</text>
+  <line x1="80" y1="118" x2="480" y2="118" stroke="#5a6070" stroke-width="1"/>
+  <line x1="80" y1="114" x2="80" y2="122" stroke="#5a6070" stroke-width="1"/>
+  <line x1="480" y1="114" x2="480" y2="122" stroke="#5a6070" stroke-width="1"/>
+  <text x="280" y="116" text-anchor="middle" fill="#9096a8" font-size="7">전체 200ms → 병목: 결제 서비스 외부 API</text>
+</svg></div>
+<div class="summary">요청 하나에 <strong>Trace ID를 붙여서 여러 서비스를 거치는 전체 흐름을 추적</strong>. 어느 서비스에서 느려지는지 한눈에 파악.</div>
+<div class="flow">
+<div class="lbl">예시: 대시보드 로딩 200ms</div>
+브라우저 요청 <span class="hi">(10ms)</span> → API Gateway <span class="hi">(25ms)</span> → BFF <span class="hi">(120ms)</span>
+  ├ 사용자 서비스 <span class="hi">(45ms)</span>
+  └ 결제 서비스 <span class="warn">(80ms) ← 병목!</span>
+</div>
+<div class="tip"><div class="tip-l">AWS에서는</div>AWS X-Ray가 구현체. Datadog APM + RUM 통합 시 FE ↔ BE end-to-end 추적 기본 제공.</div>
+</section><hr class="divider">
+
+<!-- ===== ARIA ===== -->
+<section class="term" id="aria">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="aria-h">ARIA <span class="sub">Accessible Rich Internet Applications</span></h2>
+    <div class="links"><a class="link-tag" href="#focus-trap">Focus Trap</a></div>
+  </div>
+</div>
+<div class="summary">스크린 리더 등 보조기술이 UI를 올바르게 이해할 수 있도록 <strong>역할·상태·속성 정보를 HTML에 추가</strong>하는 표준.</div>
+<div class="diagram"><svg viewBox="0 0 760 80" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="14" width="350" height="52" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="185" y="34" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="700">ARIA 없는 버튼</text>
+  <rect x="24" y="42" width="140" height="20" rx="5" fill="#2a3040" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="94" y="56" text-anchor="middle" fill="#9096a8" font-size="8">&lt;button&gt; ✕ &lt;/button&gt;</text>
+  <text x="200" y="56" text-anchor="middle" fill="#fb7185" font-size="7">스크린 리더: "버튼" 뿐</text>
+  <rect x="410" y="14" width="340" height="52" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="580" y="34" text-anchor="middle" fill="#4ade80" font-size="9" font-weight="700">ARIA 적용</text>
+  <rect x="424" y="42" width="310" height="20" rx="5" fill="#4ade80" fill-opacity=".2" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="579" y="56" text-anchor="middle" fill="#4ade80" font-size="7">&lt;button aria-label="메뉴 닫기" aria-expanded="false"&gt;</text>
+  <text x="380" y="76" text-anchor="middle" fill="#9096a8" font-size="8">스크린 리더: "메뉴 닫기, 버튼, 접혀있음" — 맥락 전달</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">주요 속성</h4><ul><li><code>role</code>: 요소 역할 (button, dialog, alert)</li><li><code>aria-label</code>: 보이지 않는 레이블 (아이콘 버튼)</li><li><code>aria-hidden</code>: 스크린 리더에서 숨기기</li><li><code>aria-expanded</code>: 펼침/접힘 상태</li><li><code>aria-live</code>: 동적 변경 알림</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">퍼블리셔 강점</h4><ul><li>자동 도구는 위반의 40%만 감지</li><li>10년+ 웹 표준 경험이 나머지 60%</li><li>스크린 리더 수동 점검 가능 (VoiceOver/NVDA)</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Focus Trap ===== -->
+<section class="term" id="focus-trap">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="focus-trap-h">Focus Trap + Skip Navigation <span class="sub">키보드 접근성</span></h2>
+    <div class="links"><a class="link-tag" href="#aria">ARIA</a></div>
+  </div>
+</div>
+<div class="diagram"><svg viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="14" width="330" height="72" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/>
+  <text x="175" y="32" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="700">Focus Trap 없음</text>
+  <rect x="24" y="40" width="60" height="24" rx="4" fill="#2a3040"/>
+  <text x="54" y="56" text-anchor="middle" fill="#5a6070" font-size="8">배경 버튼</text>
+  <rect x="100" y="36" width="80" height="32" rx="5" fill="#2a3040" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="140" y="54" text-anchor="middle" fill="#fbbf24" font-size="8">모달</text>
+  <rect x="200" y="40" width="60" height="24" rx="4" fill="#2a3040"/>
+  <text x="230" y="56" text-anchor="middle" fill="#5a6070" font-size="8">배경 링크</text>
+  <path d="M84 52 Q140 26 220 52" fill="none" stroke="#fb7185" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="175" y="22" text-anchor="middle" fill="#fb7185" font-size="7">Tab → 모달 밖으로 탈출 😱</text>
+  <rect x="400" y="14" width="350" height="72" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/>
+  <text x="575" y="32" text-anchor="middle" fill="#4ade80" font-size="9" font-weight="700">Focus Trap 적용</text>
+  <rect x="414" y="40" width="60" height="24" rx="4" fill="#2a3040"/>
+  <text x="444" y="56" text-anchor="middle" fill="#5a6070" font-size="8">배경 버튼</text>
+  <rect x="500" y="34" width="120" height="44" rx="5" fill="#2a3040" stroke="#4ade80" stroke-width="1"/>
+  <text x="560" y="52" text-anchor="middle" fill="#4ade80" font-size="8">모달 (Focus 갇힘)</text>
+  <text x="560" y="68" text-anchor="middle" fill="#9096a8" font-size="7">확인 ← Tab → 취소 순환</text>
+  <rect x="638" y="40" width="80" height="24" rx="4" fill="#2a3040"/>
+  <text x="678" y="56" text-anchor="middle" fill="#5a6070" font-size="8">배경 링크</text>
+  <text x="575" y="92" text-anchor="middle" fill="#4ade80" font-size="7">모달 닫히면 원래 포커스 위치로 복귀 ✓</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Focus Trap</h4><ul><li>모달 열리면 포커스를 모달 안에 가둠</li><li>Tab 키가 모달 안에서만 순환</li><li>모달 닫히면 원래 포커스 위치로 복귀</li><li>shadcn/ui Dialog가 기본 제공</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Skip Navigation</h4><ul><li>키보드 사용자가 GNB 건너뛰고 본문으로</li><li>"본문 바로가기" 링크 (화면엔 안 보임)</li><li>스크린 리더 사용자에게 필수</li></ul></div>
+</div>
+</section>
+
+</main>
+
+<script>
+if (!CSS.supports('scroll-target-group', 'auto')) {
+  const headings = document.querySelectorAll('.term h2[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.closest('.term').id;
+        navItems.forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  headings.forEach(h => observer.observe(h));
+}
+</script>
+</body>
+</html>
