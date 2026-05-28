@@ -165,12 +165,14 @@ svg text{font-family:'Noto Sans KR',sans-serif}
     <a class="nav-item" href="#optimistic">Optimistic Update</a>
     <a class="nav-item" href="#swr">Stale-While-Revalidate</a>
     <a class="nav-item" href="#react-query">React Query 심화</a>
+    <a class="nav-item" href="#query-key">Query Key 설계</a>
 
     <span class="nav-group-label">Next.js 심화</span>
     <a class="nav-item" href="#hydration">Hydration</a>
     <a class="nav-item" href="#edge-runtime">Edge Runtime</a>
     <a class="nav-item" href="#rsc">RSC vs RCC</a>
     <a class="nav-item" href="#streaming">Streaming · Suspense</a>
+    <a class="nav-item" href="#server-action">Server Action</a>
 
     <span class="nav-group-label">인증 · 보안</span>
     <a class="nav-item" href="#cors">CORS</a>
@@ -182,6 +184,7 @@ svg text{font-family:'Noto Sans KR',sans-serif}
     <a class="nav-item" href="#web-vitals">Web Vitals</a>
     <a class="nav-item" href="#code-splitting">Code Splitting</a>
     <a class="nav-item" href="#tree-shaking">Tree Shaking</a>
+    <a class="nav-item" href="#http-cache">HTTP Cache · CDN · ETag</a>
     <a class="nav-item" href="#memoization">Memoization</a>
     <a class="nav-item" href="#crp">Critical Rendering Path</a>
     <a class="nav-item" href="#reflow">Reflow · Repaint</a>
@@ -209,6 +212,7 @@ svg text{font-family:'Noto Sans KR',sans-serif}
     <a class="nav-item" href="#web-worker">Web Worker</a>
 
     <span class="nav-group-label">디자인 시스템</span>
+    <a class="nav-item" href="#lockfile">Package Lockfile</a>
     <a class="nav-item" href="#storybook">Storybook · Chromatic</a>
     <a class="nav-item" href="#design-token">Design Token</a>
     <a class="nav-item" href="#semver">SemVer</a>
@@ -221,6 +225,7 @@ svg text{font-family:'Noto Sans KR',sans-serif}
     <a class="nav-item" href="#open-tracing">Open Tracing</a>
 
     <span class="nav-group-label">접근성</span>
+    <a class="nav-item" href="#error-boundary">Error Boundary</a>
     <a class="nav-item" href="#aria">ARIA</a>
     <a class="nav-item" href="#focus-trap">Focus Trap</a>
   </div>
@@ -2023,6 +2028,129 @@ Figma → <span class="hi">tokens.json</span> (플러그인 추출) → <span cl
   └ 결제 서비스 <span class="warn">(80ms) ← 병목!</span>
 </div>
 <div class="tip"><div class="tip-l">AWS에서는</div>AWS X-Ray가 구현체. Datadog APM + RUM 통합 시 FE ↔ BE end-to-end 추적 기본 제공.</div>
+</section><hr class="divider">
+
+
+<!-- ===== HTTP Cache ===== -->
+<section class="term" id="http-cache">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="http-cache-h">HTTP Cache · CDN · ETag <span class="sub">네트워크 성능 최적화</span></h2>
+    <div class="links"><a class="link-tag" href="#web-vitals">Web Vitals</a><a class="link-tag" href="#crp">Critical Rendering Path</a></div>
+  </div>
+</div>
+<div class="summary">브라우저·CDN이 응답을 저장해두고 <strong>다시 다운로드하지 않거나, 바뀌었는지만 확인</strong>하는 전략. LCP와 API 응답 속도에 직접 영향.</div>
+<div class="diagram"><svg viewBox="0 0 760 130" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ahc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker><marker id="ahcg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="42" width="110" height="44" rx="8" fill="#1e2130" stroke="#5a6070" stroke-width="0.5"/><text x="65" y="60" text-anchor="middle" fill="#9096a8" font-size="10">브라우저</text><text x="65" y="76" text-anchor="middle" fill="#5a6070" font-size="8">Cache 저장</text>
+  <line x1="120" y1="64" x2="180" y2="64" stroke="#4ade80" stroke-width="1.5" marker-end="url(#ahcg)"/><text x="150" y="58" text-anchor="middle" fill="#4ade80" font-size="8">cache hit</text>
+  <rect x="180" y="32" width="130" height="64" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.8"/><text x="245" y="52" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="700">CDN Edge</text><text x="245" y="68" text-anchor="middle" fill="#9096a8" font-size="8">사용자 가까운 서버</text><text x="245" y="82" text-anchor="middle" fill="#5a6070" font-size="8">정적 파일 캐싱</text>
+  <line x1="310" y1="64" x2="380" y2="64" stroke="#5a6070" stroke-width="1.5" marker-end="url(#ahc)"/><text x="345" y="58" text-anchor="middle" fill="#5a6070" font-size="8">miss 때만 원본</text>
+  <rect x="380" y="32" width="130" height="64" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.8"/><text x="445" y="52" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="700">Origin</text><text x="445" y="68" text-anchor="middle" fill="#9096a8" font-size="8">실제 서버</text><text x="445" y="82" text-anchor="middle" fill="#5a6070" font-size="8">ETag 발급</text>
+  <rect x="550" y="24" width="190" height="80" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="645" y="46" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">ETag 재검증</text><text x="645" y="64" text-anchor="middle" fill="#9096a8" font-size="8">If-None-Match 전송</text><text x="645" y="80" text-anchor="middle" fill="#4ade80" font-size="8">변경 없음 → 304</text><text x="645" y="94" text-anchor="middle" fill="#5a6070" font-size="8">본문 다운로드 생략</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--teal)">Cache-Control</h4><ul><li><code>max-age</code>: fresh로 보는 시간</li><li><code>no-cache</code>: 저장은 하되 매번 재검증</li><li><code>no-store</code>: 민감정보 저장 금지</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">CDN</h4><ul><li>사용자 가까운 Edge에서 응답</li><li>이미지·JS·CSS 정적 자산에 효과 큼</li><li>캐시 무효화 전략 필요</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">ETag</h4><ul><li>리소스 버전 지문</li><li>변경 없으면 304 Not Modified</li><li>네트워크 바이트 절약</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">면접 포인트</div>해시가 붙은 정적 파일은 길게 캐싱하고, HTML/API는 짧게 또는 재검증. 사용자별 데이터는 CDN 캐싱 주의.</div>
+</section><hr class="divider">
+
+<!-- ===== Package Manager Lockfile ===== -->
+<section class="term" id="lockfile">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="lockfile-h">Package Manager Lockfile <span class="sub">pnpm-lock.yaml · package-lock.json · yarn.lock</span></h2>
+    <div class="links"><a class="link-tag" href="#turborepo">Turborepo · pnpm</a><a class="link-tag" href="#semver">SemVer</a></div>
+  </div>
+</div>
+<div class="summary">의존성의 <strong>정확한 버전과 하위 의존성 트리</strong>를 고정해 팀원·CI·운영 빌드 결과를 동일하게 만드는 파일.</div>
+<div class="diagram"><svg viewBox="0 0 760 120" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="alf" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="20" y="30" width="150" height="60" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/><text x="95" y="52" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="700">package.json</text><text x="95" y="70" text-anchor="middle" fill="#9096a8" font-size="8">react: ^18.2.0</text><text x="95" y="82" text-anchor="middle" fill="#5a6070" font-size="8">범위 선언</text>
+  <line x1="170" y1="60" x2="228" y2="60" stroke="#5a6070" stroke-width="1.5" marker-end="url(#alf)"/>
+  <rect x="228" y="20" width="180" height="80" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="1"/><text x="318" y="44" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">pnpm-lock.yaml</text><text x="318" y="62" text-anchor="middle" fill="#9096a8" font-size="8">react: 18.2.0</text><text x="318" y="76" text-anchor="middle" fill="#9096a8" font-size="8">하위 의존성까지 고정</text><text x="318" y="90" text-anchor="middle" fill="#4ade80" font-size="8">재현 가능한 설치</text>
+  <line x1="408" y1="60" x2="466" y2="60" stroke="#5a6070" stroke-width="1.5" marker-end="url(#alf)"/>
+  <rect x="466" y="30" width="130" height="60" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/><text x="531" y="52" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">CI / 팀원 PC</text><text x="531" y="70" text-anchor="middle" fill="#9096a8" font-size="8">동일 버전 설치</text><text x="531" y="82" text-anchor="middle" fill="#5a6070" font-size="8">빌드 차이 감소</text>
+  <rect x="620" y="30" width="120" height="60" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/><text x="680" y="52" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="700">주의</text><text x="680" y="68" text-anchor="middle" fill="#9096a8" font-size="8">lockfile 충돌</text><text x="680" y="82" text-anchor="middle" fill="#9096a8" font-size="8">수동 편집 금지</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">왜 커밋하나</h4><ul><li>팀원마다 다른 버전 설치 방지</li><li>CI 빌드 재현성 확보</li><li>보안 취약점 추적 가능</li><li>배포 후 롤백 시 동일 환경 복원</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">실무 주의</h4><ul><li>패키지 매니저 혼용 금지</li><li><code>npm install</code>로 package-lock 생성하지 않기</li><li>충돌 해결 후 <code>pnpm install</code>로 재생성</li><li>lockfile만 큰 변경이면 원인 확인</li></ul></div>
+</div>
+</section><hr class="divider">
+
+<!-- ===== Error Boundary ===== -->
+<section class="term" id="error-boundary">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="error-boundary-h">Error Boundary <span class="sub">React 장애 격리</span></h2>
+    <div class="links"><a class="link-tag" href="#sentry">Sentry · Source Map</a><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a></div>
+  </div>
+</div>
+<div class="summary">컴포넌트 렌더링 중 에러가 나도 <strong>앱 전체가 하얀 화면이 되지 않도록</strong> 특정 영역만 fallback UI로 대체하는 React 패턴.</div>
+<div class="diagram"><svg viewBox="0 0 760 120" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="16" width="340" height="88" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/><text x="180" y="36" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">Boundary 없음</text><rect x="30" y="50" width="90" height="32" rx="5" fill="#2a3040"/><text x="75" y="70" text-anchor="middle" fill="#9096a8" font-size="8">Header</text><rect x="134" y="50" width="90" height="32" rx="5" fill="#fb7185" fill-opacity=".3" stroke="#fb7185" stroke-width="0.5"/><text x="179" y="70" text-anchor="middle" fill="#fb7185" font-size="8">Chart Error</text><rect x="238" y="50" width="90" height="32" rx="5" fill="#2a3040"/><text x="283" y="70" text-anchor="middle" fill="#9096a8" font-size="8">Table</text><text x="180" y="96" text-anchor="middle" fill="#fb7185" font-size="8">하위 에러 → 전체 화면 중단</text>
+  <rect x="410" y="16" width="340" height="88" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/><text x="580" y="36" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">Boundary 적용</text><rect x="430" y="50" width="90" height="32" rx="5" fill="#2a3040"/><text x="475" y="70" text-anchor="middle" fill="#9096a8" font-size="8">Header 정상</text><rect x="534" y="44" width="90" height="44" rx="5" fill="#4ade80" fill-opacity=".18" stroke="#4ade80" stroke-width="0.7"/><text x="579" y="62" text-anchor="middle" fill="#4ade80" font-size="8">Fallback</text><text x="579" y="76" text-anchor="middle" fill="#9096a8" font-size="7">다시 시도</text><rect x="638" y="50" width="90" height="32" rx="5" fill="#2a3040"/><text x="683" y="70" text-anchor="middle" fill="#9096a8" font-size="8">Table 정상</text><text x="580" y="96" text-anchor="middle" fill="#4ade80" font-size="8">에러 영역만 격리하고 나머지는 유지</text>
+</svg></div>
+<div class="flow"><div class="lbl">Next.js App Router</div>
+app/dashboard/<span class="hi">error.tsx</span>  <span class="ok">// 해당 라우트 세그먼트의 Error Boundary</span>
+export default function Error({ error, reset }) {
+  return &lt;Fallback onRetry={reset} /&gt;
+}
+</div>
+<div class="tip"><div class="tip-l">면접 포인트</div>Error Boundary는 렌더링·라이프사이클 에러를 잡지만, 이벤트 핸들러나 비동기 콜백 에러는 직접 try/catch 또는 상태 처리 필요.</div>
+</section><hr class="divider">
+
+<!-- ===== Query Key ===== -->
+<section class="term" id="query-key">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="query-key-h">TanStack Query queryKey 설계 <span class="sub">캐시 주소 설계</span></h2>
+    <div class="links"><a class="link-tag" href="#react-query">React Query 심화</a><a class="link-tag" href="#optimistic">Optimistic Update</a></div>
+  </div>
+</div>
+<div class="summary"><code>queryKey</code>는 서버 상태 캐시의 주소. <strong>데이터를 구분하는 모든 조건을 key에 포함</strong>해야 캐시 충돌·잘못된 재사용을 막을 수 있음.</div>
+<div class="diagram"><svg viewBox="0 0 760 120" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="20" width="350" height="80" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.5"/><text x="185" y="42" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">나쁜 key</text><text x="185" y="62" text-anchor="middle" fill="#9096a8" font-size="9">['projects']</text><text x="185" y="78" text-anchor="middle" fill="#fb7185" font-size="8">page, filter, tenant가 달라도 같은 캐시 사용</text><text x="185" y="92" text-anchor="middle" fill="#fb7185" font-size="8">→ 다른 화면 데이터가 섞임</text>
+  <rect x="410" y="20" width="340" height="80" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.5"/><text x="580" y="42" text-anchor="middle" fill="#4ade80" font-size="10" font-weight="700">좋은 key</text><text x="580" y="62" text-anchor="middle" fill="#9096a8" font-size="9">['projects', tenantId, { page, status, keyword }]</text><text x="580" y="78" text-anchor="middle" fill="#4ade80" font-size="8">조건별로 캐시가 정확히 분리</text><text x="580" y="92" text-anchor="middle" fill="#5a6070" font-size="8">invalidate도 범위 지정 가능</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">설계 원칙</h4><ul><li>리소스명 → 식별자 → 옵션 순서</li><li>필터·페이지·정렬 조건 포함</li><li>객체 key는 직렬화 가능한 값만 사용</li><li>key factory로 상수화</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">예시</h4><ul><li><code>projectKeys.all</code>: 전체 prefix</li><li><code>projectKeys.list(filters)</code>: 목록</li><li><code>projectKeys.detail(id)</code>: 상세</li><li><code>invalidateQueries({ queryKey: projectKeys.all })</code></li></ul></div>
+</div>
+<div class="warn-box"><div class="tip-l">흔한 실수</div>검색어·페이지 번호를 queryKey에 넣지 않고 API 함수 인자로만 넘김 → React Query는 같은 데이터로 착각함.</div>
+</section><hr class="divider">
+
+<!-- ===== Server Action ===== -->
+<section class="term" id="server-action">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="server-action-h">Next.js Server Action <span class="sub">서버에서 실행되는 form/action 함수</span></h2>
+    <div class="links"><a class="link-tag" href="#rsc">RSC vs RCC</a><a class="link-tag" href="#edge-runtime">Edge Runtime</a></div>
+  </div>
+</div>
+<div class="summary"><code>'use server'</code>로 표시한 함수를 브라우저에서 호출하지만, 실제 코드는 <strong>서버에서 실행</strong>. 폼 제출·간단한 mutation을 API Route 없이 처리 가능.</div>
+<div class="diagram"><svg viewBox="0 0 760 130" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="asa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="20" y="40" width="130" height="54" rx="8" fill="#1e2130" stroke="#2dd4bf" stroke-width="0.5"/><text x="85" y="60" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="700">Client / Form</text><text x="85" y="78" text-anchor="middle" fill="#9096a8" font-size="8">action={createUser}</text>
+  <line x1="150" y1="67" x2="230" y2="67" stroke="#5a6070" stroke-width="1.5" marker-end="url(#asa)"/><text x="190" y="60" text-anchor="middle" fill="#5a6070" font-size="8">submit</text>
+  <rect x="230" y="28" width="170" height="78" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="1"/><text x="315" y="50" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="700">Server Action</text><text x="315" y="68" text-anchor="middle" fill="#9096a8" font-size="8">'use server'</text><text x="315" y="82" text-anchor="middle" fill="#9096a8" font-size="8">검증 · DB · 쿠키 처리</text><text x="315" y="96" text-anchor="middle" fill="#4ade80" font-size="8">서버에서만 실행</text>
+  <line x1="400" y1="67" x2="480" y2="67" stroke="#5a6070" stroke-width="1.5" marker-end="url(#asa)"/>
+  <rect x="480" y="40" width="110" height="54" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.5"/><text x="535" y="62" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700">DB / API</text><text x="535" y="78" text-anchor="middle" fill="#9096a8" font-size="8">민감 로직</text>
+  <rect x="620" y="30" width="120" height="74" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/><text x="680" y="50" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="700">주의</text><text x="680" y="66" text-anchor="middle" fill="#9096a8" font-size="8">권한 검증 필수</text><text x="680" y="80" text-anchor="middle" fill="#9096a8" font-size="8">입력값 검증 필수</text><text x="680" y="94" text-anchor="middle" fill="#fb7185" font-size="8">클라이언트 신뢰 금지</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">장점</h4><ul><li>간단한 mutation에 API Route 생략 가능</li><li>서버 전용 비밀값 노출 없음</li><li>폼과 자연스럽게 결합</li><li><code>revalidatePath</code>, <code>redirect</code>와 잘 맞음</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">주의</h4><ul><li>사용자 입력 검증 필수</li><li>권한 체크를 action 내부에서 수행</li><li>공용 API가 필요하면 Route Handler가 더 적합</li><li>복잡한 클라이언트 상태는 React Query와 역할 분리</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">판단 기준</div>폼 기반 생성·수정은 Server Action 후보. 여러 클라이언트가 재사용하는 공개 API, 외부 연동 endpoint는 Route Handler가 더 명확함.</div>
 </section><hr class="divider">
 
 <!-- ===== ARIA ===== -->
