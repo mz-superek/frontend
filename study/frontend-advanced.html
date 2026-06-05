@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>프론트엔드 개발자를 위한 프론트엔드 심화 학습서</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --accent: #0d9488;
+        --accent-soft: #f0fdfa;
+        --code-bg: #111827;
+        --code-text: #f9fafb;
+        --warn-bg: #fff7ed;
+        --warn-line: #fdba74;
+        --ok-bg: #ecfdf5;
+        --ok-line: #6ee7b7;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+        line-height: 1.75;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+      }
+      header {
+        padding: 32px 18px 20px;
+        background: linear-gradient(135deg, #0f766e, #0d9488, #2dd4bf);
+        color: white;
+      }
+      header h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+        line-height: 1.25;
+        letter-spacing: -0.04em;
+      }
+      header p {
+        margin: 0;
+        opacity: 0.94;
+        font-size: 15px;
+      }
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 16px 14px 60px;
+      }
+      section,
+      .toc,
+      .note,
+      .checklist {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px 18px;
+        margin: 14px 0;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+      }
+      h2 {
+        margin: 0 0 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--line);
+        font-size: 22px;
+        line-height: 1.35;
+        letter-spacing: -0.035em;
+      }
+      h3 {
+        margin: 24px 0 8px;
+        font-size: 18px;
+        letter-spacing: -0.02em;
+      }
+      h4 {
+        margin: 18px 0 6px;
+        font-size: 16px;
+      }
+      p {
+        margin: 8px 0 12px;
+      }
+      ul,
+      ol {
+        padding-left: 22px;
+        margin: 8px 0 14px;
+      }
+      li {
+        margin: 5px 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      .toc ol {
+        margin-bottom: 0;
+      }
+      .badge {
+        display: inline-block;
+        padding: 3px 8px;
+        margin: 2px 4px 2px 0;
+        border-radius: 999px;
+        background: #ccfbf1;
+        color: #0f766e;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .small {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .note {
+        border-left: 5px solid var(--accent);
+      }
+      .warn {
+        background: var(--warn-bg);
+        border-color: var(--warn-line);
+        border-left: 5px solid var(--warn-line);
+      }
+      .ok {
+        background: var(--ok-bg);
+        border-color: var(--ok-line);
+        border-left: 5px solid var(--ok-line);
+      }
+      code {
+        padding: 2px 5px;
+        border-radius: 6px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.92em;
+      }
+      pre {
+        overflow-x: auto;
+        padding: 14px;
+        border-radius: 14px;
+        background: var(--code-bg);
+        color: var(--code-text);
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre;
+      }
+      pre code {
+        padding: 0;
+        background: transparent;
+        color: inherit;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 18px;
+        font-size: 14px;
+      }
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 9px 8px;
+        vertical-align: top;
+      }
+      th {
+        background: #f9fafb;
+        text-align: left;
+      }
+      .flow {
+        padding: 12px 14px;
+        background: #f9fafb;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 13px;
+        white-space: pre-line;
+      }
+      .qa {
+        padding: 12px 14px;
+        background: #f8fafc;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        margin: 10px 0;
+      }
+      .top {
+        position: fixed;
+        right: 14px;
+        bottom: 14px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: #111827;
+        color: white;
+        font-size: 13px;
+        opacity: 0.86;
+      }
+      @media (max-width: 520px) {
+        header h1 {
+          font-size: 24px;
+        }
+        main {
+          padding: 12px 10px 54px;
+        }
+        section,
+        .toc,
+        .note,
+        .checklist {
+          padding: 17px 14px;
+          border-radius: 16px;
+        }
+        h2 {
+          font-size: 20px;
+        }
+        h3 {
+          font-size: 17px;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+        pre {
+          font-size: 12.5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header id="top">
+      <h1>프론트엔드 개발자를 위한 프론트엔드 심화 학습서</h1>
+      <p>렌더링 내부 · 성능 · 동시성 · 타입 · 접근성 · 디자인 시스템 · 테스트</p>
+    </header>
+
+    <main>
+      <div class="note ok">
+        <strong>기초편의 다음 단계입니다.</strong>
+        <p>
+          <a href="./frontend.html">기초편</a>에서 다룬 렌더링·CSS·React·상태를 "내부에서 어떻게 동작하는지",
+          "어디서 성능이 갈리는지", "대규모에서 어떻게 유지보수하는지"까지 확장합니다. 화면을 만드는 사람에서,
+          렌더링·성능·아키텍처를 설계하는 프론트엔드 개발자로 가는 것이 목표입니다.
+        </p>
+      </div>
+
+      <nav class="toc">
+        <h2>목차</h2>
+        <ol>
+          <li><a href="#goal">학습 목표 (심화)</a></li>
+          <li><a href="#perf-render">렌더링 성능 &amp; Core Web Vitals</a></li>
+          <li><a href="#react-internal">React 렌더링 내부: 재조정 &amp; Fiber</a></li>
+          <li><a href="#react-opt">React 최적화: memo · 가상화</a></li>
+          <li><a href="#concurrent">Concurrent &amp; Suspense</a></li>
+          <li><a href="#state">상태 관리 심화</a></li>
+          <li><a href="#loading">로딩 최적화: 코드 스플리팅</a></li>
+          <li><a href="#bundle">번들링 심화: Tree Shaking</a></li>
+          <li><a href="#ts">TypeScript</a></li>
+          <li><a href="#a11y">접근성 심화: WCAG · 포커스</a></li>
+          <li><a href="#css-arch">CSS 아키텍처 &amp; 디자인 시스템</a></li>
+          <li><a href="#test">테스트</a></li>
+          <li><a href="#checklist">심화 체크리스트</a></li>
+        </ol>
+      </nav>
+
+      <section id="goal">
+        <h2>1. 학습 목표 (심화)</h2>
+        <p>
+          기초편이 "동작하는 화면 만들기"였다면, 심화편은 <strong>왜 빠르고/느린지, 왜 다시 그려지는지, 대규모에서
+          어떻게 무너지지 않는지</strong>를 다룹니다.
+        </p>
+        <p>
+          <span class="badge">렌더링 내부</span><span class="badge">성능</span><span class="badge">동시성</span
+          ><span class="badge">타입 안정성</span><span class="badge">아키텍처</span>
+        </p>
+        <div class="qa">
+          <strong>최종적으로 할 수 있어야 하는 말</strong>
+          <p>
+            "이 리스트는 항목이 많아 가상화하고, 무거운 계산은 메모이즈한다. 이 입력은 급하지 않으니 transition으로
+            낮은 우선순위로 처리하고, 라우트 단위로 코드 스플리팅한다. 디자인 토큰으로 스타일을 일관되게 묶고,
+            컴포넌트는 role 기준으로 테스트한다."
+          </p>
+        </div>
+      </section>
+
+      <section id="perf-render">
+        <h2>2. 렌더링 성능 &amp; Core Web Vitals</h2>
+
+        <h3>Reflow vs Repaint vs Composite</h3>
+        <table>
+          <tr>
+            <th>변경</th>
+            <th>발생 단계</th>
+            <th>비용</th>
+          </tr>
+          <tr>
+            <td>width, top, font-size 등 기하</td>
+            <td>Reflow → Repaint → Composite</td>
+            <td>가장 무거움</td>
+          </tr>
+          <tr>
+            <td>color, background 등</td>
+            <td>Repaint → Composite</td>
+            <td>중간</td>
+          </tr>
+          <tr>
+            <td>transform, opacity</td>
+            <td>Composite만</td>
+            <td>가장 가벼움 (GPU)</td>
+          </tr>
+        </table>
+
+        <h3>Layout Thrashing</h3>
+        <p>스타일을 바꾼 직후 레이아웃 값을 읽으면(<code>offsetHeight</code> 등) 브라우저가 강제로 즉시 레이아웃을 계산합니다. 읽기/쓰기를 번갈아 하면 이게 반복돼 급격히 느려집니다.</p>
+        <pre><code>// 나쁨: 읽기-쓰기가 섞여 매번 강제 reflow
+items.forEach((el) =&gt; { el.style.height = el.offsetHeight + 10 + "px"; });
+
+// 좋음: 읽기 모아서 → 쓰기 모아서
+const hs = items.map((el) =&gt; el.offsetHeight);
+items.forEach((el, i) =&gt; { el.style.height = hs[i] + 10 + "px"; });</code></pre>
+
+        <h3>Core Web Vitals</h3>
+        <p>구글이 정의한 실사용 성능 지표입니다.</p>
+        <table>
+          <tr>
+            <th>지표</th>
+            <th>의미</th>
+            <th>좋음 기준</th>
+          </tr>
+          <tr>
+            <td>LCP</td>
+            <td>가장 큰 콘텐츠가 보이기까지 (로딩)</td>
+            <td>2.5초 이하</td>
+          </tr>
+          <tr>
+            <td>CLS</td>
+            <td>레이아웃이 갑자기 밀리는 정도 (안정성)</td>
+            <td>0.1 이하</td>
+          </tr>
+          <tr>
+            <td>INP</td>
+            <td>상호작용에 대한 응답 속도 (반응성, FID 대체)</td>
+            <td>200ms 이하</td>
+          </tr>
+        </table>
+        <div class="qa">
+          <strong>프론트에서의 실천</strong>
+          <p>이미지·광고 영역에 크기를 미리 지정하면 CLS가 줄고, 무거운 JS를 쪼개면 INP가 좋아집니다. LCP는 보통 핵심 이미지·폰트 로딩을 앞당겨 개선합니다.</p>
+        </div>
+      </section>
+
+      <section id="react-internal">
+        <h2>3. React 렌더링 내부: 재조정 &amp; Fiber</h2>
+
+        <h3>재조정(Reconciliation)</h3>
+        <p>state가 바뀌면 React는 새 가상 트리를 만들고, 이전 트리와 비교해 <strong>달라진 부분만</strong> 실제 DOM에 반영합니다. 이때 <code>key</code>로 어떤 항목이 같은지 식별합니다. key가 인덱스면 순서가 바뀔 때 엉뚱한 항목이 재사용됩니다.</p>
+
+        <h3>Fiber 아키텍처</h3>
+        <p>React 16부터의 렌더링 엔진입니다. 렌더링을 작은 작업 단위로 쪼개 <strong>중단·재개·우선순위 조정</strong>이 가능합니다. 덕분에 긴 렌더링이 사용자 입력을 막지 않습니다.</p>
+        <table>
+          <tr>
+            <th>단계</th>
+            <th>설명</th>
+          </tr>
+          <tr>
+            <td>Render 단계</td>
+            <td>가상 트리 계산·비교. 중단·폐기 가능 (화면에 아직 반영 안 함)</td>
+          </tr>
+          <tr>
+            <td>Commit 단계</td>
+            <td>계산 결과를 실제 DOM에 한 번에 반영. 중단 불가</td>
+          </tr>
+        </table>
+        <div class="qa">
+          <strong>왜 알아야 하나</strong>
+          <p>Render 단계는 여러 번 실행되거나 버려질 수 있어서, 그 안에 부수효과(API 호출 등)를 넣으면 안 됩니다. 부수효과는 <code>useEffect</code>(커밋 이후)에 둬야 하는 이유가 여기 있습니다.</p>
+        </div>
+      </section>
+
+      <section id="react-opt">
+        <h2>4. React 최적화: memo · 가상화</h2>
+
+        <h3>메모이제이션 3종</h3>
+        <table>
+          <tr>
+            <th>도구</th>
+            <th>역할</th>
+          </tr>
+          <tr>
+            <td><code>React.memo</code></td>
+            <td>props가 같으면 컴포넌트 리렌더 생략</td>
+          </tr>
+          <tr>
+            <td><code>useMemo</code></td>
+            <td>무거운 계산 결과를 캐시</td>
+          </tr>
+          <tr>
+            <td><code>useCallback</code></td>
+            <td>함수의 참조를 유지 (자식 memo와 짝)</td>
+          </tr>
+        </table>
+        <div class="note warn">
+          <strong>남용 주의</strong>
+          <p>메모이제이션도 비교 비용이 듭니다. 측정 없이 모든 곳에 붙이면 오히려 느리고 코드만 복잡해집니다. "느린 게 확인된 곳"에만 쓰세요. 참고로 React 19의 컴파일러는 이런 메모이제이션을 상당 부분 자동화하는 방향입니다.</p>
+        </div>
+
+        <h3>리스트 가상화</h3>
+        <p>수천 개 항목을 전부 DOM에 그리면 느립니다. 화면에 보이는 부분만 그리고 스크롤에 따라 교체하는 것이 가상화입니다(react-window, TanStack Virtual 등).</p>
+        <div class="flow">전체 10,000개 → 보이는 ~20개만 실제 DOM
+스크롤 시 위/아래 항목을 재활용해 교체</div>
+      </section>
+
+      <section id="concurrent">
+        <h2>5. Concurrent &amp; Suspense</h2>
+        <p>React 18+의 동시성 기능은 "급한 업데이트"와 "안 급한 업데이트"를 구분해 반응성을 지킵니다.</p>
+
+        <h3>useTransition / useDeferredValue</h3>
+        <pre><code>const [isPending, startTransition] = useTransition();
+
+function onChange(e) {
+  setQuery(e.target.value);            // 급함: 입력은 즉시 반영
+  startTransition(() =&gt; {
+    setResults(search(e.target.value)); // 안 급함: 결과는 낮은 우선순위
+  });
+}</code></pre>
+        <p>입력은 끊김 없이 반영되고, 무거운 결과 렌더링은 뒤로 미뤄 화면이 버벅이지 않습니다.</p>
+
+        <h3>Suspense</h3>
+        <p>데이터·코드가 준비될 때까지 fallback(스켈레톤 등)을 보여주는 선언적 로딩 처리입니다.</p>
+        <pre><code>&lt;Suspense fallback={&lt;Skeleton /&gt;}&gt;
+  &lt;UserProfile id={id} /&gt;
+&lt;/Suspense&gt;</code></pre>
+        <div class="qa">
+          <strong>SSR과의 연결</strong>
+          <p>스트리밍 SSR에서는 Suspense 경계 단위로 준비된 부분부터 HTML을 흘려보냅니다. 느린 위젯 하나가 전체 페이지를 막지 않게 됩니다.</p>
+        </div>
+      </section>
+
+      <section id="state">
+        <h2>6. 상태 관리 심화</h2>
+
+        <h3>Context의 함정</h3>
+        <p>Context 값이 바뀌면 그 값을 구독하는 <strong>모든</strong> 컴포넌트가 리렌더됩니다. 자주 바뀌는 값을 큰 Context에 담으면 광범위한 리렌더가 일어납니다.</p>
+        <ul>
+          <li>변경 빈도가 다른 값은 Context를 분리</li>
+          <li>외부 스토어(Zustand 등)는 필요한 조각만 구독해 리렌더를 줄임</li>
+          <li>외부 스토어를 React와 안전하게 연결할 땐 <code>useSyncExternalStore</code></li>
+        </ul>
+
+        <h3>상태를 어디에 둘 것인가</h3>
+        <table>
+          <tr>
+            <th>질문</th>
+            <th>결론</th>
+          </tr>
+          <tr>
+            <td>서버에서 온 데이터인가?</td>
+            <td>React Query (서버 상태)</td>
+          </tr>
+          <tr>
+            <td>여러 화면이 공유하는가?</td>
+            <td>전역 스토어 or Context</td>
+          </tr>
+          <tr>
+            <td>한 컴포넌트만 쓰는가?</td>
+            <td>로컬 useState — 가능한 가장 가까운 곳에</td>
+          </tr>
+        </table>
+        <div class="qa">
+          <strong>핵심 원칙</strong>
+          <p>"상태를 필요한 곳 가장 가까이 둔다(colocation)." 무턱대고 전역으로 올리면 결합도가 높아지고 리렌더가 늘어납니다.</p>
+        </div>
+      </section>
+
+      <section id="loading">
+        <h2>7. 로딩 최적화: 코드 스플리팅</h2>
+        <p>모든 코드를 한 번에 내려받으면 초기 로딩이 느립니다. 필요한 시점에 나눠 받습니다.</p>
+        <pre><code>import { lazy, Suspense } from "react";
+const Settings = lazy(() =&gt; import("./Settings"));
+
+&lt;Suspense fallback={&lt;Spinner /&gt;}&gt;
+  &lt;Settings /&gt;   {/* 이 화면에 들어갈 때 비로소 다운로드 */}
+&lt;/Suspense&gt;</code></pre>
+        <ul>
+          <li><strong>라우트 단위 분할</strong>: 페이지별로 나누는 게 가장 효과적</li>
+          <li><strong>프리페치</strong>: 곧 쓸 청크를 미리 받아 체감 지연 제거</li>
+          <li><strong>이미지</strong>: 적절한 포맷(WebP/AVIF)·사이즈·lazy 로딩</li>
+          <li><strong>폰트</strong>: <code>font-display: swap</code>으로 텍스트 즉시 표시</li>
+        </ul>
+      </section>
+
+      <section id="bundle">
+        <h2>8. 번들링 심화: Tree Shaking</h2>
+        <p>Tree shaking은 실제로 쓰지 않는 코드를 번들에서 제거하는 것입니다. ESM의 정적 <code>import</code> 구조 덕에 가능합니다.</p>
+        <pre><code>// 전체를 가져오면 안 쓰는 것도 포함될 수 있음
+import _ from "lodash";
+// 필요한 것만 → tree shaking에 유리
+import debounce from "lodash/debounce";</code></pre>
+        <table>
+          <tr>
+            <th>개념</th>
+            <th>설명</th>
+          </tr>
+          <tr>
+            <td>ESM vs CommonJS</td>
+            <td>ESM은 정적 분석이 가능해 tree shaking에 유리. CJS(require)는 어려움</td>
+          </tr>
+          <tr>
+            <td>sideEffects</td>
+            <td><code>package.json</code>의 이 필드로 "제거해도 안전한 모듈"을 표시</td>
+          </tr>
+          <tr>
+            <td>청크 전략</td>
+            <td>공통 라이브러리를 별도 청크로 빼 캐시 적중률을 높임</td>
+          </tr>
+        </table>
+        <p class="small">Vite·webpack·Turbopack 같은 번들러가 이 과정을 수행합니다. 번들 분석 도구로 무엇이 무거운지 확인하는 습관이 중요합니다.</p>
+      </section>
+
+      <section id="ts">
+        <h2>9. TypeScript</h2>
+        <p>타입은 런타임 전에 실수를 잡고, 자동완성과 리팩터링 안정성을 줍니다.</p>
+
+        <h3>자주 쓰는 유틸리티 타입</h3>
+        <table>
+          <tr>
+            <th>타입</th>
+            <th>의미</th>
+          </tr>
+          <tr>
+            <td><code>Partial&lt;T&gt;</code></td>
+            <td>모든 속성을 선택적으로</td>
+          </tr>
+          <tr>
+            <td><code>Pick&lt;T, K&gt; / Omit&lt;T, K&gt;</code></td>
+            <td>일부 속성만 고르기 / 빼기</td>
+          </tr>
+          <tr>
+            <td><code>Record&lt;K, V&gt;</code></td>
+            <td>키-값 형태의 객체 타입</td>
+          </tr>
+        </table>
+
+        <h3>컴포넌트와 API 타이핑</h3>
+        <pre><code>type ButtonProps = {
+  variant: "primary" | "ghost";   // 좁은 유니온으로 오용 방지
+  onClick: () =&gt; void;
+  children: React.ReactNode;
+};
+
+function Button({ variant, onClick, children }: ButtonProps) { /* ... */ }
+
+// API 응답도 타입으로 고정
+type User = { id: number; name: string };
+const res = await api.get&lt;User[]&gt;("/users");</code></pre>
+        <div class="qa">
+          <strong>좁히기(narrowing)</strong>
+          <p>판별 가능한 유니온(discriminated union)으로 상태를 모델링하면, 로딩/성공/에러를 타입 수준에서 안전하게 분기할 수 있습니다. 예: <code>{ status: "success"; data } | { status: "error"; error }</code></p>
+        </div>
+      </section>
+
+      <section id="a11y">
+        <h2>10. 접근성 심화: WCAG · 포커스</h2>
+        <p>기초편의 시맨틱·alt·label 위에, 동적 UI에서 자주 놓치는 부분입니다.</p>
+
+        <h3>키보드 &amp; 포커스 관리</h3>
+        <ul>
+          <li>모달이 열리면 포커스를 모달 안으로 이동하고, 안에 가둔다(focus trap)</li>
+          <li>모달이 닫히면 열기 전 요소로 포커스를 되돌린다</li>
+          <li><code>Tab</code> 순서가 시각적 순서와 일치해야 한다</li>
+          <li>커스텀 위젯엔 적절한 <code>role</code>과 키보드 동작을 직접 구현</li>
+        </ul>
+
+        <h3>동적 변화 알림 (Live Region)</h3>
+        <pre><code>&lt;div aria-live="polite"&gt;{message}&lt;/div&gt;
+&lt;!-- 내용이 바뀌면 스크린리더가 읽어줌 (polite: 끼어들지 않게) --&gt;</code></pre>
+
+        <h3>WCAG 기준</h3>
+        <p>실무 목표는 보통 <strong>WCAG 2.1 AA</strong>입니다. 대표적으로 본문 텍스트 대비 4.5:1 이상, 모든 기능의 키보드 사용 가능, 콘텐츠가 색에만 의존하지 않기 등이 있습니다.</p>
+        <div class="note ok">
+          <strong>강점 살리기</strong>
+          <p>접근성은 마크업·표준에 능한 사람일수록 잘하는 영역입니다. 컴포넌트를 만들 때 접근성을 기본값으로 넣어두면, 팀 전체의 품질 기준이 올라갑니다.</p>
+        </div>
+      </section>
+
+      <section id="css-arch">
+        <h2>11. CSS 아키텍처 &amp; 디자인 시스템</h2>
+        <p>규모가 커지면 "동작하는 CSS"보다 "충돌·중복 없이 확장되는 CSS"가 중요해집니다.</p>
+
+        <h3>스타일링 전략 비교</h3>
+        <table>
+          <tr>
+            <th>방식</th>
+            <th>특징</th>
+          </tr>
+          <tr>
+            <td>CSS Modules</td>
+            <td>클래스명을 지역 스코프로 격리. 충돌 없음</td>
+          </tr>
+          <tr>
+            <td>CSS-in-JS</td>
+            <td>JS로 스타일 작성. 동적 스타일에 강함(런타임 비용 고려)</td>
+          </tr>
+          <tr>
+            <td>유틸리티 (Tailwind)</td>
+            <td>작은 클래스 조합. 빠른 작업·일관성, 마크업이 길어짐</td>
+          </tr>
+        </table>
+
+        <h3>디자인 토큰</h3>
+        <p>색·간격·타이포를 변수로 정의해 한 곳에서 관리합니다. 디자인 시스템의 기반입니다.</p>
+        <pre><code>:root {
+  --color-primary: #2563eb;
+  --space-2: 8px;
+  --radius-md: 12px;
+}
+.button { background: var(--color-primary); padding: var(--space-2); }</code></pre>
+
+        <h3>모던 CSS 무기</h3>
+        <ul>
+          <li><code>@layer</code>: 캐스케이드 레이어로 우선순위를 명시적으로 관리(<code>!important</code> 의존 감소)</li>
+          <li>컨테이너 쿼리: 뷰포트가 아닌 <strong>부모 크기</strong>에 반응 → 진짜 재사용 가능한 컴포넌트</li>
+          <li><code>:has()</code>: 부모를 자식 조건으로 선택하는 관계형 선택자</li>
+        </ul>
+        <div class="qa">
+          <strong>디자인 시스템 관점</strong>
+          <p>토큰 → 프리미티브 컴포넌트 → 합성 컴포넌트로 쌓아 올리면, 디자인과 코드가 같은 언어를 쓰게 됩니다. 이것이 디자인 엔지니어링의 핵심 골격입니다.</p>
+        </div>
+      </section>
+
+      <section id="test">
+        <h2>12. 테스트</h2>
+        <p>테스트는 "리팩터링해도 안 깨진다"는 안전망입니다. 종류별로 목적이 다릅니다.</p>
+        <table>
+          <tr>
+            <th>종류</th>
+            <th>대상</th>
+            <th>도구</th>
+          </tr>
+          <tr>
+            <td>단위</td>
+            <td>함수·훅 하나</td>
+            <td>Vitest, Jest</td>
+          </tr>
+          <tr>
+            <td>통합</td>
+            <td>컴포넌트 + 상호작용</td>
+            <td>Testing Library</td>
+          </tr>
+          <tr>
+            <td>E2E</td>
+            <td>실제 브라우저 사용자 흐름</td>
+            <td>Playwright, Cypress</td>
+          </tr>
+        </table>
+        <pre><code>// Testing Library: 구현이 아니라 "사용자가 보는 것"을 테스트
+const btn = screen.getByRole("button", { name: "저장" });
+await user.click(btn);
+expect(screen.getByText("저장됨")).toBeInTheDocument();</code></pre>
+        <div class="qa">
+          <strong>철학과 네트워크 모킹</strong>
+          <p>클래스명·내부 state가 아니라 <code>role</code>·텍스트로 찾으면, 접근성도 챙기고 리팩터링에도 강한 테스트가 됩니다. API는 MSW로 네트워크 레벨에서 모킹하면 실제와 가깝게 검증할 수 있습니다.</p>
+        </div>
+      </section>
+
+      <section id="checklist" class="checklist">
+        <h2>13. 심화 체크리스트</h2>
+        <ul>
+          <li>□ reflow/repaint/composite를 유발하는 속성을 구분한다.</li>
+          <li>□ layout thrashing을 알고 읽기/쓰기를 분리한다.</li>
+          <li>□ LCP·CLS·INP의 의미와 개선 방향을 안다.</li>
+          <li>□ 재조정과 key의 역할을 설명할 수 있다.</li>
+          <li>□ Fiber의 render/commit 단계 분리를 안다.</li>
+          <li>□ memo/useMemo/useCallback을 측정 기반으로 쓴다.</li>
+          <li>□ 긴 리스트를 가상화로 처리할 수 있다.</li>
+          <li>□ useTransition으로 우선순위를 나눌 수 있다.</li>
+          <li>□ Suspense로 로딩을 선언적으로 처리한다.</li>
+          <li>□ Context 리렌더 함정과 외부 스토어를 안다.</li>
+          <li>□ 상태를 필요한 곳 가까이 두는 원칙을 안다.</li>
+          <li>□ 라우트 단위 코드 스플리팅을 적용한다.</li>
+          <li>□ tree shaking과 ESM의 관계를 안다.</li>
+          <li>□ 유틸리티 타입과 컴포넌트 타이핑을 한다.</li>
+          <li>□ 판별 유니온으로 상태를 안전하게 모델링한다.</li>
+          <li>□ 모달 포커스 관리와 live region을 구현한다.</li>
+          <li>□ WCAG 2.1 AA 핵심 기준을 안다.</li>
+          <li>□ 스타일링 전략과 디자인 토큰을 설명할 수 있다.</li>
+          <li>□ @layer·컨테이너 쿼리·:has()를 활용한다.</li>
+          <li>□ 단위/통합/E2E의 목적을 구분하고 role 기준으로 테스트한다.</li>
+        </ul>
+        <div class="note">
+          <strong>이 문서의 최종 목표</strong>
+          <p>
+            화면을 만드는 것을 넘어, 렌더링과 성능의 원리를 이해하고, 확장 가능한 상태·스타일 아키텍처를 설계하며,
+            타입·접근성·테스트로 품질을 보장하는 프론트엔드 개발자가 되는 것입니다.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <a class="top" href="#top">맨 위로</a>
+  </body>
+</html>
