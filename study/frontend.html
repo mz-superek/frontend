@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>프론트엔드 개발자를 위한 프론트엔드 기초 학습서</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --accent: #059669;
+        --accent-soft: #ecfdf5;
+        --code-bg: #111827;
+        --code-text: #f9fafb;
+        --warn-bg: #fff7ed;
+        --warn-line: #fdba74;
+        --ok-bg: #ecfdf5;
+        --ok-line: #6ee7b7;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+        line-height: 1.75;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+      }
+      header {
+        padding: 32px 18px 20px;
+        background: linear-gradient(135deg, #047857, #059669, #34d399);
+        color: white;
+      }
+      header h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+        line-height: 1.25;
+        letter-spacing: -0.04em;
+      }
+      header p {
+        margin: 0;
+        opacity: 0.94;
+        font-size: 15px;
+      }
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 16px 14px 60px;
+      }
+      section,
+      .toc,
+      .note,
+      .checklist {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px 18px;
+        margin: 14px 0;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+      }
+      h2 {
+        margin: 0 0 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--line);
+        font-size: 22px;
+        line-height: 1.35;
+        letter-spacing: -0.035em;
+      }
+      h3 {
+        margin: 24px 0 8px;
+        font-size: 18px;
+        letter-spacing: -0.02em;
+      }
+      h4 {
+        margin: 18px 0 6px;
+        font-size: 16px;
+      }
+      p {
+        margin: 8px 0 12px;
+      }
+      ul,
+      ol {
+        padding-left: 22px;
+        margin: 8px 0 14px;
+      }
+      li {
+        margin: 5px 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      .toc ol {
+        margin-bottom: 0;
+      }
+      .badge {
+        display: inline-block;
+        padding: 3px 8px;
+        margin: 2px 4px 2px 0;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: #047857;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .small {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .note {
+        border-left: 5px solid var(--accent);
+      }
+      .warn {
+        background: var(--warn-bg);
+        border-color: var(--warn-line);
+        border-left: 5px solid var(--warn-line);
+      }
+      .ok {
+        background: var(--ok-bg);
+        border-color: var(--ok-line);
+        border-left: 5px solid var(--ok-line);
+      }
+      code {
+        padding: 2px 5px;
+        border-radius: 6px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.92em;
+      }
+      pre {
+        overflow-x: auto;
+        padding: 14px;
+        border-radius: 14px;
+        background: var(--code-bg);
+        color: var(--code-text);
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre;
+      }
+      pre code {
+        padding: 0;
+        background: transparent;
+        color: inherit;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0 18px;
+        font-size: 14px;
+      }
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 9px 8px;
+        vertical-align: top;
+      }
+      th {
+        background: #f9fafb;
+        text-align: left;
+      }
+      .flow {
+        padding: 12px 14px;
+        background: #f9fafb;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 13px;
+        white-space: pre-line;
+      }
+      .qa {
+        padding: 12px 14px;
+        background: #f8fafc;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        margin: 10px 0;
+      }
+      .top {
+        position: fixed;
+        right: 14px;
+        bottom: 14px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: #111827;
+        color: white;
+        font-size: 13px;
+        opacity: 0.86;
+      }
+      @media (max-width: 520px) {
+        header h1 {
+          font-size: 24px;
+        }
+        main {
+          padding: 12px 10px 54px;
+        }
+        section,
+        .toc,
+        .note,
+        .checklist {
+          padding: 17px 14px;
+          border-radius: 16px;
+        }
+        h2 {
+          font-size: 20px;
+        }
+        h3 {
+          font-size: 17px;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+        pre {
+          font-size: 12.5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header id="top">
+      <h1>프론트엔드 개발자를 위한 프론트엔드 기초 학습서</h1>
+      <p>렌더링 · 시맨틱/접근성 · CSS · JavaScript · React · 상태 · 툴링을 한 흐름으로</p>
+    </header>
+
+    <main>
+      <div class="note ok">
+        <strong>이 문서의 범위</strong>
+        <p>
+          프론트엔드 업무에 필요한 핵심을 한 권으로 정리합니다. 브라우저가 화면을 그리는 과정부터 시맨틱·접근성,
+          CSS, JavaScript, React, 상태 관리, 렌더링 방식, 빌드 툴까지 다룹니다. 더 깊은 내부 동작·성능·최적화는
+          심화편에서 이어집니다.
+        </p>
+      </div>
+
+      <nav class="toc">
+        <h2>목차</h2>
+        <ol>
+          <li><a href="#goal">학습 목표</a></li>
+          <li><a href="#render">브라우저가 화면을 그리는 과정</a></li>
+          <li><a href="#semantic">시맨틱 HTML &amp; 접근성</a></li>
+          <li><a href="#css">CSS 핵심</a></li>
+          <li><a href="#js">JavaScript 핵심</a></li>
+          <li><a href="#dom">DOM &amp; 이벤트</a></li>
+          <li><a href="#component">프레임워크와 컴포넌트 사고</a></li>
+          <li><a href="#react">React 기초</a></li>
+          <li><a href="#state">상태의 3가지 종류</a></li>
+          <li><a href="#routing">렌더링 방식과 라우팅</a></li>
+          <li><a href="#tooling">빌드 · 번들 · 패키지</a></li>
+          <li><a href="#devtools">개발자 도구로 디버깅</a></li>
+          <li><a href="#checklist">기초 체크리스트</a></li>
+        </ol>
+      </nav>
+
+      <section id="goal">
+        <h2>1. 학습 목표</h2>
+        <p>
+          이 문서의 목표는 화면을 만드는 것을 넘어, <strong>브라우저가 어떻게 동작하는지 이해하고, 의미 있는 마크업과
+          유지보수 가능한 컴포넌트를 작성</strong>하는 것입니다.
+        </p>
+        <p>
+          <span class="badge">렌더링 이해</span><span class="badge">시맨틱/접근성</span><span class="badge">CSS</span
+          ><span class="badge">JS &amp; React</span><span class="badge">상태 관리</span>
+        </p>
+        <div class="qa">
+          <strong>최종적으로 할 수 있어야 하는 말</strong>
+          <p>
+            "이 화면은 시맨틱 태그로 구조를 잡고, 레이아웃은 flex/grid로 짜며, 데이터는 서버 상태로 보고 React Query로
+            관리한다. 버튼 클릭 같은 UI 상태는 컴포넌트 안에서 useState로 다룬다."
+          </p>
+        </div>
+      </section>
+
+      <section id="render">
+        <h2>2. 브라우저가 화면을 그리는 과정</h2>
+        <p>코드 한 줄이 화면 픽셀이 되기까지의 흐름(Critical Rendering Path)을 알면 "왜 느린지", "왜 깜빡이는지"가 보입니다.</p>
+        <div class="flow">HTML 파싱 → DOM
+CSS 파싱 → CSSOM
+DOM + CSSOM → Render Tree
+↓ Layout(요소 위치·크기 계산)
+↓ Paint(색·텍스트 등 픽셀화)
+↓ Composite(레이어 합성)</div>
+        <table>
+          <tr>
+            <th>단계</th>
+            <th>설명</th>
+          </tr>
+          <tr>
+            <td>DOM</td>
+            <td>HTML을 트리 구조의 객체로 변환</td>
+          </tr>
+          <tr>
+            <td>CSSOM</td>
+            <td>CSS를 스타일 규칙 트리로 변환</td>
+          </tr>
+          <tr>
+            <td>Render Tree</td>
+            <td>화면에 보이는 요소 + 스타일을 결합 (display:none은 제외)</td>
+          </tr>
+          <tr>
+            <td>Layout(Reflow)</td>
+            <td>각 요소의 위치·크기 계산. 가장 비용이 큼</td>
+          </tr>
+          <tr>
+            <td>Paint(Repaint)</td>
+            <td>색, 그림자, 텍스트 등을 칠함</td>
+          </tr>
+        </table>
+        <div class="qa">
+          <strong>왜 알아야 하나</strong>
+          <p>
+            <code>width</code>, <code>top</code> 같은 속성을 바꾸면 Layout부터 다시(reflow) 일어나 무겁고,
+            <code>transform</code>, <code>opacity</code>는 Composite 단계만 거쳐 가볍습니다. 애니메이션을 transform으로
+            하라는 조언이 여기서 나옵니다. (자세한 최적화는 심화편)
+          </p>
+        </div>
+      </section>
+
+      <section id="semantic">
+        <h2>3. 시맨틱 HTML &amp; 접근성</h2>
+        <p>마크업의 "의미"는 SEO, 접근성, 유지보수를 동시에 좌우합니다. <code>div</code>만으로도 화면은 나오지만, 의미가 없으면 보조기기와 검색엔진이 구조를 이해하지 못합니다.</p>
+
+        <h3>시맨틱 태그</h3>
+        <table>
+          <tr>
+            <th>태그</th>
+            <th>의미</th>
+          </tr>
+          <tr>
+            <td><code>header / nav / main / footer</code></td>
+            <td>페이지의 큰 영역 구분</td>
+          </tr>
+          <tr>
+            <td><code>article / section</code></td>
+            <td>독립 콘텐츠 / 주제 단위 묶음</td>
+          </tr>
+          <tr>
+            <td><code>button / a</code></td>
+            <td>동작은 button, 이동은 a. 역할에 맞게</td>
+          </tr>
+          <tr>
+            <td><code>h1~h6</code></td>
+            <td>문서의 제목 위계. 건너뛰지 않기</td>
+          </tr>
+        </table>
+
+        <h3>접근성(a11y) 기본기</h3>
+        <ul>
+          <li>이미지에는 의미를 담은 <code>alt</code>. 장식용이면 빈 <code>alt=""</code></li>
+          <li>폼 입력은 <code>label</code>과 연결 (<code>for</code> / <code>id</code>)</li>
+          <li>색만으로 정보를 전달하지 않기 (색약 고려)</li>
+          <li>키보드만으로 모든 기능 사용 가능해야 함</li>
+          <li>네이티브 요소로 안 될 때만 <code>role</code>, <code>aria-*</code> 보강</li>
+        </ul>
+        <div class="note ok">
+          <strong>핵심 원칙</strong>
+          <p>"ARIA를 쓰는 것보다 시맨틱 네이티브 요소를 쓰는 게 낫다." <code>div</code>에 클릭 핸들러를 다는 대신 <code>button</code>을 쓰면 포커스·키보드·스크린리더가 공짜로 따라옵니다. (WCAG 기준 심화는 심화편)</p>
+        </div>
+      </section>
+
+      <section id="css">
+        <h2>4. CSS 핵심</h2>
+
+        <h3>박스 모델</h3>
+        <p>모든 요소는 content → padding → border → margin의 상자입니다. <code>box-sizing: border-box</code>를 쓰면 width에 padding·border가 포함돼 계산이 직관적입니다.</p>
+
+        <h3>레이아웃: Flexbox vs Grid</h3>
+        <table>
+          <tr>
+            <th>도구</th>
+            <th>적합한 경우</th>
+          </tr>
+          <tr>
+            <td>Flexbox</td>
+            <td>한 방향(행 또는 열) 정렬. 내비게이션, 버튼 그룹</td>
+          </tr>
+          <tr>
+            <td>Grid</td>
+            <td>2차원(행과 열) 레이아웃. 카드 갤러리, 페이지 골격</td>
+          </tr>
+        </table>
+
+        <h3>우선순위(Specificity)</h3>
+        <p>같은 요소에 여러 규칙이 충돌하면 점수가 높은 게 이깁니다.</p>
+        <div class="flow">인라인 스타일 &gt; id &gt; class · 속성 · 가상클래스 &gt; 요소 · 가상요소</div>
+        <div class="note warn">
+          <strong>주의</strong>
+          <p><code>!important</code>는 우선순위를 강제로 덮어쓰지만, 남용하면 이후 수정이 지옥이 됩니다. 선택자 구조로 푸는 게 우선입니다.</p>
+        </div>
+
+        <h3>반응형</h3>
+        <pre><code>/* 모바일 우선 후 확장 */
+.card { padding: 12px; }
+@media (min-width: 768px) {
+  .card { padding: 24px; }
+}</code></pre>
+        <p>단위는 고정값 <code>px</code>, 상대값 <code>rem/em/%</code>, 뷰포트 <code>vw/vh</code>를 상황에 맞게 씁니다. 폰트·여백은 보통 <code>rem</code>이 접근성에 유리합니다.</p>
+      </section>
+
+      <section id="js">
+        <h2>5. JavaScript 핵심</h2>
+
+        <h3>변수와 스코프</h3>
+        <p><code>let</code>/<code>const</code>는 블록 스코프이고 재선언이 안 됩니다. <code>var</code>는 함수 스코프라 예측이 어려워 지금은 거의 안 씁니다. 값이 안 바뀌면 기본적으로 <code>const</code>.</p>
+
+        <h3>클로저</h3>
+        <p>함수가 선언될 때의 바깥 변수를 기억하는 성질입니다. React의 상태 관리, 이벤트 핸들러가 이 위에서 돕니다.</p>
+        <pre><code>function counter() {
+  let count = 0;
+  return () =&gt; ++count; // 바깥 count를 계속 기억
+}
+const next = counter();
+next(); // 1
+next(); // 2</code></pre>
+
+        <h3>비동기와 이벤트 루프</h3>
+        <p>JS는 한 번에 하나만 처리하지만(싱글 스레드), 오래 걸리는 작업은 비동기로 넘기고 끝나면 큐에서 꺼내 실행합니다.</p>
+        <div class="flow">콜 스택 비워짐
+↓ 마이크로태스크 큐(Promise) 먼저 처리
+↓ 매크로태스크 큐(setTimeout 등) 처리</div>
+        <pre><code>// 콜백 → Promise → async/await 로 진화
+const res = await fetch("/api/users");
+const data = await res.json();</code></pre>
+
+        <h3>자주 쓰는 배열 메서드</h3>
+        <p><code>map</code>(변환), <code>filter</code>(거르기), <code>reduce</code>(누적), <code>find</code>(하나 찾기). React 목록 렌더링은 거의 <code>map</code>입니다.</p>
+      </section>
+
+      <section id="dom">
+        <h2>6. DOM &amp; 이벤트</h2>
+        <p>DOM은 HTML의 객체 표현이고, JS로 이를 읽고 바꿉니다. React를 쓰면 직접 만질 일은 줄지만 원리는 알아야 합니다.</p>
+
+        <h3>이벤트 버블링과 위임</h3>
+        <p>이벤트는 자식에서 부모로 전파됩니다(버블링). 이를 이용해 부모 하나에만 리스너를 달아 여러 자식을 처리하는 게 "이벤트 위임"입니다.</p>
+        <pre><code>list.addEventListener("click", (e) =&gt; {
+  const item = e.target.closest("li");
+  if (item) select(item.dataset.id);
+}); // li마다 리스너를 달지 않아도 됨</code></pre>
+        <div class="qa">
+          <strong>프레임워크와의 연결</strong>
+          <p>React의 <code>onClick</code>은 내부적으로 이벤트 위임으로 동작합니다. 버블링·캡처링을 이해하면 모달 바깥 클릭 닫기, 드롭다운 같은 UI를 정확히 만들 수 있습니다.</p>
+        </div>
+      </section>
+
+      <section id="component">
+        <h2>7. 프레임워크와 컴포넌트 사고</h2>
+        <p>React·Vue 같은 프레임워크의 공통 아이디어는 두 가지입니다.</p>
+        <table>
+          <tr>
+            <th>개념</th>
+            <th>의미</th>
+          </tr>
+          <tr>
+            <td>선언형 UI</td>
+            <td>"DOM을 이렇게 바꿔라"가 아니라 "상태가 이러면 화면은 이렇다"를 선언. 프레임워크가 차이를 계산해 반영</td>
+          </tr>
+          <tr>
+            <td>컴포넌트</td>
+            <td>화면을 재사용 가능한 조각으로 나눔. 각 조각은 자기 데이터(props/state)와 UI를 가짐</td>
+          </tr>
+        </table>
+        <div class="qa">
+          <strong>퍼블리싱 경험과의 연결</strong>
+          <p>잘 나눈 컴포넌트는 의미 있는 마크업 구조와 닮아 있습니다. 시맨틱하게 영역을 나누던 감각이 그대로 컴포넌트 분리 감각으로 이어집니다.</p>
+        </div>
+      </section>
+
+      <section id="react">
+        <h2>8. React 기초</h2>
+
+        <h3>JSX</h3>
+        <p>JS 안에서 HTML 비슷한 문법으로 UI를 표현합니다. <code>class</code> 대신 <code>className</code>, 표현식은 <code>{}</code>로 감쌉니다.</p>
+        <pre><code>function Hello({ name }) {
+  return &lt;h1 className="title"&gt;안녕, {name}&lt;/h1&gt;;
+}</code></pre>
+
+        <h3>props와 state</h3>
+        <table>
+          <tr>
+            <th>구분</th>
+            <th>설명</th>
+          </tr>
+          <tr>
+            <td>props</td>
+            <td>부모가 자식에게 내려주는 값. 자식은 읽기만 (변경 불가)</td>
+          </tr>
+          <tr>
+            <td>state</td>
+            <td>컴포넌트가 스스로 가진 변하는 값. 바뀌면 화면이 다시 그려짐</td>
+          </tr>
+        </table>
+        <pre><code>import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+      {count}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+        <h3>렌더링과 key</h3>
+        <p>state나 props가 바뀌면 컴포넌트가 다시 실행되어 새 화면을 만듭니다. 목록을 그릴 때는 각 항목에 고유한 <code>key</code>가 필요합니다(인덱스 말고 안정적인 id).</p>
+        <pre><code>{users.map((u) =&gt; (
+  &lt;li key={u.id}&gt;{u.name}&lt;/li&gt;
+))}</code></pre>
+        <div class="note warn">
+          <strong>흔한 실수</strong>
+          <p>state를 직접 바꾸면(<code>count++</code>) 화면이 안 바뀝니다. 반드시 <code>setCount</code> 같은 setter로 바꿔야 React가 변화를 감지합니다.</p>
+        </div>
+      </section>
+
+      <section id="state">
+        <h2>9. 상태의 3가지 종류</h2>
+        <p>"상태 관리가 어렵다"는 보통 종류를 안 나눠서 생깁니다. 먼저 어떤 상태인지부터 구분하세요.</p>
+        <table>
+          <tr>
+            <th>종류</th>
+            <th>예시</th>
+            <th>도구</th>
+          </tr>
+          <tr>
+            <td>로컬 UI 상태</td>
+            <td>모달 열림, 입력값, 탭 선택</td>
+            <td>useState, useReducer</td>
+          </tr>
+          <tr>
+            <td>전역 클라이언트 상태</td>
+            <td>로그인 사용자, 테마, 언어</td>
+            <td>Context, Zustand, Redux</td>
+          </tr>
+          <tr>
+            <td>서버 상태</td>
+            <td>사용자 목록, 상세 데이터</td>
+            <td>React Query (TanStack Query)</td>
+          </tr>
+        </table>
+        <div class="qa">
+          <strong>가장 중요한 구분</strong>
+          <p>서버에서 온 데이터(서버 상태)를 전역 스토어에 직접 넣어 관리하면 캐시·동기화가 지옥이 됩니다. 서버 상태는 React Query에 맡기고, 전역 스토어에는 진짜 클라이언트 상태만 두세요. (API 연동 자세히는 백엔드 기초편 참고)</p>
+        </div>
+      </section>
+
+      <section id="routing">
+        <h2>10. 렌더링 방식과 라우팅</h2>
+        <p>같은 React 앱도 "어디서 HTML을 만드느냐"에 따라 성격이 달라집니다.</p>
+        <table>
+          <tr>
+            <th>방식</th>
+            <th>HTML 생성 위치</th>
+            <th>특징</th>
+          </tr>
+          <tr>
+            <td>CSR</td>
+            <td>브라우저(JS 실행 후)</td>
+            <td>초기 로딩 느릴 수 있음, 이후 빠름. 일반 SPA</td>
+          </tr>
+          <tr>
+            <td>SSR</td>
+            <td>요청 시 서버</td>
+            <td>첫 화면·SEO 유리. 매 요청 서버 작업</td>
+          </tr>
+          <tr>
+            <td>SSG</td>
+            <td>빌드 시 미리</td>
+            <td>가장 빠름. 자주 안 바뀌는 페이지(문서·블로그)</td>
+          </tr>
+        </table>
+        <p>Next.js는 이 방식들을 페이지·컴포넌트 단위로 섞어 쓸 수 있게 해줍니다. SPA 라우팅은 페이지 전체를 새로 받지 않고, JS가 URL에 맞는 컴포넌트만 바꿔 그립니다.</p>
+      </section>
+
+      <section id="tooling">
+        <h2>11. 빌드 · 번들 · 패키지</h2>
+        <p>브라우저는 우리가 쓰는 최신 문법·여러 파일·TS를 그대로 못 읽습니다. 빌드 도구가 이를 변환·결합해줍니다.</p>
+        <table>
+          <tr>
+            <th>도구/개념</th>
+            <th>역할</th>
+          </tr>
+          <tr>
+            <td>번들러 (Vite, webpack)</td>
+            <td>여러 모듈을 묶고 최적화. 개발 서버 제공</td>
+          </tr>
+          <tr>
+            <td>트랜스파일 (Babel, SWC)</td>
+            <td>최신 JS·JSX·TS를 브라우저용으로 변환</td>
+          </tr>
+          <tr>
+            <td>패키지 매니저 (npm, pnpm)</td>
+            <td>라이브러리 설치·버전 관리</td>
+          </tr>
+        </table>
+        <pre><code>// 모듈 시스템: 파일 간에 코드를 나눠 쓰기
+export function add(a, b) { return a + b; } // utils.js
+import { add } from "./utils.js";          // 다른 파일에서</code></pre>
+        <div class="qa">
+          <strong>알아두면 좋은 것</strong>
+          <p><code>package.json</code>의 <code>dependencies</code>(실행에 필요)와 <code>devDependencies</code>(개발에만 필요) 구분, <code>scripts</code>의 <code>dev/build</code> 명령 정도는 읽을 수 있어야 합니다.</p>
+        </div>
+      </section>
+
+      <section id="devtools">
+        <h2>12. 개발자 도구로 디버깅</h2>
+        <p>Chrome DevTools는 프론트 디버깅의 기본기입니다.</p>
+        <table>
+          <tr>
+            <th>패널</th>
+            <th>쓰임</th>
+          </tr>
+          <tr>
+            <td>Elements</td>
+            <td>DOM·적용된 CSS 확인·실시간 수정</td>
+          </tr>
+          <tr>
+            <td>Console</td>
+            <td>로그·에러 확인, JS 즉석 실행</td>
+          </tr>
+          <tr>
+            <td>Network</td>
+            <td>API 요청/응답·상태 코드·헤더 (백엔드편 참고)</td>
+          </tr>
+          <tr>
+            <td>Sources</td>
+            <td>중단점(breakpoint) 걸어 코드 흐름 추적</td>
+          </tr>
+        </table>
+        <div class="qa">
+          <strong>좋은 디버깅 습관</strong>
+          <p>"안 돼요" 대신 "Elements에서 이 요소에 이 클래스가 안 붙고, Console에 이런 에러가 있습니다"처럼 어디서 끊겼는지를 좁혀가는 것이 핵심입니다.</p>
+        </div>
+      </section>
+
+      <section id="checklist" class="checklist">
+        <h2>13. 기초 체크리스트</h2>
+        <ul>
+          <li>□ HTML→DOM, CSS→CSSOM, Layout, Paint의 흐름을 설명할 수 있다.</li>
+          <li>□ transform/opacity가 width/top보다 가벼운 이유를 안다.</li>
+          <li>□ 상황에 맞는 시맨틱 태그를 고를 수 있다.</li>
+          <li>□ alt, label, 키보드 접근성의 기본을 지킨다.</li>
+          <li>□ box-sizing, Flexbox, Grid를 구분해 쓴다.</li>
+          <li>□ CSS 우선순위와 !important의 위험을 안다.</li>
+          <li>□ let/const/var와 스코프를 안다.</li>
+          <li>□ 클로저가 무엇인지 예로 설명할 수 있다.</li>
+          <li>□ 이벤트 루프와 async/await의 동작을 안다.</li>
+          <li>□ map/filter/reduce를 적절히 쓴다.</li>
+          <li>□ 이벤트 버블링과 위임을 이해한다.</li>
+          <li>□ 선언형 UI와 컴포넌트 사고를 설명할 수 있다.</li>
+          <li>□ props와 state의 차이를 안다.</li>
+          <li>□ state는 setter로만 바꿔야 함을 안다.</li>
+          <li>□ 목록 렌더링에서 key의 역할을 안다.</li>
+          <li>□ 로컬/전역/서버 상태를 구분한다.</li>
+          <li>□ CSR/SSR/SSG의 차이를 안다.</li>
+          <li>□ 번들러·트랜스파일·패키지 매니저의 역할을 안다.</li>
+          <li>□ DevTools의 Elements/Console/Network/Sources를 쓸 수 있다.</li>
+        </ul>
+        <div class="note">
+          <strong>이 문서의 최종 목표</strong>
+          <p>
+            화면을 만드는 것을 넘어, 브라우저의 동작을 이해하고 의미 있는 마크업과 유지보수 가능한 컴포넌트를 작성하며,
+            문제가 생겼을 때 어디서 끊겼는지 좁혀갈 수 있는 프론트엔드 개발자가 되는 것입니다. 더 깊은 렌더링 내부·성능·
+            최적화·테스트는 심화편에서 다룹니다.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <a class="top" href="#top">맨 위로</a>
+  </body>
+</html>
