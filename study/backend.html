@@ -448,9 +448,24 @@ Content-Type: application/json
             <td>생성 후 목록 갱신 또는 상세 이동</td>
           </tr>
           <tr>
+            <td>204</td>
+            <td>성공, 본문 없음</td>
+            <td>DELETE·일부 PUT의 응답. 응답이 비어 있어도 성공이니 당황하지 말 것</td>
+          </tr>
+          <tr>
+            <td>301 / 302 / 307 / 308</td>
+            <td>리다이렉트</td>
+            <td>요청이 다른 URL로 이동됨. HTTP→HTTPS, 경로 변경 등</td>
+          </tr>
+          <tr>
             <td>400</td>
             <td>잘못된 요청</td>
             <td>필수값, 형식, request body 확인</td>
+          </tr>
+          <tr>
+            <td>422</td>
+            <td>검증 실패</td>
+            <td>형식은 맞지만 값이 규칙 위반. 요즘 백엔드는 400 대신 422로 주기도 함</td>
           </tr>
           <tr>
             <td>401</td>
@@ -468,11 +483,28 @@ Content-Type: application/json
             <td>URL, path parameter, 데이터 존재 여부 확인</td>
           </tr>
           <tr>
+            <td>409</td>
+            <td>충돌</td>
+            <td>이미 존재하는 리소스를 또 만들려 할 때 등 (예: 중복 가입)</td>
+          </tr>
+          <tr>
+            <td>429</td>
+            <td>요청 과다</td>
+            <td>짧은 시간에 너무 많이 호출. rate limit. 재시도 간격 두기</td>
+          </tr>
+          <tr>
             <td>500</td>
             <td>서버 오류</td>
             <td>서버 로그 확인 요청, request 정보 공유</td>
           </tr>
         </table>
+        <div class="qa">
+          <strong>외우지 말고 앞자리로 기억하기</strong>
+          <p>
+            2xx는 성공, 3xx는 이동(리다이렉트), <strong>4xx는 내 요청이 문제</strong>(필드·권한·URL),
+            <strong>5xx는 서버가 문제</strong>입니다. 4xx면 내 요청을 먼저 의심하고, 5xx면 백엔드에 로그 확인을 요청하세요.
+          </p>
+        </div>
       </section>
 
       <section id="rest">
@@ -517,6 +549,45 @@ POST /createUser</code></pre>
   }
 }</code></pre>
         <pre><code>response.data.name</code></pre>
+
+        <h3>페이지네이션: offset vs cursor</h3>
+        <p>목록 API는 보통 두 방식 중 하나로 페이지를 나눕니다.</p>
+        <table>
+          <tr>
+            <th>방식</th>
+            <th>예시</th>
+            <th>특징</th>
+          </tr>
+          <tr>
+            <td>offset 기반</td>
+            <td><code>/users?page=1&amp;size=20</code></td>
+            <td>페이지 번호로 이동. 1·2·3 페이지네이션 UI에 적합. 중간에 데이터가 추가·삭제되면 누락·중복 가능</td>
+          </tr>
+          <tr>
+            <td>cursor 기반</td>
+            <td><code>/users?cursor=eyJpZCI6MTAwfQ&amp;size=20</code></td>
+            <td>"이 지점 다음부터"를 가리키는 커서로 이동. 무한 스크롤에 적합. 데이터가 바뀌어도 안정적</td>
+          </tr>
+        </table>
+        <div class="qa">
+          <strong>프론트에서 볼 포인트</strong>
+          <p>
+            응답에 <code>total</code>, <code>page</code>, <code>hasNext</code>, <code>nextCursor</code> 같은 값이 있는지 확인하세요.
+            무한 스크롤이라면 거의 cursor 방식이고, 응답으로 받은 <code>nextCursor</code>를 다음 요청에 그대로 넣으면 됩니다.
+          </p>
+        </div>
+
+        <h3>정렬 / 필터</h3>
+        <p>정렬·필터 조건도 query parameter로 표현합니다.</p>
+        <pre><code>GET /users?sort=createdAt,desc&amp;status=active&amp;keyword=kim</code></pre>
+
+        <h3>API 버저닝</h3>
+        <p>API가 바뀌어도 기존 화면이 깨지지 않도록 URL에 버전을 둡니다.</p>
+        <pre><code>GET /v1/users
+GET /v2/users</code></pre>
+        <p>
+          <code>/v1</code>과 <code>/v2</code>는 응답 구조가 다를 수 있으니, 문서에서 지금 보고 있는 게 어느 버전인지부터 확인하세요.
+        </p>
 
         <h3>Stoplight 문서 볼 때 체크할 것</h3>
         <ol>
@@ -921,6 +992,55 @@ function useCreateUser() {
 });</code></pre>
 
         <p>이 코드는 <code>userId</code>가 있을 때만 API를 호출합니다.</p>
+
+        <h3>staleTime vs gcTime (캐시의 핵심)</h3>
+        <p>"왜 재요청이 되는지 / 안 되는지"는 대부분 이 두 값으로 결정됩니다.</p>
+        <table>
+          <tr>
+            <th>옵션</th>
+            <th>의미</th>
+          </tr>
+          <tr>
+            <td>staleTime</td>
+            <td>데이터를 "신선하다"고 보는 시간. 이 시간 안에는 같은 데이터를 다시 봐도 재요청하지 않고 캐시를 씁니다. 기본값 0 (= 항상 stale).</td>
+          </tr>
+          <tr>
+            <td>gcTime</td>
+            <td>화면에서 안 쓰이게 된 캐시를 메모리에 보관하는 시간. 이 시간이 지나면 캐시를 버립니다. 기본값 5분. (v4의 <code>cacheTime</code>이 이름만 바뀐 것)</td>
+          </tr>
+        </table>
+        <pre><code>useQuery({
+  queryKey: ["users"],
+  queryFn: fetchUsers,
+  staleTime: 1000 * 60, // 1분 동안은 재요청하지 않음
+});</code></pre>
+
+        <h3>Optimistic Update (낙관적 업데이트)</h3>
+        <p>서버 응답을 기다리지 않고 화면을 먼저 바꿔 빠른 UX를 주는 방식입니다. 실패하면 이전 상태로 되돌립니다(rollback).</p>
+        <pre><code>useMutation({
+  mutationFn: toggleLike,
+  onMutate: async (next) =&gt; {
+    await queryClient.cancelQueries({ queryKey: ["post", id] });
+    const prev = queryClient.getQueryData(["post", id]);
+    queryClient.setQueryData(["post", id], next); // 먼저 화면에 반영
+    return { prev };
+  },
+  onError: (err, next, context) =&gt; {
+    queryClient.setQueryData(["post", id], context.prev); // 실패하면 롤백
+  },
+  onSettled: () =&gt; {
+    queryClient.invalidateQueries({ queryKey: ["post", id] });
+  },
+});</code></pre>
+
+        <div class="note">
+          <strong>v5 명칭 변화</strong>
+          <p>
+            TanStack Query v5에서 useMutation의 <code>isLoading</code>이 <code>isPending</code>으로 바뀌었고,
+            useQuery의 status 값도 <code>loading</code> → <code>pending</code>으로 바뀌었습니다.
+            v4 코드를 보다가 헷갈리면 이 부분을 확인하세요.
+          </p>
+        </div>
       </section>
 
       <section id="auth-flow">
@@ -1051,8 +1171,10 @@ function useCreateUser() {
         <ul>
           <li>□ 왜 이 API가 POST인지 설명할 수 있다.</li>
           <li>□ GET, POST, PUT, PATCH, DELETE 차이를 안다.</li>
-          <li>□ 200, 201, 400, 401, 403, 404, 500의 의미를 안다.</li>
+          <li>□ 200, 201, 204, 400, 401, 403, 404, 422, 429, 500의 의미를 안다.</li>
           <li>□ Path Parameter와 Query Parameter를 구분할 수 있다.</li>
+          <li>□ offset과 cursor 페이지네이션의 차이를 안다.</li>
+          <li>□ API 버저닝(/v1, /v2)이 왜 필요한지 안다.</li>
           <li>□ Stoplight 문서에서 request/response 구조를 읽을 수 있다.</li>
           <li>□ Authorization Header에 토큰을 붙이는 흐름을 이해한다.</li>
           <li>□ 401과 403을 구분할 수 있다.</li>
@@ -1060,6 +1182,7 @@ function useCreateUser() {
           <li>□ Network 탭에서 Headers, Payload, Response를 확인할 수 있다.</li>
           <li>□ Axios Interceptor가 왜 필요한지 설명할 수 있다.</li>
           <li>□ React Query의 useQuery/useMutation 차이를 안다.</li>
+          <li>□ staleTime과 gcTime이 캐시 동작에 어떤 영향을 주는지 안다.</li>
           <li>□ CORS가 왜 발생하고 보통 누가 해결하는지 안다.</li>
           <li>□ 환경변수가 왜 필요한지 안다.</li>
           <li>□ 백엔드가 “테이블”, “컬럼”, “JOIN”이라고 말했을 때 대략 이해할 수 있다.</li>
