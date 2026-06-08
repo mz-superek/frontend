@@ -4,156 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>프론트엔드 개발자를 위한 학습 시리즈</title>
-    <style>
-      :root {
-        --bg: #f6f7f9;
-        --card: #ffffff;
-        --text: #1f2937;
-        --muted: #6b7280;
-        --line: #e5e7eb;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font-family:
-          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-        line-height: 1.7;
-        word-break: keep-all;
-        overflow-wrap: break-word;
-      }
-      header {
-        padding: 40px 18px 28px;
-        background: linear-gradient(135deg, #1d4ed8, #7c3aed, #0d9488);
-        color: white;
-      }
-      header h1 {
-        margin: 0 0 10px;
-        font-size: 28px;
-        line-height: 1.25;
-        letter-spacing: -0.04em;
-      }
-      header p {
-        margin: 0;
-        opacity: 0.94;
-        font-size: 15px;
-      }
-      main {
-        max-width: 860px;
-        margin: 0 auto;
-        padding: 18px 14px 60px;
-      }
-      .intro {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 18px;
-        margin: 14px 0 6px;
-        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
-        font-size: 15px;
-      }
-      .group-title {
-        margin: 26px 4px 6px;
-        font-size: 15px;
-        font-weight: 800;
-        letter-spacing: 0.02em;
-        color: var(--muted);
-        text-transform: uppercase;
-      }
-      .cards {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-      }
-      .card {
-        display: block;
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-top: 5px solid var(--c);
-        border-radius: 18px;
-        padding: 18px;
-        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
-        color: inherit;
-        text-decoration: none;
-        transition: transform 0.12s ease, box-shadow 0.12s ease;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.1);
-      }
-      .level {
-        display: inline-block;
-        font-size: 12px;
-        font-weight: 800;
-        color: var(--c);
-        letter-spacing: 0.04em;
-      }
-      .card h2 {
-        margin: 4px 0 6px;
-        font-size: 19px;
-        letter-spacing: -0.02em;
-      }
-      .card .desc {
-        margin: 0 0 12px;
-        color: var(--muted);
-        font-size: 13.5px;
-      }
-      .tags span {
-        display: inline-block;
-        font-size: 11.5px;
-        font-weight: 600;
-        color: var(--c);
-        background: var(--soft);
-        border-radius: 999px;
-        padding: 2px 8px;
-        margin: 0 4px 4px 0;
-      }
-      .go {
-        margin-top: 10px;
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--c);
-      }
-      .c-be {
-        --c: #2563eb;
-        --soft: #eff6ff;
-      }
-      .c-ba {
-        --c: #7c3aed;
-        --soft: #f3e8ff;
-      }
-      .c-fe {
-        --c: #059669;
-        --soft: #ecfdf5;
-      }
-      .c-fa {
-        --c: #0d9488;
-        --soft: #f0fdfa;
-      }
-      footer {
-        max-width: 860px;
-        margin: 0 auto;
-        padding: 0 18px 40px;
-        color: var(--muted);
-        font-size: 13px;
-      }
-      @media (max-width: 520px) {
-        header {
-          padding: 32px 16px 24px;
-        }
-        header h1 {
-          font-size: 24px;
-        }
-        .cards {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <script src="../js/theme-toggle.js"></script>
   </head>
-  <body>
+  <body data-page="study-hub">
+    <button class="theme-toggle" type="button" aria-label="테마 전환" title="다크/라이트 전환">
+      <span class="icon-light">☾</span><span class="icon-dark">☀</span>
+    </button>
     <header>
       <h1>프론트엔드 개발자를 위한 학습 시리즈</h1>
       <p>API · 백엔드와 프론트엔드를, 기초부터 심화까지 한 흐름으로</p>
@@ -166,8 +24,8 @@
       </div>
 
       <div class="group-title">백엔드 · API</div>
-      <div class="cards">
-        <a class="card c-be" href="./backend.html">
+      <div class="hub-cards">
+        <a class="hub-card c-be" href="./backend.html">
           <span class="level">기초</span>
           <h2>백엔드 기초</h2>
           <p class="desc">API 문서를 읽고 구현하며, 문제가 생겼을 때 원인을 좁혀가는 수준까지.</p>
@@ -177,7 +35,7 @@
           </div>
           <div class="go">읽기 →</div>
         </a>
-        <a class="card c-ba" href="./backend-advanced.html">
+        <a class="hub-card c-ba" href="./backend-advanced.html">
           <span class="level">심화</span>
           <h2>백엔드 심화</h2>
           <p class="desc">설계 의도·동시성·성능·보안까지 읽어내는 편.</p>
@@ -190,8 +48,8 @@
       </div>
 
       <div class="group-title">프론트엔드</div>
-      <div class="cards">
-        <a class="card c-fe" href="./frontend.html">
+      <div class="hub-cards">
+        <a class="hub-card c-fe" href="./frontend.html">
           <span class="level">기초</span>
           <h2>프론트엔드 기초</h2>
           <p class="desc">브라우저 동작을 이해하고 의미 있는 마크업과 컴포넌트를 작성하는 수준까지.</p>
@@ -201,7 +59,7 @@
           </div>
           <div class="go">읽기 →</div>
         </a>
-        <a class="card c-fa" href="./frontend-advanced.html">
+        <a class="hub-card c-fa" href="./frontend-advanced.html">
           <span class="level">심화</span>
           <h2>프론트엔드 심화</h2>
           <p class="desc">렌더링 내부·성능·동시성·아키텍처를 설계하는 편.</p>
