@@ -4,143 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FE 개발자 필수 용어</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
-:root {
-  --bg:#0f1117;--bg2:#171922;--bg3:#1e2130;--border:rgba(255,255,255,0.08);
-  --text:#e8eaf0;--text2:#9096a8;--text3:#5a6070;
-  --teal:#2dd4bf;--teal-d:rgba(45,212,191,0.12);
-  --coral:#fb7185;--coral-d:rgba(251,113,133,0.12);
-  --amber:#fbbf24;--amber-d:rgba(251,191,36,0.12);
-  --purple:#a78bfa;--purple-d:rgba(167,139,250,0.12);
-  --blue:#60a5fa;--blue-d:rgba(96,165,250,0.12);
-  --green:#4ade80;--green-d:rgba(74,222,128,0.12);
-  --nav-w:200px;
-}
-html{scroll-behavior:smooth}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
-
-/* 사이드바 fixed */
-#sidebar{
-  width:var(--nav-w);
-  background:var(--bg2);border-right:1px solid var(--border);
-  position:fixed;top:0;left:0;height:100vh;overflow-y:auto;
-  padding:20px 0;z-index:10;
-  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent;
-}
-#sidebar::-webkit-scrollbar{width:8px}
-#sidebar::-webkit-scrollbar-track{background:transparent}
-#sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:4px}
-#sidebar::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.16)}
-.sidebar-title{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text3);padding:0 16px 12px;text-transform:uppercase;display:block}
-.nav-group-label{font-size:9px;font-weight:700;color:var(--text3);padding:10px 16px 3px;letter-spacing:.5px;text-transform:uppercase;margin:0;display:block}
-#nav-all{display:flex;flex-direction:column;scroll-target-group:auto}
-.nav-item{display:flex;align-items:center;padding:4px 16px;font-size:11px;color:var(--text2);text-decoration:none;border-left:2px solid transparent;line-height:1.4;transition:color .2s,background .2s,border-color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav-item:hover{color:var(--text);background:rgba(255,255,255,.04)}
-.nav-item:target-current{color:var(--teal);border-left-color:var(--teal);background:var(--teal-d)}
-
-/* 메인 */
-main{margin-left:var(--nav-w);padding:48px 48px 48px 56px;max-width:calc(var(--nav-w) + 900px)}
-header{margin-bottom:48px}
-header h1{font-size:26px;font-weight:700;letter-spacing:-.5px;color:var(--teal);margin-bottom:6px}
-header p{color:var(--text2);font-size:14px}
-
-/* 용어 섹션 */
-.term{margin-bottom:64px;scroll-margin-top:24px}
-.term-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
-.cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:8px}
-.term-title{flex:1}
-.term-title h2{font-size:19px;font-weight:700;letter-spacing:-.3px}
-.term-title .sub{font-size:13px;color:var(--text2);font-weight:400}
-.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.link-tag{font-size:11px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);color:var(--text2);text-decoration:none;transition:all .15s}
-.link-tag:hover{border-color:var(--teal);color:var(--teal)}
-.link-tag::before{content:'↗ '}
-
-/* 카드 공통 */
-.diagram{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:14px;overflow:hidden}
-.diagram svg{display:block;width:100%}
-.summary{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:12px;font-size:14px;color:var(--text2);line-height:1.8}
-.summary strong{color:var(--text);font-weight:500}
-.flow{background:var(--bg3);border-radius:10px;padding:18px 20px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:2;color:var(--text2)}
-.flow .lbl{font-family:'Noto Sans KR',sans-serif;font-size:10px;color:var(--text3);margin-bottom:6px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
-.flow .hi{color:var(--teal)}.flow .warn{color:var(--coral)}.flow .ok{color:var(--green)}
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.compare-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
-.card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.card h4{font-size:13px;font-weight:700;margin-bottom:8px}
-.card ul{list-style:none;font-size:12.5px;color:var(--text2);line-height:2}
-.card ul li::before{content:'· ';color:var(--text3)}
-.tip{border-left:3px solid var(--teal);padding:12px 16px;background:var(--teal-d);border-radius:0 8px 8px 0;font-size:13px;margin-top:10px}
-.tip .tip-l{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
-.warn-box{border-left:3px solid var(--coral);padding:12px 16px;background:var(--coral-d);border-radius:0 8px 8px 0;font-size:13px;margin-top:10px}
-.warn-box .tip-l{font-size:10px;font-weight:700;color:var(--coral);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
-.info-box{border-left:3px solid var(--blue);padding:12px 16px;background:var(--blue-d);border-radius:0 8px 8px 0;font-size:13px;margin-top:10px}
-.info-box .tip-l{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase}
-.divider{border:none;border-top:1px solid var(--border);margin:64px 0}
-code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--teal)}
-svg text{font-family:'Noto Sans KR',sans-serif}
-
-/* fallback */
-.nav-item.active{color:var(--teal);border-left-color:var(--teal);background:var(--teal-d)}
-
-/* 모바일 전용 요소 (데스크탑 기본 숨김) */
-#menu-btn,.menu-close{display:none}
-
-/* 모바일 (≤768px): :target 패턴 햄버거 드로어 */
-@media (max-width:768px){
-  /* 햄버거 버튼 */
-  #menu-btn{
-    display:flex;align-items:center;justify-content:center;
-    position:fixed;top:12px;left:12px;width:40px;height:40px;
-    background:var(--bg2);border:1px solid var(--border);border-radius:8px;
-    color:var(--text);font-size:22px;line-height:1;text-decoration:none;z-index:11;
-  }
-  body:has(#menu-open:target) #menu-btn{display:none}
-
-  /* 사이드바 슬라이드인 (전체 화면 가림) */
-  #sidebar{
-    width:100%;transform:translateX(-100%);transition:transform .25s ease-out;
-  }
-  body:has(#menu-open:target) #sidebar{transform:translateX(0)}
-
-  /* 본문 스크롤 잠금 (메뉴 열림 시) */
-  html:has(#menu-open:target){overflow:hidden}
-
-  /* 닫기 X 버튼 */
-  .menu-close{
-    display:flex;align-items:center;justify-content:center;
-    position:absolute;top:8px;right:8px;width:32px;height:32px;
-    color:var(--text2);font-size:24px;line-height:1;text-decoration:none;border-radius:6px;
-  }
-  .menu-close:hover{background:rgba(255,255,255,0.06);color:var(--text)}
-
-  /* 사이드바 내부 타이포 살짝 키움 */
-  .sidebar-title{font-size:13px;padding:4px 18px 14px}
-  .nav-group-label{font-size:11px;padding:14px 18px 4px}
-  .nav-item{font-size:13px;padding:8px 18px}
-
-  /* 본문 레이아웃 */
-  main{margin-left:0;padding:64px 20px 32px;max-width:100%}
-  header{margin-bottom:28px}
-  header h1{font-size:22px}
-  header p{font-size:13px}
-
-  /* 그리드 → 세로 스택 */
-  .compare,.compare-3{grid-template-columns:1fr}
-
-  /* 가로 폭 큰 콘텐츠 가로 스크롤 보강 */
-  .diagram{padding:14px;overflow-x:auto}
-  .flow{padding:14px;font-size:12px}
-
-  /* 용어 섹션 여백 축소 */
-  .term{margin-bottom:48px}
-  .divider{margin:48px 0}
-}
-</style>
+<link rel="stylesheet" href="../css/theme.css">
+<link rel="stylesheet" href="../css/global.css">
+<script src="../js/theme-toggle.js"></script>
 </head>
-<body>
+<body data-page="terms">
+
+<button class="theme-toggle" type="button" aria-label="테마 전환" title="다크/라이트 전환">
+  <span class="icon-light">☾</span><span class="icon-dark">☀</span>
+</button>
 
 <a id="menu-open"></a>
 <a id="close" hidden></a>
