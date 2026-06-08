@@ -1,0 +1,463 @@
+/* =========================================================================
+   global.css — 전역 base + 공통 컴포넌트
+   토큰은 theme.css의 CSS 변수 사용 (값은 절대 하드코딩 금지)
+   ========================================================================= */
+
+/* ---- Reset ---- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+img, svg { display: block; max-width: 100%; }
+
+/* ---- Element base ---- */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.75;
+  font-size: 15px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  transition: background 0.2s, color 0.2s;
+}
+
+header {
+  padding: 32px 18px 20px;
+  background: var(--gradient-header);
+  color: var(--text-inverse);
+}
+header h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+}
+header p {
+  margin: 0;
+  opacity: 0.94;
+  font-size: 15px;
+}
+
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 16px 14px 60px;
+}
+
+h2 {
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.035em;
+}
+h3 { margin: 24px 0 8px; font-size: 18px; letter-spacing: -0.02em; }
+h4 { margin: 18px 0 6px; font-size: 16px; }
+p { margin: 8px 0 12px; }
+ul, ol { padding-left: 22px; margin: 8px 0 14px; }
+li { margin: 5px 0; }
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* ---- Code ---- */
+code {
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--code-inline-bg);
+  color: var(--code-inline-text);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+pre {
+  overflow-x: auto;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--code-bg);
+  color: var(--code-text);
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: var(--font-mono);
+  white-space: pre;
+}
+pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+/* ---- Table ---- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0 18px;
+  font-size: 14px;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 9px 8px;
+  vertical-align: top;
+}
+th {
+  background: var(--bg-emphasis);
+  text-align: left;
+}
+
+/* ---- Section card (study용) ---- */
+section,
+.toc,
+.note,
+.checklist {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 20px 18px;
+  margin: 14px 0;
+  box-shadow: var(--shadow-md);
+}
+.toc ol { margin-bottom: 0; }
+
+/* ---- Badge ---- */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  margin: 2px 4px 2px 0;
+  border-radius: var(--radius-pill);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ---- Util ---- */
+.small {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ---- 상태 박스 (study .note/.warn/.ok + terms .tip/.warn-box/.info-box 통합) ---- */
+.note {
+  border-left: 5px solid var(--accent);
+}
+.warn,
+.warn-box {
+  background: var(--warning-bg);
+  border-color: var(--warning);
+  border-left: 5px solid var(--warning);
+}
+.ok {
+  background: var(--success-bg);
+  border-color: var(--success);
+  border-left: 5px solid var(--success);
+}
+.tip {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  border-left: 5px solid var(--accent);
+}
+.info-box {
+  background: var(--info-bg);
+  border-color: var(--info);
+  border-left: 5px solid var(--info);
+}
+.tip-l {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.tip .tip-l { color: var(--accent); }
+.warn .tip-l, .warn-box .tip-l { color: var(--warning); }
+.ok .tip-l { color: var(--success); }
+.info-box .tip-l { color: var(--info); }
+
+/* ---- Flow (study) ---- */
+.flow {
+  padding: 12px 14px;
+  background: var(--bg-emphasis);
+  border: 1px dashed var(--border-dashed);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-muted);
+  white-space: pre-line;
+}
+.flow .lbl {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.flow .hi { color: var(--accent); }
+.flow .warn { color: var(--danger); background: transparent; border: 0; padding: 0; }
+.flow .ok { color: var(--success); background: transparent; border: 0; padding: 0; }
+
+/* ---- QA box ---- */
+.qa {
+  padding: 12px 14px;
+  background: var(--bg-emphasis);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  margin: 10px 0;
+}
+
+/* ---- Series nav (study 시리즈 이동) ---- */
+.series-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 6px;
+}
+.series-nav a {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.series-nav a.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-inverse);
+}
+
+/* ---- Top button (fixed) ---- */
+.top {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-emphasis);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  opacity: 0.86;
+  text-decoration: none;
+  z-index: 50;
+}
+.top:hover { opacity: 1; text-decoration: none; }
+
+/* ---- Theme toggle button ---- */
+.theme-toggle {
+  position: fixed;
+  right: 14px;
+  top: 14px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 100;
+  transition: background 0.2s, transform 0.2s;
+}
+.theme-toggle:hover { background: var(--bg-hover); transform: scale(1.05); }
+.theme-toggle .icon-dark { display: none; }
+.theme-toggle .icon-light { display: inline; }
+[data-theme="dark"] .theme-toggle .icon-dark { display: inline; }
+[data-theme="dark"] .theme-toggle .icon-light { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-toggle .icon-dark { display: inline; }
+  :root:not([data-theme]) .theme-toggle .icon-light { display: none; }
+}
+
+/* ---- terms 전용 컴포넌트 (compare grid, term-header 등) ---- */
+.term { margin-bottom: 64px; scroll-margin-top: 24px; }
+.term-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
+.cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 8px; }
+.term-title { flex: 1; }
+.term-title h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; border: 0; padding: 0; margin: 0; }
+.term-title .sub { font-size: 13px; color: var(--text-muted); font-weight: 400; }
+
+.links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.link-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.link-tag:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.link-tag::before { content: '↗ '; }
+
+.diagram {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.diagram svg { display: block; width: 100%; }
+
+.summary {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.summary strong { color: var(--text); font-weight: 500; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.compare-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.card {
+  background: var(--bg-emphasis);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+.card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; margin-top: 0; }
+.card ul { list-style: none; font-size: 12.5px; color: var(--text-muted); line-height: 2; padding-left: 0; }
+.card ul li::before { content: '· '; color: var(--text-faint); }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 64px 0; }
+
+svg text { font-family: var(--font-body); }
+
+/* =========================================================================
+   모바일 미디어쿼리
+   ========================================================================= */
+
+@media (max-width: 768px) {
+  header { padding: 24px 16px 18px; }
+  header h1 { font-size: 22px; }
+  header p { font-size: 13px; }
+
+  main { padding: 16px 12px 48px; }
+
+  h2 { font-size: 20px; }
+  h3 { font-size: 17px; }
+
+  section, .toc, .note, .checklist { padding: 17px 14px; border-radius: var(--radius-lg); }
+
+  table { display: block; overflow-x: auto; white-space: nowrap; }
+  pre { font-size: 12.5px; }
+
+  .compare, .compare-3 { grid-template-columns: 1fr; }
+  .diagram { padding: 14px; overflow-x: auto; }
+  .flow { padding: 14px; font-size: 12px; }
+  .term { margin-bottom: 48px; }
+  .divider { margin: 48px 0; }
+}
+
+/* =========================================================================
+   hub 페이지 컴포넌트 (study/index.html · 루트 /index.html 등 카드 그리드 인덱스)
+   ========================================================================= */
+
+.intro {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  margin: 14px 0 6px;
+  box-shadow: var(--shadow-md);
+  font-size: 15px;
+}
+
+.group-title {
+  margin: 26px 4px 6px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.hub-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.hub-card {
+  display: block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-top: 5px solid var(--c, var(--accent));
+  border-radius: var(--radius-xl);
+  padding: 18px;
+  box-shadow: var(--shadow-md);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.hub-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.1);
+}
+
+.hub-card .level {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--c, var(--accent));
+  letter-spacing: 0.04em;
+}
+.hub-card h2 {
+  margin: 4px 0 6px;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+.hub-card .desc {
+  margin: 0 0 12px;
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+.hub-card .tags span {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--c, var(--accent));
+  background: var(--soft, var(--accent-bg));
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  margin: 0 4px 4px 0;
+}
+.hub-card .go {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c, var(--accent));
+}
+
+/* 카드 색상 변종 (theme.css의 페이지 토큰을 인용) */
+.c-be    { --c: var(--page-be);    --soft: var(--page-be-soft); }
+.c-ba    { --c: var(--page-ba);    --soft: var(--page-ba-soft); }
+.c-fe    { --c: var(--page-fe);    --soft: var(--page-fe-soft); }
+.c-fa    { --c: var(--page-fa);    --soft: var(--page-fa-soft); }
+.c-study { --c: var(--page-study); --soft: var(--page-study-soft); }
+.c-terms { --c: var(--page-terms); --soft: var(--page-terms-soft); }
+
+footer {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 18px 40px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .hub-cards { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,229 @@
+/* =========================================================================
+   theme.css — 디자인 토큰 (테마 × 페이지 매트릭스)
+   ========================================================================= */
+
+/* 폰트 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  color-scheme: dark light;
+  --font-body: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* 공통 모양 토큰 (테마 무관) */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 2px 6px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 18px rgba(15, 23, 42, 0.06);
+}
+
+/* =========================================================================
+   기본 테마 토큰 (페이지 무관, 다크/라이트만 다름)
+   ========================================================================= */
+
+[data-theme="dark"] {
+  /* 배경 계층 */
+  --bg: #0f1117;
+  --bg-elevated: #171922;
+  --bg-emphasis: #1e2130;
+  --bg-subtle: rgba(255, 255, 255, 0.04);
+  --bg-hover: rgba(255, 255, 255, 0.06);
+
+  /* 텍스트 */
+  --text: #e8eaf0;
+  --text-muted: #9096a8;
+  --text-faint: #5a6070;
+  --text-inverse: #ffffff;
+
+  /* 보더 */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-dashed: rgba(255, 255, 255, 0.18);
+
+  /* 의미 색상 (다이어그램·컴포넌트 공용) */
+  --success: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.12);
+  --warning: #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.12);
+  --danger: #fb7185;
+  --danger-bg: rgba(251, 113, 133, 0.12);
+  --info: #60a5fa;
+  --info-bg: rgba(96, 165, 250, 0.12);
+  --special: #a78bfa;
+  --special-bg: rgba(167, 139, 250, 0.12);
+  --teal: #2dd4bf;
+  --teal-bg: rgba(45, 212, 191, 0.12);
+
+  /* 코드 */
+  --code-bg: #1e2130;
+  --code-text: #e8eaf0;
+  --code-inline-bg: rgba(45, 212, 191, 0.12);
+  --code-inline-text: #2dd4bf;
+}
+
+[data-theme="light"] {
+  --bg: #f6f7f9;
+  --bg-elevated: #ffffff;
+  --bg-emphasis: #f9fafb;
+  --bg-subtle: rgba(15, 23, 42, 0.03);
+  --bg-hover: rgba(15, 23, 42, 0.05);
+
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+  --text-inverse: #ffffff;
+
+  --border: #e5e7eb;
+  --border-strong: #cbd5e1;
+  --border-dashed: #cbd5e1;
+
+  --success: #16a34a;
+  --success-bg: #ecfdf5;
+  --warning: #d97706;
+  --warning-bg: #fff7ed;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --info: #0284c7;
+  --info-bg: #f0f9ff;
+  --special: #7c3aed;
+  --special-bg: #f5f3ff;
+  --teal: #0d9488;
+  --teal-bg: #ccfbf1;
+
+  --code-bg: #111827;
+  --code-text: #f9fafb;
+  --code-inline-bg: #eef2ff;
+  --code-inline-text: #3730a3;
+}
+
+/* 시스템 다크 모드 자동 적용 (사용자가 data-theme 명시 안 한 경우) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* dark의 모든 변수를 :root에 매핑 */
+    --bg: #0f1117; --bg-elevated: #171922; --bg-emphasis: #1e2130;
+    --bg-subtle: rgba(255,255,255,0.04); --bg-hover: rgba(255,255,255,0.06);
+    --text: #e8eaf0; --text-muted: #9096a8; --text-faint: #5a6070; --text-inverse: #ffffff;
+    --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.16); --border-dashed: rgba(255,255,255,0.18);
+    --success: #4ade80; --success-bg: rgba(74,222,128,0.12);
+    --warning: #fbbf24; --warning-bg: rgba(251,191,36,0.12);
+    --danger: #fb7185; --danger-bg: rgba(251,113,133,0.12);
+    --info: #60a5fa; --info-bg: rgba(96,165,250,0.12);
+    --special: #a78bfa; --special-bg: rgba(167,139,250,0.12);
+    --teal: #2dd4bf; --teal-bg: rgba(45,212,191,0.12);
+    --code-bg: #1e2130; --code-text: #e8eaf0;
+    --code-inline-bg: rgba(45,212,191,0.12); --code-inline-text: #2dd4bf;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: #f6f7f9; --bg-elevated: #ffffff; --bg-emphasis: #f9fafb;
+    --bg-subtle: rgba(15,23,42,0.03); --bg-hover: rgba(15,23,42,0.05);
+    --text: #1f2937; --text-muted: #6b7280; --text-faint: #9ca3af; --text-inverse: #ffffff;
+    --border: #e5e7eb; --border-strong: #cbd5e1; --border-dashed: #cbd5e1;
+    --success: #16a34a; --success-bg: #ecfdf5;
+    --warning: #d97706; --warning-bg: #fff7ed;
+    --danger: #dc2626; --danger-bg: #fef2f2;
+    --info: #0284c7; --info-bg: #f0f9ff;
+    --special: #7c3aed; --special-bg: #f5f3ff;
+    --teal: #0d9488; --teal-bg: #ccfbf1;
+    --code-bg: #111827; --code-text: #f9fafb;
+    --code-inline-bg: #eef2ff; --code-inline-text: #3730a3;
+  }
+}
+
+/* =========================================================================
+   페이지별 액센트 (data-page × data-theme 매트릭스)
+   ========================================================================= */
+
+/* terms — teal */
+[data-page="terms"] {
+  --gradient-header: linear-gradient(135deg, #0d9488, #14b8a6, #2dd4bf);
+}
+[data-page="terms"][data-theme="dark"],
+[data-page="terms"]:not([data-theme]) { --accent: #2dd4bf; --accent-bg: rgba(45, 212, 191, 0.12); }
+[data-page="terms"][data-theme="light"] { --accent: #0d9488; --accent-bg: #ccfbf1; }
+
+/* study-hub — multi (blue / purple / teal)
+   허브 카드(.hub-card .c-*)는 다른 학습 페이지의 정체성 컬러를 인용하므로
+   각 페이지의 액센트와 동일한 4쌍의 페이지 토큰(--page-* / --page-*-soft)을 정의 */
+[data-page="study-hub"] {
+  --gradient-header: linear-gradient(135deg, #1d4ed8, #7c3aed, #0d9488);
+}
+[data-page="study-hub"][data-theme="dark"],
+[data-page="study-hub"]:not([data-theme]) {
+  --accent: #60a5fa;
+  --accent-bg: rgba(96, 165, 250, 0.12);
+  --page-be: #60a5fa;  --page-be-soft: rgba(96, 165, 250, 0.12);
+  --page-ba: #a78bfa;  --page-ba-soft: rgba(167, 139, 250, 0.12);
+  --page-fe: #34d399;  --page-fe-soft: rgba(52, 211, 153, 0.12);
+  --page-fa: #5eead4;  --page-fa-soft: rgba(94, 234, 212, 0.12);
+}
+[data-page="study-hub"][data-theme="light"] {
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --page-be: #2563eb;  --page-be-soft: #eff6ff;
+  --page-ba: #7c3aed;  --page-ba-soft: #f3e8ff;
+  --page-fe: #059669;  --page-fe-soft: #ecfdf5;
+  --page-fa: #0d9488;  --page-fa-soft: #f0fdfa;
+}
+
+/* study-frontend — green */
+[data-page="study-frontend"] {
+  --gradient-header: linear-gradient(135deg, #047857, #059669, #34d399);
+}
+[data-page="study-frontend"][data-theme="dark"],
+[data-page="study-frontend"]:not([data-theme]) { --accent: #34d399; --accent-bg: rgba(52, 211, 153, 0.12); }
+[data-page="study-frontend"][data-theme="light"] { --accent: #059669; --accent-bg: #ecfdf5; }
+
+/* study-frontend-advanced — teal */
+[data-page="study-frontend-advanced"] {
+  --gradient-header: linear-gradient(135deg, #0f766e, #0d9488, #2dd4bf);
+}
+[data-page="study-frontend-advanced"][data-theme="dark"],
+[data-page="study-frontend-advanced"]:not([data-theme]) { --accent: #5eead4; --accent-bg: rgba(94, 234, 212, 0.12); }
+[data-page="study-frontend-advanced"][data-theme="light"] { --accent: #0d9488; --accent-bg: #ccfbf1; }
+
+/* study-backend — blue */
+[data-page="study-backend"] {
+  --gradient-header: linear-gradient(135deg, #1d4ed8, #2563eb, #60a5fa);
+}
+[data-page="study-backend"][data-theme="dark"],
+[data-page="study-backend"]:not([data-theme]) { --accent: #60a5fa; --accent-bg: rgba(96, 165, 250, 0.12); }
+[data-page="study-backend"][data-theme="light"] { --accent: #2563eb; --accent-bg: #eff6ff; }
+
+/* study-backend-advanced — purple (이슈 9-D-B: 보라로 통일) */
+[data-page="study-backend-advanced"] {
+  --gradient-header: linear-gradient(135deg, #5b21b6, #7c3aed, #a78bfa);
+}
+[data-page="study-backend-advanced"][data-theme="dark"],
+[data-page="study-backend-advanced"]:not([data-theme]) { --accent: #a78bfa; --accent-bg: rgba(167, 139, 250, 0.12); }
+[data-page="study-backend-advanced"][data-theme="light"] { --accent: #7c3aed; --accent-bg: #f5f3ff; }
+
+/* root-hub — 사이트 전체 진입 페이지 (학습 시리즈 + 용어 사전 안내)
+   카드는 각 섹션의 정체성 컬러(study=보라, terms=청록)를 인용 */
+[data-page="root-hub"] {
+  --gradient-header: linear-gradient(135deg, #0d9488, #1d4ed8, #7c3aed);
+}
+[data-page="root-hub"][data-theme="dark"],
+[data-page="root-hub"]:not([data-theme]) {
+  --accent: #a78bfa;
+  --accent-bg: rgba(167, 139, 250, 0.12);
+  --page-study: #a78bfa; --page-study-soft: rgba(167, 139, 250, 0.12);
+  --page-terms: #2dd4bf; --page-terms-soft: rgba(45, 212, 191, 0.12);
+}
+[data-page="root-hub"][data-theme="light"] {
+  --accent: #7c3aed;
+  --accent-bg: #f5f3ff;
+  --page-study: #7c3aed; --page-study-soft: #f5f3ff;
+  --page-terms: #0d9488; --page-terms-soft: #ccfbf1;
+}
+
+/* 페이지 미지정 fallback (안전망) */
+:root:not([data-page]) {
+  --accent: var(--teal);
+  --accent-bg: var(--teal-bg);
+  --gradient-header: linear-gradient(135deg, var(--info), var(--special), var(--teal));
+}
