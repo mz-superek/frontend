@@ -48,6 +48,7 @@
           <li><a href="#realtime">실시간 통신: Polling · SSE · WebSocket</a></li>
           <li><a href="#data">데이터 레이어 심화: React Query</a></li>
           <li><a href="#concurrency">동시성 &amp; 아키텍처</a></li>
+          <li><a href="#resilience">복원력 패턴 (Release It!)</a></li>
           <li><a href="#internal">프론트가 알면 좋은 백엔드 내부</a></li>
           <li><a href="#checklist">심화 체크리스트</a></li>
         </ol>
@@ -520,16 +521,170 @@ es.onmessage = (e) =&gt; console.log(e.data);
         <p>여러 비동기 요청의 응답 순서가 보장되지 않아 생기는 문제입니다. 검색 자동완성에서 "느린 옛 요청"이 "빠른 새 요청"보다 늦게 도착해 화면을 덮어쓰는 게 대표적입니다. 해결은 위의 <code>AbortController</code> 또는 React Query의 queryKey 변경입니다.</p>
 
         <h3>BFF (Backend For Frontend)</h3>
-        <p>프론트가 여러 마이크로서비스를 직접 다 호출하면 복잡합니다. 화면에 맞춰 데이터를 모아주는 전용 서버 계층을 두는 패턴입니다.</p>
-        <div class="flow">프론트 → BFF → (user 서비스 + order 서비스 + product 서비스 fan-out)
-↑ 화면에 딱 맞는 형태로 합쳐서 응답</div>
+        <p>
+          화면 하나를 그리는 데 여러 백엔드(user, order, product…)를 프론트가 직접 다 호출하면 문제가 생깁니다.
+          요청이 여러 번 왕복하고, 응답 모양이 제각각이라 프론트에서 다시 조립해야 하며, 웹과 모바일이 필요로 하는
+          데이터가 달라도 같은 API를 억지로 나눠 씁니다. <strong>특정 클라이언트(화면)에 딱 맞게 데이터를 모아·가공해주는
+          전용 서버 계층</strong>이 BFF입니다.
+        </p>
 
-        <h3>API Gateway</h3>
-        <p>모든 요청의 단일 진입점. 라우팅, 인증, rate limiting, 로깅을 한 곳에서 처리합니다. BFF와 달리 "공통 관문" 성격입니다.</p>
+        <h4>직접 호출 vs BFF 경유</h4>
+        <div class="flow">[직접] 프론트 → user API + order API + product API
+        (3번 왕복 · 응답 제각각 · 프론트에서 재조립)
+
+[BFF]  프론트 → BFF 1번 호출
+        → BFF가 내부에서 3개를 fan-out(병렬 호출)
+        → 화면에 딱 맞는 1개 응답으로 가공해 반환</div>
+
+        <h4>BFF가 하는 일: 집계 + 응답 가공(shaping)</h4>
+        <pre><code>// 주문 상세 화면 1개를 위해 BFF가 내부 서비스를 모아 가공
+async function getOrderPage(orderId) {
+  const [order, user, items] = await Promise.all([
+    orderApi.get(orderId),
+    userApi.get(/* ... */),
+    productApi.getMany(/* ... */),
+  ]);
+  return {                       // 화면이 그대로 쓸 모양으로 정리
+    orderNo: order.no,
+    buyerName: user.name,
+    products: items.map((i) =&gt; ({ name: i.name, price: i.price })),
+  };
+}</code></pre>
+        <p>
+          프론트는 이 <code>getOrderPage</code> 결과 하나만 받으면 됩니다. 필요 없는 필드는 빼고(under-fetching 방지),
+          여러 곳에 흩어진 값은 합쳐서(over-fetching·다중 요청 방지) 화면에 최적화된 형태로 내려줍니다.
+        </p>
+
+        <h4>Next.js에서는 앱 자체가 BFF가 된다</h4>
+        <p>
+          Next.js의 Route Handler(<code>app/api</code>)나 Server Component가 사실상 BFF 역할을 합니다. 클라이언트는 한 번만
+          호출하고, 서버 쪽에서 여러 백엔드를 모아 화면용으로 가공해 내려줍니다. 토큰·시크릿 같은 민감 정보도 서버에
+          머물러 브라우저에 노출되지 않습니다.
+        </p>
+        <pre><code>// app/api/order/[id]/route.ts  ← 이 계층이 BFF
+export async function GET(req, { params }) {
+  const data = await getOrderPage(params.id); // 위 집계 로직
+  return Response.json(data);
+}</code></pre>
+
+        <h3>API Gateway, 그리고 BFF와의 차이</h3>
+        <p>API Gateway는 모든 요청이 지나는 단일 진입점으로, 라우팅·인증·rate limiting·로깅 같은 <strong>공통 관심사</strong>를 한 곳에서 처리합니다. BFF가 "화면별 맞춤 가공"이라면 Gateway는 "전체 공통 관문"입니다. 둘은 함께 쓰이기도 합니다(클라이언트 → Gateway → BFF → 서비스들).</p>
+        <table>
+          <tr>
+            <th>구분</th>
+            <th>BFF</th>
+            <th>API Gateway</th>
+          </tr>
+          <tr>
+            <td>목적</td>
+            <td>특정 화면에 맞춘 데이터 집계·가공</td>
+            <td>모든 요청의 공통 관문</td>
+          </tr>
+          <tr>
+            <td>개수</td>
+            <td>클라이언트 종류마다 (웹용·모바일용)</td>
+            <td>보통 하나</td>
+          </tr>
+          <tr>
+            <td>주 소유</td>
+            <td>주로 프론트(클라이언트) 팀</td>
+            <td>플랫폼·인프라 팀</td>
+          </tr>
+        </table>
+        <p class="small">두 개념의 다이어그램은 <a href="../terms/index.html#bff">용어 사전(BFF)</a>과 <a href="../terms/index.html#api-gateway">API Gateway</a> 항목에 그림으로 있습니다.</p>
+
+        <div class="note warn">
+          <strong>트레이드오프 — 만능은 아니다</strong>
+          <p>
+            계층이 하나 늘어 배포·유지보수 대상이 늘고, 네트워크 홉이 더해집니다(보통 서버-서버라 빠르지만).
+            특히 "아무 로직이나 담는 쓰레기통"이 되기 쉬워서, BFF는 <strong>화면용 집계·가공</strong>에 한정하는 규율이
+            필요합니다. 호출하는 백엔드가 한두 개뿐인 단순한 화면이라면 BFF는 과한 도입일 수 있습니다.
+          </p>
+        </div>
+
+        <div class="qa">
+          <strong>풀스택 관점에서의 의미</strong>
+          <p>
+            BFF는 백엔드와 프론트의 경계에 있어, 풀스택 감각이 가장 잘 드러나는 지점입니다. 프론트 팀이 BFF를 직접
+            소유하면 화면에 필요한 데이터 모양을 백엔드에 매번 요청하지 않고 스스로 조립할 수 있습니다. 참고로 GraphQL은
+            이 "클라이언트가 필요한 만큼만 가져오기"를 쿼리 언어로 푼 대안으로, BFF와 같은 문제를 다른 방식으로 해결합니다.
+          </p>
+        </div>
+      </section>
+
+      <section id="resilience">
+        <h2>11. 복원력 패턴 (Release It!)</h2>
+        <p>
+          마이클 나이가드의 <em>Release It!</em>가 정리한, "장애는 반드시 일어난다"를 전제로 한 곳의 실패가 전체로
+          번지지 않게 막는 패턴들입니다. 4장의 타임아웃·재시도·rate limit이 여기서 한 묶음으로 이어집니다.
+        </p>
+
+        <div class="note warn">
+          <strong>가장 위험한 진입로: 연동 지점(Integration Points)</strong>
+          <p>
+            장애의 1순위는 거의 항상 "다른 서비스를 호출하는 지점"입니다. 특히 <strong>완전히 죽는 것보다 느려지는 것</strong>이
+            더 위험합니다 — 응답 없는 호출이 스레드·커넥션을 오래 붙잡아, 그 자원 고갈이 옆 기능까지 끌고 들어가
+            연쇄 장애(cascading failure)로 번지기 때문입니다.
+          </p>
+        </div>
+
+        <h3>Timeout (타임아웃)</h3>
+        <p>무한정 기다리지 않기. 모든 외부 호출에 상한을 둬, 느린 응답이 자원을 잠그는 것을 끊습니다. 프론트에서는 <code>AbortController</code>가 이 역할을 합니다.</p>
+        <pre><code>const ctrl = new AbortController();
+const t = setTimeout(() =&gt; ctrl.abort(), 3000); // 3초 상한
+await fetch("/api/slow", { signal: ctrl.signal });
+clearTimeout(t);</code></pre>
+
+        <h3>Circuit Breaker (서킷 브레이커)</h3>
+        <p>차단기처럼, 외부 서비스가 계속 실패하면 한동안 호출 자체를 끊어 죽은 서비스를 계속 두드리는 낭비와 장애 확산을 막습니다.</p>
+        <table>
+          <tr>
+            <th>상태</th>
+            <th>동작</th>
+          </tr>
+          <tr>
+            <td>Closed (정상)</td>
+            <td>요청 통과. 실패가 임계치를 넘으면 Open으로</td>
+          </tr>
+          <tr>
+            <td>Open (차단)</td>
+            <td>일정 시간 동안 호출 즉시 차단(빠른 실패). 대기 후 Half-Open으로</td>
+          </tr>
+          <tr>
+            <td>Half-Open (탐색)</td>
+            <td>일부만 시험 호출. 성공하면 Closed, 실패하면 다시 Open</td>
+          </tr>
+        </table>
+        <p class="small">BFF나 API Gateway 계층에 두는 경우가 많지만, 클라이언트에서도 "방금 실패한 엔드포인트를 잠시 쉬게" 적용할 수 있습니다. (상태 전이 다이어그램은 <a href="../terms/index.html#circuit-breaker">용어 사전</a>에 그림으로 있습니다.)</p>
+
+        <h3>Bulkhead (격벽)</h3>
+        <p>배의 격벽처럼 자원을 칸막이로 격리합니다. 한 기능이 커넥션·스레드를 다 써버려도 다른 기능은 살아남도록, 풀(pool)을 기능별로 나눕니다. 결제용 커넥션과 추천용 커넥션을 분리하면, 추천이 폭주해도 결제는 동작합니다.</p>
+
+        <h3>Back Pressure &amp; Shed Load</h3>
+        <ul>
+          <li><strong>Back Pressure</strong>: 처리량을 넘는 요청이 밀려오면 상류에 "천천히/그만"이라고 신호. 큐가 무한히 쌓이는 걸 막음 (429가 이 신호의 한 형태)</li>
+          <li><strong>Shed Load</strong>: 한계를 넘으면 일부 요청을 의도적으로 버려, 전체가 같이 죽는 것보다 낫게 함</li>
+        </ul>
+
+        <h3>Fail Fast &amp; Steady State</h3>
+        <ul>
+          <li><strong>Fail Fast</strong>: 어차피 안 될 요청이면 자원을 쓰기 전에 즉시 실패시킴(필수 값 누락, 차단된 회로 등)</li>
+          <li><strong>Steady State</strong>: 시간이 지나도 자원이 쌓이지 않게 — 로그 로테이션, 세션·캐시 만료, 임시 데이터 정리</li>
+        </ul>
+
+        <div class="qa">
+          <strong>프론트도 복원력의 주체다</strong>
+          <p>
+            느리거나 죽은 API에 대해 클라이언트도 방어합니다: 타임아웃·요청 취소(<code>AbortController</code>),
+            지수 백오프 재시도(React Query의 <code>retry</code>), 그리고 폴백 UI(스켈레톤, 캐시된 값, 에러 바운더리).
+            서킷 브레이커·백프레셔 같은 서버 패턴의 "클라이언트 버전"을 갖춰두면, 백엔드가 흔들려도 화면은 우아하게
+            버팁니다.
+          </p>
+        </div>
       </section>
 
       <section id="internal">
-        <h2>11. 프론트가 알면 좋은 백엔드 내부</h2>
+        <h2>12. 프론트가 알면 좋은 백엔드 내부</h2>
         <p>풀스택 협업에서 백엔드의 말을 알아듣고, "이 API가 왜 느린지"를 함께 짚기 위한 최소한의 내부 감각입니다.</p>
 
         <h3>N+1 문제</h3>
@@ -573,7 +728,7 @@ FROM posts p JOIN users u ON p.user_id = u.id;</code></pre>
       </section>
 
       <section id="checklist" class="checklist">
-        <h2>12. 심화 체크리스트</h2>
+        <h2>13. 심화 체크리스트</h2>
         <ul>
           <li>□ HTTP/1.1, 2, 3의 차이와 멀티플렉싱을 설명할 수 있다.</li>
           <li>□ Cache-Control과 ETag/304가 어떻게 트래픽을 줄이는지 안다.</li>
@@ -595,6 +750,9 @@ FROM posts p JOIN users u ON p.user_id = u.id;</code></pre>
           <li>□ AbortController로 race condition을 막을 수 있다.</li>
           <li>□ Promise.all과 allSettled를 구분해 쓴다.</li>
           <li>□ BFF와 API Gateway의 역할 차이를 안다.</li>
+          <li>□ 타임아웃·서킷 브레이커·격벽의 목적을 설명할 수 있다.</li>
+          <li>□ 느린 응답이 완전한 실패보다 위험한 이유를 안다.</li>
+          <li>□ 프론트에서 타임아웃·재시도·폴백 UI로 복원력을 갖출 수 있다.</li>
           <li>□ N+1, 트랜잭션, 인덱스의 개념을 백엔드와 대화할 수준으로 안다.</li>
         </ul>
         <div class="note">
