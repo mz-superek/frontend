@@ -1,0 +1,651 @@
+{
+  "_schema": "support-badges.by-feature.v1",
+  "_generatedAt": "2026-06-18T04:47:53.023Z",
+  "_source": "@mdn/browser-compat-data 8.0.3",
+  "byFeature": {
+    "subgrid": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 117+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 71+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 16+"
+      }
+    ],
+    "logical properties": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 87+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 66+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 14.1+"
+      }
+    ],
+    "aspect-ratio": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 88+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 89+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 15+"
+      }
+    ],
+    "dynamic viewport units": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 108+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 101+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 15.4+"
+      }
+    ],
+    "media queries range syntax": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 104+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 102+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 16.4+"
+      }
+    ],
+    "@container size queries": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 105+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 110+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 16+"
+      }
+    ],
+    "@container style queries": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 111+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 151+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 18+"
+      }
+    ],
+    "anchor positioning": [
+      {
+        "type": "pill-partial",
+        "label": "Chrome 144+ 부분"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 151+"
+      },
+      {
+        "type": "pill-partial",
+        "label": "Safari 26+ 부분"
+      }
+    ],
+    "calc-size()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 129+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-no",
+        "label": "Safari (미지원)"
+      }
+    ],
+    "gap decorations": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 149+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-no",
+        "label": "Safari (미지원)"
+      }
+    ],
+    ":has()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 105+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 121+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 15.4+"
+      }
+    ],
+    ":where()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 88+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 78+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 14+"
+      }
+    ],
+    "cascade layers (@layer)": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 99+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 97+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 15.4+"
+      }
+    ],
+    "css nesting": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 120+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 117+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 17.2+"
+      }
+    ],
+    "@scope": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 118+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 146+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 17.4+"
+      }
+    ],
+    "sibling-index() / sibling-count()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 138+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 26.2+"
+      }
+    ],
+    "css scroll snap": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 69+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 99+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 11+"
+      }
+    ],
+    "overscroll-behavior": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 144+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 150+"
+      },
+      {
+        "type": "pill-partial",
+        "label": "Safari 16+ 부분"
+      }
+    ],
+    "scroll-behavior": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 61+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 36+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 15.4+"
+      }
+    ],
+    "view transition api": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 111+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 144+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 18+"
+      }
+    ],
+    "scroll-driven animations": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 115+"
+      },
+      {
+        "type": "pill-partial",
+        "label": "Firefox 111+ 플래그"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 26+"
+      }
+    ],
+    "discrete properties animations": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 117+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 18+"
+      }
+    ],
+    "@starting-style + allow-discrete": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 117+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 18+"
+      }
+    ],
+    "container scroll-state queries": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 133+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-no",
+        "label": "Safari (미지원)"
+      }
+    ],
+    "css carousels": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 135+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-no",
+        "label": "Safari (미지원)"
+      }
+    ],
+    "color-mix()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 111+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 113+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 16.2+"
+      }
+    ],
+    "accent-color": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 93+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 92+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 26.2+"
+      }
+    ],
+    "relative colors": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 122+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 128+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 18+"
+      }
+    ],
+    "light-dark()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 123+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 120+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 17.5+"
+      }
+    ],
+    "interpolation color spaces": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 111+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 127+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 16.2+"
+      }
+    ],
+    "wide gamut colors": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 111+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 113+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 15.4+"
+      }
+    ],
+    "contrast-color()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 147+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 146+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 26+"
+      }
+    ],
+    "color-scheme": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 81+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 96+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 13+"
+      }
+    ],
+    "offset-path": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 55+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 72+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 15.4+"
+      }
+    ],
+    "shape()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 135+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 148+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 18.4+"
+      }
+    ],
+    "corner-shape": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 139+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-no",
+        "label": "Safari (미지원)"
+      }
+    ],
+    "line-clamp": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 6+ (-webkit-)"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 68+ (-webkit-)"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 5+ (-webkit-)"
+      }
+    ],
+    "text-box-edge / text-box-trim": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 133+"
+      },
+      {
+        "type": "pill-partial",
+        "label": "Firefox 149+ 부분/플래그"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 18.2+"
+      }
+    ],
+    "@supports": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 28+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 22+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 9+"
+      }
+    ],
+    "@property": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 85+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 128+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 16.4+"
+      }
+    ],
+    "display: contents": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 65+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 37+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 11.1+"
+      }
+    ],
+    "advanced attr()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 133+"
+      },
+      {
+        "type": "pill-partial",
+        "label": "Firefox 149+ 플래그"
+      },
+      {
+        "type": "pill-no",
+        "label": "Safari (미지원)"
+      }
+    ],
+    "@function": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 139+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-no",
+        "label": "Safari (미지원)"
+      }
+    ],
+    "if()": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 137+"
+      },
+      {
+        "type": "pill-no",
+        "label": "Firefox (미지원)"
+      },
+      {
+        "type": "pill-no",
+        "label": "Safari (미지원)"
+      }
+    ],
+    "scrollbar-gutter": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 94+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 97+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 18.2+"
+      }
+    ],
+    "scrollbar-color / scrollbar-width": [
+      {
+        "type": "pill-ok",
+        "label": "Chrome 121+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Firefox 64+"
+      },
+      {
+        "type": "pill-ok",
+        "label": "Safari 26.2+"
+      }
+    ]
+  }
+}

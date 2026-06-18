@@ -1,0 +1,3964 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>State of CSS 2026 — 전체 속성 & 사용법 정리</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #0f1117;
+        --surface: #1a1d27;
+        --surface2: #22263a;
+        --border: #2e3350;
+        --accent: #7c6aff;
+        --accent2: #48d9ff;
+        --text: #e4e6f0;
+        --text-muted: #8b90a8;
+        --green: #4ade80;
+        --yellow: #facc15;
+        --red: #f87171;
+        --orange: #fb923c;
+        --radius: 12px;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      header {
+        background: linear-gradient(135deg, #1a1d27, #12152a);
+        border-bottom: 1px solid var(--border);
+        padding: 48px 24px 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 50% 0%, rgba(124, 106, 255, 0.15), transparent 70%);
+      }
+      header h1 {
+        font-size: clamp(1.6rem, 4vw, 2.6rem);
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+      }
+      header p {
+        color: var(--text-muted);
+        margin-top: 8px;
+        font-size: 0.95rem;
+        position: relative;
+      }
+
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 24px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      nav ul {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      nav a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.82rem;
+        padding: 5px 12px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      nav a:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: rgba(124, 106, 255, 0.08);
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 48px 24px 80px;
+      }
+
+      .section {
+        margin-bottom: 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .section-title .section-toggle {
+        margin-left: auto;
+        font-size: 0.72rem;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(124, 106, 255, 0.08);
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+      .section-title .section-toggle:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .section.collapsed > :not(.section-title) {
+        display: none;
+      }
+
+      /* ── 일반 카드 ── */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+      }
+      .card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+
+      .card-header {
+        padding: 14px 20px 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .card-header h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--accent2);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .card-header .desc {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        margin-top: 4px;
+        line-height: 1.5;
+      }
+
+      .card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 220px;
+      }
+
+      /* 에디터 패널 */
+      .pane-editor {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border);
+        min-width: 0;
+      }
+      .pane-preview {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      /* 3) 에디터 탭 자체가 구분 역할 */
+      .editor-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+        background: rgba(124, 106, 255, 0.06);
+        flex-shrink: 0;
+      }
+      .etab {
+        padding: 5px 16px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-transform: uppercase;
+      }
+      .etab:hover {
+        color: var(--text);
+      }
+      .etab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        background: rgba(124, 106, 255, 0.1);
+      }
+
+      /* 코드 textarea */
+      .code-ta {
+        flex: 1;
+        width: 100%;
+        min-height: 320px;
+        background: #171b2a;
+        color: #8eea95;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+        font-size: 0.84rem;
+        line-height: 1.78;
+        letter-spacing: 0.01em;
+        font-variant-ligatures: none;
+        padding: 16px 18px;
+        border: none;
+        resize: none;
+        outline: none;
+        display: none;
+        tab-size: 2;
+        white-space: pre;
+        overflow: auto;
+        caret-color: var(--accent2);
+      }
+      .code-ta.active {
+        display: block;
+      }
+      .code-ta.css-ta {
+        border-left: 2px solid rgba(74, 222, 128, 0.4);
+      }
+      .code-ta.html-ta {
+        color: #7dd3fc;
+        background: #151c2b;
+        border-left: 2px solid rgba(72, 217, 255, 0.35);
+      }
+      .code-ta.js-ta {
+        color: #facc15;
+        background: #1e1b12;
+        border-left: 2px solid rgba(250, 204, 21, 0.35);
+      }
+      .code-ta::selection {
+        background: rgba(124, 106, 255, 0.35);
+      }
+      .code-ta::-moz-selection {
+        background: rgba(124, 106, 255, 0.35);
+      }
+
+      /* 프리뷰 레이블 */
+      .pane-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 5px 14px;
+        color: var(--text-muted);
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+
+      /* iframe */
+      .preview-frame {
+        flex: 1;
+        width: 100%;
+        border: none;
+        background: #0f1117;
+        display: block;
+        min-height: 180px;
+      }
+
+      /* 인터랙티브 카드 (iframe 아닌 것) */
+      .preview-area {
+        flex: 1;
+        background: var(--bg);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 12px;
+      }
+      /* 기존 코드 블록 (비-editor 카드) */
+      .pane-code {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border);
+      }
+      pre {
+        flex: 1;
+        background: #161a28;
+        padding: 28px 18px 14px;
+        overflow-x: auto;
+        margin: 0;
+        position: relative;
+        border-left: 2px solid rgba(74, 222, 128, 0.3);
+      }
+      code {
+        font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+        font-size: 0.84rem;
+        line-height: 1.78;
+        letter-spacing: 0.01em;
+        font-variant-ligatures: none;
+        color: #8eea95;
+      }
+      .copy-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 0.68rem;
+        padding: 2px 8px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: rgba(124, 106, 255, 0.1);
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+      .copy-btn:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .support-bar {
+        display: flex;
+        gap: 6px;
+        padding: 8px 18px;
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
+      }
+      .pill {
+        font-size: 0.68rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+      .pill-ok {
+        background: rgba(74, 222, 128, 0.12);
+        color: var(--green);
+        border: 1px solid rgba(74, 222, 128, 0.25);
+      }
+      .pill-partial {
+        background: rgba(251, 146, 60, 0.12);
+        color: var(--orange);
+        border: 1px solid rgba(251, 146, 60, 0.25);
+      }
+      .pill-no {
+        background: rgba(248, 113, 113, 0.12);
+        color: var(--red);
+        border: 1px solid rgba(248, 113, 113, 0.25);
+      }
+
+      .badge {
+        font-size: 0.67rem;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-weight: 600;
+      }
+      .badge-exp {
+        background: rgba(250, 204, 21, 0.12);
+        color: var(--yellow);
+        border: 1px solid rgba(250, 204, 21, 0.25);
+      }
+      .badge-new {
+        background: rgba(72, 217, 255, 0.12);
+        color: var(--accent2);
+        border: 1px solid rgba(72, 217, 255, 0.25);
+      }
+
+      /* interactive controls (non-iframe cards) */
+      .pv-label {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-align: center;
+      }
+      .pv-ctrl {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        width: 100%;
+        max-width: 260px;
+      }
+      .pv-ctrl input[type='range'] {
+        flex: 1;
+        accent-color: var(--accent);
+      }
+      .pv-ctrl input[type='color'] {
+        width: 32px;
+        height: 24px;
+        border: none;
+        background: none;
+        cursor: pointer;
+      }
+      .pv-ctrl select {
+        background: var(--surface2);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 0.75rem;
+      }
+      .pv-val {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--accent2);
+        min-width: 36px;
+      }
+      .pv-progress-bar {
+        width: 220px;
+        height: 8px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .pv-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        border-radius: 4px;
+        transition: width 0.1s;
+      }
+      .pv-scroll-snap {
+        height: 110px;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        width: 200px;
+      }
+      .pv-snap-item {
+        height: 110px;
+        scroll-snap-align: start;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border);
+      }
+      @property --demo-hue {
+        syntax: '<number>';
+        inherits: false;
+        initial-value: 0;
+      }
+      @keyframes spin-hue {
+        to {
+          --demo-hue: 360;
+        }
+      }
+      .pr-spin {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: hsl(var(--demo-hue, 0) 75% 60%);
+        animation: spin-hue 3s linear infinite;
+      }
+
+      footer {
+        text-align: center;
+        padding: 32px 24px;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        border-top: 1px solid var(--border);
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--accent);
+      }
+
+      /* -- extracted inline styles (auto) -- */
+      .variant-button-row {
+        display: flex;
+        gap: 6px;
+      }
+      .variant-btn-info,
+      .variant-btn-success,
+      .variant-btn-danger {
+        font-size: 0.72rem;
+        padding: 3px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .variant-btn-info {
+        background: rgba(72, 217, 255, 0.1);
+        border: 1px solid var(--accent2);
+        color: var(--accent2);
+      }
+      .variant-btn-success {
+        background: rgba(74, 222, 128, 0.1);
+        border: 1px solid var(--green);
+        color: var(--green);
+      }
+      .variant-btn-danger {
+        background: rgba(248, 113, 113, 0.1);
+        border: 1px solid var(--red);
+        color: var(--red);
+      }
+      .variant-alert-box {
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        background: rgba(72, 217, 255, 0.1);
+        border: 1px solid var(--accent2);
+        color: var(--accent2);
+        min-width: 160px;
+        text-align: center;
+        transition: all 0.2s;
+      }
+      .csq-static-stack {
+        display: grid;
+        gap: 8px;
+        width: 220px;
+      }
+      .csq-static-alert {
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-align: center;
+      }
+      .csq-static-info {
+        background: rgba(72, 217, 255, 0.12);
+        border: 1px solid var(--accent2);
+        color: var(--accent2);
+      }
+      .csq-static-success {
+        background: rgba(74, 222, 128, 0.12);
+        border: 1px solid var(--green);
+        color: var(--green);
+      }
+      .csq-static-danger {
+        background: rgba(248, 113, 113, 0.12);
+        border: 1px solid var(--red);
+        color: var(--red);
+      }
+
+      .calc-accordion {
+        width: 220px;
+      }
+      .calc-accordion summary {
+        list-style: none;
+      }
+      .calc-accordion summary::-webkit-details-marker {
+        display: none;
+      }
+      .calc-accordion-panel {
+        overflow: hidden;
+        height: 0;
+        transition: height 0.35s ease;
+        background: rgba(124, 106, 255, 0.06);
+        border-radius: 6px;
+      }
+      .calc-accordion[open] .calc-accordion-panel {
+        height: calc-size(auto);
+      }
+
+      .gutter-compare {
+        display: flex;
+        gap: 12px;
+      }
+      .gutter-col {
+        text-align: center;
+      }
+      .gutter-box {
+        width: 88px;
+        height: 70px;
+        overflow-y: auto;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        padding: 6px;
+      }
+      .gutter-box-none {
+        background: rgba(248, 113, 113, 0.08);
+      }
+      .gutter-box-stable {
+        background: rgba(74, 222, 128, 0.08);
+        scrollbar-gutter: stable;
+      }
+      .anchor-demo-wrap {
+        position: relative;
+        width: 240px;
+        height: 80px;
+      }
+      .anchor-element {
+        position: absolute;
+        left: 30%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(72, 217, 255, 0.15);
+        border: 1px solid var(--accent2);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--accent2);
+        white-space: nowrap;
+      }
+      .anchor-tooltip {
+        position: absolute;
+        background: var(--surface);
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        color: var(--text);
+        white-space: nowrap;
+        left: 52%;
+        top: 28px;
+      }
+      .demo-action-btn,
+      .demo-cyan-btn {
+        font-size: 0.78rem;
+        padding: 6px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .demo-action-btn {
+        background: rgba(124, 106, 255, 0.1);
+        border: 1px solid var(--accent);
+        color: var(--accent);
+      }
+      .accordion-panel-text {
+        padding: 12px;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      .gap-grid-demo {
+        display: grid;
+        grid-template-columns: repeat(3, 56px);
+        gap: 14px;
+        position: relative;
+      }
+      .gap-grid-cell {
+        height: 40px;
+        background: rgba(124, 106, 255, 0.2);
+        border: 1px solid #7c6aff;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: #48d9ff;
+      }
+      .gap-grid-row-rule {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(40px + 7px);
+        height: 1px;
+        background: #7c6aff;
+        opacity: 0.6;
+      }
+      .gap-grid-col-rule-left,
+      .gap-grid-col-rule-right {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-left: 1px dashed #48d9ff;
+        opacity: 0.6;
+      }
+      .gap-grid-col-rule-left {
+        left: calc(56px + 7px);
+      }
+      .gap-grid-col-rule-right {
+        left: calc(126px + 7px);
+      }
+      .vt-demo-box {
+        width: 180px;
+        height: 60px;
+        background: rgba(124, 106, 255, 0.15);
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        view-transition-name: hero;
+        transition:
+          opacity 0.3s,
+          transform 0.3s;
+      }
+      .vt-demo-box.is-alt {
+        background: rgba(72, 217, 255, 0.1);
+        border-color: var(--accent2);
+      }
+      .demo-cyan-btn {
+        background: rgba(72, 217, 255, 0.1);
+        border: 1px solid var(--accent2);
+        color: var(--accent2);
+      }
+      .accent-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+      .accent-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+        cursor: pointer;
+        color: var(--text);
+      }
+      .accent-control {
+        width: 16px;
+        height: 16px;
+        accent-color: #7c6aff;
+      }
+      .accent-range-control {
+        accent-color: #7c6aff;
+        width: 140px;
+      }
+      .color-space-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 220px;
+      }
+      .gradient-srgb,
+      .gradient-oklch,
+      .gradient-oklch-full {
+        height: 20px;
+        border-radius: 3px;
+      }
+      .gradient-srgb {
+        background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #0000ff);
+      }
+      .gradient-label {
+        text-align: left;
+        margin-top: 3px;
+      }
+      .gradient-oklch {
+        background: linear-gradient(90deg, oklch(60% 0.35 30), oklch(75% 0.35 120), oklch(60% 0.35 240));
+      }
+      .gradient-oklch-full {
+        background: linear-gradient(in oklch longer hue, oklch(65% 0.3 0), oklch(65% 0.3 360));
+      }
+
+      .sda-scroller {
+        width: 220px;
+        height: 96px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #161927;
+        scroll-timeline-name: --sda-progress;
+        scroll-timeline-axis: block;
+      }
+      .sda-progress {
+        position: sticky;
+        top: 0;
+        height: 8px;
+        background: #2e3350;
+      }
+      .sda-fill {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #7c6aff, #48d9ff);
+        transform-origin: left;
+        animation: sda-grow linear both;
+        animation-timeline: --sda-progress;
+      }
+      .sda-content {
+        height: 220px;
+        padding: 8px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        line-height: 1.8;
+      }
+      @keyframes sda-grow {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+
+      .dp-btn {
+        font-size: 0.78rem;
+        padding: 6px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        background: rgba(72, 217, 255, 0.1);
+        border: 1px solid var(--accent2);
+        color: var(--accent2);
+        anchor-name: --dp-anchor;
+      }
+      .dp-tip {
+        padding: 10px 16px;
+        background: var(--surface);
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        color: var(--text);
+        opacity: 0;
+        translate: 0 -8px;
+        pointer-events: none;
+        min-width: 180px;
+        text-align: center;
+        display: none;
+        position: absolute;
+        position-anchor: --dp-anchor;
+        bottom: calc(anchor(top) - 8px);
+        left: anchor(center);
+        translate: -50% -8px;
+        transition:
+          opacity 0.3s,
+          translate 0.3s,
+          display 0.3s allow-discrete;
+      }
+      .dp-btn:hover + .dp-tip {
+        display: block;
+        opacity: 1;
+        translate: -50% 0;
+        pointer-events: auto;
+
+        @starting-style {
+          opacity: 0;
+          translate: -50% -8px;
+        }
+      }
+
+      .ss2-btn {
+        font-size: 0.78rem;
+        padding: 6px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        background: rgba(72, 217, 255, 0.1);
+        border: 1px solid var(--accent2);
+        color: var(--accent2);
+        anchor-name: --ss2-anchor;
+      }
+      .ss2-dialog {
+        padding: 12px 18px;
+        background: var(--surface);
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        font-size: 0.8rem;
+        opacity: 0;
+        translate: -50% -12px;
+        pointer-events: none;
+        min-width: 180px;
+        text-align: center;
+        display: none;
+        position: absolute;
+        position-anchor: --ss2-anchor;
+        bottom: calc(anchor(top) - 10px);
+        left: anchor(center);
+        translate: -50% -12px;
+        transition:
+          opacity 0.3s,
+          translate 0.3s,
+          display 0.3s allow-discrete;
+      }
+      .ss2-dialog.ss2-open {
+        display: block;
+        opacity: 1;
+        translate: -50% 0;
+        pointer-events: auto;
+
+        @starting-style {
+          opacity: 0;
+          translate: -50% -12px;
+        }
+      }
+      .ss2-title {
+        font-weight: 700;
+        color: var(--accent2);
+        margin-bottom: 4px;
+      }
+
+      .csq-scroll {
+        height: 100px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        width: 200px;
+        container: scroller / inline-size;
+      }
+      .csq-scroll-content {
+        height: 220px;
+        padding: 8px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        line-height: 2.2;
+      }
+      .csq-up {
+        font-size: 0.72rem;
+        padding: 4px 12px;
+        background: rgba(124, 106, 255, 0.1);
+        border: 1px solid var(--accent);
+        border-radius: 4px;
+        color: var(--accent);
+        opacity: 0;
+        translate: 0 8px;
+        transition:
+          opacity 0.3s,
+          translate 0.3s;
+      }
+      .csq-scroll:hover + .csq-up,
+      .csq-scroll:focus-within + .csq-up {
+        opacity: 1;
+        translate: 0 0;
+      }
+
+      .split-preview {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        width: min(100%, 260px);
+      }
+      .split-pane {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .split-title {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        align-self: flex-start;
+      }
+      .split-note {
+        font-size: 0.66rem;
+        color: var(--text-muted);
+        text-align: center;
+        line-height: 1.4;
+      }
+      .csq-scroll-exp {
+        height: 100px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        width: 200px;
+        container: scrollerexp / inline-size;
+      }
+      .csq-scroll-exp-content {
+        height: 220px;
+        padding: 8px;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        line-height: 2.2;
+      }
+      .csq-up-exp {
+        font-size: 0.72rem;
+        padding: 4px 12px;
+        background: rgba(72, 217, 255, 0.1);
+        border: 1px solid var(--accent2);
+        border-radius: 4px;
+        color: var(--accent2);
+        opacity: 0.25;
+        translate: 0 8px;
+        transition:
+          opacity 0.3s,
+          translate 0.3s;
+      }
+      .csq-scroll-exp:hover + .csq-up-exp {
+        opacity: 1;
+        translate: 0 0;
+      }
+      .csq-scroll-exp:focus-within + .csq-up-exp {
+        opacity: 1;
+        translate: 0 0;
+      }
+
+      .carousel-demo {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        width: 220px;
+      }
+      .carousel-strip {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding: 2px;
+      }
+      .carousel-item {
+        min-width: 100%;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        border-radius: 6px;
+        scroll-snap-align: center;
+      }
+      .carousel-item-violet {
+        background: rgba(124, 106, 255, 0.15);
+      }
+      .carousel-item-cyan {
+        background: rgba(72, 217, 255, 0.1);
+      }
+      .carousel-item-green {
+        background: rgba(74, 222, 128, 0.1);
+      }
+      .carousel-experimental {
+        width: 220px;
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+      .carousel-experimental::scroll-button(left) {
+        content: '⬅' / '이전';
+      }
+      .carousel-experimental::scroll-button(right) {
+        content: '⮕' / '다음';
+      }
+      .carousel-exp-slide {
+        min-width: 100%;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 700;
+        scroll-snap-align: center;
+      }
+      .survey-link {
+        color: var(--accent);
+      }
+      /* -- /extracted inline styles -- */
+
+      @media (max-width: 900px) {
+        .card-body {
+          grid-template-columns: 1fr;
+          min-height: auto;
+        }
+        .pane-editor,
+        .pane-code {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .preview-frame {
+          min-height: 220px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>State of CSS 2026</h1>
+      <p>전체 CSS 속성 &amp; 사용법 정리 — 라이브 프리뷰 포함</p>
+    </header>
+
+    <nav>
+      <ul>
+        <li><a href="#s-layout">📏 레이아웃</a></li>
+        <li><a href="#s-selectors">🎯 선택자 &amp; 캐스케이드</a></li>
+        <li><a href="#s-interactions">🖱 상호작용</a></li>
+        <li><a href="#s-colors">🎨 컬러</a></li>
+        <li><a href="#s-shapes">📐 모양 &amp; 그래픽</a></li>
+        <li><a href="#s-typography">✏️ 타이포그래피</a></li>
+        <li><a href="#s-other">⚙️ 기타</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- ===== LAYOUT ===== -->
+      <div class="section" id="s-layout">
+        <h2 class="section-title">📏 레이아웃 (Layout)</h2>
+
+        <!-- Subgrid -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Subgrid</h3>
+            <p class="desc">자식 요소가 부모 그리드의 트랙을 그대로 상속 — 카드 행 높이 자동 정렬</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c1">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c1', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c1', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c1-css" spellcheck="false" oninput="updatePreview('c1')">
+body{flex-direction:row;gap:0;padding:16px;}
+.wrapper{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:280px;grid-template-rows:auto auto auto;}
+.item{display:grid;grid-template-rows:subgrid;grid-row:span 3;background:rgba(124,106,255,0.1);border:1px solid #7c6aff;border-radius:8px;overflow:hidden;}
+.item>div{padding:8px 12px;font-size:13px;border-bottom:1px solid rgba(124,106,255,0.2);}
+.item>div:first-child{background:rgba(124,106,255,0.2);font-weight:700;color:#e4e6f0;}
+.item>div:nth-child(2){color:#8b90a8;}
+.item>div:last-child{color:#7c6aff;border-bottom:none;}</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c1-html" spellcheck="false" oninput="updatePreview('c1')">
+<div class="wrapper">
+  <div class="item"><div>제목 A</div><div>본문이 길어요 길어요 여러 줄이에요</div><div>링크 →</div></div>
+  <div class="item"><div>제목 B</div><div>짧은 본문</div><div>링크 →</div></div>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c1-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 117+</span><span class="pill pill-ok">Firefox 71+</span><span class="pill pill-ok">Safari 16+</span>
+          </div>
+        </div>
+
+        <!-- Logical Properties -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Logical Properties</h3>
+            <p class="desc">쓰기 방향에 따라 자동 대응하는 논리적 여백/테두리 — LTR/RTL 전환 시 자동 반전</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c2">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c2', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c2', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c2-css" spellcheck="false" oninput="updatePreview('c2')">
+body{gap:12px;}
+.demo{border-block:4px solid #48d9ff;border-inline:4px solid #7c6aff;padding-block:12px;padding-inline:20px;border-radius:4px;font-size:13px;color:#e4e6f0;text-align:center;width:260px;}
+.label{font-size:11px;color:#8b90a8;text-align:center;}
+.dir-demo{border-inline-start:3px solid #7c6aff;padding-inline-start:12px;font-size:13px;color:#e4e6f0;width:260px;}
+select{background:#22263a;color:#e4e6f0;border:1px solid #2e3350;border-radius:4px;padding:4px 8px;font-size:12px;margin-bottom:8px;}
+.logical-highlight { color: #48d9ff; font-size: 11px; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c2-html" spellcheck="false" oninput="updatePreview('c2')">
+<div class="demo"><span class="logical-highlight">border-block (위·아래)</span><br>border-inline (좌·우)</div>
+<select onchange="document.getElementById('d').style.direction=this.value">
+  <option value="ltr">LTR (한국어/영어)</option>
+  <option value="rtl">RTL (아랍어)</option>
+</select>
+<div id="d" class="dir-demo">padding-inline-start — RTL로 바꿔보세요</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c2-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 87+</span><span class="pill pill-ok">Firefox 66+</span><span class="pill pill-ok">Safari 14.1+</span>
+          </div>
+        </div>
+
+        <!-- aspect-ratio -->
+        <div class="card">
+          <div class="card-header">
+            <h3>aspect-ratio</h3>
+            <p class="desc">요소의 가로세로 비율 고정 — 너비만 지정해도 높이가 자동 계산</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c3">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c3', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c3', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c3-css" spellcheck="false" oninput="updatePreview('c3')">
+body{flex-direction:row;gap:12px;padding:16px;flex-wrap:wrap;}
+.box{background:rgba(124,106,255,0.2);border:2px solid #7c6aff;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:#48d9ff;font-weight:700;gap:4px;}
+.ratio{font-size:10px;color:#8b90a8;}
+.square-ratio { width: 70px; aspect-ratio: 1/1; }
+.widescreen-ratio { width: 100px; aspect-ratio: 16/9; }
+.photo-ratio { width: 80px; aspect-ratio: 4/3; }
+.vertical-ratio { width: 40px; aspect-ratio: 9/16; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c3-html" spellcheck="false" oninput="updatePreview('c3')">
+<div class="box square-ratio"><span>1:1</span><span class="ratio">정사각형</span></div>
+<div class="box widescreen-ratio"><span>16:9</span><span class="ratio">영상</span></div>
+<div class="box photo-ratio"><span>4:3</span><span class="ratio">사진</span></div>
+<div class="box vertical-ratio"><span>9:16</span><span class="ratio">세로</span></div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c3-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 88+</span><span class="pill pill-ok">Firefox 89+</span><span class="pill pill-ok">Safari 15+</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Viewport Units -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Dynamic Viewport Units</h3>
+            <p class="desc">주소창 등 UI 변화에 동적으로 대응하는 뷰포트 단위 (svh, lvh, dvh)</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c4">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c4', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c4', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c4-css" spellcheck="false" oninput="updatePreview('c4')">
+body{flex-direction:row;align-items:flex-end;gap:16px;padding:16px 20px;}
+.col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{width:52px;border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;font-size:10px;font-weight:700;}
+.lbl{font-size:11px;color:#8b90a8;text-align:center;line-height:1.4;}
+.ui-bar{width:100%;height:12px;border-radius:2px;margin-bottom:2px;font-size:9px;display:flex;align-items:center;justify-content:center;color:white;}
+.bar-svh { height: 28svh; max-height: 104px; min-height: 72px; background: rgba(248,113,113,0.2); border: 1px solid #f87171; color: #f87171; flex-direction: column; align-items: center; }
+.ui-small { background: rgba(248,113,113,0.5); }
+.bar-lvh { height: 34lvh; max-height: 124px; min-height: 86px; background: rgba(74,222,128,0.15); border: 1px solid #4ade80; color: #4ade80; }
+.bar-dvh { height: 31dvh; max-height: 114px; min-height: 78px; background: rgba(124,106,255,0.2); border: 1px solid #7c6aff; color: #7c6aff; flex-direction: column; align-items: center; }
+.ui-dynamic { background: rgba(124,106,255,0.5); }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c4-html" spellcheck="false" oninput="updatePreview('c4')">
+<div class="col">
+  <div class="bar bar-svh">
+    <div class="ui-bar ui-small">UI</div>
+  </div>
+  <div class="lbl">svh<br>작은 뷰포트</div>
+</div>
+<div class="col">
+  <div class="bar bar-lvh">lvh</div>
+  <div class="lbl">lvh<br>큰 뷰포트</div>
+</div>
+<div class="col">
+  <div class="bar bar-dvh">
+    <div class="ui-bar ui-dynamic">UI?</div>
+  </div>
+  <div class="lbl">dvh<br>동적 대응</div>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c4-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 108+</span><span class="pill pill-ok">Firefox 101+</span><span class="pill pill-ok">Safari 15.4+</span>
+          </div>
+        </div>
+
+        <!-- Media Queries Range -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Media Queries Range Syntax</h3>
+            <p class="desc">범위 비교 연산자로 미디어 쿼리를 간결하게 작성</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c5">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c5', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c5', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c5-css" spellcheck="false" oninput="updatePreview('c5')">
+body{gap:12px;}
+.track{width:260px;height:20px;background:#2e3350;border-radius:10px;position:relative;overflow:visible;}
+.range{position:absolute;left:33.3%;width:33.4%;height:100%;background:linear-gradient(90deg,#7c6aff,#48d9ff);opacity:0.7;border-radius:10px;}
+.tick{position:absolute;top:-18px;font-size:10px;font-weight:700;transform:translateX(-50%);}
+.labels{display:flex;justify-content:space-between;width:260px;font-size:10px;color:#8b90a8;}
+.demo{font-size:12px;color:#e4e6f0;background:rgba(124,106,255,0.1);border:1px solid #2e3350;border-radius:6px;padding:8px 14px;text-align:center;width:260px;}
+@media (200px &lt; width &lt; 400px){.demo{background:rgba(74,222,128,0.1);border-color:#4ade80;color:#4ade80;}}
+.tick-start { left: 33.3%; color: #7c6aff; }
+.tick-end { left: 66.7%; color: #48d9ff; }
+.demo-note { color: #8b90a8; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c5-html" spellcheck="false" oninput="updatePreview('c5')">
+<div class="track">
+  <div class="range"></div>
+  <div class="tick tick-start">200px</div>
+  <div class="tick tick-end">400px</div>
+</div>
+<div class="labels"><span>0</span><span>200~400</span><span>600+</span></div>
+<div class="demo">이 창 크기를 줄여보세요 →<br><small class="demo-note">200~400px에서 초록색으로 변해요</small></div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c5-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 104+</span><span class="pill pill-ok">Firefox 102+</span><span class="pill pill-ok">Safari 16.4+</span>
+          </div>
+        </div>
+
+        <!-- Container size queries -->
+        <div class="card">
+          <div class="card-header">
+            <h3>@container size queries</h3>
+            <p class="desc">컨테이너 크기에 따른 조건부 스타일 (뷰포트가 아닌 부모 기준)</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c6">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c6', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c6', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c6-css" spellcheck="false" oninput="updatePreview('c6')">
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  min-height: 160px;
+}
+.controls {
+  font-size: 11px;
+  color: #8b90a8;
+}
+.resizable {
+  width: 220px;
+  min-width: 160px;
+  max-width: 360px;
+  resize: horizontal;
+  overflow: auto;
+  border: 1px solid #2e3350;
+  border-radius: 8px;
+  padding: 10px;
+  background: #1a1d27;
+  container-type: inline-size;
+  container-name: card;
+}
+.state {
+  font-size: 10px;
+  color: #8b90a8;
+  margin-bottom: 8px;
+}
+.items {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.item {
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid #7c6aff;
+  background: rgba(124,106,255,0.15);
+  color: #48d9ff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@container card (min-width: 240px) {
+  .state::after { content: ' (2열)'; color: #4ade80; }
+  .items { grid-template-columns: 1fr 1fr; }
+}
+@container card (min-width: 320px) {
+  .state::after { content: ' (3열)'; color: #48d9ff; }
+  .items { grid-template-columns: repeat(3, 1fr); }
+}
+.note {
+  font-size: 11px;
+  color: #8b90a8;
+}
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c6-html" spellcheck="false" oninput="updatePreview('c6')">
+<div class="controls">오른쪽 아래 핸들로 너비를 늘려보세요</div>
+<div class="resizable">
+  <div class="state">현재 컨테이너 기준</div>
+  <div class="items">
+    <div class="item">A</div>
+    <div class="item">B</div>
+    <div class="item">C</div>
+    <div class="item">D</div>
+    <div class="item">E</div>
+    <div class="item">F</div>
+  </div>
+</div>
+<p class="note">@container는 뷰포트가 아닌 부모 너비를 기준으로 반응합니다.</p>
+</textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c6-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 105+</span><span class="pill pill-ok">Firefox 110+</span><span class="pill pill-ok">Safari 16+</span>
+          </div>
+        </div>
+
+        <!-- @container style queries -->
+        <div class="card">
+          <div class="card-header">
+            <h3>@container style queries</h3>
+            <p class="desc">CSS 커스텀 프로퍼티 값에 따른 조건부 스타일</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>@container style(--variant: danger) {
+  .alert { background: red; }
+}
+@container style(--variant: success) {
+  .alert { background: green; }
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="csq-static-stack">
+                  <div class="csq-static-alert csq-static-info">--variant: info</div>
+                  <div class="csq-static-alert csq-static-success">--variant: success</div>
+                  <div class="csq-static-alert csq-static-danger">--variant: danger</div>
+                </div>
+                <p class="pv-label">커스텀 프로퍼티 값별 결과를 JS 없이 정적으로 비교</p>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 111+</span><span class="pill pill-ok">Firefox 151+</span><span class="pill pill-ok">Safari 18+</span>
+          </div>
+        </div>
+
+        <!-- Anchor Positioning -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Anchor Positioning</h3>
+            <p class="desc">특정 요소를 앵커로 삼아 다른 요소를 상대적으로 배치 — tooltip, popover에 유용</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.ap-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ap-btn {
+  background: rgba(72,217,255,0.1);
+  border: 1px solid #48d9ff;
+  color: #48d9ff;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+[hover-tooltip]::after {
+  content: attr(hover-tooltip);
+  position: absolute;
+  position-anchor: --tt;
+  position-area: block-start center;
+  background: #1a1d27;
+  border: 1px solid #7c6aff;
+  color: #e4e6f0;
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.35;
+  padding: 6px 9px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .16s ease;
+}
+
+[hover-tooltip][data-anchor="top"] { anchor-name: --tt-top; }
+[hover-tooltip][data-anchor="bottom"] { anchor-name: --tt-bottom; }
+[hover-tooltip][data-anchor="long"] { anchor-name: --tt-long; }
+
+[hover-tooltip][data-anchor="top"]::after { position-anchor: --tt-top; }
+[hover-tooltip][data-anchor="bottom"]::after { position-anchor: --tt-bottom; }
+[hover-tooltip][data-anchor="long"]::after { position-anchor: --tt-long; }
+
+[hover-tooltip][tooltip-position="bottom"]::after {
+  position-area: block-end center;
+}
+
+[hover-tooltip]:hover::after { opacity: 1; }</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="ap-row">
+                  <button class="ap-btn" data-anchor="top" hover-tooltip="위쪽 툴팁">Top</button>
+                  <button class="ap-btn" data-anchor="bottom" hover-tooltip="아래쪽 툴팁" tooltip-position="bottom">
+                    Bottom
+                  </button>
+                  <button class="ap-btn" data-anchor="long" hover-tooltip="긴 툴팁도 CSS로 배치됩니다">Long</button>
+                </div>
+                <p class="pv-label">hover-tooltip / tooltip-position 속성 기반 데모</p>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-partial">Chrome 144+ 부분</span><span class="pill pill-ok">Firefox 151+</span><span class="pill pill-partial">Safari 26+ 부분</span>
+          </div>
+        </div>
+
+        <!-- calc-size -->
+        <div class="card">
+          <div class="card-header">
+            <h3>calc-size()</h3>
+            <p class="desc">auto 같은 키워드 크기를 포함한 수식 계산 — height: auto 트랜지션 가능!</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.accordion {
+  height: 0; overflow: hidden;
+  transition: height 0.35s ease;
+}
+.accordion.open {
+  height: calc-size(auto);
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <details class="calc-accordion">
+                  <summary class="demo-action-btn">아코디언 열기/닫기</summary>
+                  <div class="calc-accordion-panel">
+                    <div class="accordion-panel-text">
+                      calc-size(auto) 덕분에<br />높이를 모르는 요소도<br />부드럽게 열립니다!
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 129+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-no">Safari (미지원)</span>
+          </div>
+        </div>
+
+        <!-- Gap Decorations -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Gap Decorations <span class="badge badge-exp">실험적</span></h3>
+            <p class="desc">그리드/플렉스 gap 영역에 구분선(rule) 추가</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.grid {
+  display: grid; gap: 16px;
+  row-rule: 1px solid #7c6aff;
+  column-rule: 1px dashed #48d9ff;
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="gap-grid-demo">
+                  <div class="gap-grid-cell">A</div>
+                  <div class="gap-grid-cell">B</div>
+                  <div class="gap-grid-cell">C</div>
+                  <div class="gap-grid-cell">D</div>
+                  <div class="gap-grid-cell">E</div>
+                  <div class="gap-grid-cell">F</div>
+                  <div class="gap-grid-row-rule"></div>
+                  <div class="gap-grid-col-rule-left"></div>
+                  <div class="gap-grid-col-rule-right"></div>
+                </div>
+                <p class="pv-label">gap 영역 구분선(rule) 시각화 데모</p>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 149+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-no">Safari (미지원)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SELECTORS ===== -->
+      <div class="section" id="s-selectors">
+        <h2 class="section-title">🎯 선택자 &amp; 캐스케이드</h2>
+
+        <!-- :has() -->
+        <div class="card">
+          <div class="card-header">
+            <h3>:has()</h3>
+            <p class="desc">특정 자식·후속 요소를 가진 부모를 선택 — "부모 선택자"</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c7">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c7', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c7', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c7-css" spellcheck="false" oninput="updatePreview('c7')">
+body{gap:12px;}
+p{font-size:12px;color:#8b90a8;}
+form{padding:14px 18px;border-radius:8px;border:1px solid #2e3350;background:#1a1d27;transition:all 0.2s;font-size:14px;width:220px;}
+form:has(input:checked){background:rgba(124,106,255,0.12);border-color:#7c6aff;}
+label{display:flex;align-items:center;gap:8px;cursor:pointer;color:#e4e6f0;}
+input[type=checkbox]{width:16px;height:16px;accent-color:#7c6aff;}
+.status{font-size:11px;color:#8b90a8;transition:color 0.2s;}
+form:has(input:checked) .status{color:#7c6aff;}
+.has-status { margin-top: 8px; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c7-html" spellcheck="false" oninput="updatePreview('c7')">
+<p>체크박스를 클릭해보세요</p>
+<form>
+  <label><input type="checkbox"> 동의합니다</label>
+  <div class="status has-status">form:has(input:checked) → 미체크</div>
+</form></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c7-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 105+</span><span class="pill pill-ok">Firefox 121+</span><span class="pill pill-ok">Safari 15.4+</span>
+          </div>
+        </div>
+
+        <!-- :where() -->
+        <div class="card">
+          <div class="card-header">
+            <h3>:where()</h3>
+            <p class="desc">명시도(specificity) 0으로 여러 선택자 그룹화 — 오버라이드하기 쉬운 기본 스타일에 유용</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c8">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c8', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c8', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c8-css" spellcheck="false" oninput="updatePreview('c8')">
+body{gap:14px;}
+:where(header,main,footer) p{color:#8b90a8;}
+main p{color:#48d9ff;}
+.box{padding:10px 16px;border-radius:6px;width:260px;font-size:13px;}
+header{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.3);}
+main{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.3);}
+.tag{font-size:10px;font-weight:700;margin-bottom:4px;color:#8b90a8;}
+.where-base-box { background: rgba(139,144,168,0.08); border: 1px solid #2e3350; }
+.where-override-box { background: rgba(72,217,255,0.08); border: 1px solid rgba(72,217,255,0.3); }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c8-html" spellcheck="false" oninput="updatePreview('c8')">
+<div class="box where-base-box"><div class="tag">header / footer</div><p>:where() → 명시도 0, gray</p></div>
+<div class="box where-override-box"><div class="tag">main</div><main><p>main p { } 로 쉽게 오버라이드!</p></main></div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c8-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 88+</span><span class="pill pill-ok">Firefox 78+</span><span class="pill pill-ok">Safari 14+</span>
+          </div>
+        </div>
+
+        <!-- Cascade Layers -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Cascade Layers (@layer)</h3>
+            <p class="desc">CSS 적용 우선순위를 레이어로 명시적 관리 — 명시도 전쟁 종식</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c9">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c9', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c9', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c9-css" spellcheck="false" oninput="updatePreview('c9')">
+@layer base,components,utilities;
+@layer base { button{background:#555;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;} }
+@layer components { .btn{background:#3b6ee0;} }
+@layer utilities { .bg-red{background:#e04040;} }
+.row{display:flex;gap:8px;align-items:center;}
+.lbl{font-size:11px;color:#8b90a8;width:90px;text-align:right;}</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c9-html" spellcheck="false" oninput="updatePreview('c9')">
+<div class="row"><span class="lbl">base만:</span><button>기본 버튼</button></div>
+<div class="row"><span class="lbl">+ components:</span><button class="btn">파란 버튼</button></div>
+<div class="row"><span class="lbl">+ utilities:</span><button class="btn bg-red">빨간 버튼</button></div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c9-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 99+</span><span class="pill pill-ok">Firefox 97+</span><span class="pill pill-ok">Safari 15.4+</span>
+          </div>
+        </div>
+
+        <!-- CSS Nesting -->
+        <div class="card">
+          <div class="card-header">
+            <h3>CSS Nesting</h3>
+            <p class="desc">전처리기 없이 네이티브 CSS 중첩 선택자</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c10">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c10', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c10', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c10-css" spellcheck="false" oninput="updatePreview('c10')">
+.card {
+  padding: 16px 20px;
+  background: #1a1d27;
+  border: 1px solid #2e3350;
+  border-radius: 8px;
+  transition: all 0.2s;
+  cursor: pointer;
+  width: 220px;
+
+  .title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #48d9ff;
+    margin-bottom: 6px;
+  }
+
+  .body {
+    font-size: 13px;
+    color: #8b90a8;
+  }
+
+  &:hover {
+    background: rgba(124, 106, 255, 0.15);
+    border-color: #7c6aff;
+  }
+}</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c10-html" spellcheck="false" oninput="updatePreview('c10')">
+<div class="card">
+  <div class="title">네이티브 중첩 선택자</div>
+  <div class="body">호버해보세요 — &:hover가<br>실제로 동작해요!</div>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c10-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 120+</span><span class="pill pill-ok">Firefox 117+</span><span class="pill pill-ok">Safari 17.2+</span>
+          </div>
+        </div>
+
+        <!-- @scope -->
+        <div class="card">
+          <div class="card-header">
+            <h3>@scope</h3>
+            <p class="desc">특정 DOM 범위 안에서만 적용되는 스코프 스타일</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c11">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c11', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c11', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c11-css" spellcheck="false" oninput="updatePreview('c11')">
+body{flex-direction:row;align-items:flex-start;gap:16px;}
+p{color:#8b90a8;font-size:13px;}
+@scope (.card){
+  :scope{padding:12px 16px;background:rgba(124,106,255,0.1);border:2px solid #7c6aff;border-radius:8px;}
+  p{color:#48d9ff;}
+}
+.label{font-size:10px;font-weight:700;margin-bottom:6px;color:#8b90a8;}
+.scope-inside-label { color: #7c6aff; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c11-html" spellcheck="false" oninput="updatePreview('c11')">
+<div>
+  <div class="label">스코프 밖</div>
+  <p>일반 회색 텍스트</p>
+</div>
+<div class="card">
+  <div class="label scope-inside-label">.card 스코프 안</div>
+  <p>파란색으로 변경됨!</p>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c11-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 118+</span><span class="pill pill-ok">Firefox 146+</span><span class="pill pill-ok">Safari 17.4+</span>
+          </div>
+        </div>
+
+        <!-- sibling-index -->
+        <div class="card">
+          <div class="card-header">
+            <h3>sibling-index() / sibling-count() <span class="badge badge-exp">실험적</span></h3>
+            <p class="desc">형제 요소 중 자신의 순서·총 개수를 숫자로 반환 — CSS만으로 스태거 애니메이션</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c12">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c12', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c12', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c12-css" spellcheck="false" oninput="updatePreview('c12')">
+body{gap:10px;}
+.stack{display:flex;flex-direction:column;gap:8px;width:240px;}
+.box{padding:10px;border-radius:8px;border:1px solid #2e3350;background:#171b2a;}
+.ttl{font-size:10px;color:#8b90a8;margin-bottom:6px;}
+.word{display:flex;gap:3px;align-items:flex-end;min-height:44px;}
+.char{display:inline-block;font-size:28px;font-weight:800;line-height:1;color:#48d9ff;opacity:0.25;transform:translateY(0.8em);animation:rise 1.2s ease-in-out infinite alternate;}
+.exp .char{animation-delay:calc(sibling-index()*80ms);}
+.fallback .char{animation-delay:calc(var(--i)*80ms);}
+.exp::after{content:"total: " sibling-count();display:block;margin-top:6px;font-size:10px;color:#8b90a8;}
+.fallback::after{content:"total: 4 (fallback)";display:block;margin-top:6px;font-size:10px;color:#8b90a8;}
+.note{font-size:11px;color:#8b90a8;text-align:center;line-height:1.45;}
+@keyframes rise{to{opacity:1;transform:translateY(0);}}</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c12-html" spellcheck="false" oninput="updatePreview('c12')">
+<div class="stack">
+  <div class="box">
+    <div class="ttl">Experimental: sibling-index() / sibling-count()</div>
+    <div class="word exp" aria-label="HOLA">
+      <span class="char">H</span>
+      <span class="char">O</span>
+      <span class="char">L</span>
+      <span class="char">A</span>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="ttl">Fallback: custom property --i</div>
+    <div class="word fallback" aria-label="HOLA">
+      <span class="char" style="--i:0">H</span>
+      <span class="char" style="--i:1">O</span>
+      <span class="char" style="--i:2">L</span>
+      <span class="char" style="--i:3">A</span>
+    </div>
+  </div>
+</div>
+<p class="note">위: sibling 함수 실험 문법, 아래: 모든 브라우저용 폴백</p>
+</textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c12-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 138+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-ok">Safari 26.2+</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== INTERACTIONS ===== -->
+      <div class="section" id="s-interactions">
+        <h2 class="section-title">🖱 상호작용 (Interactions)</h2>
+
+        <!-- Scroll Snap -->
+        <div class="card">
+          <div class="card-header">
+            <h3>CSS Scroll Snap</h3>
+            <p class="desc">스크롤 시 특정 지점에 스냅되도록 고정</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c13">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c13', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c13', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c13-css" spellcheck="false" oninput="updatePreview('c13')">
+body{gap:8px;padding:16px;}
+.scroller{width:220px;height:120px;overflow-y:scroll;scroll-snap-type:y mandatory;border:1px solid #2e3350;border-radius:8px;}
+.item{height:120px;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;border-bottom:1px solid #2e3350;}
+p{font-size:11px;color:#8b90a8;}
+.snap-slide-one { background: rgba(124,106,255,0.15); color: #7c6aff; }
+.snap-slide-two { background: rgba(72,217,255,0.1); color: #48d9ff; }
+.snap-slide-three { background: rgba(74,222,128,0.1); color: #4ade80; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c13-html" spellcheck="false" oninput="updatePreview('c13')">
+<div class="scroller">
+  <div class="item snap-slide-one">슬라이드 1</div>
+  <div class="item snap-slide-two">슬라이드 2</div>
+  <div class="item snap-slide-three">슬라이드 3</div>
+</div>
+<p>스크롤하면 각 슬라이드에 스냅!</p></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c13-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 69+</span><span class="pill pill-ok">Firefox 99+</span><span class="pill pill-ok">Safari 11+</span>
+          </div>
+        </div>
+
+        <!-- overscroll-behavior -->
+        <div class="card">
+          <div class="card-header">
+            <h3>overscroll-behavior</h3>
+            <p class="desc">스크롤이 부모로 전파(체이닝)되는 동작 제어</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c14">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c14', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c14', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c14-css" spellcheck="false" oninput="updatePreview('c14')">
+html,body{height:100%;overflow:hidden;}
+body{gap:8px;padding:16px;min-height:auto;}
+.outer{width:220px;height:120px;overflow-y:scroll;background:#1a1d27;border:1px solid #2e3350;border-radius:8px;padding:8px;position:relative;}
+.inner{width:100%;height:80px;overflow-y:scroll;overscroll-behavior-y:contain;background:rgba(124,106,255,0.1);border:1px solid #7c6aff;border-radius:6px;padding:6px;}
+.inner-content{height:200px;font-size:12px;color:#8b90a8;line-height:2;}
+.outer-content{height:300px;font-size:12px;color:#555;line-height:2;padding-top:8px;}
+p{font-size:11px;color:#8b90a8;text-align:center;}</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c14-html" spellcheck="false" oninput="updatePreview('c14')">
+<div class="outer">
+  <div class="inner">
+    <div class="inner-content">모달 내부 스크롤<br>모달 내부 스크롤<br>모달 내부 스크롤<br>끝까지 와도...</div>
+  </div>
+  <div class="outer-content">바깥 영역<br>바깥 영역</div>
+</div>
+<p>안쪽 스크롤이 바깥으로 새지 않아요</p></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c14-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 144+</span><span class="pill pill-ok">Firefox 150+</span><span class="pill pill-partial">Safari 16+ 부분</span>
+          </div>
+        </div>
+
+        <!-- scroll-behavior -->
+        <div class="card">
+          <div class="card-header">
+            <h3>scroll-behavior</h3>
+            <p class="desc">페이지 내 링크 이동 시 부드러운 스크롤 애니메이션</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="csb">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'csb', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'csb', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="csb-css" spellcheck="false" oninput="updatePreview('csb')">
+body{color:#e4e6f0;gap:8px;padding:0;}
+.demo{width:min(100%,320px);border:1px solid #2e3350;border-radius:8px;overflow:hidden;background:#1a1d27;}
+.sb-nav{display:flex;gap:8px;justify-content:center;padding:10px;background:#0f1117;border-bottom:1px solid #2e3350;}
+.sb-nav a{font-size:12px;padding:4px 10px;background:rgba(124,106,255,0.1);border:1px solid #7c6aff;border-radius:4px;color:#7c6aff;text-decoration:none;}
+.sb-nav a:hover{background:rgba(124,106,255,0.3);}
+.sb-scroll{height:140px;overflow-y:auto;scroll-behavior:smooth;}
+.section{height:140px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;border-top:1px solid #2e3350;}
+.sb-section-violet { color: #7c6aff; }
+.sb-section-cyan { color: #48d9ff; }
+.sb-section-green { color: #4ade80; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="csb-html" spellcheck="false" oninput="updatePreview('csb')">
+<div class="demo">
+  <div class="sb-nav">
+    <a href="#sb-s1">섹션 1</a>
+    <a href="#sb-s2">섹션 2</a>
+    <a href="#sb-s3">섹션 3</a>
+  </div>
+  <div class="sb-scroll">
+    <section class="section sb-section-violet" id="sb-s1">섹션 1</section>
+    <section class="section sb-section-cyan" id="sb-s2">섹션 2</section>
+    <section class="section sb-section-green" id="sb-s3">섹션 3</section>
+  </div>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="csb-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 61+</span><span class="pill pill-ok">Firefox 36+</span><span class="pill pill-ok">Safari 15.4+</span>
+          </div>
+        </div>
+
+        <!-- View Transition -->
+        <div class="card">
+          <div class="card-header">
+            <h3>View Transition API</h3>
+            <p class="desc">페이지/컴포넌트 전환 시 부드러운 애니메이션</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.vt-demo-box {
+  width: 180px;
+  height: 60px;
+  background: rgba(124, 106, 255, 0.15);
+  border: 1px solid #7c6aff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  view-transition-name: hero;
+  transition:
+    background-color 0.28s,
+    border-color 0.28s,
+    color 0.28s,
+    transform 0.28s,
+    opacity 0.28s;
+}
+.vt-demo-box.is-alt {
+  background: rgba(72, 217, 255, 0.1);
+  border-color: #48d9ff;
+}
+::view-transition-old(hero) {
+  animation: 300ms ease-out fade-out;
+}
+::view-transition-new(hero) {
+  animation: 300ms ease-in fade-in;
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <button onclick="doViewTransition()" class="demo-action-btn">실제 전환 실행</button>
+                <div id="vt-demo" class="vt-demo-box">Page A</div>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 111+</span><span class="pill pill-ok">Firefox 144+</span><span class="pill pill-ok">Safari 18+</span>
+          </div>
+        </div>
+
+        <!-- Scroll-driven Animations -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Scroll-driven Animations</h3>
+            <p class="desc">스크롤 위치에 따라 애니메이션 진행 — 프로그레스 바, 패럴렉스 등</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.sda-scroller {
+  width: 220px;
+  height: 96px;
+  overflow-y: auto;
+  border: 1px solid #2e3350;
+  border-radius: 6px;
+  background: #161927;
+  scroll-timeline-name: --sda-progress;
+  scroll-timeline-axis: block;
+}
+.sda-progress {
+  position: sticky;
+  top: 0;
+  height: 8px;
+  background: #2e3350;
+}
+.sda-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #7c6aff, #48d9ff);
+  transform-origin: left;
+  animation: sda-grow auto linear;
+  animation-timeline: --sda-progress;
+}
+.sda-content {
+  height: 220px;
+  padding: 8px;
+  font-size: 0.75rem;
+  color: #8b90a8;
+  line-height: 1.8;
+}
+@keyframes sda-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="sda-scroller">
+                  <div class="sda-progress">
+                    <div class="sda-fill"></div>
+                  </div>
+                  <div class="sda-content">
+                    스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요
+                  </div>
+                </div>
+                <p class="pv-label">스크롤 위치에 따라 진행 바가 자동으로 차오릅니다</p>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 115+</span><span class="pill pill-partial">Firefox 111+ 플래그</span><span class="pill pill-ok">Safari 26+</span>
+          </div>
+        </div>
+
+        <!-- @starting-style -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Discrete Properties Animations <span class="badge badge-new">신규</span></h3>
+            <p class="desc">display, visibility 같은 불연속 속성도 트랜지션 가능 — allow-discrete 키워드</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.dp-tip {
+  display: none;
+  opacity: 0;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--text);
+  min-width: 180px;
+  text-align: center;
+  pointer-events: none;
+  position: absolute;
+  position-anchor: --dp-anchor;
+  bottom: calc(anchor(top) - 8px);
+  left: anchor(center);
+  translate: -50% -8px;
+  transition:
+    opacity 0.3s,
+    translate 0.3s,
+    display 0.3s allow-discrete;
+}
+.dp-btn:hover + .dp-tip {
+  display: block;
+  opacity: 1;
+  translate: -50% 0;
+
+  @starting-style {
+    opacity: 0;
+    translate: -50% -8px;
+  }
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area" style="position: relative">
+                <button class="dp-btn">마우스를 올려보세요</button>
+                <div class="dp-tip">display none → block도<br />이제 부드럽게 전환돼요!</div>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 117+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-ok">Safari 18+</span>
+          </div>
+        </div>
+
+        <!-- @starting-style -->
+        <div class="card">
+          <div class="card-header">
+            <h3>@starting-style + allow-discrete <span class="badge badge-new">신규</span></h3>
+            <p class="desc">display 전환을 포함한 진입/퇴장 애니메이션 — dialog, popover에 필수</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>dialog[open] { translate: 0 0; opacity: 1; }
+dialog {
+  transition: translate .3s, opacity .3s,
+    display .3s allow-discrete;
+  translate: 0 20px; opacity: 0;
+}
+@starting-style {
+  dialog[open] { translate: 0 20px; opacity: 0; }
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area" style="position: relative">
+                <button
+                  class="ss2-btn"
+                  onclick="
+                    this.classList.toggle('ss2-active');
+                    this.nextElementSibling.classList.toggle('ss2-open');
+                  "
+                >
+                  다이얼로그 열기 / 닫기
+                </button>
+                <div class="ss2-dialog">
+                  <div class="ss2-title">다이얼로그</div>
+                  @starting-style로 부드럽게!
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 117+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-ok">Safari 18+</span>
+          </div>
+        </div>
+
+        <!-- scroll-state -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Container scroll-state queries <span class="badge badge-new">신규</span></h3>
+            <p class="desc">컨테이너의 스크롤 상태에 따른 조건부 스타일</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>/* Experimental syntax (limited support)
+.scroller-exp {
+  container: scrollerexp / inline-size;
+}
+@container scrollerexp
+  scroll-state(scrollable: top) {
+  .back-to-top {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+*/
+.scroller-exp:hover + .back-to-top {
+  opacity: 1;
+  translate: 0 0;
+}
+.scroller-exp:focus-within + .back-to-top {
+  opacity: 1;
+  translate: 0 0;
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="split-preview">
+                  <div class="split-pane">
+                    <div class="split-title">Experimental (scroll-state)</div>
+                    <div class="csq-scroll-exp">
+                      <div class="csq-scroll-exp-content">
+                        스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요
+                      </div>
+                    </div>
+                    <div class="csq-up-exp">↑ 맨 위로</div>
+                    <p class="split-note">지원 브라우저에서는 scroll-state query로 상태가 전환됩니다</p>
+                  </div>
+                  <div class="split-pane">
+                    <div class="split-title">Fallback (hover/focus)</div>
+                    <div class="csq-scroll">
+                      <div class="csq-scroll-content">
+                        스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요<br />스크롤해보세요
+                      </div>
+                    </div>
+                    <div class="csq-up">↑ 맨 위로</div>
+                  </div>
+                </div>
+                <p class="pv-label">실험 기능과 폴백 동작을 분리해 비교</p>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 133+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-no">Safari (미지원)</span>
+          </div>
+        </div>
+
+        <!-- CSS Carousels -->
+        <div class="card">
+          <div class="card-header">
+            <h3>CSS Carousels <span class="badge badge-exp">실험적</span></h3>
+            <p class="desc">순수 CSS로 스크롤 캐러셀 버튼 생성 (::scroll-button)</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.carousel-experimental::scroll-button(left) {
+  content: "⬅" / "이전";
+}
+.carousel-experimental::scroll-button(right) {
+  content: "⮕" / "다음";
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="split-preview">
+                  <div class="split-pane">
+                    <div class="split-title">Experimental (::scroll-button)</div>
+                    <div class="carousel-experimental">
+                      <div class="carousel-exp-slide carousel-item-violet">슬라이드 1</div>
+                      <div class="carousel-exp-slide carousel-item-cyan">슬라이드 2</div>
+                      <div class="carousel-exp-slide carousel-item-green">슬라이드 3</div>
+                    </div>
+                    <p class="split-note">플래그/지원 환경에서는 네이티브 scroll-button이 함께 나타납니다</p>
+                  </div>
+                  <div class="split-pane">
+                    <div class="split-title">Fallback (CSS scroll-snap)</div>
+                    <div class="carousel-demo">
+                      <div class="carousel-strip">
+                        <div class="carousel-item carousel-item-violet">슬라이드 1</div>
+                        <div class="carousel-item carousel-item-cyan">슬라이드 2</div>
+                        <div class="carousel-item carousel-item-green">슬라이드 3</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p class="pv-label">실험 기능과 폴백 구현을 분리해 표시</p>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 135+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-no">Safari (미지원)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== COLORS ===== -->
+      <div class="section" id="s-colors">
+        <h2 class="section-title">🎨 컬러 (Colors)</h2>
+
+        <!-- color-mix -->
+        <div class="card">
+          <div class="card-header">
+            <h3>color-mix()</h3>
+            <p class="desc">두 색상을 특정 색공간에서 혼합</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c17">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c17', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c17', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c17-css" spellcheck="false" oninput="updatePreview('c17')">
+body{gap:12px;}
+.row{display:flex;align-items:center;gap:10px;}
+.swatch{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,0.1);}
+#mix{width:52px;height:52px;}
+input[type=range]{width:120px;accent-color:#7c6aff;}
+.lbl{font-size:11px;color:#8b90a8;}
+.mix-left-swatch { background: #7c6aff; }
+.mix-swatch-label { text-align: center; margin-top: 4px; }
+.mix-plus-sign { color: #8b90a8; font-size: 18px; }
+.mix-result-swatch { background: color-mix(in oklab,#7c6aff 50%,#48d9ff); }
+.mix-right-swatch { background: #48d9ff; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c17-html" spellcheck="false" oninput="updatePreview('c17')">
+<div class="row">
+  <div><div class="swatch mix-left-swatch"></div><div class="lbl mix-swatch-label">#7c6aff</div></div>
+  <span class="mix-plus-sign">+</span>
+  <div><div class="swatch mix-result-swatch" id="mix"></div></div>
+  <span class="mix-plus-sign">+</span>
+  <div><div class="swatch mix-right-swatch"></div><div class="lbl mix-swatch-label">#48d9ff</div></div>
+</div>
+<input type="range" min="0" max="100" value="50" oninput="update(this.value)">
+<div class="lbl" id="lbl">color-mix(in oklab, #7c6aff 50%, #48d9ff)</div>
+<script>
+function update(v){
+  document.getElementById("mix").style.background=`color-mix(in oklab,#7c6aff ${v}%,#48d9ff)`;
+  document.getElementById("lbl").textContent=`color-mix(in oklab, #7c6aff ${v}%, #48d9ff)`;
+}
+</script>
+</textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c17-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 111+</span><span class="pill pill-ok">Firefox 113+</span><span class="pill pill-ok">Safari 16.2+</span>
+          </div>
+        </div>
+
+        <!-- accent-color -->
+        <div class="card">
+          <div class="card-header">
+            <h3>accent-color</h3>
+            <p class="desc">체크박스·라디오·range 등 폼 UI의 강조색 지정</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>:root { accent-color: #7c6aff; }
+input[type="checkbox"] {
+  accent-color: tomato;
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="pv-ctrl">
+                  <span>색상</span><input type="color" value="#7c6aff" id="ac-pick" oninput="updateAC(this.value)" />
+                </div>
+                <div class="accent-controls">
+                  <label class="accent-option"
+                    ><input type="checkbox" checked id="ac-cb" class="accent-control" /> 체크박스</label
+                  >
+                  <label class="accent-option"
+                    ><input type="radio" checked id="ac-rb" class="accent-control" /> 라디오</label
+                  >
+                  <input type="range" id="ac-range" class="accent-range-control" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 93+</span><span class="pill pill-ok">Firefox 92+</span><span class="pill pill-ok">Safari 26.2+</span>
+          </div>
+        </div>
+
+        <!-- Relative Colors -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Relative Colors</h3>
+            <p class="desc">기존 색상 값을 기반으로 파생 색상 계산 — 디자인 토큰 동적 생성</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c18">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c18', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c18', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c18-css" spellcheck="false" oninput="updatePreview('c18')">
+:root{--brand:oklch(62% 0.23 285);}
+.row{display:flex;align-items:center;gap:10px;width:240px;}
+.swatch{width:36px;height:24px;border-radius:4px;flex-shrink:0;border:1px solid rgba(255,255,255,0.08);}
+.lbl{font-size:11px;color:#8b90a8;}
+.rel-base { background: var(--brand); }
+.rel-lighter { background: oklch(from var(--brand) calc(l + 0.14) c h); }
+.rel-darker { background: oklch(from var(--brand) calc(l - 0.18) c h); }
+.rel-alpha { background: oklch(from var(--brand) l c h / 0.35); border: 1px dashed rgba(255,255,255,0.2); }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c18-html" spellcheck="false" oninput="updatePreview('c18')">
+<div class="row"><div class="swatch rel-base"></div><span class="lbl">기준색 (--brand)</span></div>
+<div class="row"><div class="swatch rel-lighter"></div><span class="lbl">상대 밝기 +0.14</span></div>
+<div class="row"><div class="swatch rel-darker"></div><span class="lbl">상대 밝기 -0.18</span></div>
+<div class="row"><div class="swatch rel-alpha"></div><span class="lbl">알파 35%</span></div>
+</textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c18-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 122+</span><span class="pill pill-ok">Firefox 128+</span><span class="pill pill-ok">Safari 18+</span>
+          </div>
+        </div>
+
+        <!-- light-dark -->
+        <div class="card">
+          <div class="card-header">
+            <h3>light-dark()</h3>
+            <p class="desc">라이트/다크 모드에 따라 색상 자동 전환</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c19">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c19', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c19', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c19-css" spellcheck="false" oninput="updatePreview('c19')">
+.row{display:flex;flex-direction:column;gap:3px;width:240px;padding:10px;border-radius:8px;}
+.bar{height:22px;border-radius:4px;border:1px solid transparent;}
+.lbl{font-size:10px;color:#8b90a8;}
+.theme-light{color-scheme:light;background:#f5f6fa;border:1px solid #d7dbea;}
+.theme-dark{color-scheme:dark;background:#181b24;border:1px solid #2f3447;}
+.ld-chip{background:light-dark(#ffffff,#202533);color:light-dark(#1f2430,#f3f5fb);border-color:light-dark(#cfd6ea,#3a4157);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.theme-name{font-size:11px;font-weight:700;color:light-dark(#2d3448,#d7dded);}
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c19-html" spellcheck="false" oninput="updatePreview('c19')">
+<div class="row theme-light">
+  <div class="theme-name">Light Scheme</div>
+  <div class="bar ld-chip">light-dark() 결과</div>
+  <div class="lbl">light-dark(light, dark)에서 첫 번째 색 사용</div>
+</div>
+<div class="row theme-dark">
+  <div class="theme-name">Dark Scheme</div>
+  <div class="bar ld-chip">light-dark() 결과</div>
+  <div class="lbl">같은 CSS에서 두 번째 색으로 자동 전환</div>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c19-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 123+</span><span class="pill pill-ok">Firefox 120+</span><span class="pill pill-ok">Safari 17.5+</span>
+          </div>
+        </div>
+
+        <!-- Interpolation Color Spaces -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Interpolation Color Spaces</h3>
+            <p class="desc">그라디언트 보간 시 색공간 지정 — 탁한 중간색 없이 선명한 그라디언트</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c20">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c20', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c20', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c20-css" spellcheck="false" oninput="updatePreview('c20')">
+body{gap:8px;}
+.row{width:240px;}
+.bar{height:24px;border-radius:4px;}
+.lbl{font-size:10px;color:#8b90a8;margin-top:3px;}
+.interp-srgb-bar { background: linear-gradient(in srgb,hsl(150 90% 50%),red); }
+.interp-oklab-bar { background: linear-gradient(in oklab,hsl(150 90% 50%),red); }
+.interp-oklch-bar { background: linear-gradient(in oklch longer hue,hsl(150 90% 50%),red); }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c20-html" spellcheck="false" oninput="updatePreview('c20')">
+<div class="row"><div class="bar interp-srgb-bar"></div><div class="lbl">sRGB — 중간이 탁하고 칙칙함</div></div>
+<div class="row"><div class="bar interp-oklab-bar"></div><div class="lbl">oklab — 선명하고 자연스러움</div></div>
+<div class="row"><div class="bar interp-oklch-bar"></div><div class="lbl">oklch longer hue — 무지개 경로</div></div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c20-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 111+</span><span class="pill pill-ok">Firefox 127+</span><span class="pill pill-ok">Safari 16.2+</span>
+          </div>
+        </div>
+
+        <!-- Wide Gamut -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Wide Gamut Colors</h3>
+            <p class="desc">sRGB 이상의 넓은 색역 표현 — oklch, oklab, lch, lab</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.vivid { color: oklch(70% 0.25 145); }
+@media (color-gamut: p3) {
+  .hero { color: color(display-p3 1 0 0); }
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="color-space-stack">
+                  <div>
+                    <div class="gradient-srgb"></div>
+                    <p class="pv-label gradient-label">sRGB</p>
+                  </div>
+                  <div>
+                    <div class="gradient-oklch"></div>
+                    <p class="pv-label gradient-label">oklch — 더 선명하고 균일</p>
+                  </div>
+                  <div>
+                    <div class="gradient-oklch-full"></div>
+                    <p class="pv-label gradient-label">oklch 전체 색상환</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 111+</span><span class="pill pill-ok">Firefox 113+</span><span class="pill pill-ok">Safari 15.4+</span>
+          </div>
+        </div>
+
+        <!-- contrast-color -->
+        <div class="card">
+          <div class="card-header">
+            <h3>contrast-color() <span class="badge badge-exp">실험적</span></h3>
+            <p class="desc">배경색에 대해 가독성 높은 대비 색상을 자동 계산 — 접근성에 유용!</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c21">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c21', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c21', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c21-css" spellcheck="false" oninput="updatePreview('c21')">
+body{gap:12px;}
+input[type=color]{width:36px;height:28px;border:none;background:none;cursor:pointer;}
+.row{display:flex;align-items:center;gap:8px;font-size:12px;color:#8b90a8;}
+.demo{padding:10px 20px;border-radius:6px;font-size:14px;font-weight:700;min-width:160px;text-align:center;}
+.note{font-size:11px;color:#8b90a8;text-align:center;}
+.contrast-demo-box { background: #7c6aff; color: white; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c21-html" spellcheck="false" oninput="updatePreview('c21')">
+<div class="row">배경색: <input type="color" value="#7c6aff" oninput="update(this.value)"></div>
+<div class="demo contrast-demo-box" id="demo">자동 대비 텍스트</div>
+<div class="note" id="note">현재: 흰색 텍스트 (JS 근사 계산)</div>
+<script>
+function lum(hex){
+  const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  const f=c=>c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);
+  return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b);
+}
+function update(h){
+  const w=lum(h)<0.179;
+  document.getElementById("demo").style.cssText=`background:${h};color:${w?"white":"black"};padding:10px 20px;border-radius:6px;font-size:14px;font-weight:700;min-width:160px;text-align:center;`;
+  document.getElementById("note").textContent=`현재: ${w?"흰색":"검은색"} 텍스트 (WCAG 기준)`;
+}
+</script>
+</textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c21-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 147+</span><span class="pill pill-ok">Firefox 146+</span><span class="pill pill-ok">Safari 26+</span>
+          </div>
+        </div>
+
+        <!-- color-scheme -->
+        <div class="card">
+          <div class="card-header">
+            <h3>color-scheme</h3>
+            <p class="desc">라이트/다크 모드 색상 체계 선언 — OS 설정에 맞게 폼 요소 자동 전환</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c22">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c22', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c22', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c22-css" spellcheck="false" oninput="updatePreview('c22')">
+body{flex-direction:row;gap:16px;}
+.panel{padding:12px;border-radius:8px;width:120px;}
+.panel-lbl{font-size:10px;font-weight:700;margin-bottom:8px;}
+.panel input{display:block;margin:4px 0;}
+.scheme-light-panel { background: white; border: 1px solid #ddd; color-scheme: light; }
+.scheme-light-label { color: #333; }
+.scheme-light-check { color-scheme: light; accent-color: blue; width: 16px; height: 16px; }
+.scheme-light-range { color-scheme: light; width: 100px; }
+.scheme-light-text { color-scheme: light; width: 100%; font-size: 12px; padding: 2px 4px; margin-top: 4px; }
+.scheme-dark-panel { background: #1a1d27; border: 1px solid #2e3350; color-scheme: dark; }
+.scheme-dark-label { color: #e4e6f0; }
+.scheme-dark-check { color-scheme: dark; accent-color: #7c6aff; width: 16px; height: 16px; }
+.scheme-dark-range { color-scheme: dark; width: 100px; }
+.scheme-dark-text { color-scheme: dark; width: 100%; font-size: 12px; padding: 2px 4px; margin-top: 4px; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c22-html" spellcheck="false" oninput="updatePreview('c22')">
+<div class="panel scheme-light-panel">
+  <div class="panel-lbl scheme-light-label">color-scheme: light</div>
+  <input type="checkbox" checked class="scheme-light-check">
+  <input type="range" class="scheme-light-range">
+  <input type="text" value="텍스트" class="scheme-light-text">
+</div>
+<div class="panel scheme-dark-panel">
+  <div class="panel-lbl scheme-dark-label">color-scheme: dark</div>
+  <input type="checkbox" checked class="scheme-dark-check">
+  <input type="range" class="scheme-dark-range">
+  <input type="text" value="텍스트" class="scheme-dark-text">
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c22-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 81+</span><span class="pill pill-ok">Firefox 96+</span><span class="pill pill-ok">Safari 13+</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SHAPES ===== -->
+      <div class="section" id="s-shapes">
+        <h2 class="section-title">📐 모양 &amp; 그래픽 (Shapes &amp; Graphics)</h2>
+
+        <!-- offset-path -->
+        <div class="card">
+          <div class="card-header">
+            <h3>offset-path</h3>
+            <p class="desc">요소를 특정 경로를 따라 배치/이동 — 모션 패스 애니메이션</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c23">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c23', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c23', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c23-css" spellcheck="false" oninput="updatePreview('c23')">
+*{box-sizing:border-box;margin:0;padding:0;}
+@keyframes move{from{offset-distance:0%}to{offset-distance:100%}}
+.path{position:relative;width:220px;height:80px;}
+.ball{width:16px;height:16px;background:#7c6aff;border-radius:50%;offset-path:path("M10,50 Q70,10 110,50 T210,50");animation:move 2s linear infinite;position:absolute;}
+.note{font-size:11px;color:#8b90a8;}
+.motion-path-guide { position: absolute; opacity: 0.3; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c23-html" spellcheck="false" oninput="updatePreview('c23')">
+<svg width="220" height="80" class="motion-path-guide"><path d="M10,50 Q70,10 110,50 T210,50" fill="none" stroke="#7c6aff" stroke-width="2" stroke-dasharray="4"/></svg>
+<div class="path"><div class="ball"></div></div>
+<p class="note">CSS offset-path로 경로를 따라 이동!</p></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c23-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 55+</span><span class="pill pill-ok">Firefox 72+</span><span class="pill pill-ok">Safari 15.4+</span>
+          </div>
+        </div>
+
+        <!-- shape() -->
+        <div class="card">
+          <div class="card-header">
+            <h3>shape() <span class="badge badge-new">신규</span></h3>
+            <p class="desc">clip-path에서 커스텀 도형을 직접 정의 — % 단위로 반응형 대응</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c24">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c24', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c24', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c24-css" spellcheck="false" oninput="updatePreview('c24')">
+	body{flex-direction:row;gap:16px;flex-wrap:wrap;}
+	.box{width:80px;height:80px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+	.shape{width:70px;height:70px;background:linear-gradient(135deg,#7c6aff,#48d9ff);}
+	.lbl{font-size:10px;color:#8b90a8;text-align:center;}
+	.shape-none { clip-path: polygon(0 0,100% 0,100% 100%,0 100%); }
+	.shape-polygon { clip-path: polygon(0 0,100% 0,100% 70%,0 100%); }
+	.shape-path { clip-path: path("M0 0 L70 0 L70 50 Q35 70 0 70 Z"); }
+	.shape-function {
+	  clip-path: shape(from 0 0,
+	    hline to 100%,
+	    vline to 70%,
+	    line to 50% 100%,
+	    line to 0 80%,
+	    close);
+	}
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c24-html" spellcheck="false" oninput="updatePreview('c24')">
+<div class="box"><div class="shape shape-none"></div><div class="lbl">none</div></div>
+<div class="box"><div class="shape shape-polygon"></div><div class="lbl">polygon()</div></div>
+	<div class="box"><div class="shape shape-path"></div><div class="lbl">path()</div></div>
+	<div class="box"><div class="shape shape-function"></div><div class="lbl">shape()</div></div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c24-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 135+</span><span class="pill pill-ok">Firefox 148+</span><span class="pill pill-ok">Safari 18.4+</span>
+          </div>
+        </div>
+
+        <!-- corner-shape -->
+        <div class="card">
+          <div class="card-header">
+            <h3>corner-shape <span class="badge badge-exp">실험적</span></h3>
+            <p class="desc">border-radius와 함께 모서리 형태를 변형 (bevel, scoop, notch 등)</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c25">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c25', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c25', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c25-css" spellcheck="false" oninput="updatePreview('c25')">
+	body{flex-direction:row;gap:14px;flex-wrap:wrap;}
+	.col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+	.shape{width:60px;height:60px;background:rgba(124,106,255,0.25);border:2px solid #7c6aff;border-radius:18px;}
+	.lbl{font-size:10px;color:#8b90a8;}
+	.corner-round { corner-shape: round; }
+	.corner-bevel { corner-shape: bevel; }
+	.corner-scoop { corner-shape: scoop; }
+	.corner-notch { corner-shape: notch; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c25-html" spellcheck="false" oninput="updatePreview('c25')">
+<div class="col"><div class="shape corner-round"></div><div class="lbl">round</div></div>
+<div class="col"><div class="shape corner-bevel"></div><div class="lbl">bevel</div></div>
+	<div class="col"><div class="shape corner-scoop"></div><div class="lbl">scoop</div></div>
+	<div class="col"><div class="shape corner-notch"></div><div class="lbl">notch</div></div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c25-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 139+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-no">Safari (미지원)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TYPOGRAPHY ===== -->
+      <div class="section" id="s-typography">
+        <h2 class="section-title">✏️ 타이포그래피 (Typography)</h2>
+
+        <!-- line-clamp -->
+        <div class="card">
+          <div class="card-header">
+            <h3>line-clamp</h3>
+            <p class="desc">텍스트를 지정한 줄 수에서 말줄임 처리</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c26">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c26', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c26', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c26-css" spellcheck="false" oninput="updatePreview('c26')">
+body{gap:12px;}
+.text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.6;color:#e4e6f0;max-width:240px;background:#1a1d27;padding:10px;border-radius:6px;border:1px solid #2e3350;}
+.ctrl{display:flex;align-items:center;gap:8px;font-size:12px;color:#8b90a8;}
+input[type=range]{width:100px;accent-color:#7c6aff;}
+.clamp-count { font-weight: 700; color: #7c6aff; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c26-html" spellcheck="false" oninput="updatePreview('c26')">
+<div class="ctrl">
+  줄 수: <input type="range" min="1" max="5" value="2" step="1" oninput="document.getElementById('t').style.webkitLineClamp=this.value;document.getElementById('v').textContent=this.value">
+  <span id="v" class="clamp-count">2</span>
+</div>
+<p id="t" class="text">웹 퍼블리셔 10년 경력에서 쌓은 노하우를 CSS 학습에 녹여내고 있습니다. 이 텍스트는 설정한 줄 수를 초과하면 말줄임표(…)로 잘립니다. 슬라이더를 조절해보세요. 세 번째, 네 번째, 다섯 번째 줄도 있어요!</p></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c26-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 6+ (-webkit-)</span><span class="pill pill-ok">Firefox 68+ (-webkit-)</span><span class="pill pill-ok">Safari 5+ (-webkit-)</span>
+          </div>
+        </div>
+
+        <!-- text-box -->
+        <div class="card">
+          <div class="card-header">
+            <h3>text-box-edge / text-box-trim <span class="badge badge-new">신규</span></h3>
+            <p class="desc">텍스트 위아래 여백을 폰트 기준으로 정밀하게 제거 — 아이콘과 텍스트 정렬에 유용</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c27">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c27', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c27', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c27-css" spellcheck="false" oninput="updatePreview('c27')">
+body{flex-direction:row;gap:24px;}
+.col{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.lbl{font-size:10px;color:#8b90a8;text-align:center;}
+.wrap{display:inline-flex;align-items:center;gap:6px;padding:6px;border-radius:4px;}
+.icon{width:24px;height:24px;background:#7c6aff;border-radius:4px;flex-shrink:0;}
+.text{font-size:20px;font-weight:700;color:#e4e6f0;}
+.trimmed{text-box:trim-both cap alphabetic;}
+.supports-fallback-wrap { background: rgba(248,113,113,0.1); border: 1px solid #f87171; }
+.supports-modern-wrap { background: rgba(74,222,128,0.1); border: 1px solid #4ade80; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c27-html" spellcheck="false" oninput="updatePreview('c27')">
+<div class="col">
+  <div class="wrap supports-fallback-wrap">
+    <div class="icon"></div>
+    <div class="text">텍스트</div>
+  </div>
+  <div class="lbl">기본 — 폰트 여백 있음<br>아이콘과 높이 불일치</div>
+</div>
+<div class="col">
+  <div class="wrap supports-modern-wrap">
+    <div class="icon"></div>
+    <div class="text trimmed">텍스트</div>
+  </div>
+  <div class="lbl">text-box: trim-both<br>아이콘과 정확히 정렬!</div>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c27-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 133+</span><span class="pill pill-partial">Firefox 149+ 부분/플래그</span><span class="pill pill-ok">Safari 18.2+</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== OTHER ===== -->
+      <div class="section" id="s-other">
+        <h2 class="section-title">⚙️ 기타 (Other Features)</h2>
+
+        <!-- @supports -->
+        <div class="card">
+          <div class="card-header">
+            <h3>@supports</h3>
+            <p class="desc">브라우저의 특정 기능 지원 여부에 따른 조건부 스타일 — 점진적 향상의 핵심</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c28">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c28', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c28', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c28-css" spellcheck="false" oninput="updatePreview('c28')">
+body{gap:8px;}
+.item{padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600;width:240px;}</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c28-html" spellcheck="false" oninput="updatePreview('c28')">
+<div id="c"></div>
+<script>
+function check(){
+  const items=[
+    ["display: grid","display","grid"],
+    ["anchor-name","anchor-name","--x"],
+    ["selector(:has())","selector",":has(+ p)"],
+    ["@property","@property","--x { syntax: \'<number>\'; inherits:false; initial-value:0; }"],
+    ["container-type","container-type","inline-size"],
+  ];
+  const container=document.getElementById("c");
+  items.forEach(([name,prop,val])=>{
+    let ok;
+    try{ok=CSS.supports(prop,val);}catch(e){ok=false;}
+    const d=document.createElement("div");
+    d.className="item";
+    d.style.cssText=`background:${ok?"rgba(74,222,128,0.1)":"rgba(248,113,113,0.1)"};border:1px solid ${ok?"#4ade80":"#f87171"};color:${ok?"#4ade80":"#f87171"}`;
+    d.textContent=`${ok?"✓":"✗"} ${name} — ${ok?"지원됨":"미지원"}`;
+    container.appendChild(d);
+  });
+}
+check();
+</script></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c28-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 28+</span><span class="pill pill-ok">Firefox 22+</span><span class="pill pill-ok">Safari 9+</span>
+          </div>
+        </div>
+
+        <!-- @property -->
+        <div class="card">
+          <div class="card-header">
+            <h3>@property</h3>
+            <p class="desc">커스텀 프로퍼티의 타입·상속·기본값 명시 — 애니메이션 가능한 CSS 변수!</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c29">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c29', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c29', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c29-css" spellcheck="false" oninput="updatePreview('c29')">
+*{box-sizing:border-box;margin:0;padding:0;}
+body{gap:12px;}
+@property --hue{syntax:"<number>";inherits:false;initial-value:0;}
+@keyframes spin-hue{to{--hue:360;}}
+.ball{width:64px;height:64px;border-radius:50%;background:hsl(var(--hue) 80% 60%);animation:spin-hue 3s linear infinite;}
+p{font-size:11px;color:#8b90a8;}</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c29-html" spellcheck="false" oninput="updatePreview('c29')">
+<div class="ball"></div>
+<p>CSS 변수 자체를 애니메이션!</p></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c29-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 85+</span><span class="pill pill-ok">Firefox 128+</span><span class="pill pill-ok">Safari 16.4+</span>
+          </div>
+        </div>
+
+        <!-- display: contents -->
+        <div class="card">
+          <div class="card-header">
+            <h3>display: contents</h3>
+            <p class="desc">요소 자체는 렌더링하지 않고 자식 요소만 레이아웃에 참여 — 래퍼 div 없애기</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c30">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c30', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c30', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c30-css" spellcheck="false" oninput="updatePreview('c30')">
+body{gap:14px;}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;width:240px;}
+.cell{height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.lbl{font-size:10px;color:#8b90a8;}
+.contents-cell-base { background: rgba(124,106,255,0.3); color: #7c6aff; }
+.contents-wrapper-box { background: rgba(248,113,113,0.15); border: 1px dashed #f87171; border-radius: 5px; grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0; }
+.contents-wrapper-cell { background: rgba(72,217,255,0.15); color: #48d9ff; }
+.contents-display-contents { display: contents; }
+.contents-direct-cell { background: rgba(72,217,255,0.3); color: #48d9ff; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c30-html" spellcheck="false" oninput="updatePreview('c30')">
+<div class="lbl">display: contents 없이 — 래퍼가 그리드 방해</div>
+<div class="grid">
+  <div class="cell contents-cell-base">A</div>
+  <div class="contents-wrapper-box">
+    <div class="cell contents-wrapper-cell">B</div>
+    <div class="cell contents-wrapper-cell">C</div>
+  </div>
+</div>
+<div class="lbl">display: contents 사용 — 래퍼가 사라져 자식이 직접 참여</div>
+<div class="grid">
+  <div class="cell contents-cell-base">A</div>
+  <div class="contents-display-contents">
+    <div class="cell contents-direct-cell">B</div>
+    <div class="cell contents-direct-cell">C</div>
+  </div>
+  <div class="cell contents-cell-base">D</div>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c30-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 65+</span><span class="pill pill-ok">Firefox 37+</span><span class="pill pill-ok">Safari 11.1+</span>
+          </div>
+        </div>
+
+        <!-- Advanced attr() -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Advanced attr() <span class="badge badge-new">신규</span></h3>
+            <p class="desc">content 외 다른 CSS 속성에서도 HTML 어트리뷰트 값 참조 + 타입 지정</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c31">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c31', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c31', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c31-css" spellcheck="false" oninput="updatePreview('c31')">
+	body{gap:8px;}
+	.row{display:flex;align-items:center;gap:8px;width:240px;}
+	.bar-wrap{flex:1;height:16px;background:#1a1d27;border-radius:4px;overflow:hidden;}
+	.bar{
+	  height:100%;
+	  width:attr(data-width type(<percentage>), 0%);
+	  background:attr(data-color type(<color>), #7c6aff);
+	  border-radius:4px;
+	}
+	.lbl{font-size:11px;color:#8b90a8;min-width:32px;text-align:right;}
+	.note{font-size:10px;color:#8b90a8;margin-top:4px;}
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c31-html" spellcheck="false" oninput="updatePreview('c31')">
+	<div class="row"><div class="bar-wrap"><div class="bar" data-width="80%" data-color="#7c6aff"></div></div><span class="lbl">80%</span></div>
+	<div class="row"><div class="bar-wrap"><div class="bar" data-width="55%" data-color="#48d9ff"></div></div><span class="lbl">55%</span></div>
+	<div class="row"><div class="bar-wrap"><div class="bar" data-width="35%" data-color="#4ade80"></div></div><span class="lbl">35%</span></div>
+	<div class="row"><div class="bar-wrap"><div class="bar" data-width="15%" data-color="#f87171"></div></div><span class="lbl">15%</span></div>
+	<p class="note">width/background 값을 HTML 어트리뷰트에서 직접 읽어옵니다.</p></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c31-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 133+</span><span class="pill pill-partial">Firefox 149+ 플래그</span><span class="pill pill-no">Safari (미지원)</span>
+          </div>
+        </div>
+
+        <!-- @function -->
+        <div class="card">
+          <div class="card-header">
+            <h3>@function <span class="badge badge-exp">실험적</span></h3>
+            <p class="desc">CSS 커스텀 함수 직접 정의 — 재사용 가능한 로직</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c32">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c32', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c32', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c32-css" spellcheck="false" oninput="updatePreview('c32')">
+	@function --spacing(--step <number>) returns <length> {
+	  result: calc(var(--step) * 0.25rem);
+	}
+	body{gap:8px;}
+	.box{
+	  padding:--spacing(var(--step));
+	  background:rgba(124,106,255,0.1);
+	  border:1px solid rgba(124,106,255,0.3);
+	  border-radius:6px;
+	  font-size:12px;
+	  color:#e4e6f0;
+	  width:220px;
+	}
+	.lbl{font-size:10px;color:#8b90a8;margin-top:3px;}
+	.spacing-2 { --step: 2; }
+	.spacing-4 { --step: 4; }
+	.spacing-8 { --step: 8; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c32-html" spellcheck="false" oninput="updatePreview('c32')">
+<div class="box spacing-2">--spacing(2) → 0.5rem 패딩<div class="lbl"></div></div>
+<div class="box spacing-4">--spacing(4) → 1rem 패딩<div class="lbl"></div></div>
+<div class="box spacing-8">--spacing(8) → 2rem 패딩<div class="lbl"></div></div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c32-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 139+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-no">Safari (미지원)</span>
+          </div>
+        </div>
+
+        <!-- if() -->
+        <div class="card">
+          <div class="card-header">
+            <h3>if() <span class="badge badge-exp">실험적</span></h3>
+            <p class="desc">CSS 인라인 조건부 값 함수</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c33">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c33', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c33', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c33-css" spellcheck="false" oninput="updatePreview('c33')">
+	.btn{
+	  padding:if(style(--size: sm): 4px 8px; style(--size: lg): 12px 24px; else: 8px 16px);
+	  font-size:if(style(--size: sm): 12px; style(--size: lg): 17.6px; else: 14px);
+	  background:rgba(124,106,255,0.15);
+	  border:1px solid #7c6aff;
+	  border-radius:6px;
+	  color:#7c6aff;
+	  cursor:pointer;
+	  font-family:inherit;
+	}
+	.note{font-size:10px;color:#8b90a8;}
+	.if-size-sm { --size: sm; }
+	.if-size-md { --size: md; }
+	.if-size-lg { --size: lg; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c33-html" spellcheck="false" oninput="updatePreview('c33')">
+<div class="btn if-size-sm">sm 버튼</div>
+<div class="btn if-size-md">md 버튼 (기본)</div>
+<div class="btn if-size-lg">lg 버튼</div>
+<p class="note">--size 값에 따라 패딩·폰트 자동 변경 (제안 단계)</p></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c33-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 137+</span><span class="pill pill-no">Firefox (미지원)</span><span class="pill pill-no">Safari (미지원)</span>
+          </div>
+        </div>
+
+        <!-- scrollbar-gutter -->
+        <div class="card">
+          <div class="card-header">
+            <h3>scrollbar-gutter</h3>
+            <p class="desc">스크롤바 유무와 관계없이 레이아웃 공간 예약 — 레이아웃 흔들림 방지</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-code">
+              <div class="pane-label">코드</div>
+              <pre><code>.container {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.symmetric {
+  scrollbar-gutter: stable both-edges;
+}</code></pre>
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <div class="preview-area">
+                <div class="gutter-compare">
+                  <div class="gutter-col">
+                    <div class="gutter-box gutter-box-none">줄1<br />줄2<br />줄3<br />줄4<br />줄5<br />줄6</div>
+                    <p class="pv-label gutter-label-no">gutter 없음</p>
+                  </div>
+                  <div class="gutter-col">
+                    <div class="gutter-box gutter-box-stable">줄1<br />줄2<br />줄3<br />줄4<br />줄5<br />줄6</div>
+                    <p class="pv-label gutter-label-yes">gutter: stable</p>
+                  </div>
+                </div>
+                <p class="pv-label">두 박스 모두 스크롤이 생겨도 stable 쪽은 공간이 예약됩니다</p>
+              </div>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 94+</span><span class="pill pill-ok">Firefox 97+</span><span class="pill pill-ok">Safari 18.2+</span>
+          </div>
+        </div>
+
+        <!-- scrollbar-color -->
+        <div class="card">
+          <div class="card-header">
+            <h3>scrollbar-color / scrollbar-width</h3>
+            <p class="desc">표준 CSS로 스크롤바 색상·너비 커스터마이징 (벤더 프리픽스 없이)</p>
+          </div>
+          <div class="card-body">
+            <div class="pane-editor" data-id="c34">
+              <div class="editor-tabs">
+                <button class="etab active" onclick="switchETab(this, 'c34', 'html')">HTML</button>
+                <button class="etab" onclick="switchETab(this, 'c34', 'css')">CSS</button>
+              </div>
+              <textarea class="code-ta css-ta" id="c34-css" spellcheck="false" oninput="updatePreview('c34')">
+body{flex-direction:row;gap:16px;}
+.col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.box{height:90px;width:90px;overflow-y:scroll;border-radius:6px;padding:8px;font-size:12px;color:#8b90a8;line-height:1.8;}
+.lbl{font-size:10px;text-align:center;}
+.scrollbar-violet-box { background: #1a1d27; border: 1px solid #2e3350; scrollbar-color: #7c6aff #0f1117; scrollbar-width: thin; }
+.scrollbar-violet-label { color: #7c6aff; }
+.scrollbar-cyan-box { background: #1a1d27; border: 1px solid #2e3350; scrollbar-color: #48d9ff #0f1117; scrollbar-width: auto; }
+.scrollbar-cyan-label { color: #48d9ff; }
+.scrollbar-none-box { background: #1a1d27; border: 1px solid #2e3350; scrollbar-width: none; }
+.scrollbar-none-label { color: #8b90a8; }
+</textarea
+              >
+              <textarea class="code-ta html-ta active" id="c34-html" spellcheck="false" oninput="updatePreview('c34')">
+<div class="col">
+  <div class="box scrollbar-violet-box">줄1<br>줄2<br>줄3<br>줄4<br>줄5<br>줄6<br>줄7</div>
+  <div class="lbl scrollbar-violet-label">thin + 보라</div>
+</div>
+<div class="col">
+  <div class="box scrollbar-cyan-box">줄1<br>줄2<br>줄3<br>줄4<br>줄5<br>줄6<br>줄7</div>
+  <div class="lbl scrollbar-cyan-label">auto + 청록</div>
+</div>
+<div class="col">
+  <div class="box scrollbar-none-box">줄1<br>줄2<br>줄3<br>줄4<br>줄5<br>줄6<br>줄7</div>
+  <div class="lbl scrollbar-none-label">none (숨김)</div>
+</div></textarea
+              >
+            </div>
+            <div class="pane-preview">
+              <div class="pane-label">프리뷰</div>
+              <iframe class="preview-frame" id="c34-frame"></iframe>
+            </div>
+          </div>
+          <div class="support-bar">
+            <span class="pill pill-ok">Chrome 121+</span><span class="pill pill-ok">Firefox 64+</span><span class="pill pill-ok">Safari 26.2+</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>
+        출처:
+        <a href="https://survey.devographics.com/ko-KR/survey/state-of-css/2026" class="survey-link"
+          >State of CSS 2026 Survey</a
+        >
+        &nbsp;|&nbsp; ✨ 실험적·제안 단계 기능은 배지 표시 &nbsp;|&nbsp; 브라우저 지원 정보는 2026년 기준
+      </p>
+    </footer>
+
+    <script>
+      /* ── 탭 전환 ── */
+      function switchETab(btn, id, type) {
+        const editor = btn.closest('.pane-editor');
+        editor.querySelectorAll('.etab').forEach((b) => b.classList.remove('active'));
+        editor.querySelectorAll('.code-ta').forEach((t) => t.classList.remove('active'));
+        btn.classList.add('active');
+        editor.querySelector('.' + type + '-ta').classList.add('active');
+      }
+
+      /* ── 에디터 → 프리뷰 실시간 반영 ── */
+      function updatePreview(id) {
+        const css = document.getElementById(id + '-css').value;
+        const html = document.getElementById(id + '-html').value;
+        const jsEl = document.getElementById(id + '-js');
+        const js = jsEl ? jsEl.value : '';
+        const safeJs = String(js || '').replace(/<\/script>/gi, '<\\/script>');
+        const jsBlock = safeJs ? `\n<script>\n${safeJs}\n</` + 'script>' : '';
+        const doc = `<!DOCTYPE html><html><head><style>
+      :root {
+        --bg: #0f1117;
+        --surface: #1a1d27;
+        --surface2: #22263a;
+        --border: #2e3350;
+        --accent: #7c6aff;
+        --accent2: #48d9ff;
+        --text: #e4e6f0;
+        --text-muted: #8b90a8;
+        --green: #4ade80;
+        --yellow: #facc15;
+        --red: #f87171;
+        --orange: #fb923c;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: system-ui, sans-serif;
+        background: #0f1117;
+        color: #e4e6f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 160px;
+        padding: 20px;
+      }
+      ${css}
+    </style></head><body>${html}${jsBlock}</body></html>`;
+        document.getElementById(id + '-frame').srcdoc = doc;
+      }
+
+      function beautifyCssSnippet(source) {
+        const raw = String(source || '')
+          .replace(/\r\n/g, '\n')
+          .trim();
+        if (!raw) return '';
+
+        // 이미 속성 단위 줄바꿈이 되어 있으면 그대로 유지.
+        if (raw.includes('{\n') && raw.includes(';\n')) return raw;
+
+        const rough = raw
+          .replace(/\s*{\s*/g, ' {\n  ')
+          .replace(/;\s*/g, ';\n  ')
+          .replace(/\s*}\s*/g, '\n}\n')
+          .replace(/\n\s*\n+/g, '\n')
+          .trim();
+
+        let indent = 0;
+        return rough
+          .split('\n')
+          .map((line) => {
+            const t = line.trim();
+            if (!t) return '';
+            if (t.startsWith('}')) indent = Math.max(indent - 1, 0);
+            const out = `${'  '.repeat(indent)}${t}`;
+            if (t.endsWith('{')) indent += 1;
+            return out;
+          })
+          .join('\n')
+          .trim();
+      }
+
+      function beautifyHtmlSnippet(source) {
+        const raw = String(source || '')
+          .replace(/\r\n/g, '\n')
+          .trim();
+        if (!raw) return '';
+
+        // script 블록은 JS 문자열/연산자 훼손을 피하기 위해 그대로 둔다.
+        if (/<script[\s>]/i.test(raw)) return raw;
+
+        // 이미 줄바꿈이 충분하면 그대로 유지.
+        if (raw.split('\n').length > 6) return raw;
+
+        const voidTags = new Set([
+          'area',
+          'base',
+          'br',
+          'col',
+          'embed',
+          'hr',
+          'img',
+          'input',
+          'link',
+          'meta',
+          'param',
+          'source',
+          'track',
+          'wbr',
+        ]);
+        const lines = raw
+          .replace(/>\s*</g, '>\n<')
+          .split('\n')
+          .map((line) => line.trim())
+          .filter(Boolean);
+
+        let indent = 0;
+        return lines
+          .map((line) => {
+            const isClosing = /^<\//.test(line);
+            if (isClosing) indent = Math.max(indent - 1, 0);
+
+            const out = `${'  '.repeat(indent)}${line}`;
+
+            const openTag = line.match(/^<([a-zA-Z0-9-]+)/);
+            const tagName = openTag ? openTag[1].toLowerCase() : '';
+            const selfClosed = /\/>$/.test(line) || voidTags.has(tagName);
+            const inlinePair = /^<([a-zA-Z0-9-]+)(\s[^>]*)?>.*<\/\1>$/.test(line);
+
+            if (!isClosing && openTag && !selfClosed && !inlinePair) indent += 1;
+            return out;
+          })
+          .join('\n')
+          .trim();
+      }
+
+      function normalizeSnippetIndentation(source) {
+        const lines = String(source || '')
+          .replace(/\r\n/g, '\n')
+          .split('\n');
+        const nonEmpty = lines.filter((line) => line.trim().length > 0);
+        if (!nonEmpty.length) return '';
+
+        const minIndent = nonEmpty.reduce((min, line) => {
+          const indent = (line.match(/^\s*/) || [''])[0].length;
+          return Math.min(min, indent);
+        }, Infinity);
+
+        return lines
+          .map((line) => line.slice(Math.min(minIndent, line.length)).replace(/\s+$/g, ''))
+          .join('\n')
+          .trim();
+      }
+
+      function prettifyEditorSnippets() {
+        document.querySelectorAll('.pane-editor .css-ta').forEach((ta) => {
+          ta.value = beautifyCssSnippet(ta.value);
+        });
+        document.querySelectorAll('.pane-editor .html-ta').forEach((ta) => {
+          ta.value = beautifyHtmlSnippet(ta.value);
+        });
+      }
+
+      function collectInlineHandlerFunctionNames(root) {
+        const names = new Set();
+        root.querySelectorAll('*').forEach((el) => {
+          el.getAttributeNames().forEach((attr) => {
+            if (!attr.startsWith('on')) return;
+            const code = el.getAttribute(attr) || '';
+            let m;
+            const re = /\b([A-Za-z_$][\w$]*)\s*\(/g;
+            while ((m = re.exec(code))) names.add(m[1]);
+          });
+        });
+        return Array.from(names);
+      }
+
+      function buildInjectedJsForPreview(previewArea) {
+        const stateByFn = {
+          doViewTransition: "let vtPage = 'A';",
+        };
+
+        const chunks = [];
+        const includedState = new Set();
+        const fnNames = collectInlineHandlerFunctionNames(previewArea);
+
+        fnNames.forEach((name) => {
+          const state = stateByFn[name];
+          if (state && !includedState.has(state)) {
+            chunks.push(state);
+            includedState.add(state);
+          }
+          if (typeof window[name] === 'function') {
+            chunks.push(window[name].toString());
+          }
+        });
+
+        previewArea.querySelectorAll('script').forEach((s) => {
+          const code = (s.textContent || '').trim();
+          if (code) chunks.push(code);
+        });
+
+        return chunks.join('\n\n').trim();
+      }
+
+      function collectRelevantPreviewCss(previewArea) {
+        // 프리뷰 레이아웃 구조용 helper 클래스는 CSS 데모 내용이 아니므로 추출에서 제외
+        const INFRA_CLASS_BLOCKLIST = new Set([
+          'pv-label',
+          'preview-area',
+          'split-preview',
+          'split-pane',
+          'split-title',
+          'split-note',
+        ]);
+
+        const classNames = new Set();
+        const ids = new Set();
+
+        previewArea.querySelectorAll('*').forEach((el) => {
+          el.classList.forEach((c) => {
+            if (!INFRA_CLASS_BLOCKLIST.has(c)) classNames.add(c);
+          });
+          if (el.id) ids.add(el.id);
+        });
+
+        if (!classNames.size && !ids.size) return '';
+
+        const matchesSelector = (selectorText) => {
+          if (!selectorText) return false;
+          for (const c of classNames) {
+            if (new RegExp(`\\.${c}(?![\\w-])`).test(selectorText)) return true;
+          }
+          for (const id of ids) {
+            if (new RegExp(`#${id}(?![\\w-])`).test(selectorText)) return true;
+          }
+          return false;
+        };
+
+        const matched = new Set();
+        const referencedAnimations = new Set();
+        const referencedCustomProperties = new Set();
+
+        const addMatched = (cssText) => {
+          const text = String(cssText || '').trim();
+          if (text) matched.add(text);
+        };
+
+        const isPropertyRule = (rule) => {
+          if (!rule) return false;
+          if (
+            typeof CSSRule !== 'undefined' &&
+            typeof CSSRule.PROPERTY_RULE === 'number' &&
+            rule.type === CSSRule.PROPERTY_RULE
+          ) {
+            return true;
+          }
+          return String(rule.cssText || '')
+            .trim()
+            .startsWith('@property ');
+        };
+
+        const getPropertyRuleName = (rule) => {
+          const text = String(rule?.cssText || '').trim();
+          const m = text.match(/^@property\s+(--[A-Za-z0-9_-]+)/);
+          return m ? m[1] : '';
+        };
+
+        const collectCustomPropertyNames = (cssText) => {
+          const text = String(cssText || '');
+          const matches = text.match(/--[A-Za-z0-9_-]+/g);
+          if (!matches) return;
+          matches.forEach((name) => referencedCustomProperties.add(name));
+        };
+
+        const collectAnimationNames = (styleDecl) => {
+          const names = String(styleDecl?.animationName || '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter((s) => s && s !== 'none');
+          names.forEach((n) => referencedAnimations.add(n));
+        };
+
+        const containsMatchedStyle = (rule) => {
+          if (!rule) return false;
+          if (rule.type === CSSRule.STYLE_RULE) return matchesSelector(rule.selectorText);
+          if (!rule.cssRules) return false;
+          return Array.from(rule.cssRules).some((child) => containsMatchedStyle(child));
+        };
+
+        const collectFromRule = (rule, inIncludedGroup = false) => {
+          if (!rule) return;
+
+          if (rule.type === CSSRule.STYLE_RULE) {
+            if (matchesSelector(rule.selectorText)) {
+              collectAnimationNames(rule.style);
+              collectCustomPropertyNames(rule.cssText);
+              if (!inIncludedGroup) addMatched(rule.cssText);
+            }
+            return;
+          }
+
+          if (rule.cssRules) {
+            const includeGroup = containsMatchedStyle(rule);
+            if (includeGroup) {
+              addMatched(rule.cssText);
+              collectCustomPropertyNames(rule.cssText);
+            }
+            Array.from(rule.cssRules).forEach((child) => collectFromRule(child, inIncludedGroup || includeGroup));
+          }
+        };
+
+        const collectReferencedAtRules = (rule) => {
+          if (!rule) return;
+          if (rule.type === CSSRule.KEYFRAMES_RULE) {
+            if (referencedAnimations.has(rule.name)) addMatched(rule.cssText);
+            return;
+          }
+          if (isPropertyRule(rule)) {
+            const propertyName = getPropertyRuleName(rule);
+            if (propertyName && referencedCustomProperties.has(propertyName)) {
+              addMatched(rule.cssText);
+            }
+            return;
+          }
+          if (rule.cssRules) Array.from(rule.cssRules).forEach((child) => collectReferencedAtRules(child));
+        };
+
+        for (const sheet of Array.from(document.styleSheets)) {
+          let rules;
+          try {
+            rules = sheet.cssRules;
+          } catch (e) {
+            continue;
+          }
+          if (!rules) continue;
+
+          Array.from(rules).forEach((rule) => collectFromRule(rule));
+          Array.from(rules).forEach((rule) => collectReferencedAtRules(rule));
+        }
+
+        return Array.from(matched).join('\n');
+      }
+
+      function promoteStaticCardsToEditable() {
+        let seq = 100;
+        document.querySelectorAll('.card:not(.editable)').forEach((card) => {
+          const paneCode = card.querySelector('.pane-code');
+          const code = paneCode?.querySelector('pre code');
+          const panePreview = card.querySelector('.pane-preview');
+          const previewArea = panePreview?.querySelector('.preview-area');
+          if (!paneCode || !code || !panePreview || !previewArea) return;
+
+          const id = `auto${seq++}`;
+          const originalCodeText = beautifyCssSnippet(code.textContent || '');
+
+          // 원본 코드에서 최상위 셀렉터 추출 (중복 방지용)
+          const selectorsInOriginal = new Set();
+          {
+            let depth = 0,
+              buf = '';
+            for (const ch of originalCodeText) {
+              if (ch === '{') {
+                if (depth === 0) {
+                  const sel = buf.trim().replace(/\s+/g, ' ');
+                  if (sel && !sel.startsWith('/*')) selectorsInOriginal.add(sel);
+                  buf = '';
+                }
+                depth++;
+              } else if (ch === '}') {
+                depth = Math.max(0, depth - 1);
+              } else if (depth === 0) {
+                buf += ch;
+              }
+            }
+          }
+
+          const previewCss = collectRelevantPreviewCss(previewArea);
+
+          // 최상위 블록 단위로 분리해서 원본과 겹치는 블록 제거
+          const deduplicatedPreviewCss = (() => {
+            if (!previewCss) return '';
+            const blocks = [];
+            let depth = 0,
+              start = 0,
+              inBlock = false;
+            for (let i = 0; i < previewCss.length; i++) {
+              const ch = previewCss[i];
+              if (ch === '{') {
+                if (depth === 0) inBlock = true;
+                depth++;
+              } else if (ch === '}') {
+                depth--;
+                if (depth === 0 && inBlock) {
+                  blocks.push(previewCss.slice(start, i + 1));
+                  start = i + 1;
+                  inBlock = false;
+                }
+              }
+            }
+            return blocks
+              .filter((block) => {
+                const sel = (block.match(/^([\s\S]*?)\{/) || [])[1];
+                if (!sel) return true;
+                const normalized = sel.trim().replace(/\s+/g, ' ');
+                // @starting-style, @keyframes 같은 at-rule 그룹은 이름 충돌로 오탐 제거하지 않는다.
+                if (normalized.startsWith('@')) return true;
+                return !selectorsInOriginal.has(normalized);
+              })
+              .join('\n')
+              .trim();
+          })();
+
+          const previewCssFormatted = deduplicatedPreviewCss ? beautifyCssSnippet(deduplicatedPreviewCss) : '';
+          const cssMerged = [
+            originalCodeText,
+            previewCssFormatted
+              ? `/* -- preview-from-page -- */\n${previewCssFormatted}\n/* -- /preview-from-page -- */`
+              : '',
+          ]
+            .filter(Boolean)
+            .join('\n\n');
+          const cssText = cssMerged;
+          const normalizedHtml = normalizeSnippetIndentation(previewArea.innerHTML || '');
+          const htmlText = beautifyHtmlSnippet(normalizedHtml);
+          const jsText = buildInjectedJsForPreview(previewArea);
+          const hasJs = Boolean(jsText.trim());
+
+          const paneEditor = document.createElement('div');
+          paneEditor.className = 'pane-editor';
+          paneEditor.dataset.id = id;
+
+          const tabs = document.createElement('div');
+          tabs.className = 'editor-tabs';
+
+          const htmlBtn = document.createElement('button');
+          htmlBtn.className = 'etab active';
+          htmlBtn.type = 'button';
+          htmlBtn.textContent = 'HTML';
+          htmlBtn.addEventListener('click', () => switchETab(htmlBtn, id, 'html'));
+
+          const cssBtn = document.createElement('button');
+          cssBtn.className = 'etab';
+          cssBtn.type = 'button';
+          cssBtn.textContent = 'CSS';
+          cssBtn.addEventListener('click', () => switchETab(cssBtn, id, 'css'));
+
+          tabs.appendChild(htmlBtn);
+          tabs.appendChild(cssBtn);
+          let jsTa = null;
+          if (hasJs) {
+            const jsBtn = document.createElement('button');
+            jsBtn.className = 'etab';
+            jsBtn.type = 'button';
+            jsBtn.textContent = 'JS';
+            jsBtn.addEventListener('click', () => switchETab(jsBtn, id, 'js'));
+            tabs.appendChild(jsBtn);
+
+            jsTa = document.createElement('textarea');
+            jsTa.className = 'code-ta js-ta';
+            jsTa.id = `${id}-js`;
+            jsTa.spellcheck = false;
+            jsTa.addEventListener('input', () => updatePreview(id));
+            jsTa.value = jsText;
+          }
+
+          const cssTa = document.createElement('textarea');
+          cssTa.className = 'code-ta css-ta';
+          cssTa.id = `${id}-css`;
+          cssTa.spellcheck = false;
+          cssTa.addEventListener('input', () => updatePreview(id));
+          cssTa.value = cssText;
+
+          const htmlTa = document.createElement('textarea');
+          htmlTa.className = 'code-ta html-ta active';
+          htmlTa.id = `${id}-html`;
+          htmlTa.spellcheck = false;
+          htmlTa.addEventListener('input', () => updatePreview(id));
+          htmlTa.value = htmlText;
+
+          paneEditor.appendChild(tabs);
+          paneEditor.appendChild(cssTa);
+          paneEditor.appendChild(htmlTa);
+          if (jsTa) paneEditor.appendChild(jsTa);
+
+          const iframe = document.createElement('iframe');
+          iframe.className = 'preview-frame';
+          iframe.id = `${id}-frame`;
+
+          previewArea.replaceWith(iframe);
+          paneCode.replaceWith(paneEditor);
+
+          updatePreview(id);
+        });
+      }
+
+      /* ── 페이지 로드 시 모든 에디터 카드 초기 렌더링 ── */
+      document.addEventListener('DOMContentLoaded', () => {
+        promoteStaticCardsToEditable();
+        prettifyEditorSnippets();
+        wireEditorTabs();
+        document.querySelectorAll('.pane-editor').forEach((el) => {
+          const id = el.dataset.id;
+          if (id) updatePreview(id);
+        });
+        setupSectionToggles();
+        loadSupportBadges();
+      });
+
+      function wireEditorTabs() {
+        document.querySelectorAll('.pane-editor').forEach((editor) => {
+          const id = editor.dataset.id;
+          if (!id) return;
+          editor.querySelectorAll('.editor-tabs .etab[onclick]').forEach((btn) => {
+            const label = (btn.textContent || '').trim().toLowerCase();
+            const type = label === 'html' ? 'html' : label === 'css' ? 'css' : label === 'js' ? 'js' : '';
+            if (!type) return;
+            btn.removeAttribute('onclick');
+            btn.addEventListener('click', () => switchETab(btn, id, type));
+          });
+        });
+      }
+
+      function setupSectionToggles() {
+        document.querySelectorAll('.section').forEach((section) => {
+          const title = section.querySelector('.section-title');
+          if (!title) return;
+          const btn = document.createElement('button');
+          btn.className = 'section-toggle';
+          btn.type = 'button';
+          btn.textContent = '접기';
+          btn.setAttribute('aria-expanded', 'true');
+          btn.addEventListener('click', () => {
+            const collapsed = section.classList.toggle('collapsed');
+            btn.textContent = collapsed ? '펼치기' : '접기';
+            btn.setAttribute('aria-expanded', String(!collapsed));
+          });
+          title.appendChild(btn);
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function normalizeSupportKey(str) {
+        return String(str).toLowerCase().replace(/\s+/g, ' ').trim();
+      }
+
+      function getCardSupportKey(card) {
+        const h3 = card?.querySelector('.card-header h3');
+        if (!h3) return '';
+        const clone = h3.cloneNode(true);
+        clone.querySelectorAll('span').forEach((el) => el.remove());
+        return normalizeSupportKey(clone.textContent || '');
+      }
+
+      async function loadSupportBadges() {
+        const bars = Array.from(document.querySelectorAll('.card > .support-bar'));
+        try {
+          const res = await fetch('js/support-badges.json', { cache: 'no-store' });
+          if (!res.ok) return;
+          const data = await res.json();
+
+          // New format: { byFeature: { [normalizedTitle]: badges[] } }
+          if (data && data.byFeature && typeof data.byFeature === 'object') {
+            const cards = Array.from(document.querySelectorAll('.card'));
+            cards.forEach((card) => {
+              const key = getCardSupportKey(card);
+              const badges = data.byFeature[key];
+              const bar = card.querySelector(':scope > .support-bar');
+              if (!bar || !Array.isArray(badges)) return;
+              bar.innerHTML = badges
+                .map((b) => `<span class="pill ${escapeHtml(b.type)}">${escapeHtml(b.label)}</span>`)
+                .join('');
+            });
+            return;
+          }
+
+          // Legacy format: [{ index, badges }]
+          if (Array.isArray(data)) {
+            data.forEach((entry) => {
+              const bar = bars[entry.index];
+              if (!bar || !Array.isArray(entry.badges)) return;
+              bar.innerHTML = entry.badges
+                .map((b) => `<span class="pill ${escapeHtml(b.type)}">${escapeHtml(b.label)}</span>`)
+                .join('');
+            });
+          }
+        } catch (err) {
+          // file:// 환경에서는 fetch가 차단될 수 있어 기존 하드코드 배지를 유지한다.
+        }
+      }
+
+      /* ── 비-에디터 카드 인터랙션 ── */
+      function updateAC(v) {
+        ['ac-cb', 'ac-rb', 'ac-range'].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.style.accentColor = v;
+        });
+      }
+      let vtPage = 'A';
+      function doViewTransition() {
+        const el = document.getElementById('vt-demo');
+        const applyNext = () => {
+          vtPage = vtPage === 'A' ? 'B' : 'A';
+          el.classList.toggle('is-alt', vtPage === 'B');
+          el.textContent = 'Page ' + vtPage;
+        };
+
+        document.startViewTransition(applyNext);
+      }
+    </script>
+  </body>
+</html>
