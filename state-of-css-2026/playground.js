@@ -562,7 +562,7 @@ function getCardSupportKey(card) {
 async function loadSupportBadges() {
   const bars = Array.from(document.querySelectorAll('.card > .support-bar'));
   try {
-    const res = await fetch('js/support-badges.json', { cache: 'no-store' });
+    const res = await fetch('support-badges.json', { cache: 'no-store' });
     if (!res.ok) return;
     const data = await res.json();
 
