@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>프론트엔드 개발자를 위한 API · 백엔드 심화 학습서</title>
-    <link rel="stylesheet" href="../css/theme.css">
-    <link rel="stylesheet" href="../css/global.css">
-    <script src="../js/theme-toggle.js"></script>
+    <link rel="stylesheet" href="../../css/theme.css">
+    <link rel="stylesheet" href="../../css/global.css">
+    <script src="../../js/theme-toggle.js"></script>
   </head>
   <body data-page="study-backend-advanced">
     <button class="theme-toggle" type="button" aria-label="테마 전환" title="다크/라이트 전환">
@@ -19,17 +19,18 @@
 
     <main>
       <nav class="series-nav">
-        <a href="./index.html">홈</a>
-        <a href="./backend.html">백엔드 기초</a>
-        <a class="active" aria-current="page" href="./backend-advanced.html">백엔드 심화</a>
-        <a href="./frontend.html">프론트 기초</a>
-        <a href="./frontend-advanced.html">프론트 심화</a>
+        <a href="../index.html">홈</a>
+        <a href="./index.html">백엔드 기초</a>
+        <a class="active" aria-current="page" href="./advanced.html">백엔드 심화</a>
+        <a href="../frontend/index.html">프론트 기초</a>
+        <a href="../frontend/advanced.html">프론트 심화</a>
+        <a href="../css/state-of-css-2026/index.html">CSS 실험실</a>
       </nav>
 
       <div class="note ok">
         <strong>기초편의 다음 단계입니다.</strong>
         <p>
-          이 문서는 <a href="./backend.html">기초편</a>에서 다룬 HTTP·상태 코드·REST·인증·React Query를 "왜 그렇게
+          이 문서는 <a href="./index.html">기초편</a>에서 다룬 HTTP·상태 코드·REST·인증·React Query를 "왜 그렇게
           설계됐는지", "동시에 여러 요청이 들어오면 어떻게 되는지", "성능과 보안은 어디서 갈리는지"까지 확장합니다.
           API를 호출하는 사람에서, 백엔드와 같은 언어로 설계를 논의하는 풀스택 감각의 프론트엔드 개발자로 가는 것이 목표입니다.
         </p>
@@ -591,7 +592,7 @@ export async function GET(req, { params }) {
             <td>플랫폼·인프라 팀</td>
           </tr>
         </table>
-        <p class="small">두 개념의 다이어그램은 <a href="../terms/index.html#bff">용어 사전(BFF)</a>과 <a href="../terms/index.html#api-gateway">API Gateway</a> 항목에 그림으로 있습니다.</p>
+        <p class="small">두 개념의 다이어그램은 <a href="../../terms/index.html#bff">용어 사전(BFF)</a>과 <a href="../../terms/index.html#api-gateway">API Gateway</a> 항목에 그림으로 있습니다.</p>
 
         <div class="note warn">
           <strong>트레이드오프 — 만능은 아니다</strong>
@@ -655,7 +656,7 @@ clearTimeout(t);</code></pre>
             <td>일부만 시험 호출. 성공하면 Closed, 실패하면 다시 Open</td>
           </tr>
         </table>
-        <p class="small">BFF나 API Gateway 계층에 두는 경우가 많지만, 클라이언트에서도 "방금 실패한 엔드포인트를 잠시 쉬게" 적용할 수 있습니다. (상태 전이 다이어그램은 <a href="../terms/index.html#circuit-breaker">용어 사전</a>에 그림으로 있습니다.)</p>
+        <p class="small">BFF나 API Gateway 계층에 두는 경우가 많지만, 클라이언트에서도 "방금 실패한 엔드포인트를 잠시 쉬게" 적용할 수 있습니다. (상태 전이 다이어그램은 <a href="../../terms/index.html#circuit-breaker">용어 사전</a>에 그림으로 있습니다.)</p>
 
         <h3>Bulkhead (격벽)</h3>
         <p>배의 격벽처럼 자원을 칸막이로 격리합니다. 한 기능이 커넥션·스레드를 다 써버려도 다른 기능은 살아남도록, 풀(pool)을 기능별로 나눕니다. 결제용 커넥션과 추천용 커넥션을 분리하면, 추천이 폭주해도 결제는 동작합니다.</p>
