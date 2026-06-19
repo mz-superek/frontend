@@ -447,6 +447,7 @@ svg text { font-family: var(--font-body); }
 .c-ba    { --c: var(--page-ba);    --soft: var(--page-ba-soft); }
 .c-fe    { --c: var(--page-fe);    --soft: var(--page-fe-soft); }
 .c-fa    { --c: var(--page-fa);    --soft: var(--page-fa-soft); }
+.c-css   { --c: var(--page-css);   --soft: var(--page-css-soft); }
 .c-study { --c: var(--page-study); --soft: var(--page-study-soft); }
 .c-terms { --c: var(--page-terms); --soft: var(--page-terms-soft); }
 

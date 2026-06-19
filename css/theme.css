@@ -160,6 +160,7 @@
   --page-ba: #a78bfa;  --page-ba-soft: rgba(167, 139, 250, 0.12);
   --page-fe: #34d399;  --page-fe-soft: rgba(52, 211, 153, 0.12);
   --page-fa: #5eead4;  --page-fa-soft: rgba(94, 234, 212, 0.12);
+  --page-css: #facc15; --page-css-soft: rgba(250, 204, 21, 0.12);
 }
 [data-page="study-hub"][data-theme="light"] {
   --accent: #2563eb;
@@ -168,6 +169,7 @@
   --page-ba: #7c3aed;  --page-ba-soft: #f3e8ff;
   --page-fe: #059669;  --page-fe-soft: #ecfdf5;
   --page-fa: #0d9488;  --page-fa-soft: #f0fdfa;
+  --page-css: #ca8a04; --page-css-soft: #fef9c3;
 }
 
 /* study-frontend — green */
