@@ -70,6 +70,84 @@
 
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-06-25">
+        <h2>2026-06-25 (목) · key &amp; 재조정(reconciliation)</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          어제 <code>React.memo</code>로 "언제 다시 안 그릴지"를 봤다면, 오늘은 한 단계 더 들어가
+          React가 <em>무엇을</em> 바꿀지 정하는 과정, 재조정(reconciliation)입니다. React는 이전 가상 DOM
+          트리와 새 트리를 비교해 달라진 부분만 실제 DOM에 반영하는데, 리스트(<code>.map()</code>)에서는
+          "이전 3번째 항목과 새 3번째 항목이 같은 것이냐"를 판단할 기준이 필요해요. 그 기준이 <code>key</code>입니다.
+          퍼블리싱에 비유하면, 목록을 다시 정렬할 때 각 &lt;li&gt;에 고유 번호표를 붙여두면 "이건 그대로,
+          이건 자리만 이동"이라고 콕 집어 알 수 있지만, 번호표 없이 "위에서 몇 번째"로만 세면 중간에 하나
+          끼어드는 순간 전부 밀려서 엉뚱한 칸을 고치게 됩니다. 그래서 key는 <em>목록 안에서 안정적이고 고유한
+          값(주로 데이터의 id)</em>이어야 하고, 배열 index는 순서가 바뀌거나 항목이 추가·삭제되면 같은 항목을
+          다른 key로 보게 만들어 입력값·포커스가 엉키는 버그를 냅니다.
+        </p>
+        <pre><code>// ❌ index를 key로 — 항목 추가/삭제·정렬 시 상태가 엉킴
+{items.map((item, i) =&gt; (
+  &lt;Row key={i} item={item} /&gt;
+))}
+
+// ✅ 데이터 고유 id를 key로
+{items.map((item) =&gt; (
+  &lt;Row key={item.id} item={item} /&gt;
+))}</code></pre>
+        <p>
+          • key는 형제 사이에서만 고유하면 됩니다(전역 유일일 필요 X). • key는 <code>props</code>가 아니에요 —
+          자식에서 <code>props.key</code>로 못 읽습니다. 필요하면 따로 <code>id</code> prop으로 넘기세요.
+          • 정렬·필터·추가·삭제가 전혀 없는 완전 고정 목록이면 index도 사고는 안 나지만, 습관적으로 id를 쓰는 게 안전합니다.
+        </p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          입력창이 든 리스트(체크박스 목록, react-hook-form의 <code>useFieldArray</code>, ShadCN 테이블 행)에서
+          index를 key로 쓰면 "행을 지웠는데 옆 행의 입력값이 따라 지워지는" 류의 재현 어려운 버그가 납니다.
+          key를 id로 잡는 습관만으로 이 버그군 전체를 예방할 수 있어요.
+        </p>
+
+        <p class="refs">더 보기:
+          <a href="https://react.dev/learn/rendering-lists">Rendering Lists (keys)</a> ·
+          <a href="https://react.dev/learn/preserving-and-resetting-state">Preserving and Resetting State</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            <strong>1) (객관식)</strong> 리스트의 <code>key</code>로 <em>가장 적절한</em> 값은?<br />
+            ⓐ 배열의 index (0, 1, 2…) &nbsp; ⓑ 매 렌더마다 새로 만든 <code>Math.random()</code> &nbsp;
+            ⓒ 데이터의 고유 id (예: <code>item.id</code>) &nbsp; ⓓ 항목의 표시 텍스트(중복될 수 있음)
+          </p>
+          <p>
+            <strong>2) (문제점 찾기)</strong> 아래 리스트에서 맨 앞 항목을 삭제하면, 남은 행들의 체크 상태가
+            한 칸씩 밀려 엉뚱한 행이 체크된 것처럼 보입니다. 왜이고, 어떻게 고칠까요?
+          </p>
+          <pre><code>{todos.map((todo, i) =&gt; (
+  &lt;li key={i}&gt;
+    &lt;input type="checkbox" /&gt; {todo.text}
+  &lt;/li&gt;
+))}</code></pre>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p>
+              <strong>1) 정답 ⓒ (데이터의 고유 id)</strong> — key는 목록 안에서 <em>안정적이고 고유</em>해야 합니다.
+              index(ⓐ)는 순서·개수가 바뀌면 같은 항목이 다른 key가 되고, <code>Math.random()</code>(ⓑ)은 매 렌더마다
+              key가 바뀌어 React가 전부 새 항목으로 보고 통째로 다시 만듭니다(상태·포커스 소실). 텍스트(ⓓ)는 중복·변경
+              가능성이 있어 부적합합니다. 그래서 변하지 않는 데이터의 id가 정답이에요.
+            </p>
+            <p>
+              <strong>2)</strong> 체크 상태는 &lt;input&gt; DOM 노드에 묶여 있는데, key가 index라 맨 앞을 지우면 나머지
+              항목의 key가 한 칸씩 당겨집니다(이전 key=1이던 항목이 이제 key=0). React는 "key 0 자리는 그대로네"라고
+              보고 <em>이전 노드(와 그 체크 상태)를 새 todo에 재사용</em>하기 때문에 체크가 한 칸 밀린 것처럼 보입니다.
+              해결: <code>key={todo.id}</code>처럼 항목 고유 id를 key로 주면, 항목이 이동·삭제돼도 React가 같은 항목을
+              추적해 체크 상태가 올바른 행을 따라갑니다.
+            </p>
+          </details>
+        </div>
+      </section>
+
     </main>
 
     <footer>매일 아침 자동 갱신 · 우측 상단 ☾/☀ 버튼으로 다크/라이트 모드를 전환할 수 있습니다.</footer>

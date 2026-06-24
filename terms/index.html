@@ -104,6 +104,39 @@
     <a class="nav-item" href="#error-boundary">Error Boundary</a>
     <a class="nav-item" href="#aria">ARIA</a>
     <a class="nav-item" href="#focus-trap">Focus Trap</a>
+    <a class="nav-item" href="#service-mesh">Service Mesh</a>
+    <a class="nav-item" href="#rfc">RFC</a>
+    <a class="nav-item" href="#dlq">Dead Letter Queue</a>
+
+    <span class="nav-group-label">클라우드 기초</span>
+    <a class="nav-item" href="#iam">IAM</a>
+    <a class="nav-item" href="#vpc">VPC</a>
+    <a class="nav-item" href="#availability-zone">Availability Zone</a>
+    <a class="nav-item" href="#serverless">Serverless</a>
+    <a class="nav-item" href="#auto-scaling">Auto Scaling</a>
+
+    <span class="nav-group-label">인프라 · 네트워크</span>
+    <a class="nav-item" href="#load-balancer">Load Balancer</a>
+    <a class="nav-item" href="#reverse-proxy">Reverse Proxy</a>
+    <a class="nav-item" href="#rate-limiting">Rate Limiting</a>
+    <a class="nav-item" href="#kubernetes">Kubernetes</a>
+    <a class="nav-item" href="#iac">IaC</a>
+
+    <span class="nav-group-label">백엔드 · 분산</span>
+    <a class="nav-item" href="#message-queue">Message Queue</a>
+    <a class="nav-item" href="#idempotency">멱등성</a>
+    <a class="nav-item" href="#connection-pool">Connection Pool</a>
+    <a class="nav-item" href="#webhook">Webhook</a>
+
+    <span class="nav-group-label">배포 전략</span>
+    <a class="nav-item" href="#blue-green-deployment">Blue-Green</a>
+    <a class="nav-item" href="#canary-deployment">Canary</a>
+
+    <span class="nav-group-label">운영 · 협업 문서</span>
+    <a class="nav-item" href="#sla">SLA · SLO · SLI</a>
+    <a class="nav-item" href="#adr">ADR</a>
+    <a class="nav-item" href="#runbook">Runbook</a>
+    <a class="nav-item" href="#postmortem">Postmortem</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2158,6 +2191,297 @@ export default function Error({ error, reset }) {
 </div>
 <div class="tip"><div class="tip-l">실무 팁</div>배포했는데 화면이 옛날 그대로면 → "CDN 퍼지 했어요?" 또는 파일 해시가 바뀌었는지부터 확인. HTML은 짧게, 해시 붙은 정적 파일은 길게 캐싱하는 게 정석.</div>
 </section>
+
+<!-- ===== Service Mesh ===== -->
+<section class="term" id="service-mesh">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="service-mesh-h">서비스 메시 <span class="sub">Service Mesh · 사이드카 프록시</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#api-gateway">API Gateway</a></div>
+  </div>
+</div>
+<p>마이크로서비스 사이의 통신(인증·재시도·트래픽 분배·관측)을 앱 코드 대신, 각 서비스 옆에 붙은 프록시(사이드카)가 대신 처리해 주는 인프라 계층. 대표 구현이 Istio·Linkerd.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"서비스 간 통신은 메시(Istio)에서 mTLS로 처리해요", "트래픽 라우팅은 메시 레벨에서 나눠요" 같은 MSA 인프라 논의에서 등장. <span style="color:var(--coral)">[인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== RFC ===== -->
+<section class="term" id="rfc">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="rfc-h">RFC <span class="sub">Request for Comments · 설계 제안서</span></h2>
+    <div class="links"><a class="link-tag" href="#feature-flag">Feature Flag</a></div>
+  </div>
+</div>
+<p>새 기능·아키텍처를 본격 개발하기 전에 "이렇게 만들려는데 의견 주세요"라고 글로 정리해 팀 리뷰를 받는 문서. 결정과 그 이유를 남겨 나중에 ADR(아키텍처 결정 기록)로 이어지기도 한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이건 RFC 먼저 쓰고 리뷰받자", "RFC에 코멘트 남겼어요" 같이 큰 변경을 문서로 합의할 때. <span style="color:var(--coral)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Dead Letter Queue ===== -->
+<section class="term" id="dlq">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="dlq-h">데드레터 큐 <span class="sub">Dead Letter Queue · DLQ</span></h2>
+  </div>
+</div>
+<p>메시지 큐에서 정해진 횟수만큼 재시도해도 처리 실패한 메시지를 버리지 않고 따로 모아 두는 "실패 보관함" 큐. 나중에 원인 분석·재처리에 사용한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 이벤트 DLQ에 쌓였는데 왜 실패했지?", "DLQ 모니터링 알람 걸어 두자" 같은 비동기 처리 장애 대응에서. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== IAM ===== -->
+<section class="term" id="iam">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="iam-h">IAM <span class="sub">Identity and Access Management · 권한 관리</span></h2>
+  </div>
+</div>
+<p>"누가(사용자·서비스) 무엇을(리소스) 할 수 있는지"를 정의·관리하는 클라우드의 권한 체계. 사용자·역할(Role)·정책(Policy)으로 최소 권한을 부여한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"S3 접근이 막히는데 IAM 권한 좀 봐주세요", "이 작업은 IAM Role 붙여야 돼요" 같은 권한 이슈에서. <span style="color:var(--coral)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== VPC ===== -->
+<section class="term" id="vpc">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="vpc-h">VPC <span class="sub">Virtual Private Cloud · 가상 사설망</span></h2>
+    <div class="links"><a class="link-tag" href="#availability-zone">Availability Zone</a></div>
+  </div>
+</div>
+<p>클라우드 안에 논리적으로 격리된 나만의 사설 네트워크. 서브넷·라우팅·방화벽(보안 그룹)으로 어떤 리소스가 외부와 통신할지 통제한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 서버는 같은 VPC라 내부 통신돼요", "VPC 밖이라 퍼블릭 IP 필요해요" 같은 네트워크 구성 논의에서. <span style="color:var(--coral)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Availability Zone ===== -->
+<section class="term" id="availability-zone">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="availability-zone-h">Availability Zone <span class="sub">AZ · 가용 영역</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">Load Balancer</a></div>
+  </div>
+</div>
+<p>하나의 리전(Region) 안에서 물리적으로 분리된 데이터센터 단위. 여러 AZ에 나눠 배포(Multi-AZ)하면 한 곳이 죽어도 서비스가 살아남는다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"DB는 Multi-AZ로 이중화돼 있어요", "AZ 하나 장애 나서 일부 인스턴스가 빠졌어요" 같은 가용성 논의에서. <span style="color:var(--coral)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Serverless ===== -->
+<section class="term" id="serverless">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="serverless-h">Serverless <span class="sub">서버리스 · Lambda · Functions</span></h2>
+  </div>
+</div>
+<p>서버를 직접 띄우고 관리하지 않고, 요청이 올 때만 코드가 실행되고 쓴 만큼만 과금되는 실행 모델. AWS Lambda·Cloudflare Workers가 대표.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 API는 Lambda로 서버리스하게 돌려요", "트래픽 없으면 비용 0이라 서버리스가 유리해요" 같은 아키텍처 선택 논의에서. <span style="color:var(--coral)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Auto Scaling ===== -->
+<section class="term" id="auto-scaling">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="auto-scaling-h">Auto Scaling <span class="sub">오토스케일링 · 자동 확장</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#spot-instance">Spot Instance</a></div>
+  </div>
+</div>
+<p>트래픽·부하에 따라 서버(인스턴스) 수를 자동으로 늘리고 줄이는 기능. 바쁘면 늘리고(scale-out) 한가하면 줄여(scale-in) 비용과 안정성을 맞춘다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"피크 시간엔 오토스케일링으로 서버가 늘어나요", "스케일 아웃이 늦어서 잠깐 느렸어요" 같은 부하 대응 논의에서. <span style="color:var(--coral)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Load Balancer ===== -->
+<section class="term" id="load-balancer">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="load-balancer-h">Load Balancer <span class="sub">로드 밸런서 · LB</span></h2>
+    <div class="links"><a class="link-tag" href="#auto-scaling">Auto Scaling</a><a class="link-tag" href="#reverse-proxy">Reverse Proxy</a></div>
+  </div>
+</div>
+<p>들어오는 요청을 여러 서버에 고르게 나눠 주는 분배기. 한 서버에 부하가 쏠리지 않게 하고, 죽은 서버는 헬스 체크로 빼서 안정성을 높인다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"LB 뒤에 서버 3대 물려 있어요", "특정 서버만 죽었는데 LB가 알아서 빼줬어요" 같은 트래픽 분산 논의에서. <span style="color:var(--coral)">[인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Reverse Proxy ===== -->
+<section class="term" id="reverse-proxy">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="reverse-proxy-h">Reverse Proxy <span class="sub">리버스 프록시</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#api-gateway">API Gateway</a></div>
+  </div>
+</div>
+<p>클라이언트와 실제 서버 사이에 서서 요청을 대신 받아 뒤쪽 서버로 전달하는 중계 서버. SSL 종료·캐싱·로드 밸런싱·라우팅을 담당. Nginx가 대표.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"Nginx 리버스 프록시에서 /api는 백엔드로 넘겨요", "프록시 설정에서 헤더가 빠졌어요" 같은 라우팅·배포 설정에서. <span style="color:var(--coral)">[인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Rate Limiting ===== -->
+<section class="term" id="rate-limiting">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="rate-limiting-h">Rate Limiting <span class="sub">속도 제한 · Throttling</span></h2>
+    <div class="links"><a class="link-tag" href="#api-gateway">API Gateway</a></div>
+  </div>
+</div>
+<p>일정 시간 동안 한 사용자·IP가 보낼 수 있는 요청 수를 제한하는 것. 과도한 호출·어뷰징·DDoS를 막고 서버를 보호한다. 초과하면 보통 HTTP 429.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"429 떠요 → Rate Limit 걸린 거예요", "이 API는 분당 60회 제한이에요" 같은 호출 한도 논의에서. <span style="color:var(--coral)">[인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Kubernetes ===== -->
+<section class="term" id="kubernetes">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="kubernetes-h">Kubernetes <span class="sub">쿠버네티스 · K8s</span></h2>
+    <div class="links"><a class="link-tag" href="#service-mesh">Service Mesh</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a></div>
+  </div>
+</div>
+<p>여러 컨테이너(Docker 등)를 자동으로 배포·확장·복구·관리해 주는 컨테이너 오케스트레이션 도구. 죽은 컨테이너를 다시 띄우고, 부하에 따라 늘려준다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 서비스는 k8s에 파드로 떠 있어요", "쿠버네티스에서 롤아웃하면 무중단 배포돼요" 같은 운영 논의에서. <span style="color:var(--coral)">[인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== IaC ===== -->
+<section class="term" id="iac">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="iac-h">IaC <span class="sub">Infrastructure as Code · 코드형 인프라</span></h2>
+  </div>
+</div>
+<p>서버·네트워크 같은 인프라를 콘솔에서 수동 클릭이 아니라 코드(Terraform·CloudFormation)로 정의·생성·관리하는 방식. 형상 관리·재현·리뷰가 가능해진다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 리소스는 Terraform(IaC)으로 관리해서 콘솔에서 직접 고치면 안 돼요" 같은 인프라 변경 논의에서. <span style="color:var(--coral)">[인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Message Queue ===== -->
+<section class="term" id="message-queue">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="message-queue-h">Message Queue <span class="sub">메시지 큐 · MQ</span></h2>
+    <div class="links"><a class="link-tag" href="#dlq">Dead Letter Queue</a></div>
+  </div>
+</div>
+<p>서비스 간에 작업을 즉시 처리하지 않고 "줄(큐)"에 쌓아 두고, 받는 쪽이 여유 있을 때 꺼내 처리하게 하는 비동기 중간 저장소. Kafka·SQS·RabbitMQ가 대표.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"알림은 큐에 넣고 비동기로 보내요", "큐가 밀려서 처리가 지연됐어요" 같은 비동기 처리 논의에서. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== 멱등성 ===== -->
+<section class="term" id="idempotency">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="idempotency-h">멱등성 <span class="sub">Idempotency</span></h2>
+  </div>
+</div>
+<p>같은 요청을 여러 번 보내도 결과가 한 번 보낸 것과 똑같이 유지되는 성질. 결제·주문처럼 중복 실행되면 안 되는 작업에서 멱등키(Idempotency Key)로 보장한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"네트워크 재시도 때문에 중복 결제 안 되게 멱등키 붙여요", "이 API는 멱등하니 재시도해도 안전해요" 같은 안정성 논의에서. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Connection Pool ===== -->
+<section class="term" id="connection-pool">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="connection-pool-h">Connection Pool <span class="sub">커넥션 풀</span></h2>
+  </div>
+</div>
+<p>DB 연결을 요청마다 새로 맺으면 느리니까, 미리 여러 개 만들어 두고 빌려 쓰고 반납하는 재사용 방식. 풀이 고갈되면 요청이 대기하거나 실패한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"커넥션 풀 고갈로 DB 응답이 막혔어요", "풀 사이즈를 늘려야 할 것 같아요" 같은 DB 성능 장애 논의에서. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Webhook ===== -->
+<section class="term" id="webhook">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="webhook-h">Webhook <span class="sub">웹훅</span></h2>
+  </div>
+</div>
+<p>어떤 이벤트가 생기면 서버가 미리 등록된 URL로 "이 일이 일어났어요"라고 먼저 알려주는(POST) 방식. 내가 계속 물어보는 폴링과 반대로, 상대가 밀어준다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"결제 완료되면 웹훅으로 알려줘요", "GitHub 웹훅으로 배포가 트리거돼요" 같은 외부 연동 논의에서. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Blue-Green Deployment ===== -->
+<section class="term" id="blue-green-deployment">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="blue-green-deployment-h">Blue-Green Deployment <span class="sub">블루-그린 배포</span></h2>
+    <div class="links"><a class="link-tag" href="#canary-deployment">Canary</a></div>
+  </div>
+</div>
+<p>현재 운영 중인 버전(Blue)과 똑같은 환경에 새 버전(Green)을 통째로 띄워 두고, 준비되면 트래픽을 한 번에 Green으로 전환하는 무중단 배포. 문제 시 즉시 Blue로 롤백.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"블루-그린으로 배포해서 다운타임 없어요", "문제 생기면 바로 이전(Blue)으로 되돌려요" 같은 배포 전략 논의에서. <span style="color:var(--coral)">[배포]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Canary Deployment ===== -->
+<section class="term" id="canary-deployment">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="canary-deployment-h">Canary Deployment <span class="sub">카나리 배포</span></h2>
+    <div class="links"><a class="link-tag" href="#blue-green-deployment">Blue-Green</a><a class="link-tag" href="#feature-flag">Feature Flag</a></div>
+  </div>
+</div>
+<p>새 버전을 전체가 아니라 일부 사용자(예: 5%)에게만 먼저 배포해 문제가 없는지 지켜보고, 괜찮으면 점진적으로 비율을 늘려 가는 배포. 이름은 탄광 카나리에서 유래.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"일단 카나리로 5%만 풀고 지표 보자", "카나리에서 에러율 올라가서 롤백했어요" 같은 점진 배포 논의에서. <span style="color:var(--coral)">[배포]</span></div>
+</section><hr class="divider">
+
+<!-- ===== SLA ===== -->
+<section class="term" id="sla">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="sla-h">SLA · SLO · SLI <span class="sub">서비스 수준 목표·지표</span></h2>
+  </div>
+</div>
+<p><strong>SLI</strong>는 측정값(예: 가용률 99.95%), <strong>SLO</strong>는 우리가 지키기로 한 목표(99.9% 이상), <strong>SLA</strong>는 고객과의 계약상 약속(못 지키면 보상). 보통 SLI ≥ SLO ≥ SLA 순으로 빡빡하다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 장애로 SLA 깨질 수 있어요", "SLO 99.9%면 한 달 다운 허용치가 약 43분이에요" 같은 운영 지표 논의에서. <span style="color:var(--coral)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== ADR ===== -->
+<section class="term" id="adr">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="adr-h">ADR <span class="sub">Architecture Decision Record · 결정 기록</span></h2>
+    <div class="links"><a class="link-tag" href="#rfc">RFC</a></div>
+  </div>
+</div>
+<p>"왜 이 기술/구조를 택했는지"를 배경·대안·결정·결과로 짧게 남기는 문서. 나중에 "이거 왜 이렇게 했지?"에 답하고, RFC 논의의 결론을 기록으로 굳힌다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 선택은 ADR로 남겨두자", "예전 ADR 보면 그때 왜 Kafka 골랐는지 나와요" 같은 의사결정 기록에서. <span style="color:var(--coral)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Runbook ===== -->
+<section class="term" id="runbook">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="runbook-h">Runbook <span class="sub">런북 · 운영 절차서</span></h2>
+    <div class="links"><a class="link-tag" href="#postmortem">Postmortem</a></div>
+  </div>
+</div>
+<p>특정 장애·작업이 생겼을 때 "이럴 땐 이 순서로 이렇게 처리한다"를 단계별로 적어 둔 대응 매뉴얼. 당직자가 새벽에 봐도 그대로 따라 할 수 있게 쓴다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 알람 뜨면 런북대로 처리하세요", "이번 장애 대응을 런북으로 정리해 둡시다" 같은 운영 대응에서. <span style="color:var(--coral)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Postmortem ===== -->
+<section class="term" id="postmortem">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="postmortem-h">Postmortem <span class="sub">포스트모템 · 장애 회고</span></h2>
+    <div class="links"><a class="link-tag" href="#runbook">Runbook</a></div>
+  </div>
+</div>
+<p>장애가 끝난 뒤 "무슨 일이 있었고, 원인이 뭐였고, 어떻게 막을지"를 정리하는 회고 문서. 사람을 탓하지 않는(blameless) 분위기로 재발 방지에 집중한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이번 장애 포스트모템 작성해 주세요", "포스트모템에서 나온 액션 아이템 추적하자" 같은 장애 후속 논의에서. <span style="color:var(--coral)">[협업·문서]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>

@@ -84,6 +84,92 @@
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="news-day" data-date="2026-06-25">
+        <h2>📰 2026-06-25 (목)</h2>
+        <p class="day-note">React/Next·디자인 시스템 우선 + 1차 소스 검증. 지난 2주간 #with에서 다룬 주제(TS7 tsgo·React Router CVE·Polar Orbit·Next 16.3 Cache·shadcn Rhea·Interop 2026 등)는 제외. 모델 규제·수출통제 등 대형 이슈는 우선순위와 무관하게 포함.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic 'Claude Tag' 정식 공개</p>
+            <p class="item-meta">2026-06-23 · <a href="https://www.anthropic.com/news/introducing-claude-tag">Anthropic</a></p>
+            <p class="item-summary">Slack 채널에서 @Claude를 태그해 작업 위임·컨텍스트 메모리·비동기 처리 — #with 협업 워크플로와 직접 맞닿는 기능.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">美 정부, Claude Fable 5·Mythos 5 접근 차단 수출통제 지시</p>
+            <p class="item-meta">2026-06-12 · <a href="https://www.anthropic.com/news/fable-mythos-access">Anthropic</a></p>
+            <p class="item-summary">정부 수출통제 지시로 프런티어 모델 접근이 중단된 사례 — 모델 규제·수출통제 리스크가 현실화한 업계 판도 이슈.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">"구글을 AI로 해킹해 7억원" 버그바운티 연구</p>
+            <p class="item-meta">2026-06-23 · <a href="https://brutecat.com/articles/hacking-google-with-ai/">brutecat</a> · <a href="https://news.hada.io/topic?id=30741">GeekNews</a></p>
+            <p class="item-summary">AI에 Google API를 자동 퍼징시켜 3개월 만에 50만 달러 — AI 활용 보안연구의 위력과 양면성.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Moebius — 0.2B 모델로 10B급 이미지 인페인팅</p>
+            <p class="item-meta">2026-06 · <a href="https://hustvl.github.io/Moebius/">프로젝트</a> · <a href="https://news.hada.io/topic?id=30770">GeekNews</a></p>
+            <p class="item-summary">파라미터 2% 미만으로 대형 파운데이션급 품질 — 소형·고효율 모델 흐름.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">shadcn/ui, GitHub Registries 지원</p>
+            <p class="item-meta">2026-06 · <a href="https://ui.shadcn.com/docs/changelog">shadcn changelog</a></p>
+            <p class="item-summary">build·레지스트리 서버 없이 GitHub 저장소를 그대로 레지스트리로. (5월 <code>shadcn eject</code>에 이어) 디자인 시스템 배포가 더 가벼워짐 — FSD/DS 운영에 직접 도움.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">TanStack Router 6월 릴리스</p>
+            <p class="item-meta">2026-06-16 · <a href="https://github.com/TanStack/router/releases">GitHub Releases</a></p>
+            <p class="item-summary">Rsbuild SSR 미들웨어 지원, route match 성능 최적화, 번들 사이즈 축소.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">npm, 단계적 퍼블리싱 + postinstall 스크립트 기본 차단 예고</p>
+            <p class="item-meta">2026-06 · <a href="https://thisweekinreact.com/newsletter">This Week in React</a></p>
+            <p class="item-summary">공급망 공격 차단을 위한 변화 — 의존성 설치 안전성 점검 필요.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Slack 엔지니어링: 에이전틱 E2E 테스팅의 자리</p>
+            <p class="item-meta">2026-06 · <a href="https://slack.engineering/agentic-testing-where-agents-fit-in-the-e2e-testing-stack/">slack.engineering</a> · <a href="https://news.hada.io/topic?id=30744">GeekNews</a></p>
+            <p class="item-summary">200+ 시나리오로 에이전트가 결정론적 E2E를 대체 가능한지 검증 — 테스트 자동화 실무 인사이트.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">"memcached 예찬" — Redis의 영속 저장소화 경계</p>
+            <p class="item-meta">2026-06 · <a href="https://jchri.st/blog/in-praise-of-memcached/">jchri.st</a> · <a href="https://news.hada.io/topic?id=30778">GeekNews</a></p>
+            <p class="item-summary">캐시는 캐시로만 — 운영 단순성 관점에서 캐싱 아키텍처 재점검.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">boring — 경량 SSH 터널 매니저</p>
+            <p class="item-meta">2026-06 · <a href="https://github.com/alebeck/boring">GitHub</a> · <a href="https://news.hada.io/topic?id=30776">GeekNews</a></p>
+            <p class="item-summary">TOML 설정으로 Local/Remote/SOCKS5(Dynamic) 포워딩을 관리하는 CLI.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">CSS Grid Lanes(네이티브 Masonry), Safari 26 첫 탑재</p>
+            <p class="item-meta">2026 · <a href="https://webkit.org/blog/17660/introducing-css-grid-lanes/">WebKit</a> · <a href="https://css-tricks.com/masonry-layout-is-now-grid-lanes/">CSS-Tricks</a></p>
+            <p class="item-summary"><code>display: grid-lanes</code>로 표준 메이슨리 — Chrome은 display:masonry→grid-lanes 전환 중.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">CSS @scope, Baseline 'Newly available' 도달</p>
+            <p class="item-meta">2026 · <a href="https://web-standards.dev/news/2026/01/scope-css-baseline/">web-standards.dev</a></p>
+            <p class="item-summary">Firefox 146 합류로 3사 지원 — 스코프 스타일링을 프리픽스 없이 실무 적용 가능.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Safari 26 신규 CSS 기능 투어</p>
+            <p class="item-meta">2026 · <a href="https://css-tricks.com/touring-new-css-features-in-safari-26/">CSS-Tricks</a></p>
+            <p class="item-summary">최신 Safari가 추가한 CSS 기능을 한 번에 정리.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-06-24">
         <h2>📰 2026-06-24 (수)</h2>
         <p class="day-note">React/Next/TS·디자인 시스템 우선, 검증 가능한 1차 소스 위주로 선별. 하드 릴리스가 적은 분야는 최근 핵심 이슈를 실제 발행일과 함께 정리. (지난 2주간 #with에서 다룬 주제는 제외)</p>
