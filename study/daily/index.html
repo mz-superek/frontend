@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>오늘의 공부 아카이브</title>
+    <link rel="stylesheet" href="../../css/theme.css">
+    <link rel="stylesheet" href="../../css/global.css">
+    <script src="../../js/theme-toggle.js"></script>
+    <style>
+      [data-page="study-daily"][data-theme="dark"],
+      [data-page="study-daily"]:not([data-theme]) { --accent: #a78bfa; --accent-bg: rgba(167, 139, 250, 0.12); }
+      [data-page="study-daily"][data-theme="light"] { --accent: #7c3aed; --accent-bg: #ede9fe; }
+
+      .study-day {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--bg-elevated);
+        box-shadow: var(--shadow-sm);
+        padding: 22px 24px;
+        margin: 18px 0 28px;
+      }
+      .study-day > h2 { margin: 0 0 4px; font-size: 1.25rem; color: var(--text); }
+      .study-day .topic-tag {
+        display: inline-block;
+        font-size: 0.75rem;
+        color: var(--accent);
+        background: var(--accent-bg);
+        border-radius: 999px;
+        padding: 2px 10px;
+        margin: 0 0 12px;
+      }
+      .study-day h3 { margin: 16px 0 8px; font-size: 0.98rem; color: var(--accent); }
+      .study-day p { margin: 0 0 10px; font-size: 0.9rem; line-height: 1.7; color: var(--text-muted); }
+      .study-day pre {
+        background: var(--bg-code, #1e1e28);
+        color: var(--text-code, #e6e6ee);
+        border-radius: var(--radius-md);
+        padding: 14px 16px;
+        overflow-x: auto;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        margin: 0 0 12px;
+      }
+      .study-day .refs { font-size: 0.82rem; color: var(--text-faint); }
+      .study-day .refs a { color: var(--accent); }
+      .study-day .quiz {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px dashed var(--border-dashed);
+      }
+      .study-day .quiz h3 { color: var(--text); }
+    </style>
+  </head>
+  <body data-page="study-daily">
+    <button class="theme-toggle" type="button" aria-label="테마 전환" title="다크/라이트 전환">
+      <span class="icon-light">☾</span><span class="icon-dark">☀</span>
+    </button>
+
+    <header>
+      <h1>오늘의 공부 아카이브</h1>
+      <p>매일 아침 #daily 로 발송한 "오늘의 공부"를 한 곳에 (최신 날짜가 위로)</p>
+    </header>
+
+    <main>
+      <div class="intro">
+        출근길 학습용으로 매일 자동 누적되는 아카이브입니다. 프론트엔드 심화를 메인으로,
+        가끔 클라우드·백엔드 기초를 섞어 시야를 넓힙니다.
+      </div>
+
+      <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+
+    </main>
+
+    <footer>매일 아침 자동 갱신 · 우측 상단 ☾/☀ 버튼으로 다크/라이트 모드를 전환할 수 있습니다.</footer>
+  </body>
+</html>

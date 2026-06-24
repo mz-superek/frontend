@@ -32,6 +32,9 @@
     <a class="nav-item" href="#bundler">Vite · Turbopack</a>
     <a class="nav-item" href="#module-federation">Module Federation</a>
 
+    <span class="nav-group-label">클라우드 · 인프라</span>
+    <a class="nav-item" href="#spot-instance">Spot Instance</a>
+
     <span class="nav-group-label">실시간 · 데이터</span>
     <a class="nav-item" href="#realtime">Polling · SSE · WS</a>
     <a class="nav-item" href="#optimistic">Optimistic Update</a>
@@ -57,6 +60,7 @@
     <a class="nav-item" href="#code-splitting">Code Splitting</a>
     <a class="nav-item" href="#tree-shaking">Tree Shaking</a>
     <a class="nav-item" href="#http-cache">HTTP Cache · CDN · ETag</a>
+    <a class="nav-item" href="#cache-invalidation">Cache Invalidation</a>
     <a class="nav-item" href="#memoization">Memoization</a>
     <a class="nav-item" href="#crp">Critical Rendering Path</a>
     <a class="nav-item" href="#reflow">Reflow · Repaint</a>
@@ -100,6 +104,7 @@
     <a class="nav-item" href="#error-boundary">Error Boundary</a>
     <a class="nav-item" href="#aria">ARIA</a>
     <a class="nav-item" href="#focus-trap">Focus Trap</a>
+    <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
 
@@ -2088,8 +2093,73 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">Focus Trap</h4><ul><li>모달 열리면 포커스를 모달 안에 가둠</li><li>Tab 키가 모달 안에서만 순환</li><li>모달 닫히면 원래 포커스 위치로 복귀</li><li>shadcn/ui Dialog가 기본 제공</li></ul></div>
   <div class="card"><h4 style="color:var(--amber)">Skip Navigation</h4><ul><li>키보드 사용자가 GNB 건너뛰고 본문으로</li><li>"본문 바로가기" 링크 (화면엔 안 보임)</li><li>스크린 리더 사용자에게 필수</li></ul></div>
 </div>
+</section><hr class="divider">
+
+<!-- ===== Spot Instance (2026-06-24) ===== -->
+<section class="term" id="spot-instance">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="spot-instance-h">Spot Instance <span class="sub">스팟 인스턴스 · 비용 최적화</span></h2>
+  </div>
+</div>
+<div class="summary">AWS 등이 <strong>당장 안 쓰는 여유 자원을 정가보다 최대 70~90% 싸게</strong> 빌려주는 대신, 그 자원이 다시 필요해지면 <strong>약 2분 뒤 회수(중단)</strong>해 가는 인스턴스.</div>
+<div class="diagram"><svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="16" width="350" height="118" rx="8" fill="#1e2130" stroke="#60a5fa" stroke-width="0.5"/>
+  <text x="185" y="38" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="700">On-Demand (정가)</text>
+  <text x="185" y="62" text-anchor="middle" fill="#9096a8" font-size="10">필요할 때 켜고, 끌 때까지 보장</text>
+  <text x="185" y="84" text-anchor="middle" fill="#9096a8" font-size="10">중간에 뺏기지 않음 (안정적)</text>
+  <text x="185" y="112" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">비용 100%</text>
+  <rect x="400" y="16" width="350" height="118" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.8"/>
+  <text x="575" y="38" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">Spot (남는 자원)</text>
+  <text x="575" y="62" text-anchor="middle" fill="#9096a8" font-size="10">AWS가 안 쓰는 자원을 싸게 대여</text>
+  <text x="575" y="84" text-anchor="middle" fill="#fb7185" font-size="10">자원 필요해지면 ~2분 후 회수(중단)</text>
+  <text x="575" y="112" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="700">비용 10~30% (최대 90%↓)</text>
+</svg></div>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">On-Demand · 예약(RI/Savings Plan)</h4><ul><li>중단 없이 보장되는 안정 실행</li><li>가격은 가장 비쌈</li><li>운영 서버·DB 등 상시 서비스에</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Spot</h4><ul><li>최대 70~90% 저렴</li><li>언제든 회수될 수 있음 → 중단 견디는 작업에</li><li>배치·CI 러너·렌더링·미리보기 환경</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">Front 입장</div>직접 띄울 일은 드물지만, CI 러너·프리뷰 배포가 스팟이면 "가끔 갑자기 죽었다 다시 도는" 게 정상 동작. 비용 회의에서 "이건 스팟으로 돌리자"가 나오면 이 얘기예요.</div>
+</section><hr class="divider">
+
+<!-- ===== Cache Invalidation (2026-06-24) ===== -->
+<section class="term" id="cache-invalidation">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="cache-invalidation-h">Cache Invalidation <span class="sub">캐시 무효화 · 퍼지/Purge</span></h2>
+    <div class="links"><a class="link-tag" href="#http-cache">HTTP Cache · CDN · ETag</a><a class="link-tag" href="#tree-shaking">번들 해시</a></div>
+  </div>
+</div>
+<div class="summary">CDN·브라우저에 저장된 옛 데이터를 <strong>"이제 그만 쓰고 새로 받아"라고 강제로 비우는 것</strong>. ("캐시 무효화"는 컴퓨터 과학에서 어렵기로 손꼽히는 문제로 농담처럼 회자돼요.)</div>
+<div class="diagram"><svg viewBox="0 0 760 140" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="aci" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5a6070" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+  <rect x="10" y="46" width="150" height="48" rx="8" fill="#1e2130" stroke="#fb7185" stroke-width="0.6"/>
+  <text x="85" y="66" text-anchor="middle" fill="#fb7185" font-size="11" font-weight="700">배포 후에도</text>
+  <text x="85" y="82" text-anchor="middle" fill="#9096a8" font-size="9">CDN이 옛 파일 응답</text>
+  <line x1="160" y1="70" x2="218" y2="70" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aci)"/>
+  <rect x="218" y="46" width="160" height="48" rx="8" fill="#1e2130" stroke="#a78bfa" stroke-width="0.8"/>
+  <text x="298" y="66" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">무효화(Purge)</text>
+  <text x="298" y="82" text-anchor="middle" fill="#9096a8" font-size="9">"이 경로 캐시 비워"</text>
+  <line x1="378" y1="70" x2="436" y2="70" stroke="#5a6070" stroke-width="1.5" marker-end="url(#aci)"/>
+  <rect x="436" y="46" width="160" height="48" rx="8" fill="#1e2130" stroke="#4ade80" stroke-width="0.8"/>
+  <text x="516" y="66" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="700">원본 재요청</text>
+  <text x="516" y="82" text-anchor="middle" fill="#9096a8" font-size="9">새 파일로 다시 채움</text>
+  <rect x="628" y="40" width="122" height="60" rx="8" fill="#1e2130" stroke="#fbbf24" stroke-width="0.5"/>
+  <text x="689" y="62" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">더 쉬운 방법</text>
+  <text x="689" y="80" text-anchor="middle" fill="#9096a8" font-size="8">파일명에 해시</text>
+  <text x="689" y="93" text-anchor="middle" fill="#5a6070" font-size="8">app.9f3a.js</text>
+</svg></div>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--teal)">시간 만료 (TTL)</h4><ul><li><code>max-age</code> 지나면 자동 폐기</li><li>가장 단순, 즉시성은 약함</li><li>자주 안 바뀌는 자산에</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">수동 퍼지 (Purge)</h4><ul><li>배포 시 특정 경로 강제 비움</li><li>즉시 반영 가능</li><li>CloudFront Invalidation 등</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">파일명 해싱 (Cache Busting)</h4><ul><li>내용 바뀌면 파일명도 바뀜</li><li>무효화가 사실상 불필요</li><li>번들러가 자동 처리</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무 팁</div>배포했는데 화면이 옛날 그대로면 → "CDN 퍼지 했어요?" 또는 파일 해시가 바뀌었는지부터 확인. HTML은 짧게, 해시 붙은 정적 파일은 길게 캐싱하는 게 정석.</div>
 </section>
 
+<!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
 
 <script>
