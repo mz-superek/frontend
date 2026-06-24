@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>프론트엔드 개발 데일리 뉴스</title>
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <script src="../js/theme-toggle.js"></script>
+    <style>
+      /* 뉴스 페이지 액센트 (data-page 매트릭스에 없으므로 페이지 내에서 정의) */
+      [data-page="news-hub"][data-theme="dark"],
+      [data-page="news-hub"]:not([data-theme]) { --accent: #60a5fa; --accent-bg: rgba(96, 165, 250, 0.12); }
+      [data-page="news-hub"][data-theme="light"] { --accent: #2563eb; --accent-bg: #dbeafe; }
+
+      .news-day {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--bg-elevated);
+        box-shadow: var(--shadow-sm);
+        padding: 22px 24px;
+        margin: 18px 0 28px;
+      }
+      .news-day > h2 {
+        margin: 0 0 4px;
+        font-size: 1.25rem;
+        color: var(--text);
+      }
+      .news-day .day-note {
+        margin: 0 0 14px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+      .news-cat {
+        margin: 16px 0 0;
+        padding-top: 14px;
+        border-top: 1px dashed var(--border-dashed);
+      }
+      .news-cat:first-of-type { border-top: 0; padding-top: 0; }
+      .news-cat > h3 {
+        margin: 0 0 10px;
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
+        color: var(--accent);
+      }
+      .news-item { margin: 0 0 14px; }
+      .news-item:last-child { margin-bottom: 0; }
+      .news-item .item-title {
+        margin: 0 0 3px;
+        font-weight: 500;
+        line-height: 1.5;
+        color: var(--text);
+      }
+      .news-item .item-meta {
+        font-size: 0.8rem;
+        color: var(--text-faint);
+      }
+      .news-item .item-meta a { color: var(--accent); }
+      .news-item .item-summary {
+        margin: 4px 0 0;
+        font-size: 0.88rem;
+        line-height: 1.65;
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body data-page="news-hub">
+    <button class="theme-toggle" type="button" aria-label="테마 전환" title="다크/라이트 전환">
+      <span class="icon-light">☾</span><span class="icon-dark">☀</span>
+    </button>
+
+    <header>
+      <h1>프론트엔드 개발 데일리 뉴스</h1>
+      <p>매일 AI · 프론트엔드 · 백엔드 · HTML&amp;CSS 핵심 소식을 한 곳에 (#with 발송본 아카이브)</p>
+    </header>
+
+    <main>
+      <div class="intro">
+        매일 아침 자동으로 갱신되는 개발 뉴스 아카이브입니다. 최근 24시간의 소식 중 실무에 의미 있는 항목을
+        분야별로 추려 <strong>최신 날짜가 위로</strong> 쌓입니다. React/Next/FSD/디자인 시스템 관련 소식과
+        업계 판도를 바꿀 대형 이슈를 우선합니다.
+      </div>
+
+      <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+
+      <section class="news-day" data-date="2026-06-24">
+        <h2>📰 2026-06-24 (수)</h2>
+        <p class="day-note">최근 24시간이 비교적 잔잔해, 지난 2주간 다룬 주제는 제외하고 아직 안 다룬 최신 항목 위주로 선별. (React/Next/FSD/디자인 시스템 우선)</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">OpenAI, Daybreak 확장 + GPT-5.5-Cyber 정식 공개</p>
+            <p class="item-meta">2026-06-22 · <a href="https://thehackernews.com/2026/06/openai-expands-daybreak-with-gpt-55.html">The Hacker News</a> · <a href="https://cybersecuritynews.com/gpt-5-5-cyber/">CybersecurityNews</a></p>
+            <p class="item-summary">Codex 보안 스캐너·취약점 자동 탐지/패치까지 묶은 AI 보안 제품군. Anthropic의 Project Glasswing에 정면 대응 — AI 보안 시장 경쟁이 본격화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Gemini 공동 리드 Noam Shazeer, Google 떠나 OpenAI 합류</p>
+            <p class="item-meta">2026-06-18 · <a href="https://www.cnbc.com/2026/06/18/google-gemini-co-lead-noam-shazeer-leaves-for-openai.html">CNBC</a></p>
+            <p class="item-summary">'Attention Is All You Need' 저자이자 Gemini 핵심 인물의 이탈. 프론티어 랩 간 인재 전쟁이 다시 격화되는 신호.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">"Reddit으로 AI 검색 조작, 너무 쉽다" 연구</p>
+            <p class="item-meta">2026-06-23 · <a href="https://www.404media.co/it-is-trivially-easy-to-use-reddit-to-manipulate-ai-search-research-suggests/">404 Media</a> · <a href="https://news.hada.io/topic?id=30702">GeekNews</a></p>
+            <p class="item-summary">단 13단어 텍스트로 ChatGPT·Google AI 검색 출력을 스팸/스캠으로 유도 가능. AI 검색 결과를 신뢰·인용할 때 경계 필요.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">React Compiler(Rust 포팅) 주요 도구체인에 전면 롤아웃</p>
+            <p class="item-meta">2026-06-17 · <a href="https://oxc.rs/docs/guide/usage/linter/rules/react/react-compiler.html">Oxlint 규칙</a> · <a href="https://github.com/vercel/next.js/pull/94573">Next.js PR</a> · <a href="https://thisweekinreact.com/newsletter/286">TWIR #286</a></p>
+            <p class="item-summary">Oxlint·SWC·Rspack v2.1·Next.js 16.3 canary(Turbopack)까지 확산, Babel 대비 7~13배 빠름. 빌드/린트 파이프라인 전반 가속 — 곧 16.4에 정식 편입 전망.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">LLM-safe 디자인 시스템 (Polar 'Orbit')</p>
+            <p class="item-meta">2026-06 · <a href="https://polar.sh/blog/orbit-llm-safe-design-system">Polar 블로그</a> · <a href="https://thisweekinreact.com/newsletter/286">TWIR #286</a></p>
+            <p class="item-summary">단일 다형 &lt;Box&gt; + StyleX 토큰만 허용하고 Tailwind·원시 HTML을 금지해, AI 에이전트가 디자인 결정을 항상 지키게 설계. FSD/디자인 시스템 운영에 바로 참고할 패턴.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">WordPress Gutenberg, React 19 업그레이드 롤백</p>
+            <p class="item-meta">2026-06-05 · <a href="https://make.wordpress.org/core/2026/06/05/react-19-upgrade-temporarily-reverted-in-gutenberg/">WordPress Core</a></p>
+            <p class="item-summary">v18/v19 JSX 런타임 호환 이슈로 일시 되돌림(7.1에서 재시도 예정). React 19 마이그레이션 시 JSX runtime 점검 필요성을 보여주는 사례.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">TanStack AI Beta 공개 — first-class React 지원</p>
+            <p class="item-meta">2026-06 · <a href="https://tanstack.com/blog/tanstack-ai-beta">TanStack 블로그</a> · <a href="https://thisweekinreact.com/newsletter/286">TWIR #286</a></p>
+            <p class="item-summary">프레임워크 중립 AI 툴링이 React 우선 지원으로 성숙. 채팅·스트리밍 UI 스택 선택지 추가.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Spring AI 2.0.0 GA 출시</p>
+            <p class="item-meta">2026-06-12 · <a href="https://spring.io/blog/2026/06/12/spring-ai-2-0-0-GA-available-now/">spring.io</a></p>
+            <p class="item-summary">Spring Boot 4.0·Framework 7 기반, Jackson 3·JSpecify 널 안전성·안정화된 API 표면. 자바 진영 AI 스택의 새 베이스라인.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Linux 7.2, strncpy API 최종 제거</p>
+            <p class="item-meta">2026-06-23 · <a href="https://www.phoronix.com/news/Linux-7.2-Drops-strncpy">Phoronix</a> · <a href="https://news.hada.io/topic?id=30696">GeekNews</a></p>
+            <p class="item-summary">6년·360여 패치 끝에 위험한 문자열 복사 인터페이스 퇴출. 안전한 문자열 API로의 장기 전환이 완료된 사례.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">".gitignore가 전부가 아니다" — Git 파일 무시 3계층</p>
+            <p class="item-meta">2026-06-20 · <a href="https://nelson.cloud/.gitignore-isnt-the-only-way-to-ignore-files-in-git/">nelson.cloud</a> · <a href="https://news.hada.io/topic?id=30627">GeekNews</a></p>
+            <p class="item-summary">.gitignore·.git/info/exclude·전역 ignore의 공유 범위 차이 정리. 개인 설정을 저장소에 안 섞는 실무 팁.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">HTML 제안: JS 없는 선언적 지역화 시간 포맷</p>
+            <p class="item-meta">2026-06 · <a href="https://github.com/whatwg/html/issues/12591">whatwg/html#12591</a> · <a href="https://thisweekinreact.com/newsletter/286">TWIR #286</a></p>
+            <p class="item-summary">날짜 SSR/SSG 하이드레이션 불일치를 선언적 HTML 속성으로 해결하자는 초기 제안. React 하이드레이션 에러의 근본 대응책으로 주목.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">CSS if() 함수 — 속성값 내부 조건 로직</p>
+            <p class="item-meta">2026 (진행 중) · <a href="https://css-tricks.com/interop-2026/">CSS-Tricks</a></p>
+            <p class="item-summary">속성값에 실제 조건 분기를 넣는 기능이 Chrome·Safari 구현 진행 중. 토큰 기반 분기 스타일링을 CSS만으로.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">고도화된 CSS attr() — 모든 속성 + 타입 변환</p>
+            <p class="item-meta">2026 (진행 중) · <a href="https://css-tricks.com/interop-2026/">CSS-Tricks</a></p>
+            <p class="item-summary">HTML 속성값을 타입 변환과 함께 모든 CSS 속성에 주입. data-* 속성 기반 스타일링의 폭이 크게 확대.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>매일 아침 자동 갱신 · 우측 상단 ☾/☀ 버튼으로 다크/라이트 모드를 전환할 수 있습니다.</footer>
+  </body>
+</html>
