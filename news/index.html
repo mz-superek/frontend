@@ -84,6 +84,87 @@
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="news-day" data-date="2026-06-29">
+        <h2>📰 2026-06-29 (월)</h2>
+        <p class="day-note">React/Next·디자인 시스템 우선 + 1차 소스 검증. 지난 2주 #with에서 다룬 주제(Fable/Mythos 수출통제·React Router CVE·tsgo·shadcn 레지스트리·Grid Lanes·@scope·Codex Record&amp;Replay 등)는 제외. 대형 이슈(GPT-5.6 프리뷰·디스틸레이션 규제)는 우선순위와 무관하게 포함.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">OpenAI, GPT-5.6 Sol·Terra·Luna 프리뷰 공개</p>
+            <p class="item-meta">2026-06-26 · <a href="https://openai.com/index/previewing-gpt-5-6-sol/">OpenAI</a> · <a href="https://news.hada.io/topic?id=30866">GeekNews</a></p>
+            <p class="item-summary">차세대 플래그십 Sol(코딩·생물·사이버보안↑)과 저비용 Terra·초저가 Luna 3종 + 'max' 추론·서브에이전트 'ultra' 모드. 단 API·Codex 한정 프리뷰(ChatGPT 미제공)이고 美 정부 방침으로 신뢰 파트너만 접근 → 프런티어 경쟁·수출통제 흐름이 또렷.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Anthropic "사상 최대 디스틸레이션 공격" 주장 — Alibaba Qwen 지목, 美 의회 제재 추진</p>
+            <p class="item-meta">2026-06-25 · <a href="https://thenextweb.com/news/anthropic-accuses-alibaba-distillation-claude-qwen">The Next Web</a></p>
+            <p class="item-summary">Claude에 가짜계정 약 2.5만개로 2,880만 건 질의해 역량을 추출했다는 주장(4/22~6/5). 상원 서한·제재 수정안 추진 → 모델 IP 보호·대중국 수출통제 규제의 핵심 변수.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">"Code as Agent Harness" — 코드를 에이전트 실행 기반으로 보는 102p 서베이</p>
+            <p class="item-meta">2026-06 · <a href="https://code-as-harness.github.io/code-as-harness-webpage/">프로젝트</a> · <a href="https://news.hada.io/topic?id=30815">GeekNews</a></p>
+            <p class="item-summary">UIUC×Meta×Stanford. 코드는 LLM 산출물이 아니라 에이전트가 도구를 실행·검증하는 '하니스'라는 관점 → 에이전트 설계 패러다임 정리.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">TanStack Start, Rsbuild/Rspack 지원 추가</p>
+            <p class="item-meta">2026-06 · <a href="https://thisweekinreact.com/newsletter/284">This Week in React #284</a></p>
+            <p class="item-summary">Vite 외 Rsbuild/Rspack 어댑터로 SSR·스트리밍·HMR·Server Functions·RSC 지원 → 풀스택 React의 번들러 선택지 확대(Rust 번들러 흐름).</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">TanStack Form 1.33 — FormGroup API로 멀티스텝 폼 단순화</p>
+            <p class="item-meta">2026-06 · <a href="https://thisweekinreact.com/newsletter">This Week in React</a></p>
+            <p class="item-summary">다단계·그룹 폼 구성을 더 간결하게 → 복잡한 입력 플로우/폼 검증 구현 부담 감소.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">App.js Conf 2026(크라쿠프) 하이라이트 — Gesture Handler 3.0·RN SPM·Legend List 3.0·Expo UI 정식</p>
+            <p class="item-meta">2026-06 · <a href="https://thisweekinreact.com/newsletter/284">This Week in React #284</a></p>
+            <p class="item-summary">RN 생태계 대규모 업데이트(Swift Package Manager 지원·Expo UI 안정화 등) → 모바일/크로스플랫폼 React 동향.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">HTTP QUERY 메소드 표준화 (RFC 10008)</p>
+            <p class="item-meta">2026-06-15 · <a href="https://datatracker.ietf.org/doc/rfc10008/">IETF</a> · <a href="https://news.hada.io/topic?id=30846">GeekNews</a></p>
+            <p class="item-summary">본문을 갖되 안전·멱등·캐시 가능한 새 HTTP 메소드. URL 길이 제약 없이 복잡한 검색 질의, CDN/프록시가 본문 기반 캐싱 → 읽기 중심 RPC/검색 API 설계 변화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">핀테크 엔지니어링 핸드북</p>
+            <p class="item-meta">2026-06 · <a href="https://w.pitula.me/fintech-engineering-handbook/">w.pitula.me</a> · <a href="https://news.hada.io/topic?id=30892">GeekNews</a></p>
+            <p class="item-summary">돈을 핵심 상태로 다루는 시스템 설계 원칙(금액은 정수·정밀소수로, float 금지, 멱등성·신뢰 최소화) → 결제·정산 백엔드 실무 레퍼런스.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">NetTools — 가입·추적 없는 무료 네트워크/보안/개발 도구 45종</p>
+            <p class="item-meta">2026-06 · <a href="https://news.hada.io/topic?id=30906">GeekNews</a></p>
+            <p class="item-summary">네트워크 계산·조회 등 반복 작업을 광고·가입 없이 → 백엔드/인프라 디버깅 보조 도구 모음.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">Chrome 149 — CSS gap decorations, 주요 브라우저 지원 도달</p>
+            <p class="item-meta">2026-06-03 · <a href="https://developer.chrome.com/blog/chrome-149-beta">Chrome for Developers</a></p>
+            <p class="item-summary">flex/grid 아이템 사이 gap에 선·색 스타일 지정 → 구분선용 빈 요소·보더 핵 없이 격자 구분선 구현.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Chrome 149 — shape-outside에 path()·shape()·rect()·xywh() 도형 지원</p>
+            <p class="item-meta">2026-06 · <a href="https://developer.chrome.com/blog/chrome-149-beta">Chrome for Developers</a></p>
+            <p class="item-summary">텍스트 흐름(플로팅)을 임의 도형으로 감싸기 → 비정형(매거진형) 레이아웃을 CSS만으로.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Safari 베타 — 이름만 있는 @container 쿼리 파싱·Grid Lanes flow-tolerance 등</p>
+            <p class="item-meta">2026-06 · <a href="https://releasebot.io/updates/apple/safari">Releasebot (Safari)</a></p>
+            <p class="item-summary">컨테이너 쿼리·Grid Lanes(네이티브 메이슨리) 세부 기능 보강 → 반응형 컴포넌트·메이슨리 상호운용 진전.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-06-25">
         <h2>📰 2026-06-25 (목)</h2>
         <p class="day-note">React/Next·디자인 시스템 우선 + 1차 소스 검증. 지난 2주간 #with에서 다룬 주제(TS7 tsgo·React Router CVE·Polar Orbit·Next 16.3 Cache·shadcn Rhea·Interop 2026 등)는 제외. 모델 규제·수출통제 등 대형 이슈는 우선순위와 무관하게 포함.</p>

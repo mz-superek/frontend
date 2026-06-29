@@ -137,6 +137,10 @@
     <a class="nav-item" href="#adr">ADR</a>
     <a class="nav-item" href="#runbook">Runbook</a>
     <a class="nav-item" href="#postmortem">Postmortem</a>
+    <span class="nav-group-label">스토리지 · 통신 · API 문서</span>
+    <a class="nav-item" href="#object-storage">Object Storage · S3</a>
+    <a class="nav-item" href="#grpc">gRPC</a>
+    <a class="nav-item" href="#openapi">OpenAPI · Swagger</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2481,6 +2485,45 @@ export default function Error({ error, reset }) {
 </div>
 <p>장애가 끝난 뒤 "무슨 일이 있었고, 원인이 뭐였고, 어떻게 막을지"를 정리하는 회고 문서. 사람을 탓하지 않는(blameless) 분위기로 재발 방지에 집중한다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>"이번 장애 포스트모템 작성해 주세요", "포스트모템에서 나온 액션 아이템 추적하자" 같은 장애 후속 논의에서. <span style="color:var(--coral)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Object Storage ===== -->
+<section class="term" id="object-storage">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="object-storage-h">오브젝트 스토리지 <span class="sub">Object Storage · S3</span></h2>
+    <div class="links"><a class="link-tag" href="#http-cache">CDN·ETag</a></div>
+  </div>
+</div>
+<p>파일을 폴더 트리가 아니라 "객체(데이터 + 메타데이터)" 단위로 저장하고, 고유 키/URL로 꺼내 쓰는 저장 방식. 용량이 사실상 무제한이라 이미지·정적 파일·빌드 산출물 보관에 쓴다. 대표 구현이 AWS S3.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이미지·빌드 산출물은 S3 버킷에 올려서 CDN으로 서빙하자" 같은 정적 자산 배포 논의에서 등장. <span style="color:var(--coral)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== gRPC ===== -->
+<section class="term" id="grpc">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="grpc-h">gRPC <span class="sub">Google Remote Procedure Call</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#bff">BFF</a></div>
+  </div>
+</div>
+<p>구글이 만든 서비스 간 고성능 통신 방식. HTTP/2 + Protobuf(바이너리 포맷)를 써서 REST(JSON)보다 빠르고, 주고받는 데이터의 타입이 명확하다. 주로 백엔드 서비스끼리 통신할 때 쓴다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>MSA 설계 문서에서 "백엔드끼리는 gRPC로 통신"이라는 문장을 볼 때. 프론트는 보통 BFF/REST를 거쳐 접근. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== OpenAPI · Swagger ===== -->
+<section class="term" id="openapi">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="openapi-h">OpenAPI · Swagger <span class="sub">API 명세 규격</span></h2>
+    <div class="links"><a class="link-tag" href="#api-gateway">API Gateway</a></div>
+  </div>
+</div>
+<p>REST API의 명세(엔드포인트·요청·응답 형식)를 표준 형식으로 적어 둔 문서 규격이 OpenAPI, 그 명세를 브라우저에서 보고 바로 호출 테스트까지 할 수 있게 해 주는 도구가 Swagger UI.</p>
+<div class="tip"><div class="tip-l">실무에서</div>백엔드가 "Swagger 보고 연동하세요" 하며 /swagger-ui 링크를 줄 때. 프론트가 API 스펙을 확인하는 1차 출처. <span style="color:var(--coral)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->

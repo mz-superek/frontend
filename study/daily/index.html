@@ -70,6 +70,87 @@
 
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-06-29">
+        <h2>2026-06-29 (월) · 오래된 클로저(Stale Closure)</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          지난주 <code>useRef</code>·<code>useReducer</code>·<code>memo</code>를 보며 "렌더"를 다뤘는데, 오늘은 그 렌더가
+          만든 함정 하나를 봅니다. React 함수 컴포넌트는 렌더될 때마다 함수 전체가 다시 실행되고, 그 순간의 state 값이
+          <em>스냅샷</em>처럼 함수 안에 박제됩니다. 그래서 <code>useEffect</code>나 <code>setInterval</code>에 넘긴
+          콜백이 특정 렌더의 state를 클로저로 붙잡으면, 이후 state가 바뀌어도 그 콜백은 옛 값만 봐요 — 이게
+          <em>오래된 클로저(stale closure)</em>입니다. 퍼블리싱에 비유하면, 콜백은 "촬영 당시 인화된 사진" 같아서
+          실제 인물(state)이 나이를 먹어도 사진 속 얼굴은 그대로예요. 해결은 셋 중 하나: ① 의존성 배열을 정확히 채워
+          콜백을 최신 렌더로 갱신, ② 함수형 업데이트(<code>setCount(c =&gt; c + 1)</code>)로 "이전 값"을 React에게서
+          받기, ③ <code>useRef</code>에 최신 값을 담아 <code>.current</code>로 참조.
+        </p>
+        <pre><code>function Timer() {
+  const [count, setCount] = useState(0);
+  useEffect(() =&gt; {
+    const id = setInterval(() =&gt; {
+      // ❌ 이 콜백은 첫 렌더의 count(=0)에 박제됨
+      console.log(count);
+    }, 1000);
+    return () =&gt; clearInterval(id);
+  }, []); // 빈 deps → 콜백이 갱신되지 않음
+  return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;{count}&lt;/button&gt;;
+}
+
+// ✅ 함수형 업데이트면 항상 최신 값
+setCount(c =&gt; c + 1);</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          타이머·이벤트 구독·디바운스·웹소켓 핸들러 같은 실무 <code>useEffect</code>에서 가장 흔하고 재현 어려운 버그가
+          바로 이것이라, "분명 state는 바뀌었는데 콜백 안에서는 옛날 값"일 때 원인을 바로 짚을 수 있습니다.
+        </p>
+
+        <p class="refs">더 보기:
+          <a href="https://react.dev/reference/react/useEffect">React: useEffect</a> ·
+          <a href="https://overreacted.io/a-complete-guide-to-useeffect/">A Complete Guide to useEffect (Dan Abramov)</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            <strong>1) (객관식)</strong> 다음 중 stale closure를 피하는 방법이 <em>아닌</em> 것은?<br />
+            ⓐ <code>setCount(c =&gt; c + 1)</code>처럼 함수형 업데이트를 쓴다 &nbsp;
+            ⓑ <code>useEffect</code> 의존성 배열에 콜백이 참조하는 state를 빠짐없이 넣는다 &nbsp;
+            ⓒ 최신 값을 <code>useRef</code>의 <code>.current</code>에 넣고 콜백에서 <code>ref.current</code>를 읽는다 &nbsp;
+            ⓓ 의존성 배열을 항상 빈 배열(<code>[]</code>)로 둬서 effect를 한 번만 만든다
+          </p>
+          <p>
+            <strong>2) (출력 예측 · 문제점 찾기)</strong> 아래 컴포넌트에서 마운트 후 버튼을 3번 누르면,
+            1초마다 콘솔에 무엇이 찍힐까요? 왜 그렇고, 어떻게 고칠까요?
+          </p>
+          <pre><code>function Counter() {
+  const [count, setCount] = useState(0);
+  useEffect(() =&gt; {
+    const id = setInterval(() =&gt; console.log(count), 1000);
+    return () =&gt; clearInterval(id);
+  }, []);
+  return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;{count}&lt;/button&gt;;
+}</code></pre>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p>
+              <strong>1) 정답 ⓓ</strong> — 의존성 배열을 빈 배열로 두면 effect 콜백이 첫 렌더의 state(스냅샷)에
+              영원히 묶여 <em>오히려</em> stale closure의 직접 원인이 됩니다. ⓐ·ⓑ·ⓒ는 각각 최신 값을
+              "받는 / 갱신하는 / 참조하는" 올바른 회피법이에요.
+            </p>
+            <p>
+              <strong>2)</strong> 콘솔에는 1초마다 계속 <strong>0</strong>이 찍힙니다. 화면 숫자는 3으로 바뀌지만,
+              <code>setInterval</code> 콜백은 빈 deps 때문에 첫 렌더에서 한 번 만들어져 그때의 <code>count</code>(=0)를
+              클로저로 붙잡고 있기 때문이에요(버튼 클릭은 새 렌더를 만들지만 인터벌은 재생성되지 않음). 고치려면
+              ① <code>countRef.current = count</code>로 ref에 최신 값을 동기화하고 콜백에서 <code>countRef.current</code>를
+              읽거나, ② 함수형 업데이트로 우회하거나, ③ 정말 매 변경마다 새로 찍어야 하면 deps에 <code>[count]</code>를
+              넣어 인터벌을 재설정합니다(이때는 cleanup의 <code>clearInterval</code>로 이전 타이머 정리가 필수).
+            </p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-06-26">
         <h2>2026-06-26 (금) · 제어 컴포넌트 vs 비제어 컴포넌트</h2>
         <span class="topic-tag">프론트 심화</span>
