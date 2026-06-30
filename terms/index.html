@@ -141,6 +141,9 @@
     <a class="nav-item" href="#object-storage">Object Storage · S3</a>
     <a class="nav-item" href="#grpc">gRPC</a>
     <a class="nav-item" href="#openapi">OpenAPI · Swagger</a>
+    <a class="nav-item" href="#security-group">Security Group</a>
+    <a class="nav-item" href="#read-replica">Read Replica</a>
+    <a class="nav-item" href="#virtual-scrolling">Virtual Scrolling</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2524,6 +2527,45 @@ export default function Error({ error, reset }) {
 </div>
 <p>REST API의 명세(엔드포인트·요청·응답 형식)를 표준 형식으로 적어 둔 문서 규격이 OpenAPI, 그 명세를 브라우저에서 보고 바로 호출 테스트까지 할 수 있게 해 주는 도구가 Swagger UI.</p>
 <div class="tip"><div class="tip-l">실무에서</div>백엔드가 "Swagger 보고 연동하세요" 하며 /swagger-ui 링크를 줄 때. 프론트가 API 스펙을 확인하는 1차 출처. <span style="color:var(--coral)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Security Group ===== -->
+<section class="term" id="security-group">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="security-group-h">시큐리티 그룹 <span class="sub">Security Group · SG</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#load-balancer">Load Balancer</a></div>
+  </div>
+</div>
+<p>EC2 같은 인스턴스 앞단에 붙는 "가상 방화벽". 어떤 IP·포트의 인바운드(들어오는)/아웃바운드(나가는) 트래픽을 허용할지 규칙으로 정한다. 기본은 모두 차단이고, 허용할 것만 규칙으로 열어 준다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"API 접속이 안 돼요" 했더니 SG에서 해당 포트가 안 열려 있던 경우 — 연결 문제 1순위 점검 대상. <span style="color:var(--coral)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Read Replica ===== -->
+<section class="term" id="read-replica">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="read-replica-h">리드 레플리카 <span class="sub">Read Replica · 읽기 복제본</span></h2>
+    <div class="links"><a class="link-tag" href="#connection-pool">Connection Pool</a></div>
+  </div>
+</div>
+<p>원본(Primary) DB를 실시간으로 복제한 읽기 전용 DB. 조회 트래픽을 복제본으로 분산해 원본의 부하를 낮춘다. 쓰기는 원본, 읽기는 복제본으로 나누는 구조라 복제 지연(replication lag) 탓에 방금 쓴 데이터가 잠깐 안 보일 수 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 조회 API는 레플리카로 붙이자" 같은 DB 부하 분산 논의에서. 쓰기 직후 바로 조회하면 값이 안 보이는 이슈도 여기서 비롯됨. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Virtual Scrolling ===== -->
+<section class="term" id="virtual-scrolling">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="virtual-scrolling-h">가상 스크롤 <span class="sub">Virtual Scrolling · Windowing</span></h2>
+    <div class="links"><a class="link-tag" href="#reflow">Reflow·Repaint</a><a class="link-tag" href="#main-thread">메인 스레드 최적화</a></div>
+  </div>
+</div>
+<p>수천 개짜리 리스트를 전부 DOM에 그리지 않고, 화면(viewport)에 보이는 만큼만 렌더링하고 스크롤에 따라 교체하는 최적화 기법. DOM 노드 수를 일정하게 유지해 긴 목록도 부드럽게 스크롤된다. react-window·TanStack Virtual 등이 대표 라이브러리.</p>
+<div class="tip"><div class="tip-l">실무에서</div>목록이 길어 스크롤이 버벅이거나 초기 렌더가 느릴 때 "가상 스크롤(windowing) 적용하자"고 나오는 해법. <span style="color:var(--coral)">[프론트엔드]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->

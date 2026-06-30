@@ -84,6 +84,92 @@
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="news-day" data-date="2026-06-30">
+        <h2>📰 2026-06-30 (화)</h2>
+        <p class="day-note">React/Next·디자인 시스템 우선 + 1차 소스 검증. 지난 2주 #with에서 다룬 주제(GPT-5.6·디스틸레이션/Qwen·Fable·Mythos 수출통제 발동·TanStack Start/Form·App.js Conf·shadcn GitHub Registries·React Router CVE·tsgo·HTTP QUERY·Chrome 149·Grid Lanes·@scope 등)는 제외. 대형 규제 이슈(Mythos 수출통제 일부 해제)는 우선순위와 무관하게 포함. 백엔드는 하드 릴리스가 적어 최근 핵심 항목을 실제 발행일로 표기.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">美 상무부, Anthropic Mythos 5 수출통제 일부 해제 — 신뢰 기업·기관 100여 곳만 접근</p>
+            <p class="item-meta">2026-06-27 · <a href="https://www.npr.org/2026/06/27/nx-s1-5871245/trump-administration-imposes-restrictions-for-anthropic-to-halt-access-to-2-ai-models">NPR</a></p>
+            <p class="item-summary">2주 전 전면 차단했던 Mythos 5를 미국 신뢰 조직 100여 곳에 한해 재허용(Fable 5는 여전히 차단). 정부가 프런티어 모델 접근을 사실상 라이선스로 통제 → '정부 게이트' 모델 시대.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">GLM 5.2(Zhipu), Semgrep IDOR 사이버 벤치마크서 Claude Code 추월</p>
+            <p class="item-meta">2026-06-22 · <a href="https://semgrep.dev/blog/2026/we-have-mythos-at-home-glm-52-beats-claude-in-our-cyber-benchmarks/">Semgrep</a> · <a href="https://news.hada.io/topic?id=30921">GeekNews</a></p>
+            <p class="item-summary">오픈웨이트 모델이 IDOR 취약점 탐지 F1 39% vs Claude 32%(건당 약 $0.17). 단 전용 하니스 없는 단순 조건 → 중국 오픈웨이트의 약진과 수출통제의 현실적 한계를 동시에 시사.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Claude Code 6월 업데이트 — 풀스크린 마우스 제어·음성 받아쓰기·백그라운드 에이전트 안정성</p>
+            <p class="item-meta">2026-06 · <a href="https://releasebot.io/updates/anthropic">Releasebot (Anthropic)</a></p>
+            <p class="item-summary">플러그인 매칭·원격 세션 시작·리눅스 음성 인식 개선 등 에이전트 워크플로 안정화 → #with 협업 도구 사용 경험에 직접 영향.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">React Fragment ref(FragmentInstance) 문서화 — React 19.3 예정</p>
+            <p class="item-meta">2026-06 · <a href="https://thisweekinreact.com/newsletter/287">This Week in React #287</a></p>
+            <p class="item-summary">ref로 Fragment의 1차 자식에 접근하는 새 인스턴스 타입. canary 제공·프로덕션 검증 완료 → 새로운 합성(composition) 패턴.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">React Router 8.0 정식 — ESM-only·v8 future flags 기본 on</p>
+            <p class="item-meta">2026-06 · <a href="https://thisweekinreact.com/newsletter/287">This Week in React #287</a></p>
+            <p class="item-summary">일부러 '지루하게' 만든 릴리스로 업그레이드 부담 최소화(React/Vite/Node 최소 버전 상향) → 라우팅 의존성 정리 시점.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">shadcn/ui — Chat 컴포넌트 + @shadcn/react 헤드리스 패키지 공개</p>
+            <p class="item-meta">2026-06 · <a href="https://ui.shadcn.com/docs/changelog/2026-06-chat-components">shadcn changelog</a></p>
+            <p class="item-summary">Marker·scroll-fade·shimmer 등 AI 채팅/스트리밍 UI 프리미티브와 헤드리스 MessageScroller → 디자인 시스템에 대화형 UI를 바로 조립.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">cnfast — clsx+tailwind-merge 드롭인 대체(약 4배 빠름)</p>
+            <p class="item-meta">2026-06 · <a href="https://thisweekinreact.com/newsletter/287">This Week in React #287</a></p>
+            <p class="item-summary">tailwind-merge 대비 4x 성능의 클래스 병합 유틸 → 대규모 Tailwind/DS 렌더 핫패스 최적화.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">PostgreSQL 19 Beta 1 공개</p>
+            <p class="item-meta">2026-06-04 · <a href="https://www.postgresql.org/about/newsarchive/">PostgreSQL</a></p>
+            <p class="item-summary">비동기 I/O(AIO)·인덱스 활용 개선 흐름을 잇는 차기 메이저 미리보기 → 운영 DB 업그레이드 로드맵 점검.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Bun 1.3 — 내장 Redis·MySQL 클라이언트</p>
+            <p class="item-meta">2026 · <a href="https://blog.logrocket.com/bun-javascript-runtime-taking-node-js-deno/">LogRocket</a></p>
+            <p class="item-summary">런타임에 DB 클라이언트 번들(내장 Redis가 ioredis 대비 약 7.9x) → 외부 의존성·캐시/큐 스택 단순화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Citus 14 — PostgreSQL 18 분산 지원</p>
+            <p class="item-meta">2026-02-17 · <a href="https://www.citusdata.com/blog/2026/02/17/distribute-postgresql-18-with-citus-14/">Citus Data</a></p>
+            <p class="item-summary">코디네이터+워커 전반에 PG18(AIO·skip-scan·uuidv7) 성능을 분산 스케일로 → 대용량 OLTP/실시간 분석 확장.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title"><code>:open</code> 의사클래스 — Baseline Newly available (Safari 26.5)</p>
+            <p class="item-meta">2026 · <a href="https://web.dev/blog/web-platform-05-2026">web.dev</a></p>
+            <p class="item-summary">details·dialog·select 등 '열림' 상태를 JS 없이 스타일링 → 토글/팝오버 상태 표현 간결화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">@container 스타일 쿼리 style() — Firefox 151로 Baseline Newly available</p>
+            <p class="item-meta">2026 · <a href="https://web.dev/blog/web-platform-05-2026">web.dev</a></p>
+            <p class="item-summary">커스텀 프로퍼티 값 기준으로 컨테이너 분기 → 토큰 기반 컴포넌트 스타일링이 표준으로.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">스크롤 기반 애니메이션(animation-timeline: scroll()·view()) 크로스브라우저 베이스라인 도달</p>
+            <p class="item-meta">2026 · <a href="https://web.dev/baseline/2026">web.dev</a></p>
+            <p class="item-summary">Firefox·Safari 합류로 prefix·JS 없이 프로덕션 사용 준비 완료.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-06-29">
         <h2>📰 2026-06-29 (월)</h2>
         <p class="day-note">React/Next·디자인 시스템 우선 + 1차 소스 검증. 지난 2주 #with에서 다룬 주제(Fable/Mythos 수출통제·React Router CVE·tsgo·shadcn 레지스트리·Grid Lanes·@scope·Codex Record&amp;Replay 등)는 제외. 대형 이슈(GPT-5.6 프리뷰·디스틸레이션 규제)는 우선순위와 무관하게 포함.</p>

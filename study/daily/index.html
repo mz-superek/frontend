@@ -70,6 +70,74 @@
 
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-06-30">
+        <h2>2026-06-30 (화) · HTTP 캐싱: Cache-Control vs ETag</h2>
+        <span class="topic-tag">클라우드·백엔드 기초</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          퍼블리싱 때 CSS·이미지가 안 바뀌어서 "강력 새로고침(Ctrl+Shift+R)"을 눌러본 적 있죠? 그게 바로
+          HTTP 캐싱입니다. 브라우저는 한 번 받은 응답을 재사용해 네트워크를 아끼는데, 방식이 두 축이에요.
+          ① <em>강한 캐시</em>(<code>Cache-Control: max-age=…</code>) — 정한 시간 동안 서버에 아예 안 물어보고
+          캐시본을 씁니다. ② <em>조건부 요청</em>(<code>ETag</code>/<code>Last-Modified</code>) — 만료 뒤
+          "이거 바뀌었어?"만 물어보고, 안 바뀌었으면 본문 없는 <code>304 Not Modified</code>로 데이터를 아낍니다.
+          비유하면 강한 캐시는 "한 달 유효" 도장이 찍힌 전단지, 조건부 요청은 도장 만료 후 "새 버전 나왔나요?"만
+          전화로 확인하는 것. 그래서 실무에선 정적 자산은 파일명 해시 + <code>immutable</code>로 영구 캐시하고,
+          HTML·API는 <code>no-cache</code>로 매번 검증합니다.
+        </p>
+        <pre><code># 정적 자산(빌드 해시 파일): 1년 캐시 + 불변
+Cache-Control: public, max-age=31536000, immutable
+
+# HTML·데이터: 저장하되 매번 재검증
+Cache-Control: no-cache
+ETag: "a1b2c3"
+
+# 재요청 시 브라우저가 자동으로 덧붙임
+If-None-Match: "a1b2c3"
+# 안 바뀌었으면 → HTTP/1.1 304 Not Modified  (본문 없음, 빠름)</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          Next.js 빌드 산출물(<code>/_next/static/…</code>)이 파일명 해시로 <code>immutable</code> 캐싱되는 이유,
+          그리고 "배포했는데 왜 옛 화면이 보이지?" 류 이슈와 API 응답 캐싱 튜닝이 전부 이 헤더 이해에서 출발합니다.
+        </p>
+
+        <p class="refs">더 보기:
+          <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">MDN: Cache-Control</a> ·
+          <a href="https://web.dev/articles/http-cache">web.dev: HTTP caching</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            <strong>1) (객관식)</strong> <code>Cache-Control: no-cache</code>의 의미로 옳은 것은?<br />
+            ⓐ 절대 캐시하지 않는다 &nbsp;
+            ⓑ 캐시는 저장하되 쓰기 전 서버에 재검증한다 &nbsp;
+            ⓒ 딱 1초만 캐시한다 &nbsp;
+            ⓓ 브라우저 캐시만 끄고 CDN은 캐시한다
+          </p>
+          <p>
+            <strong>2) (실전)</strong> 파일 <code>app.js</code>를 <code>Cache-Control: public, max-age=31536000</code>로
+            1년 캐시했습니다. 배포로 내용이 바뀌었는데 사용자는 계속 옛 파일을 봅니다. 왜 그럴까요?
+            또 번들러(Webpack/Vite 등)가 쓰는 표준 해결책은 무엇일까요?
+          </p>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p>
+              <strong>1) 정답 ⓑ</strong> — <code>no-cache</code>는 "캐시를 저장하되, 사용 전 매번 서버에
+              재검증(조건부 요청)하라"는 뜻입니다. 아예 저장조차 안 하는 건 <code>no-store</code>예요.
+              이름 때문에 헷갈리지만 <code>no-cache</code> &ne; <code>no-store</code>.
+            </p>
+            <p>
+              <strong>2)</strong> <code>max-age</code>(1년) 동안 브라우저는 서버에 묻지 않고 캐시본을 그대로 쓰기
+              때문에 바뀐 파일을 못 봅니다. 표준 해결책은 <em>파일명에 콘텐츠 해시를 넣는 것</em>(<code>app.4f3a9c.js</code>)
+              — 내용이 바뀌면 파일명(URL)이 달라져 캐시 미스가 나고 새 파일을 받습니다. 그래서 해시가 박힌 파일엔
+              <code>immutable</code>을 붙여 영구 캐시해도 안전하죠(Next.js·Vite가 자동으로 해주는 방식).
+            </p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-06-29">
         <h2>2026-06-29 (월) · 오래된 클로저(Stale Closure)</h2>
         <span class="topic-tag">프론트 심화</span>
