@@ -144,6 +144,9 @@
     <a class="nav-item" href="#security-group">Security Group</a>
     <a class="nav-item" href="#read-replica">Read Replica</a>
     <a class="nav-item" href="#virtual-scrolling">Virtual Scrolling</a>
+    <a class="nav-item" href="#cold-start">Cold Start</a>
+    <a class="nav-item" href="#orm">ORM</a>
+    <a class="nav-item" href="#conventional-commits">Conventional Commits</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2566,6 +2569,45 @@ export default function Error({ error, reset }) {
 </div>
 <p>수천 개짜리 리스트를 전부 DOM에 그리지 않고, 화면(viewport)에 보이는 만큼만 렌더링하고 스크롤에 따라 교체하는 최적화 기법. DOM 노드 수를 일정하게 유지해 긴 목록도 부드럽게 스크롤된다. react-window·TanStack Virtual 등이 대표 라이브러리.</p>
 <div class="tip"><div class="tip-l">실무에서</div>목록이 길어 스크롤이 버벅이거나 초기 렌더가 느릴 때 "가상 스크롤(windowing) 적용하자"고 나오는 해법. <span style="color:var(--coral)">[프론트엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Cold Start ===== -->
+<section class="term" id="cold-start">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="cold-start-h">콜드 스타트 <span class="sub">Cold Start</span></h2>
+    <div class="links"><a class="link-tag" href="#serverless">Serverless</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a></div>
+  </div>
+</div>
+<p>한동안 호출이 없던 서버리스 함수(예: AWS Lambda)가 처음 실행될 때, 실행 환경(컨테이너·런타임)을 새로 띄우느라 첫 응답이 유독 느려지는 현상. 이미 데워진(warm) 환경이 있으면 빠르게 응답하지만, 식어 있으면(cold) 준비 시간이 더해진다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>트래픽이 뜸한 새벽에 Lambda 기반 API의 첫 호출만 느릴 때 "콜드 스타트 때문"이라는 말이 나온다. Provisioned Concurrency로 미리 데워두는 식으로 완화한다. <span style="color:var(--blue)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== ORM ===== -->
+<section class="term" id="orm">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="orm-h">ORM <span class="sub">Object-Relational Mapping · 객체-관계 매핑</span></h2>
+    <div class="links"><a class="link-tag" href="#connection-pool">Connection Pool</a><a class="link-tag" href="#read-replica">Read Replica</a></div>
+  </div>
+</div>
+<p>SQL을 직접 쓰지 않고, 코드의 객체(클래스)를 DB 테이블에 자동으로 연결해 데이터를 다루게 해주는 도구. <code>user.findOne()</code> 같은 메서드 호출을 ORM이 내부적으로 <code>SELECT * FROM users ...</code> 같은 SQL로 번역해 실행한다. 생산성은 높지만, 의도치 않게 비효율적인 쿼리(예: N+1 문제)가 나갈 수 있어 실제 발생 SQL을 확인하는 습관이 필요하다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>풀스택으로 백엔드 코드를 만질 때 Prisma·TypeORM·Sequelize 같은 ORM으로 DB를 다룬다. 조회가 느리면 "ORM이 만든 쿼리부터 찍어보자"는 이야기가 나온다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Conventional Commits ===== -->
+<section class="term" id="conventional-commits">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="conventional-commits-h">컨벤셔널 커밋 <span class="sub">Conventional Commits</span></h2>
+    <div class="links"><a class="link-tag" href="#semver">SemVer</a></div>
+  </div>
+</div>
+<p>커밋 메시지를 <code>&lt;타입&gt;: &lt;설명&gt;</code> 형식으로 쓰는 약속된 규칙. 대표 타입은 <code>feat</code>(기능 추가), <code>fix</code>(버그 수정), <code>docs</code>(문서), <code>refactor</code>(리팩터링), <code>chore</code>(잡일) 등. 형식이 일정해 변경 성격을 한눈에 알 수 있고, 이 규칙을 기반으로 버전 자동 결정(SemVer)과 체인지로그(CHANGELOG) 자동 생성까지 연결된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>PR을 올렸을 때 "커밋 메시지를 conventional commits 형식으로 맞춰주세요"라는 리뷰를 받거나, <code>feat:</code>/<code>fix:</code> 접두어를 강제하는 커밋 린트(commitlint)에 막힐 때. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->

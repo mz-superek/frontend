@@ -70,6 +70,94 @@
 
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-07-01">
+        <h2>2026-07-01 (수) · ref를 컴포넌트로 넘기기: forwardRef와 React 19의 "ref as prop"</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          06-22에서 <code>ref</code>를 <code>&lt;input ref={...}&gt;</code>처럼 DOM에 직접 붙였죠. 그런데 내가 만든 컴포넌트
+          <code>&lt;MyInput ref={...} /&gt;</code>에 똑같이 넘기면 안 먹어요. <code>ref</code>는 <code>key</code>처럼 React가
+          가로채는 <em>예약된 이름</em>이라, 일반 prop과 달리 자식 함수 컴포넌트로 자동 전달되지 않기 때문입니다.
+          퍼블리싱에 비유하면, 내가 만든 래퍼 태그로 <code>&lt;input&gt;</code>을 감싸버려서 바깥에서 준 참조가 안쪽 실제
+          입력칸까지 닿지 못하는 상황이에요. 전통적 해법은 <code>forwardRef</code>로 컴포넌트를 감싸 <em>두 번째 인자</em>로
+          받은 ref를 내부 DOM에 연결하는 것. 그리고 React 19부터는 <code>ref</code>가 그냥 일반 prop처럼 함수 인자
+          (<code>props.ref</code>)로 들어와서 <code>forwardRef</code> 없이도 됩니다. 부모에게 DOM 전체 대신
+          <code>focus()</code> 같은 <em>특정 동작만</em> 노출하고 싶으면 <code>useImperativeHandle</code>을 씁니다.
+        </p>
+        <pre><code>// 전통(React 18): forwardRef로 ref를 받아 내부 input에 연결
+const MyInput = forwardRef(function MyInput({ label }, ref) {
+  return &lt;label&gt;{label}&lt;input ref={ref} /&gt;&lt;/label&gt;;
+});
+
+// React 19: ref가 그냥 prop — forwardRef 불필요
+function MyInput({ label, ref }) {
+  return &lt;label&gt;{label}&lt;input ref={ref} /&gt;&lt;/label&gt;;
+}
+
+// 부모: 자식 내부 input에 포커스
+const ref = useRef(null);
+&lt;MyInput label="이름" ref={ref} /&gt;;
+// ref.current.focus();
+
+// 일부 기능만 노출하고 싶으면
+useImperativeHandle(ref, () =&gt; ({ focus: () =&gt; inputRef.current.focus() }));</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          ShadCN 커스텀 Input이나 react-hook-form의 <code>register</code>(ref 기반)를 내가 만든 컴포넌트에 연결할 때
+          바로 이 개념이 필요해서, "왜 내 컴포넌트엔 ref가 안 먹지?"를 즉시 풀 수 있습니다.
+        </p>
+
+        <p class="refs">더 보기:
+          <a href="https://react.dev/reference/react/forwardRef">React: forwardRef</a> ·
+          <a href="https://react.dev/blog/2024/12/05/react-19#ref-as-a-prop">React 19: ref as a prop</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            <strong>1) (객관식)</strong> 함수 컴포넌트 <code>&lt;MyInput ref={r} /&gt;</code>에서 <code>r</code>이 내부
+            <code>&lt;input&gt;</code>에 닿지 않는 이유로 옳은 것은? (React 18 기준)<br />
+            ⓐ ref는 비동기라 다음 렌더에 들어온다 &nbsp;
+            ⓑ ref는 <code>key</code>처럼 React 예약어라 일반 prop으로 자동 전달되지 않는다 &nbsp;
+            ⓒ 함수 컴포넌트는 DOM이 없다 &nbsp;
+            ⓓ ref는 문자열로만 넘길 수 있다
+          </p>
+          <p>
+            <strong>2) (문제점 찾기)</strong> 아래 코드(React 18)에서 버튼을 눌러도 콘솔에 경고가 뜨고
+            <code>ref.current</code>가 <code>null</code>입니다. 왜이고, 어떻게 고칠까요?
+          </p>
+          <pre><code>const MyInput = ({ label }) =&gt; &lt;input placeholder={label} /&gt;;
+function Form() {
+  const ref = useRef(null);
+  return (
+    &lt;&gt;
+      &lt;MyInput label="이름" ref={ref} /&gt;
+      &lt;button onClick={() =&gt; ref.current.focus()}&gt;포커스&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p>
+              <strong>1) 정답 ⓑ</strong> — <code>ref</code>(와 <code>key</code>)는 React가 특별 취급하는
+              <em>예약된 이름</em>이라 props 객체에 담겨 자식 함수 컴포넌트로 넘어가지 않습니다. 그래서 React 18에서는
+              <code>forwardRef</code>로 감싸야 두 번째 인자로 ref를 받을 수 있어요. (ⓐ·ⓒ·ⓓ는 사실이 아님 — 함수
+              컴포넌트도 내부에 DOM을 가질 수 있고, ref는 객체로 넘깁니다.)
+            </p>
+            <p>
+              <strong>2)</strong> <code>MyInput</code>이 <code>ref</code>를 받지도, 내부 <code>&lt;input&gt;</code>에
+              연결하지도 않아서 <code>ref.current</code>가 계속 <code>null</code>이고, React 18은
+              <em>"Function components cannot be given refs"</em> 경고를 냅니다. 고치려면 <code>forwardRef</code>로 감싸
+              ref를 내부 input에 넘기면 됩니다: <code>const MyInput = forwardRef(({ label }, ref) =&gt; &lt;input
+              ref={ref} placeholder={label} /&gt;)</code>. React 19라면 <code>ref</code>를 일반 prop으로 받아
+              (<code>function MyInput({ label, ref }) { ... }</code>) 그대로 연결하면 됩니다.
+            </p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-06-30">
         <h2>2026-06-30 (화) · HTTP 캐싱: Cache-Control vs ETag</h2>
         <span class="topic-tag">클라우드·백엔드 기초</span>
