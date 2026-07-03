@@ -147,6 +147,12 @@
     <a class="nav-item" href="#cold-start">Cold Start</a>
     <a class="nav-item" href="#orm">ORM</a>
     <a class="nav-item" href="#conventional-commits">Conventional Commits</a>
+    <a class="nav-item" href="#dns">DNS · Route 53</a>
+    <a class="nav-item" href="#graphql">GraphQL</a>
+    <a class="nav-item" href="#isr">ISR</a>
+    <a class="nav-item" href="#nat-gateway">NAT Gateway</a>
+    <a class="nav-item" href="#n-plus-one">N+1 쿼리</a>
+    <a class="nav-item" href="#on-call">On-call · Escalation</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2608,6 +2614,109 @@ export default function Error({ error, reset }) {
 </div>
 <p>커밋 메시지를 <code>&lt;타입&gt;: &lt;설명&gt;</code> 형식으로 쓰는 약속된 규칙. 대표 타입은 <code>feat</code>(기능 추가), <code>fix</code>(버그 수정), <code>docs</code>(문서), <code>refactor</code>(리팩터링), <code>chore</code>(잡일) 등. 형식이 일정해 변경 성격을 한눈에 알 수 있고, 이 규칙을 기반으로 버전 자동 결정(SemVer)과 체인지로그(CHANGELOG) 자동 생성까지 연결된다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>PR을 올렸을 때 "커밋 메시지를 conventional commits 형식으로 맞춰주세요"라는 리뷰를 받거나, <code>feat:</code>/<code>fix:</code> 접두어를 강제하는 커밋 린트(commitlint)에 막힐 때. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== DNS · Route 53 ===== -->
+<section class="term" id="dns">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="dns-h">DNS · Route 53 <span class="sub">Domain Name System</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#http-cache">HTTP Cache·CDN</a></div>
+  </div>
+</div>
+<p>사람이 읽는 도메인 이름(<code>example.com</code>)을 컴퓨터가 쓰는 IP 주소(<code>93.184.216.34</code>)로 바꿔주는 인터넷의 전화번호부. 브라우저는 주소창에 도메인을 넣으면 먼저 DNS에 "이 이름의 실제 주소가 뭐야?"라고 물어본 뒤 그 IP로 접속한다. 이 조회 결과는 TTL(Time To Live) 시간 동안 캐싱되기 때문에, 레코드를 바꿔도 전 세계에 퍼지는 데(전파, propagation) 시간이 걸린다. AWS의 관리형 DNS 서비스가 <strong>Route 53</strong>이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">자주 쓰는 레코드</h4><ul><li><code>A</code> — 도메인 → IP 주소 직접 연결</li><li><code>CNAME</code> — 도메인 → 다른 도메인으로 위임</li><li><code>TTL</code> — 이 결과를 몇 초간 캐싱할지</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">전파가 느린 이유</h4><ul><li>레코드 변경 전 값이 TTL만큼 캐시에 남아있음</li><li>그래서 "바꿨는데 왜 아직 예전 걸로 뜨지?"</li><li>급할 땐 배포 전에 TTL을 짧게 낮춰둠</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>새 사이트를 배포하고 도메인을 연결할 때 A·CNAME 레코드를 등록하는데, "DNS 전파가 아직 안 됐다"며 반영을 기다리는 상황에서 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== GraphQL ===== -->
+<section class="term" id="graphql">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="graphql-h">GraphQL <span class="sub">그래프QL · REST 대안</span></h2>
+    <div class="links"><a class="link-tag" href="#grpc">gRPC</a><a class="link-tag" href="#openapi">OpenAPI</a><a class="link-tag" href="#bff">BFF</a></div>
+  </div>
+</div>
+<p>클라이언트가 "이 필드만 줘"라고 필요한 데이터 모양을 <strong>직접 지정</strong>해서 한 번의 요청으로 받아오는 API 쿼리 언어. REST는 엔드포인트(URL)마다 서버가 정해준 고정된 응답을 주지만, GraphQL은 <code>/graphql</code> 하나에 원하는 필드를 쿼리로 적어 보내면 딱 그 모양대로 응답이 온다. 덕분에 필요 없는 데이터까지 받는 <strong>오버페칭</strong>과, 데이터가 모자라 여러 번 호출하는 <strong>언더페칭</strong>을 동시에 줄인다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">REST</h4><ul><li>엔드포인트마다 응답 모양이 고정</li><li>화면 하나에 URL 여러 번 호출(팬아웃)</li><li>안 쓰는 필드도 딸려옴(오버페칭)</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">GraphQL</h4><ul><li>단일 엔드포인트, 필요한 필드만 쿼리</li><li>연관 데이터를 한 요청에 묶어 받음</li><li>스키마로 타입이 명확 → 자동완성 강력</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>화면 하나에 필요한 데이터가 여러 서비스에 흩어져 있을 때, REST를 여러 번 호출하는 대신 GraphQL 쿼리 하나로 필요한 필드만 골라 받을 때 마주친다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== ISR ===== -->
+<section class="term" id="isr">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="isr-h">ISR <span class="sub">Incremental Static Regeneration</span></h2>
+    <div class="links"><a class="link-tag" href="#rsc">RSC</a><a class="link-tag" href="#streaming">Streaming</a><a class="link-tag" href="#http-cache">HTTP Cache</a></div>
+  </div>
+</div>
+<p>미리 만들어둔 정적 페이지(빌드 때 생성한 HTML)를 빠르게 내려주되, 일정 시간마다 <strong>백그라운드에서 조용히 다시 생성</strong>해 최신 내용으로 갈아끼우는 Next.js 방식. 매 요청마다 서버가 렌더링하는 SSR과, 빌드 후 절대 안 바뀌는 SSG(정적 생성)의 중간 지점이다. <code>revalidate: 60</code>처럼 갱신 주기를 지정하면, 그 시간이 지난 첫 요청에는 옛 페이지를 보여주면서 뒤에서 새 페이지를 만들어 다음 방문자부터 최신본을 제공한다.</p>
+<div class="compare-3">
+  <div class="card"><h4 style="color:var(--amber)">SSG</h4><ul><li>빌드 때 딱 한 번 생성</li><li>가장 빠름</li><li>내용이 안 바뀌는 페이지</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">ISR</h4><ul><li>정적 + 주기적 재생성</li><li>빠르면서 최신성도 확보</li><li>상품·게시글 목록에 적합</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">SSR</h4><ul><li>매 요청마다 렌더링</li><li>항상 최신, 대신 느림</li><li>완전 실시간 데이터</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>상품 목록처럼 완전 실시간까진 아니어도 되는 페이지를, 매 요청마다 서버 렌더링하지 않고 예: 60초마다 갱신하도록 설정할 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== NAT Gateway ===== -->
+<section class="term" id="nat-gateway">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="nat-gateway-h">NAT 게이트웨이 <span class="sub">NAT Gateway · Network Address Translation</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#security-group">Security Group</a></div>
+  </div>
+</div>
+<p>외부에서 직접 접근할 수 없는 프라이빗 서브넷의 서버가, 인터넷으로 <strong>나가는 요청만</strong> 할 수 있게 해주는 중계 장치. 서버의 사설 IP를 NAT의 공인 IP로 바꿔서(주소 변환) 내보내기 때문에, 밖에서는 NAT의 주소만 보이고 안쪽 서버로 직접 들어올 수는 없다. 나가는 건 되고 들어오는 건 차단 — 방향이 핵심.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">NAT Gateway가 하는 일</h4><ul><li>프라이빗 서버의 아웃바운드(외부 API 호출, <code>npm install</code> 등) 허용</li><li>사설 IP → 공인 IP 주소 변환</li><li>외부에서 시작된 인바운드 접속은 차단</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">없으면 생기는 일</h4><ul><li>프라이빗 EC2가 외부 API·패키지 저장소에 접속 불가</li><li>배포 스크립트가 다운로드 단계에서 타임아웃</li><li>"인터넷이 안 돼요" → NAT 유무부터 확인</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"프라이빗 서브넷의 EC2가 외부 API를 못 불러요" → "그 VPC에 NAT 게이트웨이 붙어 있어요?"라는 대화에서 마주친다. 시간당 요금 + 처리량 과금이라 비용 얘기에도 자주 등장. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== N+1 Query ===== -->
+<section class="term" id="n-plus-one">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="n-plus-one-h">N+1 쿼리 <span class="sub">N+1 Query Problem</span></h2>
+    <div class="links"><a class="link-tag" href="#orm">ORM</a><a class="link-tag" href="#connection-pool">Connection Pool</a><a class="link-tag" href="#read-replica">Read Replica</a></div>
+  </div>
+</div>
+<p>목록을 1번 조회한 뒤, 각 항목의 연관 데이터를 항목 수(N)만큼 <strong>따로따로 다시 조회</strong>해서 쿼리가 총 N+1번 나가는 성능 문제. 예: 게시글 100개를 가져온 뒤(1번), 글마다 작성자를 개별 조회(100번) → 총 101번. ORM이 연관 데이터를 지연 로딩(lazy loading)하는 기본 동작 때문에 코드에서는 잘 안 보이고, 실제 발생한 SQL 로그를 봐야 드러난다. JOIN이나 eager loading(Prisma의 <code>include</code>, TypeORM의 <code>relations</code>)으로 한 방에 가져오게 고친다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">N+1 (문제)</h4><ul><li>목록 1번 + 항목마다 1번씩 = N+1번</li><li>코드는 멀쩡해 보이는데 DB만 바쁨</li><li>데이터가 늘수록 선형으로 느려짐</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">해결</h4><ul><li>JOIN 또는 eager loading으로 묶어서 조회</li><li>IN 절로 연관 데이터 일괄 조회 후 매핑</li><li>습관: ORM이 만든 SQL 로그 찍어보기</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이 API 왜 이렇게 느리지?" 하고 로그를 열었더니 똑같은 SELECT가 수백 번 찍혀 있을 때 — 그게 N+1. 코드 리뷰에서 "여기 N+1 나겠는데요"라는 코멘트로도 자주 만난다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== On-call · Escalation ===== -->
+<section class="term" id="on-call">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="on-call-h">온콜 · 에스컬레이션 <span class="sub">On-call · Escalation</span></h2>
+    <div class="links"><a class="link-tag" href="#runbook">Runbook</a><a class="link-tag" href="#postmortem">Postmortem</a><a class="link-tag" href="#sla">SLA·SLO</a></div>
+  </div>
+</div>
+<p><strong>온콜</strong>은 장애 알림을 1차로 받아 대응하는 당번. 보통 주 단위 로테이션으로 돌아가며, 근무 시간 밖이라도 알림이 오면 응답해야 한다. <strong>에스컬레이션</strong>은 정해진 시간 안에 온콜이 응답·해결하지 못하면 다음 담당자나 상위 레벨(2차 온콜 → 팀 리드 → 매니저)로 자동으로 넘기는 절차. PagerDuty·Opsgenie 같은 도구가 이 로테이션과 에스컬레이션 정책을 관리한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--purple)">온콜이 하는 일</h4><ul><li>알림 수신(ack) → 심각도 판단</li><li>Runbook 보고 1차 대응</li><li>해결 후 타임라인 기록 → Postmortem으로</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">에스컬레이션 정책 예시</h4><ul><li>15분 무응답 → 2차 온콜에게 알림</li><li>30분 미해결 → 팀 리드 호출</li><li>고객 영향 발생 → 인시던트 채널 개설</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>PagerDuty 알림이 울리면서 "지금 온콜 누구죠? 15분 무응답이면 에스컬레이션됩니다" 같은 인시던트 상황, 또는 분기마다 온콜 로테이션 표를 짜는 회의에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->

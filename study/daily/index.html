@@ -70,6 +70,73 @@
 
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-07-03">
+        <h2>2026-07-03 (금) · 서버 컴포넌트 vs 클라이언트 컴포넌트 (RSC)</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          Next.js App Router에서 컴포넌트는 기본이 <em>서버 컴포넌트</em>입니다. 서버에서만 실행되고 결과 HTML만
+          브라우저로 내려가요 — 퍼블리싱으로 치면 "서버에서 미리 구워낸 정적 마크업"에 가깝고, JS 번들에 포함되지
+          않습니다. 반면 버튼 클릭, <code>useState</code>·<code>useEffect</code> 같은 상호작용이 필요한 순간부터는
+          파일 맨 위에 <code>'use client'</code>를 선언한 <em>클라이언트 컴포넌트</em>가 필요해요. 중요한 건 이 둘이
+          섞여서 하나의 트리를 이룬다는 것 — 서버 컴포넌트가 뼈대(마크업+데이터)를 만들고, 상호작용이 필요한
+          "섬"만 클라이언트 컴포넌트로 끼워 넣는 그림입니다.
+        </p>
+
+        <pre><code>// app/posts/page.tsx — 서버 컴포넌트 (기본값, 선언 없음)
+export default async function PostsPage() {
+  const posts = await fetchPosts(); // 서버에서 직접 데이터 조회 OK
+  return (
+    &lt;ul&gt;
+      {posts.map(p =&gt; &lt;LikeButton key={p.id} post={p} /&gt;)}
+    &lt;/ul&gt;
+  );
+}
+
+// like-button.tsx — 클라이언트 컴포넌트
+'use client';
+import { useState } from 'react';
+
+export function LikeButton({ post }) {
+  const [liked, setLiked] = useState(false); // 상호작용 → 클라이언트
+  return &lt;button onClick={() =&gt; setLiked(!liked)}&gt;{liked ? '❤️' : '🤍'}&lt;/button&gt;;
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          Next.js에서 "왜 여기서 useState가 에러 나지?"의 90%가 이 경계 문제입니다. 어디까지 서버로 두고 어디부터
+          <code>'use client'</code>를 붙일지가 번들 크기와 초기 로딩 속도를 좌우해요.
+        </p>
+
+        <p class="refs">더 보기:
+          <a href="https://nextjs.org/docs/app/getting-started/server-and-client-components">Next.js — Server &amp; Client Components</a> ·
+          <a href="https://react.dev/reference/rsc/use-client">react.dev — 'use client'</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            Q1. 다음 중 서버 컴포넌트에서 <em>할 수 없는</em> 것은?<br>
+            (a) DB에서 직접 데이터 조회 (b) <code>useState</code>로 상태 관리
+            (c) <code>async/await</code>로 컴포넌트 자체를 비동기로 작성 (d) 다른 서버 컴포넌트 import
+          </p>
+          <p>
+            Q2. (실전형) <code>'use client'</code>를 선언한 컴포넌트 A가 import하는 자식 컴포넌트 B에는
+            <code>'use client'</code>가 없어요. B는 서버 컴포넌트일까요, 클라이언트 컴포넌트일까요? 이유도 한 줄로!
+          </p>
+          <details><summary>정답·해설 보기</summary>
+            <p>
+              Q1 정답: (b) — <code>useState</code>·<code>useEffect</code> 같은 훅은 브라우저에서 상태를 유지해야
+              하므로 클라이언트 컴포넌트 전용. (a)(c)(d)는 서버 컴포넌트의 대표 장점입니다.<br>
+              Q2 정답: 클라이언트 컴포넌트 — <code>'use client'</code>는 "여기부터 클라이언트 경계"라는 표시라서,
+              그 아래로 import되는 컴포넌트는 선언이 없어도 전부 클라이언트 번들에 포함됩니다. 그래서
+              <code>'use client'</code>는 가능한 한 트리의 말단(잎) 쪽에 붙이는 게 번들 크기에 유리해요.
+            </p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-07-02">
         <h2>2026-07-02 (목) · 커스텀 훅(Custom Hooks): 반복되는 상태 로직을 함수로 뽑아 재사용하기</h2>
         <span class="topic-tag">프론트 심화</span>

@@ -84,6 +84,173 @@
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="news-day" data-date="2026-07-03">
+        <h2>📰 2026-07-03 (금)</h2>
+        <p class="day-note">React/Next·디자인 시스템 우선 + 1차 소스 검증. 지난 2주 #with에서 다룬 주제(Fable 5·Mythos 5 수출통제 해제·Claude Sonnet 5·Next.js 16.3/16.2.x·React 19.2.7·TypeScript 7.0 RC·TanStack Rsbuild 2·Foldkit·Deno 2.9·Bun 1.3·PostgreSQL 19·Go Micro·WorkOS auth.md·Chrome 150·View Transitions/Anchor Baseline·Interop 2026 등)는 제외. 24시간 내 하드뉴스가 적은 프론트엔드·백엔드·CSS는 6월 말 최신 항목을 실제 발행일로 표기. LongCat-2.0은 '중국산 칩 전량 학습'이라는 수출통제 판도 이슈로 포함.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, Claude Science 베타 출시 — 과학 연구 전용 AI 워크벤치</p>
+            <p class="item-meta">2026-07-02 · <a href="https://www.anthropic.com/news/claude-science-ai-workbench">Anthropic</a></p>
+            <p class="item-summary">60+ 스킬·커넥터로 문헌 분석→다단계 분석 실행→figure/원고 정리까지 한 환경에서 처리(Pro/Max/Team/Enterprise 베타, macOS/Linux/SSH 지원) → 프론티어 랩들의 'AI for Science' 경쟁 본격화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Google, Gemini 3.1 Flash Image·Gemini 3 Pro Image 정식 GA</p>
+            <p class="item-meta">2026-07-02 · <a href="https://ai.google.dev/gemini-api/docs/models">Google AI</a></p>
+            <p class="item-summary">'나노 바나나 2/Pro' 이미지 생성 모델이 GA 전환, 가격 확정(Pro 4K 출력 이미지당 약 $0.24) → 이미지 생성 기능을 프로덕션에 붙일 때 비용 산정이 가능해짐.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Meituan, LongCat-2.0 오픈소스 공개 — 1.6T 코딩 모델, 전량 중국산 칩으로 학습</p>
+            <p class="item-meta">2026-06-30 · <a href="https://venturebeat.com/technology/meituan-open-sources-longcat-2-0-the-1-6t-near-frontier-agentic-coding-model-thats-been-leading-openrouter-trained-entirely-on-chinese-chips">VentureBeat</a></p>
+            <p class="item-summary">MIT 라이선스, SWE-bench Pro 59.5. NVIDIA GPU 없이 국산 칩 5만장 클러스터로 학습·서빙했다고 주장 → 수출통제 국면에서 중국 자립 스택이 프론티어급에 근접하는 대형 판도 이슈.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Vite 8.1 출시 — 실험적 Bundled Dev Mode</p>
+            <p class="item-meta">2026-06 말 · <a href="https://vite.dev/blog/announcing-vite8-1">Vite Blog</a></p>
+            <p class="item-summary">대형 앱에서 dev 서버 시작 ~15배·풀 리로드 ~10배(1만 컴포넌트 기준), Chunk Import Map·WASM ESM 통합 → 대규모 React 프로젝트 개발 체감속도에 직접 영향.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Storybook for TanStack React 공개</p>
+            <p class="item-meta">2026-06-30 · <a href="https://storybook.js.org/blog/storybook-for-tanstack-react/">Storybook Blog</a></p>
+            <p class="item-summary">TanStack Router/Start/Query 전용 프레임워크 @storybook/tanstack-react → 디자인 시스템·컴포넌트 문서화를 TanStack 스택에서도 1급으로 지원.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">VoidZero, Vite+ 알파 공개 — lint·test·fmt 통합 툴체인</p>
+            <p class="item-meta">2026-06 말 · <a href="https://voidzero.dev/posts/announcing-vite-plus-alpha">VoidZero</a></p>
+            <p class="item-summary">Vite 8.1·Vitest 4.1·Oxlint(ESLint 호환 600+ 룰, 최대 100배 빠름)·Oxfmt를 한 CLI로 묶음 → lint/test/build 도구 파편화가 'vite 하나'로 수렴하는 흐름.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Vercel Workflow Development Kit(WDK) 베타 업데이트</p>
+            <p class="item-meta">2026-06 말 · <a href="https://vercel.com/changelog">Vercel Changelog</a></p>
+            <p class="item-summary">재시도 처리 강화·HTTP/2 수정·트레이스/챗 스트리밍 개선 → Next.js에서 큐·장기 실행 작업 같은 백그라운드 워크플로를 코드로 다루는 선택지가 성숙 중.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Node.js 26.4.0 현행 안정판 + 6월 보안 릴리스 점검</p>
+            <p class="item-meta">2026-06-24 · <a href="https://nodejs.org/en/blog/vulnerability/june-2026-security-releases">Node.js</a></p>
+            <p class="item-summary">6/18 보안 릴리스(22.x/24.x/26.x, 최고 HIGH — WebCrypto AES 오버플로 등) 이후 첫 정기판 → 운영 중인 Node가 22/24/26 라인이면 패치 적용 여부 확인 필수.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">InfoQ Java 라운드업 — WildFly 41 첫 베타·Hardwood 1.0·Endive 1.0 GA</p>
+            <p class="item-meta">2026-06 말 · <a href="https://www.infoq.com/news/2026/06/java-news-roundup-jun22-2026/">InfoQ</a></p>
+            <p class="item-summary">신규 프레임워크 GA와 LangChain4j 업데이트 등 JVM 진영 주간 동향 → 백엔드 생태계가 AI 통합 중심으로 재편되는 흐름 참고용.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">field-sizing: content, Baseline 도달 — Firefox 152가 마지막 퍼즐</p>
+            <p class="item-meta">2026-06-16 · <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/152">MDN</a></p>
+            <p class="item-summary">input/select/textarea 크기를 내용에 맞게 자동 조절하는 속성이 전 주요 브라우저 지원 → JS로 하던 textarea 자동 높이 등이 CSS 한 줄로 대체 가능.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">CSS random() 함수 — Safari 단독 지원, 실전 데모 모음</p>
+            <p class="item-meta">2026-07 · <a href="https://css-tricks.com/whats-important-14/">CSS-Tricks</a></p>
+            <p class="item-summary">CSS만으로 난수 기반 효과(보케·꽃잎 낙하·오로라 애니메이션 등) 데모 공개 → 아직 Safari 전용이지만 'JS 없는 랜덤 연출'의 표준 방향 미리보기.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Firefox 152 — JPEG-XL 기본 지원</p>
+            <p class="item-meta">2026-06-16 · <a href="https://www.phoronix.com/news/Firefox-152-Download">Phoronix</a></p>
+            <p class="item-summary">차세대 이미지 포맷 JPEG-XL이 기본 활성화로 출하 → Safari에 이어 지원 확대, 이미지 최적화 전략(AVIF vs JXL) 재검토 신호.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="news-day" data-date="2026-07-02">
+        <h2>📰 2026-07-02 (목)</h2>
+        <p class="day-note">React/Next·디자인 시스템 우선 + 1차 소스 검증. 지난 2주 #with에서 다룬 주제(GPT-5.6·GLM 5.2·Claude Code 업데이트·Next.js 16.3·TypeScript 7.0 RC·React Router 8.0·Fragment ref·shadcn Chat·cnfast·Foldkit·PostgreSQL 19·Bun 1.3·Citus 14·Deno 2.9·View Transitions/Anchor Baseline·Interop 2026·:open·@container style()·스크롤 애니메이션·@scope·HTTP QUERY 등)는 제외. 단 Fable 5·Mythos 5 건은 '수출통제 전면 해제 + 업계 공동 탈옥 프레임워크'라는 새 국면이라 대형 규제 이슈로 포함. 오늘 HTML&amp;CSS는 Baseline 하드뉴스가 적어 Chrome 150 신규 기능 위주(아직 Baseline 아님)로 표기.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">美, Fable 5·Mythos 5 수출통제 전면 해제 → Anthropic 재배포 + 업계 공동 '탈옥 심각도 프레임워크' 발족</p>
+            <p class="item-meta">2026-06-30 · <a href="https://www.anthropic.com/news/redeploying-fable-5">Anthropic</a></p>
+            <p class="item-summary">6/12 즉시 발효됐던 수출통제가 6/30 해제 → Fable 5는 7/1부터 전 세계 재개, Mythos 5는 美 조직에 복원. 동시에 Amazon·MS·Google과 jailbreak 심각도 평가 공동 프레임워크 + 정부 사전배포 테스트·정보공유 협력을 발표 → 프런티어 모델 출시가 '정부·업계 공동 게이트' 체제로 제도화되는 판도 변화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Anthropic, Claude Sonnet 5 출시 — 새 기본 모델·에이전트 비용 대폭 인하</p>
+            <p class="item-meta">2026-06-30 · <a href="https://www.anthropic.com/news/claude-sonnet-5">Anthropic</a></p>
+            <p class="item-summary">Opus에 근접한 에이전트 성능을 훨씬 싼값($2/$10 per M토큰, 8/31까지 프로모)에 제공하며 Free·Pro 기본 모델로 채택 → 브라우저·터미널 도구를 쓰는 자율 에이전트를 실무 단가로 돌릴 수 있게 된 게 핵심.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">클로드 코드 창시자 보리스 체르니 — 'AI 시대 일하는 사람의 5가지 원형(archetype)'</p>
+            <p class="item-meta">2026-07-01 · <a href="https://wikidocs.net/blog/@jaehong/21167/">wikidocs</a> · <a href="https://news.hada.io/topic?id=30965">GeekNews</a></p>
+            <p class="item-summary">프로토타이퍼·백엔더 등 AI 시대에 개인이 취할 수 있는 5가지 작업 패턴을 정리 → 풀스택 전환기에 '내 강점을 어디에 둘지' 판단하는 관점 프레임으로 유용.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Microsoft Memora — 장기 작업용 확장형 에이전트 메모리 시스템 공개</p>
+            <p class="item-meta">2026-06 · <a href="https://github.com/microsoft/Memora">GitHub</a> · <a href="https://news.hada.io/topic?id=30956">GeekNews</a></p>
+            <p class="item-summary">에이전트가 대화·문서에서 필요한 정보를 자동 추출·저장·검색하는 오픈소스 메모리 프레임워크 → 멀티턴/장기 실행 에이전트 개발의 표준 부품이 되어가는 흐름.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">TanStack, 2026 오픈소스 어워드 수상 + TanStack Start에 Rsbuild 2 지원 추가</p>
+            <p class="item-meta">2026-06 · <a href="https://tanstack.com/blog">TanStack Blog</a></p>
+            <p class="item-summary">Start가 Vite 외 Rsbuild 2도 선택 가능해져 빌드 툴 유연성 확보, 'Breakthrough of the Year' 수상 → Next 대안 풀스택 React 프레임워크로서 입지 강화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.2.x 백포트 릴리스 — serverFastRefresh·Turbopack 서버 HMR·TS 6 deprecation 경고</p>
+            <p class="item-meta">2026-06-30 · <a href="https://github.com/vercel/next.js/releases">Next.js Releases</a></p>
+            <p class="item-summary">create-next-app CLI 개선과 route handler HMR, baseUrl/moduleResolution의 TypeScript 6 향 deprecation 경고 포함 → 16.x 유지보수 라인 업그레이드 시 체크 포인트.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">React 19.2.7 패치 릴리스 (19.2/19.1/19.0 라인 동시 유지보수)</p>
+            <p class="item-meta">2026-06 · <a href="https://react.dev/versions">React</a></p>
+            <p class="item-summary">19.3 신기능은 아직이지만 안정화 패치가 계속 나오는 '숙성의 해' 기조 → 실무는 신규 기능보다 19.x 마스터링에 초점.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Go Micro — Go를 위한 '에이전트 하네스' 프레임워크</p>
+            <p class="item-meta">2026-07-01 · <a href="https://go-micro.dev/">go-micro.dev</a> · <a href="https://news.hada.io/topic?id=30958">GeekNews</a></p>
+            <p class="item-summary">도구·메모리·가드레일·트리거 워크플로우·의존 서비스를 하나의 런타임으로 묶는 Go 프레임워크 → 백엔드 언어로 에이전트 인프라를 구성하는 선택지.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">WorkOS auth.md — 에이전트가 사용자를 대신해 가입시키는 오픈 프로토콜</p>
+            <p class="item-meta">2026-06 · <a href="https://workos.com/auth-md">WorkOS</a> · <a href="https://news.hada.io/topic?id=30837">GeekNews</a></p>
+            <p class="item-summary">도메인 루트에 auth.md 파일을 두면 에이전트가 별도 가입 폼 없이 사용자를 등록 → 'AI가 서비스에 가입하는' 시대의 인증 설계 논의.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Cafe24 LLM Router — 100개+ 모델을 OpenAI 호환 단일 API로</p>
+            <p class="item-meta">2026-06 · <a href="https://llm-router.cafe24.com/">Cafe24</a> · <a href="https://news.hada.io/topic?id=30813">GeekNews</a></p>
+            <p class="item-summary">Claude·Gemini·Qwen·Llama·DeepSeek 등을 단일 엔드포인트로 호출하는 통합 LLM 인프라 → 프로바이더 교체·폴백을 코드 변경 없이 처리하는 백엔드 패턴.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">Chrome 150 — CSS url() 요청 수정자: cross-origin()·integrity()·referrer-policy()</p>
+            <p class="item-meta">2026-06-30 · <a href="https://developer.chrome.com/release_notes/150">Chrome for Developers</a></p>
+            <p class="item-summary">HTML/JS 수정 없이 CSS에서 리소스 fetch 동작(CORS·무결성·리퍼러)을 제어 → 예: <code>background-image: url("img.png" cross-origin(anonymous))</code>.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Chrome 150 — text-fit: 텍스트를 컨테이너 너비에 자동으로 꽉 채우는 폰트 크기 조정</p>
+            <p class="item-meta">2026-06-30 · <a href="https://developer.chrome.com/blog/new-in-chrome-150">Chrome for Developers</a></p>
+            <p class="item-summary">헤드라인·동적 텍스트를 JS 계산 없이 가로폭에 맞춰 스케일 → 반응형 타이포그래피의 수작업 제거.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Chrome 150 — polygon() 코너 라운딩 파라미터 &amp; zoom 애니메이션 지원</p>
+            <p class="item-meta">2026-06-30 · <a href="https://developer.chrome.com/release_notes/150">Chrome for Developers</a></p>
+            <p class="item-summary">polygon() 모서리를 length 값으로 둥글게, zoom 속성을 number로 보간해 트랜지션 가능 → 클립 도형·확대 효과를 순수 CSS로.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-07-01">
         <h2>📰 2026-07-01 (수)</h2>
         <p class="day-note">React/Next·디자인 시스템 우선 + 1차 소스 검증. 어제(06-30) 및 지난 2주 #with에서 다룬 주제(Mythos·GPT-5.6 수출통제·GLM 5.2·Claude Code 업데이트·React Fragment ref·React Router 8.0·shadcn Chat·cnfast·PostgreSQL 19 Beta·Bun 1.3·Citus 14·:open·@container style()·스크롤 애니메이션·@scope 등)는 제외. CSS는 하드 뉴스가 적어 최근 Baseline/스펙 마일스톤을 실제 날짜로 표기.</p>
