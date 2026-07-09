@@ -85,6 +85,92 @@
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
       <section class="news-day" data-date="2026-07-09">
+        <h2>📰 2026-07-09 (수)</h2>
+        <p class="day-note">Claude Sonnet 5·Gemma 4·Unisound U2 멀티 모델 경쟁, Next.js 16.3 Turbopack 최적화, TypeScript 7.0 10배 성능 향상, PostgreSQL 인프라 확산, CSS 크로스브라우저 개선</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Claude Sonnet 5 정식 출시 — 에이전트 워크플로우 가격 대폭 인하</p>
+            <p class="item-meta">2026-07-08 · <a href="https://www.anthropic.com">Anthropic</a></p>
+            <p class="item-summary">Opus 4.8 수준의 에이전트 성능을 저렴한 가격($2/$10 per M tokens, 8/31까지 프로모)에 제공. Free·Pro 사용자 기본 모델로 채택되어 자율 에이전트 실무 진입장벽 대폭 감소.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Gemma 4 멀티모달 모델 정식 GA — Dense 및 MoE 아키텍처</p>
+            <p class="item-meta">2026-07-08 · <a href="https://blog.google">Google</a></p>
+            <p class="item-summary">2.3B~31B 파라미터 범위의 오픈웨이트 멀티모달 모델. thinking 모드와 긴 컨텍스트 효율성 추가로 오픈소스 진영 경쟁력 강화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Unisound U2 에이전트 모델 — SWE-bench 72.2% 달성</p>
+            <p class="item-meta">2026-07-08 · <a href="https://llm-stats.com">LLM-Stats</a></p>
+            <p class="item-summary">266B 토탈/10B 액티브 MoE. GPQA Diamond 86.9%, MATH-500 85.8%, SWE-bench Verified 72.2%. 가격 $0.15/$0.30 per M tokens로 가성비 강화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Claude Cowork 모바일·웹 확대 — 에이전트 AI 실제 유료 업무 전환</p>
+            <p class="item-meta">2026-07-08 · <a href="https://www.anthropic.com">Anthropic</a></p>
+            <p class="item-summary">에이전트 AI가 테스트 모드에서 벗어나 실제 수익 업무에 투입되는 단계로 진입. 에이전시 기능의 프로덕션 적용 가속화.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.3 Turbopack 메모리 관리 대폭 개선</p>
+            <p class="item-meta">2026-06-28 · <a href="https://nextjs.org/blog">Next.js Blog</a></p>
+            <p class="item-summary">Memory Eviction으로 개발 중 컴파일러 메모리 해제, Persistent Build Cache로 연속 빌드 속도 향상, Rust React Compiler 통합. 대규모 프로젝트 개발 체감속도 획기적 개선.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">TypeScript 7.0 정식 출시 — 이전 대비 10배 빠른 타입체크</p>
+            <p class="item-meta">2026-07-02 · <a href="https://www.typescriptlang.org">TypeScript</a></p>
+            <p class="item-summary">Go 기반 네이티브 컴파일러 도입으로 대규모 프로젝트 빌드 시간 획기적 단축. strict-by-default, ES5 제거 등 breaking changes 포함.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">React Router v8 부드러운 마이그레이션 경로 제공</p>
+            <p class="item-meta">2026-07-01 · <a href="https://remix.run/blog">Remix</a></p>
+            <p class="item-summary">React 19·Node 22 필수. ESM-only로 전환되나 업그레이드 부담 최소화. 라우팅 의존성 정리의 좋은 시점.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">PostgreSQL 기반 인프라로 스타트업 수렴 — Supabase 중심 확산</p>
+            <p class="item-meta">2026-07-08 · <a href="https://blog.supabase.io">Supabase</a></p>
+            <p class="item-summary">Managed Postgres, Auth, Storage, Real-time, Edge Functions, Auto-gen APIs를 한 제품군으로 제공. 폐쇄 시스템 의존도 감소하고 빠른 프로덕션 배포 가능해진 핵심 이유.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">벡터/AI 최적화 DB가 백엔드 설계 필수 요소로 부상</p>
+            <p class="item-meta">2026-07-08 · <a href="https://blog.mean.ceo">Backend Trends</a></p>
+            <p class="item-summary">AI 기능의 embedding·similarity search가 기본화되면서 벡터 DB 선택이 아닌 필수. PostgreSQL pgvector 확장부터 전용 벡터 DB까지 선택지 다양화.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">AI 에이전트 통합이 백엔드의 핵심 설계 패턴으로 전환</p>
+            <p class="item-meta">2026-07-08 · <a href="https://blog.mean.ceo">Backend Trends</a></p>
+            <p class="item-summary">백엔드는 이제 AI 모델이 도구·데이터베이스·API를 발견·상호작용할 수 있는 인터페이스 제공 필수. MCP(Model Context Protocol) 표준화 가속.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">CSS light-dark() 함수 이미지 지원 확대</p>
+            <p class="item-meta">2026-07-02 (Edge 150) · <a href="https://learn.microsoft.com">Microsoft</a></p>
+            <p class="item-summary">url(), image-set(), none 허용으로 시스템 테마에 따른 이미지 자동 전환 강화. 다크모드 지원 복잡도 대폭 감소.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">HTML focusgroup 속성 표준화 — 복합 위젯 키보드 네비게이션 자동화</p>
+            <p class="item-meta">2026-07-02 (Edge 150) · <a href="https://learn.microsoft.com">Microsoft</a></p>
+            <p class="item-summary">Toolbar, Tab, Menu, Radio Group 같은 복합 위젯의 roving tabindex, arrow key 처리가 CSS 속성으로 자동화. 접근성 구현 코드량 감소.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">@container 다중 조건 쿼리 지원 — 쉼표로 구분된 fallback 쿼리</p>
+            <p class="item-meta">2026-07-02 (Edge 150) · <a href="https://learn.microsoft.com">Microsoft</a></p>
+            <p class="item-summary">@container (width &gt; 400px), (width &gt; 300px) 형식으로 브라우저 지원 편차 대응. 컨테이너 쿼리 실전 활용 패턴 정교화.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="news-day" data-date="2026-07-09">
         <h2>📰 2026-07-09 (목)</h2>
         <p class="day-note">Claude Sonnet 5 기본 모델 전환, Gemini 3.5 Flash 에이전트 성능 우위, Next.js 16.3 Turbopack 최적화, TypeScript 7.0 Go 컴파일러, CSS 크로스브라우저 베이스라인 확대</p>
 
