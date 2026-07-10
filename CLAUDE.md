@@ -56,12 +56,14 @@ DAY_KOR=$(date +%w | awk '{d[0]="일"; d[1]="월"; d[2]="화"; d[3]="수"; d[4]=
 - 이미 같은 날짜 섹션이 있으면 **교체** (추가 아님)
 - HTML 특수문자 이스케이프: `< → &lt;`, `> → &gt;`, `& → &amp;`
 
-#### 6️⃣ Git 커밋/푸시
-```bash
-git add news/index.html
-git commit -m "📰 Add daily dev news for YYYY-MM-DD: [주요 키워드]"
-git push origin main
-```
+#### 6️⃣ Git 규칙 (중요 — 콘텐츠 작업은 git 금지)
+- **콘텐츠 작업(daily-news / daily-terms / daily-study)은 git 명령을 절대 실행하지 않는다.**
+  HTML 파일 저장까지만. 커밋·푸시는 평일 8:30 `daily-commit` 스케줄이 단독으로 처리한다.
+  (동시 커밋으로 인한 `.git/index.lock` 충돌 방지)
+- **브랜치 생성 금지.** 모든 작업은 `main`에서만 한다. `claude/*` 등 작업 브랜치를 만들어 푸시하지 말 것.
+  main에 직접 푸시할 수 없는 환경이라면 파일 저장까지만 하고 종료한다.
+- 커밋이 필요한 유일한 작업(daily-commit)의 커밋 메시지 형식:
+  `chore(daily): 데일리 콘텐츠 자동 갱신 (YYYY-MM-DD)`
 
 #### 7️⃣ 자동 루틴 체크사항
 발송 전 반드시 확인:
