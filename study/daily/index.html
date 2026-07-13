@@ -70,6 +70,89 @@
 
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-07-13">
+        <h2>2026-07-13 (월) · Suspense와 스트리밍 SSR: 느린 부분만 나중에 채워 넣기</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          지난 시간(07-03)에 서버 컴포넌트가 서버에서 HTML을 구워 내려보낸다고 했는데, 문제는 페이지 안에
+          <em>느린 데이터</em> 하나만 있어도 전체 HTML 완성이 그만큼 늦어진다는 거예요. <code>Suspense</code>는
+          "이 부분은 아직 준비 안 됐으면 임시 UI(fallback)를 먼저 보여줘"라고 선을 긋는 <em>경계(boundary)</em>입니다.
+          퍼블리싱으로 치면, 시안 하나가 늦는다고 페이지 전체 오픈을 미루는 게 아니라 — 레이아웃과 완성된 영역은
+          먼저 내보내고, 늦는 영역만 스켈레톤을 끼워뒀다가 도착하면 교체하는 방식이에요. 서버는 준비된 HTML부터
+          조각(chunk) 단위로 흘려보내고(<em>스트리밍</em>), 느린 컴포넌트가 완성되면 그 조각을 뒤이어 보내
+          브라우저가 fallback 자리를 갈아끼웁니다. Next.js App Router의 <code>loading.tsx</code>는 이걸
+          라우트(페이지) 단위로 자동 적용해 주는 관례 파일이에요.
+        </p>
+
+        <pre><code>// app/dashboard/page.tsx — 서버 컴포넌트
+import { Suspense } from 'react';
+
+export default function Dashboard() {
+  return (
+    &lt;&gt;
+      &lt;Header /&gt;  {/* 빠름 → 즉시 스트리밍 */}
+      &lt;Suspense fallback={&lt;CartSkeleton /&gt;}&gt;
+        &lt;SlowCart /&gt;  {/* 느린 API → 준비되면 교체 */}
+      &lt;/Suspense&gt;
+    &lt;/&gt;
+  );
+}
+
+async function SlowCart() {
+  const cart = await fetchCart(); // 3초 걸려도 페이지 전체를 막지 않음
+  return &lt;CartView items={cart.items} /&gt;;
+}</code></pre>
+        <p>
+          <code>app/dashboard/loading.tsx</code> 파일을 만들면 page 전체가 자동으로
+          <code>&lt;Suspense fallback={&lt;Loading /&gt;}&gt;</code>에 감싸진 것과 같은 효과입니다.
+          경계를 어디에 두느냐가 설계 포인트 — 느린 컴포넌트만 콕 집어 감싸면 나머지는 즉시 보입니다.
+        </p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          "API 하나가 느려서 페이지 전체가 하얗게 멈춰 있는" 상황을 경계 하나로 해결할 수 있어요. 그리고
+          fallback으로 넣을 스켈레톤 UI 설계는 마크업 감각이 그대로 강점이 되는 영역입니다 — 실제 콘텐츠와
+          높이·구조가 같아야 교체 시 화면이 덜컹(CLS)하지 않거든요.
+        </p>
+
+        <p class="refs">더 보기:
+          <a href="https://nextjs.org/docs/app/api-reference/file-conventions/loading">Next.js — Loading UI and Streaming</a> ·
+          <a href="https://react.dev/reference/react/Suspense">react.dev — Suspense</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            <strong>1) (객관식)</strong> Next.js App Router에서 <code>loading.tsx</code> 파일을 만들면 내부적으로
+            무슨 일이 일어날까요?<br />
+            ⓐ 해당 세그먼트의 page가 Suspense 경계로 감싸지고 fallback으로 쓰인다 &nbsp;
+            ⓑ 모든 fetch 결과가 자동으로 캐시된다 &nbsp;
+            ⓒ 페이지가 클라이언트 컴포넌트로 전환된다 &nbsp;
+            ⓓ SSR이 꺼지고 CSR로만 동작한다
+          </p>
+          <p>
+            <strong>2) (실전형)</strong> 한 페이지에 빠른 <code>&lt;Header /&gt;</code>와 느린 API를 쓰는
+            <code>&lt;SlowCart /&gt;</code>가 있어요. Suspense 없이 두면 첫 응답이 어떻게 되고,
+            <code>&lt;SlowCart /&gt;</code>만 Suspense로 감싸면 뭐가 달라질까요? 한 줄로!
+          </p>
+          <details><summary>정답·해설 보기</summary>
+            <p>
+              <strong>1) 정답 ⓐ</strong> — <code>loading.tsx</code>는 해당 라우트 세그먼트의 page를 자동으로
+              <code>&lt;Suspense fallback={&lt;Loading /&gt;}&gt;</code>로 감싸주는 관례 파일이에요.
+              캐싱(ⓑ)이나 클라이언트 전환(ⓒ), SSR 끄기(ⓓ)와는 무관합니다.
+            </p>
+            <p>
+              <strong>2)</strong> Suspense가 없으면 <code>SlowCart</code>의 데이터가 끝날 때까지 서버가 HTML을
+              다 못 만들어서 첫 응답 자체가 그만큼 늦어져요(Header도 같이 기다림). <code>&lt;SlowCart /&gt;</code>만
+              Suspense로 감싸면 Header와 스켈레톤이 먼저 스트리밍되어 즉시 보이고, 카트 영역만 준비된 뒤 교체됩니다 —
+              느린 컴포넌트가 페이지 전체를 인질로 잡지 못하게 경계를 긋는 거예요.
+            </p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-07-03">
         <h2>2026-07-03 (금) · 서버 컴포넌트 vs 클라이언트 컴포넌트 (RSC)</h2>
         <span class="topic-tag">프론트 심화</span>
