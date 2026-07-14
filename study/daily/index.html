@@ -70,6 +70,83 @@
 
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-07-15">
+        <h2>2026-07-15 (수) · Server Actions: API 라우트 없이 폼에서 바로 서버 함수 실행하기</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          지금까지 폼 제출은 보통 3단계였어요: 폼 → <code>fetch('/api/...')</code> → API 라우트에서 DB 처리.
+          <em>Server Action</em>은 <code>'use server'</code>를 붙인 async 함수를 폼의 <code>action</code>에 직접
+          연결하면, Next.js가 뒤에서 POST 요청 엔드포인트를 자동으로 만들어주는 기능입니다. 퍼블리싱 시절의
+          <code>&lt;form action="/submit.php"&gt;</code>와 구조가 똑같아요 — 폼이 서버 로직에 바로 꽂히는 그 감각이
+          React 세계로 돌아온 겁니다. 덕분에 JS가 로드되기 전에도 폼이 동작하고(프로그레시브 인핸스먼트),
+          RSC(07-03)·Suspense(07-13)에서 배운 "서버 우선" 흐름의 마지막 조각인 <em>쓰기(mutation)</em>를 담당합니다.
+        </p>
+
+        <pre><code>// app/posts/actions.ts
+'use server'; // 이 파일의 함수들은 서버에서만 실행
+
+export async function createPost(formData: FormData) {
+  const title = formData.get('title') as string;
+  if (!title?.trim()) return { error: '제목을 입력하세요' };
+  await db.post.create({ data: { title } }); // 서버니까 DB 직접 접근 OK
+  revalidatePath('/posts'); // 목록 캐시 갱신
+}
+
+// app/posts/new/page.tsx — 서버 컴포넌트
+import { createPost } from '../actions';
+
+export default function NewPostPage() {
+  return (
+    &lt;form action={createPost}&gt;
+      &lt;input name="title" /&gt;
+      &lt;button type="submit"&gt;등록&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          풀스택 전환에 가장 빠른 다리예요 — API 라우트를 따로 설계하지 않고도 DB 쓰기까지 프론트 코드 안에서
+          처리합니다. 단, Server Action도 결국 <em>자동 생성된 공개 HTTP 엔드포인트</em>라서 "내 화면에서만
+          호출되겠지"라고 믿으면 안 되고, 함수 안에서 인증·권한·입력 검증을 직접 해야 합니다.
+        </p>
+
+        <p class="refs">
+          더 보기:
+          <a href="https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations">Next.js 공식: Server Actions and Mutations</a> ·
+          <a href="https://react.dev/reference/rsc/use-server">React 공식: 'use server'</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            1) (객관식) <code>'use server'</code>가 붙은 <code>createPost</code> 함수가 실제로 실행되는 곳은?<br />
+            ㉐ 사용자의 브라우저 ㉑ 서버 ㉒ 처음엔 서버, 하이드레이션 후엔 브라우저 ㉓ 빌드 타임에 한 번만
+          </p>
+          <p>
+            2) (실전형 — 문제점 찾기) 아래 코드는 문법 에러가 없습니다. 그런데 이대로 배포하면 위험한 이유는?
+          </p>
+          <pre><code>'use server';
+export async function deletePost(id: string) {
+  await db.post.delete({ where: { id } });
+}</code></pre>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p>
+              1) 정답 ㉑ 서버. <code>'use server'</code> 함수는 클라이언트 번들에 포함되지 않고 항상 서버에서만
+              실행됩니다. 폼 제출 시 자동 생성된 엔드포인트로 POST가 날아가 서버에서 함수가 돌아가므로 DB 접근과
+              시크릿 사용이 가능해요.<br />
+              2) 인증·권한 검증이 없다는 것. Server Action은 자동 생성된 공개 HTTP 엔드포인트라 누구든 임의의
+              <code>id</code>로 직접 호출할 수 있으므로, 함수 안에서 "현재 사용자가 이 글의 주인인가?"를 반드시
+              확인해야 합니다. (덤: 삭제 후 <code>revalidatePath</code>가 없어 목록에 지운 글이 계속 보이는 것도
+              부차적 문제.)
+            </p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-07-13">
         <h2>2026-07-13 (월) · Suspense와 스트리밍 SSR: 느린 부분만 나중에 채워 넣기</h2>
         <span class="topic-tag">프론트 심화</span>

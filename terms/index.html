@@ -153,6 +153,9 @@
     <a class="nav-item" href="#nat-gateway">NAT Gateway</a>
     <a class="nav-item" href="#n-plus-one">N+1 쿼리</a>
     <a class="nav-item" href="#on-call">On-call · Escalation</a>
+    <a class="nav-item" href="#waf">WAF</a>
+    <a class="nav-item" href="#sharding">샤딩 (Sharding)</a>
+    <a class="nav-item" href="#sow">SOW</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2717,6 +2720,57 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--amber)">에스컬레이션 정책 예시</h4><ul><li>15분 무응답 → 2차 온콜에게 알림</li><li>30분 미해결 → 팀 리드 호출</li><li>고객 영향 발생 → 인시던트 채널 개설</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>PagerDuty 알림이 울리면서 "지금 온콜 누구죠? 15분 무응답이면 에스컬레이션됩니다" 같은 인시던트 상황, 또는 분기마다 온콜 로테이션 표를 짜는 회의에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== WAF ===== -->
+<section class="term" id="waf">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="waf-h">WAF <span class="sub">Web Application Firewall · 웹 방화벽</span></h2>
+    <div class="links"><a class="link-tag" href="#security-group">Security Group</a><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#load-balancer">Load Balancer</a></div>
+  </div>
+</div>
+<p>웹 애플리케이션 앞단에서 HTTP 요청의 <strong>내용을 들여다보고</strong> SQL 인젝션, XSS 같은 웹 공격 패턴을 탐지·차단하는 보안 필터. "어느 포트·IP를 열지"만 통제하는 Security Group(네트워크 레벨)과 달리, WAF는 요청 본문·헤더·쿼리스트링까지 검사하는 애플리케이션 레벨(L7) 방어다. AWS WAF는 보통 CloudFront나 ALB 앞에 붙인다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">WAF가 막는 것</h4><ul><li>SQL 인젝션 · XSS 등 공격 패턴이 담긴 요청</li><li>특정 IP·국가·User-Agent의 비정상 트래픽</li><li>봇의 과도한 요청 (Rate-based rule)</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">Security Group과 차이</h4><ul><li>SG: "80 포트 열까 말까" — 네트워크 레벨</li><li>WAF: "이 요청 내용이 수상한가" — HTTP 레벨</li><li>둘은 대체가 아니라 겹쳐 쓰는 관계</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"특정 IP에서 이상한 요청이 계속 들어와요" → "WAF 룰에 차단 규칙 추가합시다" 같은 보안 대응, 또는 고객사 보안 요건 문서의 "WAF 적용 여부" 항목에서 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Sharding ===== -->
+<section class="term" id="sharding">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="sharding-h">샤딩 <span class="sub">Sharding · 수평 분할</span></h2>
+    <div class="links"><a class="link-tag" href="#read-replica">Read Replica</a><a class="link-tag" href="#connection-pool">Connection Pool</a></div>
+  </div>
+</div>
+<p>데이터가 너무 많아 한 DB가 감당하지 못할 때, 데이터를 일정 기준(샤드 키 — 예: 유저 ID 범위, 해시값)으로 쪼개 <strong>여러 DB에 나눠 저장</strong>하는 수평 분할 기법. 같은 데이터를 복제해 읽기 부하만 나누는 Read Replica와 달리, 샤딩은 데이터 자체를 나누므로 쓰기 부하와 저장 용량까지 분산된다. 대신 샤드를 넘나드는 JOIN·트랜잭션이 어려워져 설계 복잡도가 크게 올라간다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--green)">Read Replica (복제)</h4><ul><li>같은 데이터를 여러 벌 복사</li><li>읽기 부하 분산, 쓰기는 여전히 1곳</li><li>도입 쉬움 — 먼저 시도하는 카드</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">샤딩 (분할)</h4><ul><li>데이터를 조각내 서로 다른 DB에 저장</li><li>쓰기·용량까지 분산</li><li>크로스 샤드 JOIN·트랜잭션이 어려움 — 최후의 카드</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"유저 테이블이 수억 건이라 인덱스로도 한계예요, 샤딩 검토해야 할 것 같아요" 같은 대용량 서비스의 DB 확장 논의에서 마주친다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== SOW ===== -->
+<section class="term" id="sow">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="sow-h">SOW <span class="sub">Statement of Work · 과업기술서</span></h2>
+    <div class="links"><a class="link-tag" href="#sla">SLA·SLO</a><a class="link-tag" href="#rfc">RFC</a></div>
+  </div>
+</div>
+<p>프로젝트에서 "무엇을, 언제까지, 어디까지 해주는지"를 명시한 계약 문서. 작업 범위(scope), 산출물(deliverables), 일정(milestones), 각자의 책임을 정의하며, 여기 적히지 않은 요청은 범위 외(out of scope)로 분류되어 추가 협의·추가 견적 대상이 된다. MSP·SI처럼 고객사 프로젝트를 수행하는 회사에서는 분쟁을 막는 기준선 역할을 한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--purple)">SOW에 들어가는 것</h4><ul><li>작업 범위와 산출물 목록</li><li>일정·마일스톤·검수 기준</li><li>양측 책임 (R&amp;R)과 비용</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">없거나 모호하면</h4><ul><li>"이것도 해주시는 거 아니었어요?" 스코프 크리프</li><li>검수 기준이 없어 프로젝트가 안 끝남</li><li>추가 작업 비용을 청구할 근거가 없음</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>킥오프 미팅에서 "그 기능은 SOW에 없는 항목이라 별도 견적입니다" 같은 범위 조율 대화, 또는 제안서·계약 단계 문서 검토에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
