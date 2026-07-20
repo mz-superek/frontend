@@ -156,6 +156,9 @@
     <a class="nav-item" href="#waf">WAF</a>
     <a class="nav-item" href="#sharding">샤딩 (Sharding)</a>
     <a class="nav-item" href="#sow">SOW</a>
+    <a class="nav-item" href="#bastion-host">Bastion Host</a>
+    <a class="nav-item" href="#etl">ETL</a>
+    <a class="nav-item" href="#service-worker">Service Worker</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2771,6 +2774,57 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--amber)">없거나 모호하면</h4><ul><li>"이것도 해주시는 거 아니었어요?" 스코프 크리프</li><li>검수 기준이 없어 프로젝트가 안 끝남</li><li>추가 작업 비용을 청구할 근거가 없음</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>킥오프 미팅에서 "그 기능은 SOW에 없는 항목이라 별도 견적입니다" 같은 범위 조율 대화, 또는 제안서·계약 단계 문서 검토에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Bastion Host ===== -->
+<section class="term" id="bastion-host">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="bastion-host-h">배스천 호스트 <span class="sub">Bastion Host · 점프 서버</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#security-group">Security Group</a></div>
+  </div>
+</div>
+<p>외부에서 직접 접근할 수 없는 프라이빗 네트워크 안의 서버(운영 DB, 내부 API 서버 등)에 접속할 때 반드시 거쳐 가는 <strong>"관문" 서버</strong>. SSH 등 관리자 접속을 이 한 대로만 허용해 공격 표면을 줄이고, 모든 접속 기록을 한 곳에 남겨 감사(audit)도 쉬워진다. 최근에는 배스천 EC2를 직접 띄우는 대신 AWS SSM Session Manager처럼 포트를 아예 안 여는 방식으로 대체하기도 한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">배스천이 하는 일</h4><ul><li>퍼블릭 서브넷에 홀로 노출되는 유일한 진입점</li><li>SSH 접속 허용 IP를 한 대로 집중 관리</li><li>누가 언제 들어왔는지 접속 로그 기록</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">없으면 생기는 일</h4><ul><li>서버마다 SSH 포트를 외부에 열어야 함</li><li>접속 경로가 분산돼 침입 흔적 추적 곤란</li><li>보안 감사에서 지적 1순위</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"운영 DB 붙으려면 배스천 타고 들어가세요" 같은 서버 접근 안내나, VPC 구성도에서 퍼블릭 서브넷에 혼자 떠 있는 EC2로 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== ETL ===== -->
+<section class="term" id="etl">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="etl-h">ETL <span class="sub">Extract, Transform, Load</span></h2>
+    <div class="links"><a class="link-tag" href="#message-queue">Message Queue</a><a class="link-tag" href="#object-storage">Object Storage</a></div>
+  </div>
+</div>
+<p>여러 소스(운영 DB, 로그, 외부 API)에서 데이터를 뽑아(Extract) 분석하기 좋은 형태로 가공한 뒤(Transform) 데이터 웨어하우스 등에 적재(Load)하는 <strong>데이터 파이프라인 패턴</strong>. 보통 새벽 시간에 배치(batch)로 돌며, 대시보드·리포트가 보여주는 숫자는 대부분 이 파이프라인의 산출물이다. 요즘은 일단 원본을 그대로 적재하고 나중에 가공하는 ELT 방식도 흔하다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">ETL (선가공 후적재)</h4><ul><li>가공된 깨끗한 데이터만 적재</li><li>웨어하우스 용량·비용 절약</li><li>가공 로직 바꾸면 재수집 필요</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">ELT (선적재 후가공)</h4><ul><li>원본을 그대로 쌓고 필요할 때 가공</li><li>스키마 변경에 유연 — 클라우드 시대의 대세</li><li>저장 비용은 더 들 수 있음</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"매일 새벽에 ETL 배치가 돌아서 대시보드 지표가 갱신돼요", "어제 ETL이 실패해서 오늘 리포트 숫자가 비어 있어요" 같은 데이터 지표 관련 회의에서 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Service Worker ===== -->
+<section class="term" id="service-worker">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="service-worker-h">서비스 워커 <span class="sub">Service Worker · PWA</span></h2>
+    <div class="links"><a class="link-tag" href="#web-worker">Web Worker</a><a class="link-tag" href="#http-cache">HTTP Cache</a></div>
+  </div>
+</div>
+<p>브라우저가 페이지와 별개로 백그라운드에서 돌리는 스크립트. 페이지와 서버 사이에서 <strong>네트워크 요청을 가로채(fetch 이벤트)</strong> 캐시로 응답하거나(오프라인 지원), 푸시 알림·백그라운드 동기화를 처리한다. PWA(Progressive Web App)의 핵심 부품. 같은 "워커"지만 Web Worker는 무거운 계산을 다른 스레드로 빼는 용도, Service Worker는 네트워크 프록시 역할이라는 점이 다르다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">Service Worker</h4><ul><li>네트워크 요청 가로채기 · 캐시 응답</li><li>오프라인 지원, 푸시 알림</li><li>페이지 닫혀도 브라우저가 깨워서 실행</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">Web Worker</h4><ul><li>무거운 계산을 별도 스레드에서 실행</li><li>메인 스레드(UI) 멈춤 방지 용도</li><li>페이지가 살아있는 동안만 동작</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"배포했는데 사용자한테 예전 화면이 보여요" → 서비스 워커가 캐시한 구버전이 원인인 경우처럼, PWA·캐싱 이슈 디버깅에서 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
