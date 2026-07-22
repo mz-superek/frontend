@@ -159,6 +159,15 @@
     <a class="nav-item" href="#bastion-host">Bastion Host</a>
     <a class="nav-item" href="#etl">ETL</a>
     <a class="nav-item" href="#service-worker">Service Worker</a>
+    <a class="nav-item" href="#rto-rpo">RTO·RPO</a>
+    <a class="nav-item" href="#debounce-throttle">Debounce·Throttle</a>
+    <a class="nav-item" href="#change-request-cab">CR·CAB</a>
+    <a class="nav-item" href="#landing-zone">Landing Zone</a>
+    <a class="nav-item" href="#backpressure">Backpressure</a>
+    <a class="nav-item" href="#resource-hints">Resource Hints</a>
+    <a class="nav-item" href="#shared-responsibility">공유 책임 모델</a>
+    <a class="nav-item" href="#retry-backoff">Retry·Backoff</a>
+    <a class="nav-item" href="#raci">RACI</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2825,6 +2834,118 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--green)">Web Worker</h4><ul><li>무거운 계산을 별도 스레드에서 실행</li><li>메인 스레드(UI) 멈춤 방지 용도</li><li>페이지가 살아있는 동안만 동작</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>"배포했는데 사용자한테 예전 화면이 보여요" → 서비스 워커가 캐시한 구버전이 원인인 경우처럼, PWA·캐싱 이슈 디버깅에서 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="rto-rpo">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="rto-rpo-h">RTO · RPO <span class="sub">Recovery Time Objective · Recovery Point Objective</span></h2>
+    <div class="links"><a class="link-tag" href="#sla">SLA</a><a class="link-tag" href="#runbook">Runbook</a></div>
+  </div>
+</div>
+<p>장애가 났을 때 서비스를 다시 살리기까지 허용되는 <strong>최대 시간(RTO)</strong>과, 복구 시 유실을 감수할 수 있는 <strong>최대 데이터 손실 구간(RPO)</strong>을 나타내는 재해복구(DR) 목표 지표. 예를 들어 RPO 15분이면 "최악의 경우 마지막 15분치 데이터는 사라질 수 있다"는 약속이고, 이 값이 작을수록 백업·복제 인프라 비용이 커진다. 두 숫자가 DR 아키텍처(백업 주기·복제 방식·다중 리전 여부)를 결정한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 서비스는 RTO 4시간, RPO 15분으로 잡았어요" 같은 재해복구 계획서나 DR 훈련(Drill) 논의에서 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="debounce-throttle">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="debounce-throttle-h">디바운스 · 쓰로틀 <span class="sub">Debounce · Throttle</span></h2>
+    <div class="links"><a class="link-tag" href="#event-loop">Event Loop</a><a class="link-tag" href="#raf">rAF</a></div>
+  </div>
+</div>
+<p>짧은 시간에 이벤트가 연달아 발생할 때 처리 빈도를 제한하는 기법. <strong>디바운스</strong>는 마지막 호출 후 일정 시간이 지나야 한 번 실행하고(입력이 멈추길 기다림), <strong>쓰로틀</strong>은 일정 주기마다 최대 한 번만 실행한다(주기적으로 흘려보냄). 검색 자동완성엔 디바운스, 스크롤 위치 추적엔 쓰로틀처럼 용도가 갈린다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">디바운스</h4><ul><li>마지막 이벤트 후 N ms 지나면 1회 실행</li><li>입력이 계속되는 동안은 실행 안 함</li><li>예: 검색창 자동완성 API 호출</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">쓰로틀</h4><ul><li>N ms 주기마다 최대 1회 실행</li><li>이벤트가 계속돼도 주기적으로 실행됨</li><li>예: 스크롤 위치 추적, 리사이즈 처리</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"검색창 입력마다 API가 너무 자주 불려요" → "디바운스 넣어야겠네요" 같은 입력 최적화·스크롤 이벤트 처리 논의에서 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="change-request-cab">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="change-request-cab-h">체인지 리퀘스트 · CAB <span class="sub">Change Request · Change Advisory Board</span></h2>
+    <div class="links"><a class="link-tag" href="#runbook">Runbook</a><a class="link-tag" href="#adr">ADR</a></div>
+  </div>
+</div>
+<p>운영 중인 시스템을 변경(배포·설정 변경 등)하기 전에 정식 요청서(CR)를 올리고, 관련자로 구성된 승인 기구(CAB)의 검토·승인을 거치는 변경 관리 절차. "무엇을, 왜, 언제 바꾸고, 실패하면 어떻게 되돌리는지"를 사전에 문서화해 운영 사고를 줄이는 장치다. MSP처럼 고객사 시스템을 대신 운영하는 회사에서는 필수 프로세스에 가깝다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>MSP 운영 업무에서 "이 배포는 CR 올리고 CAB 승인 받은 다음에 진행하세요" 같은 정기 배포·긴급 변경 승인 대화에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="landing-zone">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="landing-zone-h">랜딩존 <span class="sub">Landing Zone</span></h2>
+    <div class="links"><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#vpc">VPC</a></div>
+  </div>
+</div>
+<p>여러 AWS/클라우드 계정을 조직 단위로 묶어 보안·네트워크·거버넌스 기준을 미리 표준화해둔 초기 계정/환경 구조. 계정 분리 원칙, 공통 IAM·로깅·네트워크 설정을 템플릿처럼 깔아두고 시작하기 때문에, 프로젝트마다 제각각 세팅하다 생기는 보안 구멍과 운영 편차를 막아준다. AWS Control Tower가 대표적인 구축 도구.</p>
+<div class="tip"><div class="tip-l">실무에서</div>신규 고객사 온보딩 시 "랜딩존부터 잡고 시작하시죠" 같은 계정 구조·거버넌스 설계 논의에서 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="backpressure">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="backpressure-h">백프레셔 <span class="sub">Backpressure</span></h2>
+    <div class="links"><a class="link-tag" href="#message-queue">Message Queue</a><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#dlq">DLQ</a></div>
+  </div>
+</div>
+<p>받는 쪽 처리 속도가 보내는 쪽보다 느릴 때, 넘치는 요청을 막거나 속도를 조절해 시스템이 뻗지 않게 하는 흐름 제어 방식. 수도관에서 물을 너무 세게 틀면 역압이 걸리는 것처럼, 소비자(consumer)가 감당 못 하는 만큼 생산자(producer)를 늦추거나 버퍼·큐로 완충한다. 이게 없으면 메모리가 차오르다 장애로 이어진다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>메시지 큐나 실시간 스트림 처리량이 급증할 때 "컨슈머가 못 따라가서 백프레셔 걸어야 한다"는 대화에서 마주친다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="resource-hints">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="resource-hints-h">리소스 힌트 <span class="sub">Prefetch · Preload · Preconnect</span></h2>
+    <div class="links"><a class="link-tag" href="#http-cache">HTTP Cache</a><a class="link-tag" href="#code-splitting">Code Splitting</a><a class="link-tag" href="#crp">Critical Rendering Path</a></div>
+  </div>
+</div>
+<p>브라우저에게 앞으로 필요할 리소스나 연결을 미리 준비시켜 로딩 체감 속도를 높이는 <code>&lt;link&gt;</code> 기반 최적화 힌트들. <strong>preload</strong>는 지금 페이지에 곧 필요한 리소스를 높은 우선순위로 미리 받고, <strong>prefetch</strong>는 다음 페이지에서 쓸 리소스를 한가할 때 받아두고, <strong>preconnect</strong>는 외부 도메인과의 연결(DNS·TLS)만 미리 맺어둔다. 퍼블리싱 때 쓰던 이미지 스프라이트처럼 "미리 준비"가 핵심이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>페이지 전환이 느리다는 피드백에 "이 리소스는 preload 걸고 다음 페이지 스크립트는 prefetch 해두자"는 성능 개선 논의에서 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="shared-responsibility">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="shared-responsibility-h">공유 책임 모델 <span class="sub">Shared Responsibility Model</span></h2>
+    <div class="links"><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#security-group">Security Group</a></div>
+  </div>
+</div>
+<p>클라우드 인프라의 보안을 클라우드 사업자와 고객이 나눠서 책임지는 모델. AWS 등 사업자는 하드웨어·네트워크·가상화 계층 등 <strong>"클라우드 자체의" 보안</strong>을, 고객은 그 위에 올리는 데이터·설정·IAM 권한 등 <strong>"클라우드 안의" 보안</strong>을 책임진다. "S3 버킷을 퍼블릭으로 열어둬서 유출됐다"면 그건 AWS가 아니라 고객 책임 영역이라는 식으로 경계선이 갈린다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>보안 감사나 컴플라이언스 문의에서 "이 부분은 AWS 책임 범위인가요, 저희 책임 범위인가요?"라는 질문에 경계선을 그어 설명할 때 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="retry-backoff">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="retry-backoff-h">재시도 · 지수 백오프 <span class="sub">Retry & Exponential Backoff</span></h2>
+    <div class="links"><a class="link-tag" href="#idempotency">Idempotency</a><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a></div>
+  </div>
+</div>
+<p>API 호출이나 외부 연동이 실패했을 때 무조건 계속 재시도하지 않고, 재시도 간격을 점점 늘려가며(1초→2초→4초…) 다시 시도해 상대 시스템 과부하를 막는 오류 복구 패턴. 모두가 동시에 재시도하는 걸 피하려고 간격에 무작위 지연(jitter)을 섞기도 한다. 재시도가 안전하려면 같은 요청이 두 번 가도 결과가 같아야 하므로 멱등성(Idempotency)과 세트로 등장한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"외부 결제 API가 순간 타임아웃 났는데 재시도 로직에 지수 백오프가 걸려 있어서 자동 복구됐어요" 같은 장애 대응 회고에서 마주친다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="raci">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="raci-h">RACI 매트릭스 <span class="sub">Responsibility Assignment Matrix</span></h2>
+    <div class="links"><a class="link-tag" href="#sow">SOW</a><a class="link-tag" href="#change-request-cab">CR · CAB</a></div>
+  </div>
+</div>
+<p>프로젝트의 각 업무·의사결정마다 담당자를 <strong>R</strong>esponsible(실행), <strong>A</strong>ccountable(최종 책임), <strong>C</strong>onsulted(자문), <strong>I</strong>nformed(공유 대상) 네 역할로 나눠 표로 정리한 책임 분담 문서. A는 업무당 한 명만 두는 게 원칙이라 "결국 누가 결정하나"가 명확해진다. 여러 팀이 얽힌 프로젝트에서 "그건 제 일인 줄 몰랐는데요"를 방지하는 도구.</p>
+<div class="tip"><div class="tip-l">실무에서</div>여러 팀이 얽힌 프로젝트 킥오프 문서에서 "이 항목은 누가 R이고 누가 A인가요?"라는 질문과 함께 표를 채우는 회의에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->

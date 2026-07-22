@@ -84,6 +84,262 @@
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="news-day" data-date="2026-07-22">
+        <h2>📰 2026-07-22 (수)</h2>
+        <p class="day-note">오전 발송분의 정정판 기준. 공식 1차 소스로 교차검증된 항목만 수록 — 오전판의 Kimi K3(공식 저장소 기준 존재하지 않음)·TypeScript 7.0 성능 수치(공식 확인 불가)·Fable 5 등 검증 실패 항목은 제외. AI·HTML&amp;CSS는 검증 통과 항목이 없어 생략</p>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 보안 패치 v16.2.11 / v15.5.21</p>
+            <p class="item-meta">2026-07-21 · <a href="https://github.com/vercel/next.js/releases/tag/v16.2.11">GitHub Releases</a></p>
+            <p class="item-summary">고위험 4건(Server Actions DoS · 미들웨어/프록시 우회 · rewrites와 Server Actions의 SSRF 2건) + 중위험 5건(캐시 혼동 · 이미지 최적화 DoS 등) 패치. 운영 중인 Next 앱은 즉시 업데이트 권장</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js 2026년 7월 보안 릴리스 사전 공지 — 7/27 예정</p>
+            <p class="item-meta">2026-07-22 · <a href="https://nodejs.org/en/blog/vulnerability/july-2026-security-releases">nodejs.org</a></p>
+            <p class="item-summary">26.x · 24.x · 22.x 전 릴리스 라인에 최고 HIGH 등급 취약점 수정 예정. 배포 일정을 미리 계획해둘 시점</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="news-day" data-date="2026-07-21">
+        <h2>📰 2026-07-21 (화)</h2>
+        <p class="day-note">Fable 5·GPT-5.6·Inkling 등 모델 소식, TS 7.0·Next.js 16.3, MCP 표준화, field-sizing·CSS custom functions. ※ 이 날짜 발송분 중 Kimi K3 항목과 TypeScript 7.0 성능 수치(11.9배·125.7초→10.6초)는 7/22 검증에서 공식 소스 확인 불가로 판명 — 아래에서 제외</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Claude Fable 5 출시</p>
+            <p class="item-meta">2026-07-20</p>
+            <p class="item-summary">Anthropic이 가장 강력한 공개 모델 Claude Fable 5를 출시. 50M 라인 코드 마이그레이션을 2개월에서 단 1일로 단축한 성과 기록. 다만 미국 정부의 수출통제 지시로 당시 접근 불가 상태</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">GPT-5.6 출시</p>
+            <p class="item-meta">2026-07-16</p>
+            <p class="item-summary">OpenAI의 GPT-5.6 공개. 에이전트 작업 개선, 토큰 효율성 증대, 컨텍스트 윈도우 확대로 자율 멀티스텝 작업 성능 향상</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Thinking Machines의 Inkling</p>
+            <p class="item-meta">2026-07-15</p>
+            <p class="item-summary">Mira Murati의 새 랩에서 일반 목적 추론 및 코딩 모델 Inkling 공개. 오픈 가중치 모델로 다운로드 가능하며 주류 폐쇄형 모델 수준 성능 주장</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">TypeScript 7.0 GA</p>
+            <p class="item-meta">2026-07-08</p>
+            <p class="item-summary">Go 네이티브 컴파일러 기반 TypeScript 7.0 공식 출시. 타입 체크 속도 대폭 향상 (※ 발송분의 구체 수치는 공식 확인 불가로 제외)</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.3</p>
+            <p class="item-meta">2026-06-29</p>
+            <p class="item-summary">Turbopack 메모리 최대 90% 감소, 프로덕션 빌드 최대 5.5배 고속화. React Compiler의 Rust 포트 실험적 지원, 즉시 내비게이션으로 UX 개선</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Node.js 22.18.0 — 타입 스트리핑 기본화</p>
+            <p class="item-meta">2026-07-31 예정</p>
+            <p class="item-summary">기본 타입 스트리핑 활성화로 TypeScript 개발 워크플로우 간편화</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Model Context Protocol (MCP) 표준화</p>
+            <p class="item-meta">2026-07-21</p>
+            <p class="item-summary">Anthropic이 창안한 MCP가 AI 에이전트와 백엔드 서비스 통신의 표준 프로토콜로 확정. REST/GraphQL과 함께 MCP 서버 개발이 백엔드 엔지니어의 필수 역량</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">AI 에이전트 통합 아키텍처</p>
+            <p class="item-meta">2026-07-21</p>
+            <p class="item-summary">2026년 백엔드 개발은 AI 에이전트를 핵심 비즈니스 로직의 일부로 통합하는 방향으로 진화. 실시간 자율 의사결정 능력이 제품 차별화 요소</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">제로 트러스트 보안 표준화</p>
+            <p class="item-meta">2026-07-21</p>
+            <p class="item-summary">세분화된 RBAC, Vault/AWS Secrets Manager 활용, 자동화된 취약점 스캔이 백엔드 아키텍처의 필수 요소로 정착</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">field-sizing 기능 정식 지원</p>
+            <p class="item-meta">2026-06-16</p>
+            <p class="item-summary">input 필드와 textarea의 자동 리사이징을 네이티브로 지원 (Baseline Newly available). JavaScript 의존성 제거</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">CSS custom functions</p>
+            <p class="item-meta">2026-07-21</p>
+            <p class="item-summary">재사용 가능하고 합성 가능한 CSS 로직 작성. 인자 받아 유효한 값 반환하는 CSS 함수화로 스타일 관리 효율화</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">sibling-index() &amp; scroll state</p>
+            <p class="item-meta">2026-07-21</p>
+            <p class="item-summary">sibling-index() 함수로 애니메이션 엇갈림 효과 간편화. scroll state 함수로 스크롤 상태(stuck, snapped, scrollable)를 JavaScript 없이 스타일링</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="news-day" data-date="2026-07-20">
+        <h2>📰 2026-07-20 (월)</h2>
+        <p class="day-note">Sonnet 5·MCP 기업 표준화·EU AI Act, Node TS 네이티브·Next 16.3·:has() 전 브라우저, Zero-trust, 스크롤 애니메이션·flex-wrap: balance. ※ 발송분 중 Kimi K3 항목은 7/22 검증에서 공식 소스 확인 불가로 판명 — 아래에서 제외</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Claude Sonnet 5</p>
+            <p class="item-meta">2026-06-30 · <a href="https://www.anthropic.com/news/claude-sonnet-5">Anthropic</a></p>
+            <p class="item-summary">Anthropic 중간 모델의 코딩·디버깅 성능 대폭 강화. 자율 계획·도구 사용까지, 저가($2/$10)로 에이전트 개발 최적화</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">MCP, 기업 표준으로</p>
+            <p class="item-meta">2026-07 · <a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-official-mcp-support-for-google-services">Google Cloud Blog</a></p>
+            <p class="item-summary">Google·Microsoft·Salesforce·Snowflake·ServiceNow 공식 지지. 엔터프라이즈 78%가 MCP 에이전트 프로덕션 운영</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">EU AI Act 투명성 의무 강화</p>
+            <p class="item-meta">2026-08-02 발효 · <a href="https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai">European Commission</a></p>
+            <p class="item-summary">고위험 모델 접근권·회수 권한 발효 임박. 모델 제공자 규제 부담 증가</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js, TypeScript 네이티브 기본화</p>
+            <p class="item-meta">2026-07 · <a href="https://nodejs.org/en/blog">Node.js Blog</a></p>
+            <p class="item-summary">v22.18.0에서 타입 스트리핑 기본 활성화. 별도 트랜스파일 없이 .ts 실행, TS의 기본값화 가속</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.3 Turbopack 개선</p>
+            <p class="item-meta">2026-07 · <a href="https://nextjs.org/blog">Next.js Blog</a></p>
+            <p class="item-summary">메모리 eviction·persistent build cache·Rust React Compiler 지원. 빌드 성능 대폭 향상, import.meta.glob 추가</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">:has() 셀렉터 전 브라우저 지원</p>
+            <p class="item-meta">2026-07 · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:has">MDN</a></p>
+            <p class="item-summary">부모가 자식 상태에 반응해 스타일링. 모든 주요 엔진 지원으로 프로덕션 활용 본격화</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">WordPress 7.1 Beta 반응형 스타일링</p>
+            <p class="item-meta">2026-07-15 · <a href="https://wordpress.org/news/2026/07/">WordPress.org</a></p>
+            <p class="item-summary">에디터에서 뷰포트별 블록 스타일 직접 지정. Gutenberg 자유 리사이즈 프리뷰 도입</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">MCP, 에이전트-백엔드 통신 표준</p>
+            <p class="item-meta">2026-07 · <a href="https://modelcontextprotocol.io/">modelcontextprotocol.io</a></p>
+            <p class="item-summary">REST·GraphQL과 병행해 LLM이 툴·DB·API를 발견·호출하는 표준 계층으로 정착. 백엔드 개발자가 MCP 서버를 직접 구축</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">마이크로서비스, 도메인 기반으로 회귀</p>
+            <p class="item-meta">2026-07 · <a href="https://thenewstack.io/introduction-to-backend-development/">The New Stack</a></p>
+            <p class="item-summary">함수마다 쪼개던 흐름 반성, 비즈니스 도메인 단위 경계 설정. 이벤트 드리븐·옵저버빌리티·AI 모니터링 통합</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Zero-trust가 기본 아키텍처</p>
+            <p class="item-meta">2026-07 · <a href="https://www.zibtek.com/blog/backend-development-in-2026-engineering-for-scale-performance-and-reliability/">Zibtek</a></p>
+            <p class="item-summary">RBAC·Vault/Secrets Manager·자동 취약점 스캔이 표준. 보안을 사후 레이어가 아닌 설계 원칙으로</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">animation-timeline: scroll() / view()</p>
+            <p class="item-meta">2026-07 · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timeline">MDN</a></p>
+            <p class="item-summary">스크롤 위치로 애니메이션 구동, JS 불필요. 시차 효과·진행 표시기 네이티브 구현</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">flex-wrap: balance</p>
+            <p class="item-meta">2026-07 · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap">MDN</a></p>
+            <p class="item-summary">플렉스 라인 간 콘텐츠 균형 분배. 다단 카드 레이아웃 높이 불균형 해소</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">@container 다중 쿼리</p>
+            <p class="item-meta">2026-07 · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@container">MDN</a></p>
+            <p class="item-summary">쉼표로 폴백 쿼리 지정, 미지원 기능 대비. 컨테이너 쿼리 호환성 확보</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">HTML focusgroup 속성</p>
+            <p class="item-meta">2026-07 · <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/focusgroup">MDN</a></p>
+            <p class="item-summary">툴바·탭·메뉴 등 복합 위젯 키보드 내비게이션 표준화. JS 없이 접근성 확보</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="news-day" data-date="2026-07-17">
+        <h2>📰 2026-07-17 (금)</h2>
+        <p class="day-note">Gemini 3.5 Pro 출시·GPT-5.6 가격 인상·Cursor Sand, React Compiler Rust 검증·RSC 기본값·React2Shell CVE, n8n 업데이트, CSS Mixins·Cross-Document View Transitions·Gap Decorations</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Google Gemini 3.5 Pro 출시</p>
+            <p class="item-meta">2026-07-17 · <a href="https://blog.google">Google Blog</a></p>
+            <p class="item-summary">Google의 차세대 멀티모달 AI 모델. 코딩·이미지 이해 성능 대폭 향상. 프로덕션 에이전트 워크플로우 최적화</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">OpenAI GPT-5.6 가격 인상</p>
+            <p class="item-meta">2026-07-16 · <a href="https://openai.com">OpenAI</a></p>
+            <p class="item-summary">작업당 과금 체계로 전환. $2/$10 → 구간별 상향. 개발자 커뮤니티 반발</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Cursor, 범용 에이전트 'Sand' 출시</p>
+            <p class="item-meta">2026-07-15 · <a href="https://cursor.io">Cursor</a></p>
+            <p class="item-summary">이메일·문서·실무 작업까지 자동화. 사무 생산성 시장 확대. 채널 파트너 52.3%가 내부 배포 중</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">React Compiler, Rust 버전 성능 검증</p>
+            <p class="item-meta">2026-07-16 · <a href="https://vercel.com">Vercel</a></p>
+            <p class="item-summary">Next.js 16.4에서 40% 더 빠른 빌드 (TypeScript 대비 3배). Turbopack 네이티브 연결로 end-to-end 성능 40% 향상</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">React Server Components, 이제 기본값</p>
+            <p class="item-meta">2026-07-14 · <a href="https://react.dev">react.dev</a></p>
+            <p class="item-summary">서버 컴포넌트가 표준. 클라이언트는 'use client'로만 명시. 성능·SEO 중심 패러다임 전환</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">React Security Advisory: React2Shell CVE-2025-55182</p>
+            <p class="item-meta">2026-07-13 · <a href="https://github.com/facebook/react">GitHub</a></p>
+            <p class="item-summary">React Server Components 미인증 RCE. CVSS 10.0 심각도. Next.js 15.x, 16.x 패치 즉시 적용 필수</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">n8n 2026년 7월 주요 업데이트</p>
+            <p class="item-meta">2026-07-16 · <a href="https://n8n.io">n8n</a></p>
+            <p class="item-summary">데이터 리덕션 정식 출시, AI 에이전트용 지식 파일·사고 모드, S3/Azure 스토리지 백엔드 확장. 대용량 인스턴스 스케일링 획기적 개선</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">CSS Mixins, 이제 네이티브 지원</p>
+            <p class="item-meta">2026-07-15 · <a href="https://developer.mozilla.org">MDN</a></p>
+            <p class="item-summary">@mixin --name { ... } 정의, @apply --name 적용. Sass와 유사하지만 네이티브. 매개변수·조건부 로직 지원</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Cross-Document View Transitions</p>
+            <p class="item-meta">2026-07-14 · <a href="https://w3c.github.io">W3C</a></p>
+            <p class="item-summary">페이지 네비게이션에서도 애니메이션 가능. @view-transition { navigation: auto }로 MPA 경험 향상</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">CSS Gap Decorations</p>
+            <p class="item-meta">2026-07-14 · <a href="https://www.w3.org">W3C</a></p>
+            <p class="item-summary">Grid/Flex 갭에 선·대시·그래디언트 추가 가능. DOM 요소 없이 스타일링. 깔끔한 레이아웃 표현력 확대</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-07-16">
         <h2>📰 2026-07-16 (목)</h2>
         <p class="day-note">FLI 안전성 지수·NYT 증거 공방 등 AI 거버넌스 이슈, React Working Group 재편·Next.js 보안 릴리스 프로그램·Better Auth Vercel 합류, Bun 1.4 Rust 재작성, ariaNotify 접근성 API. 지난 2주 다룬 TS7·Safari 27·etcd 3.7·Chrome 150 등은 제외</p>
@@ -803,11 +1059,6 @@
 
         <div class="news-cat">
           <h3>🤖 AI</h3>
-          <div class="news-item">
-            <p class="item-title">Safari MCP 서버 공개 — Safari Technology Preview 247, AI 에이전트가 브라우저를 검사·디버깅</p>
-            <p class="item-meta">2026-07-01 · <a href="https://webkit.org/blog/18136/introducing-the-safari-mcp-server-for-web-developers/">WebKit Blog</a></p>
-            <p class="item-summary">Apple이 Safari에 공식 MCP 서버를 도입 → AI 에이전트가 DOM·콘솔·네트워크·스크린샷·접근성 검사에 직접 접근. CDP가 없어 Playwright·에이전트 연동이 어렵던 WebKit의 오랜 약점을 해소하는 큰 변화. (기록 보정: 발표 당시 누락되어 뒤늦게 추가)</p>
-          </div>
           <div class="news-item">
             <p class="item-title">Next.js 16.3 — AI 개선: Agent DevTools·퍼스트파티 Skills·AGENTS.md 번들</p>
             <p class="item-meta">2026-06-25 · <a href="https://nextjs.org/blog/next-16-3-ai-improvements">Next.js Blog</a></p>
