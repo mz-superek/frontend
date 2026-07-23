@@ -42,6 +42,14 @@ TZ=Asia/Seoul date +"발송 기준일: %Y-%m-%d (%a) KST"
 > 섞인 2차 가공물이다. 날짜·버전·수치·"출시/복원/중단" 같은 상태는
 > **전부 검증 가능한 팩트**이므로, 실으려면 반드시 1차 소스로 확인한다.
 
+**검증 채널 사다리 (위에서부터 시도, 어느 하나로 확인되면 1차 소스로 인정):**
+1. 공식 도메인 WebFetch (anthropic.com, openai.com, nodejs.org, devblogs.microsoft.com, webkit.org 등)
+2. 1이 403 등으로 막히면 → **그 프로젝트의 공식 GitHub 저장소**(github.com은 이 환경에서 fetch 가능)의
+   Releases/Tags/CHANGELOG로 확인. 이것도 1차 소스다.
+   (예: vercel/next.js, microsoft/TypeScript, nodejs/node, WebKit/WebKit, facebook/react, denoland/deno, oven-sh/bun)
+3. 둘 다 불가 → `[접근 실패]`로 드롭. 규제·기업 동향처럼 GitHub 저장소가 없는 소식은
+   공식 도메인이 열려야만 통과 가능 — 반복되면 환경 네트워크 정책에 도메인 추가가 근본 해결.
+
 각 항목마다 다음을 확인하고, **하나라도 확인 안 되면 그 항목은 싣지 않는다(fail-closed):**
 - [ ] **발행일**: 공식 블로그/릴리스 노트/1차 소스 URL로 날짜 확인. "최근 24시간" 취지에 맞는지도 확인 — **1년 전 버전을 새 소식으로 싣지 않는다** (예: `vX.Y.Z` 릴리스는 연도까지 확인).
 - [ ] **버전·수치**: "N배 빨라짐", "N조 파라미터", "N점" 같은 수치는 **공식 발표 수치**를 쓴다. 블로그마다 다른 값이 돌면 공식(제조사/저자) 값 우선, 없으면 수치를 빼고 정성적으로만 쓴다.
