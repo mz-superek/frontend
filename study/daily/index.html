@@ -197,6 +197,67 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-07-24">
+        <h2>2026-07-24 (금) · 데이터베이스 인덱스 — 풀 스캔 대신 "책 뒤의 찾아보기"로 데이터 찾기</h2>
+        <span class="topic-tag">클라우드·백엔드 기초</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          인덱스는 책 맨 뒤의 찾아보기(색인)와 같다. 인덱스가 없으면 DB는
+          <code>WHERE email = '...'</code> 하나를 찾기 위해 테이블 전체를 처음부터 끝까지
+          훑는다(풀 스캔 — 책을 1페이지부터 넘기며 단어 찾기). 인덱스를 만들면 해당 컬럼
+          값이 정렬된 별도 자료구조(B-트리)로 관리돼, 수백만 행에서도 몇 번의 탐색만으로
+          원하는 행을 찾는다. 대신 공짜가 아니다 — 행을 INSERT/UPDATE할 때마다 인덱스도
+          같이 갱신해야 해서 쓰기는 느려지고 저장 공간도 더 쓴다. 그래서 "자주 검색·조인·
+          정렬하는 컬럼"에만 골라서 거는 게 원칙이다.
+        </p>
+
+        <pre><code>-- 이메일로 자주 조회하는 users 테이블
+CREATE INDEX idx_users_email ON users (email);
+
+-- 실제로 인덱스를 타는지 실행 계획으로 확인
+EXPLAIN SELECT * FROM users WHERE email = 'superek@mz.co.kr';
+-- Index Scan using idx_users_email ... ← 인덱스 사용 ✅
+-- Seq Scan on users ...               ← 풀 스캔 ❌
+
+-- ⚠️ 인덱스가 있어도 못 타는 경우
+-- LIKE '%경'          (앞이 와일드카드)
+-- WHERE LOWER(email) = ...  (컬럼에 함수 적용)</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          풀스택으로 API를 짜기 시작하면 "이 화면 왜 느려요?"의 원인 1순위가 인덱스 없는
+          쿼리다. Prisma 같은 ORM을 쓰더라도 결국 밑에서는 SQL이 돌기 때문에, 스키마에
+          <code>@@index</code>를 걸지 판단하는 건 개발자 몫이다.
+        </p>
+        <p class="refs">더 보기: <a href="https://use-the-index-luke.com/ko">Use The Index, Luke (한국어)</a> ·
+          <a href="https://www.postgresql.org/docs/current/indexes.html">PostgreSQL 공식 문서 — Indexes</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            Q1 (객관식). "인덱스는 많이 걸수록 좋다"가 틀린 이유로 가장 알맞은 것은?<br>
+            (a) 인덱스가 많으면 SELECT도 항상 느려진다
+            (b) INSERT/UPDATE마다 인덱스도 같이 갱신돼 쓰기가 느려지고 공간을 차지한다
+            (c) 인덱스는 테이블당 1개만 만들 수 있다
+            (d) 인덱스는 서버를 재시작하면 사라진다
+          </p>
+          <p>
+            Q2 (단답). <code>WHERE name LIKE '%경'</code> 은 name에 인덱스가 있어도
+            인덱스를 못 탄다. 왜일까? (힌트: 찾아보기는 가나다순)
+          </p>
+          <details><summary>정답·해설 보기</summary><p>
+            Q1 정답: (b). 인덱스는 테이블과 별도로 유지되는 정렬 자료구조라, 행이 추가·수정될
+            때마다 모든 인덱스를 같이 갱신해야 한다. 책 내용을 고칠 때마다 뒤의 찾아보기도
+            전부 수정해야 하는 것과 같다 — 읽기 성능과 쓰기 성능의 트레이드오프.<br>
+            Q2 정답: 인덱스는 값이 앞에서부터 정렬된 구조(가나다순 찾아보기)인데,
+            <code>'%경'</code>은 앞부분이 무엇이든 상관없다는 뜻이라 정렬 순서를 활용할 수
+            없다. 결국 전체를 다 훑어야 한다. 반대로 <code>'경%'</code>처럼 앞부분이
+            고정되면 인덱스를 탈 수 있다.
+          </p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-07-22">
         <h2>2026-07-22 (수) · useDeferredValue — 무거운 UI는 "한 박자 늦은 값"으로 따라오게 하기</h2>
         <span class="topic-tag">프론트 심화</span>
