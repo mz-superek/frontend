@@ -168,6 +168,12 @@
     <a class="nav-item" href="#shared-responsibility">공유 책임 모델</a>
     <a class="nav-item" href="#retry-backoff">Retry·Backoff</a>
     <a class="nav-item" href="#raci">RACI</a>
+    <a class="nav-item" href="#cidr">CIDR</a>
+    <a class="nav-item" href="#cap-theorem">CAP 정리</a>
+    <a class="nav-item" href="#islands-architecture">아일랜드 아키텍처</a>
+    <a class="nav-item" href="#saga-pattern">사가 패턴</a>
+    <a class="nav-item" href="#sidecar-pattern">사이드카 패턴</a>
+    <a class="nav-item" href="#gitops">GitOps</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -2946,6 +2952,88 @@ export default function Error({ error, reset }) {
 </div>
 <p>프로젝트의 각 업무·의사결정마다 담당자를 <strong>R</strong>esponsible(실행), <strong>A</strong>ccountable(최종 책임), <strong>C</strong>onsulted(자문), <strong>I</strong>nformed(공유 대상) 네 역할로 나눠 표로 정리한 책임 분담 문서. A는 업무당 한 명만 두는 게 원칙이라 "결국 누가 결정하나"가 명확해진다. 여러 팀이 얽힌 프로젝트에서 "그건 제 일인 줄 몰랐는데요"를 방지하는 도구.</p>
 <div class="tip"><div class="tip-l">실무에서</div>여러 팀이 얽힌 프로젝트 킥오프 문서에서 "이 항목은 누가 R이고 누가 A인가요?"라는 질문과 함께 표를 채우는 회의에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== CIDR ===== -->
+<section class="term" id="cidr">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="cidr-h">CIDR <span class="sub">Classless Inter-Domain Routing · /표기법</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#security-group">Security Group</a></div>
+  </div>
+</div>
+<p>IP 주소 범위를 <strong>"시작주소/프리픽스 비트 수"</strong>로 나타내는 표기법. 슬래시 뒤 숫자가 작을수록 범위가 넓다 — <code>10.0.0.0/16</code>은 약 6만 5천 개, <code>/24</code>는 256개, <code>/32</code>는 딱 1개. 클라우드에서 네트워크 공간을 나누는 기본 언어라, VPC·서브넷 설계 문서는 사실상 CIDR로 쓰여 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>VPC·서브넷을 나누거나 보안그룹에서 "이 IP 대역만 접속 허용" 규칙을 볼 때 마주친다. <span style="color:var(--teal)">[인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== CAP 정리 ===== -->
+<section class="term" id="cap-theorem">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="cap-theorem-h">CAP 정리 <span class="sub">CAP Theorem · 일관성/가용성/분단내성</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#read-replica">Read Replica</a></div>
+  </div>
+</div>
+<p>분산 시스템은 <strong>일관성(Consistency)·가용성(Availability)·네트워크 분단 내성(Partition tolerance)</strong> 셋을 동시에 완벽히 가질 수 없다는 정리. 네트워크 분단(P)은 현실에서 피할 수 없으므로, 결국 분단이 났을 때 <strong>C(정확한 값을 위해 일부 요청 거부)와 A(일단 응답하고 나중에 수렴) 중 하나를 고르는 트레이드오프</strong>가 된다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">CP 우선</h4><ul><li>분단 시 일부 가용성 포기, 값은 항상 정확</li><li>예: 결제·재고·계좌 잔액</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">AP 우선</h4><ul><li>분단 시에도 일단 응답, 값은 나중에 수렴</li><li>예: SNS 피드·조회수·추천</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이 데이터는 CP로 가야 하나 AP로 가야 하나" — DB·캐시 선택이나 장애 시 동작을 정하는 설계 회의에서 마주친다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== 아일랜드 아키텍처 ===== -->
+<section class="term" id="islands-architecture">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="islands-architecture-h">아일랜드 아키텍처 <span class="sub">Islands Architecture</span></h2>
+    <div class="links"><a class="link-tag" href="#hydration">Hydration</a><a class="link-tag" href="#code-splitting">Code Splitting</a></div>
+  </div>
+</div>
+<p>페이지 대부분은 <strong>정적 HTML로 두고, 상호작용이 필요한 부분만 "섬(island)"처럼 독립적으로 하이드레이션</strong>하는 프론트엔드 아키텍처. 페이지 전체를 하이드레이션하는 전통 SPA/SSR 대비 JS 전송량과 실행 비용이 크게 줄어든다. Astro가 대표 구현체이고, 콘텐츠 중심 사이트에 특히 유리하다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 페이지 JS가 너무 무거운데 전부 하이드레이션할 필요가 있나?" 같은 성능 개선 논의에서 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== 사가 패턴 ===== -->
+<section class="term" id="saga-pattern">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="saga-pattern-h">사가 패턴 <span class="sub">Saga Pattern · 보상 트랜잭션</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#idempotency">멱등성</a><a class="link-tag" href="#message-queue">Message Queue</a></div>
+  </div>
+</div>
+<p>여러 마이크로서비스에 걸친 작업을 하나의 큰 트랜잭션으로 묶을 수 없을 때, <strong>각 서비스의 로컬 트랜잭션을 순서대로 잇고, 중간에 실패하면 앞 단계를 되돌리는 "보상 트랜잭션(compensating transaction)"</strong>으로 정합성을 맞추는 분산 트랜잭션 패턴. 무겁고 막히기 쉬운 2단계 커밋(2PC)의 현실적 대안이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>MSA에서 "여러 서비스에 걸친 주문 처리를 어떻게 원자적으로 보장하지?"라는 설계 논의에서 마주친다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== 사이드카 패턴 ===== -->
+<section class="term" id="sidecar-pattern">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="sidecar-pattern-h">사이드카 패턴 <span class="sub">Sidecar Pattern</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#service-mesh">Service Mesh</a></div>
+  </div>
+</div>
+<p>앱 본체는 그대로 두고 <strong>로깅·모니터링·프록시 같은 부가 기능을 같은 실행 단위(쿠버네티스의 같은 Pod 등)에 별도 컨테이너로 나란히 붙여</strong> 돌리는 배포 패턴. 오토바이 옆 사이드카처럼 본체와 수명주기를 공유한다. 서비스 메시(Istio 등)의 프록시가 대표적인 사이드카다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"앱 코드는 안 건드리고 로그 수집·프록시를 붙이자"는 쿠버네티스 배포 설계나 서비스 메시 도입 논의에서 마주친다. <span style="color:var(--teal)">[클라우드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== GitOps ===== -->
+<section class="term" id="gitops">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="gitops-h">GitOps <span class="sub">깃옵스 · Argo CD / Flux</span></h2>
+    <div class="links"><a class="link-tag" href="#iac">IaC</a><a class="link-tag" href="#blue-green-deployment">Blue-Green</a></div>
+  </div>
+</div>
+<p><strong>Git 저장소를 유일한 정본(single source of truth)</strong>으로 삼아, 원하는 인프라·배포 상태를 선언형 코드로 적어 두면 자동화 도구(Argo CD·Flux)가 실제 환경을 감시하며 Git 상태와 다를 때 스스로 맞춰주는 운영 방식. 변경은 서버에 직접 명령하는 대신 <strong>PR로 리뷰·병합</strong>한다 — 배포 이력이 곧 Git 히스토리가 된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"배포를 수동으로 하지 말고 Git에 머지하면 Argo CD가 알아서 반영하게 하자"는 CI/CD·인프라 자동화 논의에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
