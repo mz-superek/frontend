@@ -89,14 +89,19 @@ TZ=Asia/Seoul date +"발송 기준일: %Y-%m-%d (%a) KST"
 - 이미 같은 날짜 섹션이 있으면 **교체** (추가 아님)
 - HTML 특수문자 이스케이프: `< → &lt;`, `> → &gt;`, `& → &amp;`
 
-#### 6️⃣ Git 규칙 (중요 — 콘텐츠 작업은 git 금지)
-- **콘텐츠 작업(daily-news / daily-terms / daily-study)은 git 명령을 절대 실행하지 않는다.**
-  HTML 파일 저장까지만. 커밋·푸시는 평일 8:30 `daily-commit` 스케줄이 단독으로 처리한다.
-  (동시 커밋으로 인한 `.git/index.lock` 충돌 방지)
-- **브랜치 생성 금지.** 모든 작업은 `main`에서만 한다. `claude/*` 등 작업 브랜치를 만들어 푸시하지 말 것.
-  main에 직접 푸시할 수 없는 환경이라면 파일 저장까지만 하고 종료한다.
-- 커밋이 필요한 유일한 작업(daily-commit)의 커밋 메시지 형식:
-  `chore(daily): 데일리 콘텐츠 자동 갱신 (YYYY-MM-DD)`
+#### 6️⃣ Git 규칙 (실행 환경별로 다름 — 중요)
+- **code 루틴 (daily-news / daily-terms — 격리 컨테이너에서 실행)**:
+  저장만 하면 세션 종료와 함께 편집분이 증발한다. 반드시 **자기 아카이브 파일 하나만** 커밋·푸시한다:
+  `git add news/index.html`(또는 `terms/index.html`) → commit → `git pull --rebase origin main` → `git push origin main`
+  (push 실패 시 2s/4s/8s 재시도. 다른 파일은 절대 커밋하지 않는다.)
+  커밋 메시지: `chore(daily-news): 뉴스 아카이브 (YYYY-MM-DD)` / `chore(daily-terms): 용어 아카이브 (YYYY-MM-DD)`
+- **Cowork/마운트 세션 (daily-study, daily-commit)**:
+  마운트 폴더(/sessions/*/mnt/*)에서는 git 명령 금지(unlink 불가 → 락파일 축적).
+  daily-study는 마운트에 파일 저장까지만, 커밋·푸시는 daily-commit이 /tmp clone에서 처리.
+- **daily-commit의 동기화 방향 (충돌 방지의 핵심)**:
+  `news/` `terms/`는 **repo가 정본** → repo에서 마운트로 내려받기(rsync, 마운트는 unlink 불가이므로 --delete 금지).
+  `index.html` `study/`는 **마운트가 정본** → repo로 올려 커밋. 메시지: `chore(daily): 데일리 콘텐츠 자동 갱신 (YYYY-MM-DD)`
+- **브랜치 생성 금지.** 모든 작업은 `main`에서만. `claude/*` 등 작업 브랜치를 만들어 푸시하지 말 것.
 
 #### 7️⃣ 자동 루틴 체크사항
 발송 전 반드시 확인:
