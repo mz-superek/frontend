@@ -197,6 +197,93 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-07-28">
+        <h2>2026-07-28 (화) · React.memo · useMemo · useCallback — 리렌더링 최적화 삼총사</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>
+          React는 부모가 리렌더링되면 props가 바뀌었든 말든 자식도 기본적으로 전부 다시
+          렌더링한다. <code>memo(Component)</code>는 "props가 그대로면 이 컴포넌트는
+          건너뛰어"라는 계약이다. 함정은 props 비교가 얕은 비교(Object.is, 참조만
+          비교)라는 것 — 렌더링마다 새로 만들어지는 객체·배열·함수는 내용이 같아도
+          "다른 값"으로 판정된다. 그래서 memo와 세트로, 계산된 값을 캐싱하는
+          useMemo(메모이제이션 — 의존성이 안 바뀌면 이전 값 재사용)와 함수를 캐싱하는
+          useCallback이 필요하다. 퍼블리싱 비유: 인쇄소와 "내용 안 바뀐 페이지는 다시
+          안 찍는다"고 계약(memo)해도, 매번 파일명을 바꿔 새 파일로 보내면(매 렌더마다
+          새 객체/함수) 인쇄소는 전부 새 페이지로 취급한다. 단, 대부분의 컴포넌트는
+          리렌더링이 충분히 싸므로 "측정해 보니 느린 곳"에만 거는 게 원칙이며,
+          React Compiler가 이 수동 최적화를 자동화하는 방향으로 가고 있다.
+        </p>
+
+        <pre><code>const Child = memo(function Child({ items, onSelect }: Props) {
+  /* 무거운 렌더링 */
+});
+
+function Parent({ data }: { data: Item[] }) {
+  const [query, setQuery] = useState('');
+
+  // &#10060; 매 렌더마다 새 배열·새 함수 생성 &#8594; memo 무력화
+  // const items = data.filter(d =&gt; d.name.includes(query));
+  // const onSelect = (id: string) =&gt; setSelected(id);
+
+  // &#9989; 의존성이 그대로면 이전 참조를 재사용 &#8594; memo가 작동
+  const items = useMemo(
+    () =&gt; data.filter(d =&gt; d.name.includes(query)),
+    [data, query]
+  );
+  const onSelect = useCallback((id: string) =&gt; setSelected(id), []);
+
+  return &lt;Child items={items} onSelect={onSelect} /&gt;;
+}
+
+// 참고: useCallback(fn, deps) === useMemo(() =&gt; fn, deps)</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>
+          7/22에 "HeavyList는 반드시 memo로 감싸야 useDeferredValue가 효과 있다"고 했던
+          이유가 바로 이 내용이다. 셋의 관계(memo=건너뛰기 계약, useMemo/useCallback=계약이
+          깨지지 않게 참조 유지)를 모르면 "memo 붙였는데 왜 계속 렌더링되지?" 디버깅
+          미궁에 빠진다.
+        </p>
+
+        <p class="refs">더 보기:
+          <a href="https://react.dev/reference/react/memo">React 공식 문서 — memo</a> ·
+          <a href="https://ko.react.dev/reference/react/useMemo">React 공식 문서 — useMemo (한국어)</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>
+            Q1 (객관식). Child를 memo로 감쌌는데 부모가 리렌더링될 때마다 Child도 계속
+            다시 렌더링된다. 가장 흔한 원인은?<br>
+            (a) memo는 첫 렌더링에만 작동해서<br>
+            (b) 부모가 렌더링마다 새 객체/함수를 만들어 props로 넘겨서 — 얕은 비교가 매번 실패<br>
+            (c) Child가 자기 state를 갖고 있어서<br>
+            (d) React 19부터 memo가 동작하지 않아서
+          </p>
+          <p>Q2 (문제점 찾기). 아래 코드는 렌더링 최적화는 됐지만 버그가 있다. 뭘까? (힌트: "오래된 값")</p>
+          <pre><code>const handleClick = useCallback(() =&gt; {
+  console.log(items.length); // items를 쓰는데
+}, []); // deps는 비어 있음</code></pre>
+          <details><summary>정답·해설 보기</summary>
+            <p>
+              Q1 정답: (b). memo의 props 비교는 얕은 비교(Object.is)라 참조만 본다.
+              부모가 렌더링될 때마다 객체·배열·함수를 새로 만들면 내용이 같아도 참조가
+              달라져 "props 변경됨"으로 판정 &#8594; memo 무력화. (c)는 함정 — 자식의
+              자체 state 변경은 자식만 다시 렌더링할 뿐이다.
+            </p>
+            <p>
+              Q2 정답: stale closure(오래된 클로저) 버그. deps가 []이면 handleClick은
+              첫 렌더 시점의 items를 캡처한 채 영원히 재사용돼, items가 바뀌어도 항상
+              옛날 길이가 찍힌다. deps에 [items]를 넣어야 한다. "useCallback의 deps는
+              함수 안에서 쓰는 모든 반응형 값"이 원칙이며 ESLint의
+              react-hooks/exhaustive-deps가 이를 잡아준다.
+            </p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-07-24">
         <h2>2026-07-24 (금) · 데이터베이스 인덱스 — 풀 스캔 대신 "책 뒤의 찾아보기"로 데이터 찾기</h2>
         <span class="topic-tag">클라우드·백엔드 기초</span>
