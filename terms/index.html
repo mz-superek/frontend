@@ -174,6 +174,9 @@
     <a class="nav-item" href="#saga-pattern">사가 패턴</a>
     <a class="nav-item" href="#sidecar-pattern">사이드카 패턴</a>
     <a class="nav-item" href="#gitops">GitOps</a>
+    <a class="nav-item" href="#vpc-endpoint">VPC 엔드포인트</a>
+    <a class="nav-item" href="#transactional-outbox">아웃박스 패턴</a>
+    <a class="nav-item" href="#error-budget">에러 버짓</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3034,6 +3037,45 @@ export default function Error({ error, reset }) {
 </div>
 <p><strong>Git 저장소를 유일한 정본(single source of truth)</strong>으로 삼아, 원하는 인프라·배포 상태를 선언형 코드로 적어 두면 자동화 도구(Argo CD·Flux)가 실제 환경을 감시하며 Git 상태와 다를 때 스스로 맞춰주는 운영 방식. 변경은 서버에 직접 명령하는 대신 <strong>PR로 리뷰·병합</strong>한다 — 배포 이력이 곧 Git 히스토리가 된다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>"배포를 수동으로 하지 말고 Git에 머지하면 Argo CD가 알아서 반영하게 하자"는 CI/CD·인프라 자동화 논의에서 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<!-- ===== VPC 엔드포인트 ===== -->
+<section class="term" id="vpc-endpoint">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="vpc-endpoint-h">VPC 엔드포인트 <span class="sub">VPC Endpoint · PrivateLink</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a><a class="link-tag" href="#security-group">Security Group</a></div>
+  </div>
+</div>
+<p>VPC 안의 리소스가 <strong>인터넷(퍼블릭 경로)을 거치지 않고 AWS 서비스나 다른 VPC의 서비스에 사설 네트워크로 직접 접근</strong>하게 해주는 진입 통로. 트래픽이 인터넷 게이트웨이·NAT를 안 타고 클라우드 내부 망으로만 흐르므로 보안이 강해지고 경로가 짧아진다. 두 종류가 있다 — <strong>게이트웨이 엔드포인트</strong>(S3·DynamoDB 전용, 라우팅 테이블에 경로를 추가하는 방식)와 <strong>인터페이스 엔드포인트</strong>(PrivateLink 기반, VPC 안에 사설 IP를 가진 ENI를 만들어 연결하는 방식).</p>
+<div class="tip"><div class="tip-l">실무에서</div>"프라이빗 서브넷 서버가 인터넷 없이 S3에 어떻게 접근하지?", "사내·파트너 서비스를 퍼블릭 노출 없이 연결하려면?" 같은 보안·네트워크 설계에서 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<!-- ===== 아웃박스 패턴 ===== -->
+<section class="term" id="transactional-outbox">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="transactional-outbox-h">아웃박스 패턴 <span class="sub">Transactional Outbox</span></h2>
+    <div class="links"><a class="link-tag" href="#saga-pattern">사가 패턴</a><a class="link-tag" href="#message-queue">Message Queue</a><a class="link-tag" href="#idempotency">멱등성</a></div>
+  </div>
+</div>
+<p><strong>DB 저장과 메시지 발행을 하나의 트랜잭션으로 안전하게 묶는</strong> 패턴. "주문은 저장됐는데 알림 메시지 발행은 실패"처럼 DB와 메시지 큐가 따로 놀아 데이터가 어긋나는 문제(dual write)를 막는다. 업무 데이터를 저장하는 <strong>같은 트랜잭션 안에서 '보낼 메시지'를 같은 DB의 outbox 테이블에 함께 기록</strong>한 뒤, 별도 프로세스나 CDC가 그 테이블을 읽어 메시지 큐로 확실히 흘려보낸다. 트랜잭션이 하나라 "DB엔 저장됐는데 메시지는 안 나갔다"가 원천 차단된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>이벤트 기반 MSA에서 "결제는 됐는데 배송 이벤트가 유실됐다" 같은 정합성 사고를 막거나, Saga·CDC와 함께 안정적인 이벤트 발행을 설계할 때 마주친다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<!-- ===== 에러 버짓 ===== -->
+<section class="term" id="error-budget">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="error-budget-h">에러 버짓 <span class="sub">Error Budget · 오류 예산</span></h2>
+    <div class="links"><a class="link-tag" href="#sla">SLA·SLO</a><a class="link-tag" href="#on-call">On-call</a><a class="link-tag" href="#postmortem">Postmortem</a></div>
+  </div>
+</div>
+<p>SLO(목표 가용성)를 뒤집어 <strong>"허용되는 실패의 양"</strong>으로 표현한 것. 예를 들어 SLO가 99.9%면 한 달에 약 43분의 다운타임이 허용되는데, 이 43분이 곧 에러 버짓이다. 예산이 남아 있으면 팀은 새 기능을 공격적으로 배포하고, <strong>예산을 다 써버리면(장애가 잦으면) 배포를 멈추고 안정화에 집중</strong>한다. '얼마나 빨리 갈지 vs 얼마나 안정적일지'를 감이 아니라 숫자로 결정하게 해주는 SRE의 핵심 장치다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>SLO·SLA를 정하고 "이번 분기엔 배포를 더 조여야 하나?"처럼 개발 속도와 안정성의 우선순위를 데이터로 합의할 때 마주친다. <span style="color:var(--purple)">[운영·SRE]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
