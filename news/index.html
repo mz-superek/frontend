@@ -84,6 +84,43 @@
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="news-day" data-date="2026-07-31">
+        <h2>📰 2026-07-31 (금)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 지난 발송 이후 1차 소스로 확인되는 신규 안정 릴리스가 없어 생략(React 19.2.8·Node.js 보안 릴리스·Safari 26.6 등은 기존 발송분과 중복, Next.js는 canary/preview만 존재). 화제가 된 OpenAI 학술연구자용 ChatGPT·GPT-5.6 Sol 보안 사건은 openai.com 공식 페이지 접근 불가(403)로 제외, AMD–Anthropic 딜은 7/22 소식으로 시의성 미달.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Gemini Robotics ER 2 퍼블릭 프리뷰 공개</p>
+            <p class="item-meta">2026-07-30 · <a href="https://ai.google.dev/gemini-api/docs/changelog">ai.google.dev</a></p>
+            <p class="item-summary">Google이 임베디드 추론(Embodied Reasoning) 모델 Gemini Robotics ER 2를 Gemini API에 퍼블릭 프리뷰로 공개. 고급 공간 추론·멀티로봇 협응을 위한 <code>gemini-robotics-er-2-preview</code>와 Live API 실시간 텍스트 스트리밍에 최적화된 <code>gemini-robotics-er-2-streaming-preview</code> 두 엔드포인트를 제공한다. 두 모델 모두 텍스트·이미지·비디오·오디오 입력을 받고, 물리 로봇 동작에 대해 블로킹 방식의 함수 호출을 지원한다. 기존 <code>gemini-robotics-er-1.6-preview</code>는 2026-08-31 종료 예정. AI 추론이 물리 세계 로봇 제어로 확장되는 프론티어 흐름을 보여주는 릴리스.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="news-day" data-date="2026-07-30">
+        <h2>📰 2026-07-30 (목)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 프론트엔드·HTML &amp; CSS는 지난 발송(7/28~29) 이후 1차 소스로 확인되는 신규 안정 릴리스가 없어 생략. 화제가 된 GPT-5.6 Sol 관련 보안 사건은 openai.com 공식 페이지 접근 불가(403)로 제외.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">&quot;Pacing the Frontier&quot; 성명 — OpenAI·Anthropic 등 1,270여 명 서명</p>
+            <p class="item-meta">2026-07-28 · <a href="https://pacingthefrontier.com">pacingthefrontier.com</a></p>
+            <p class="item-summary">프론티어 AI 랩 직원 1,270여 명(공식 사이트 기준, 서명자 수는 계속 증가)이 미국 정부에 &quot;자동화된 AI 연구(재귀적 자기개선)의 프론티어를 의도적으로 페이싱(pace)할 수 있는 기술·거버넌스 도구를 국제적으로 개발하도록 지원해 달라&quot;고 요청하는 성명을 발표했다. 공식 성명 원문은 &quot;We request that the U.S. government support an international effort to develop the technical and governance tools needed to deliberately pace the frontier of automated AI development.&quot; Anthropic CEO 다리오 아모데이, OpenAI 수석과학자 야쿠프 파초키, Google DeepMind·Meta AI 수석과학자 등이 서명했고 OpenAI·Anthropic 두 회사가 이를 공식 지지했다. 지금 당장의 개발 중단이 아니라 &apos;필요해질 때 멈출 수 있는 능력&apos;을 갖추자는 취지로, 오픈소스·규제 논쟁에 이어 프론티어 AI 거버넌스 담론의 전환점이 되는 신호다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js 보안 릴리스 (26.5.1 / 24.18.1 LTS / 22.23.2 LTS)</p>
+            <p class="item-meta">2026-07-29 · <a href="https://nodejs.org/en/blog/vulnerability/july-2026-security-releases">nodejs.org</a></p>
+            <p class="item-summary">Node.js가 Current(26.x)·Active LTS(24.x &apos;Krypton&apos;)·Maintenance LTS(22.x &apos;Jod&apos;) 세 라인을 동시에 보안 패치했다. HIGH 3건을 포함해 다수 CVE를 수정했는데, HTTP/2 유지 헤더로 maxSessionMemory 제한을 우회할 수 있던 문제(CVE-2026-56846), HTTP/2 재진입 send에서 발생하던 heap-use-after-free(CVE-2026-56848), Permission Model의 경로 매칭이 파일시스템 접근을 과다 허용하던 문제(CVE-2026-58043) 등이 핵심이다. 이 밖에 node:sqlite 반복자 재실행, dns.resolveAny() 중단, HTTP 파서 헤더 절단으로 인한 request smuggling 등도 함께 고쳤다. 운영 중인 Node 서버는 해당 라인의 최신 패치로 조속히 업데이트할 것을 권장한다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-07-29">
         <h2>📰 2026-07-29 (수)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 프론트엔드·백엔드는 지난 발송(7/27~28) 이후 1차 소스로 확인되는 신규 안정 릴리스가 없어 생략. 화제가 된 GPT-5.6 Sol 관련 보안 사건은 공식 1차 소스 확인이 불가해 제외.</p>
@@ -103,6 +140,33 @@
             <p class="item-title">Safari 26.6용 WebKit 기능 공개</p>
             <p class="item-meta">2026-07-27 · <a href="https://webkit.org/blog/18178/webkit-features-for-safari-26-6/">webkit.org</a></p>
             <p class="item-summary">WebKit이 Safari 26.6에 담긴 변경사항을 공개. WebAssembly 스트리밍 컴파일 메서드에 compileOptions 파라미터를 추가해 옵션을 넘겨도 스트리밍 컴파일을 유지할 수 있게 했고, CSS 버그를 다수 수정했다(ic 길이 단위가 페이지 줌에서 잘못 스케일되던 문제, position-area를 쓰는 고정 위치 요소의 폴백, iPad에서 zoom과 폰트 속성의 상호작용). 새 기능보다 정합성·안정화에 초점을 둔 릴리스.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="news-day" data-date="2026-07-28">
+        <h2>📰 2026-07-28 (화)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 백엔드·HTML &amp; CSS는 최근 수일 내 1차 소스로 확인되는 신규 소식이 없어 생략(Node.js v26.5.0은 7/8, Bun v1.3.14는 5월로 시의성 미달, Deno v2.9.4·Next.js는 전일 발송분과 중복). 화제가 된 "Kimi K3(2.8T)"는 공식 저장소에 명시적 출시일이 없고 과거에도 존재 확인이 반복 실패한 항목이라 상태·시의성 미확정으로 제외. TypeScript 7.0.x·web.dev/Chrome CSS 릴리스는 1차 소스 페이지 접근/렌더 실패로 미확인.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, 오픈웨이트 모델에 대한 입장 공개</p>
+            <p class="item-meta">2026-07-27 · <a href="https://www.anthropic.com/news/position-open-weights-models">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 "오픈웨이트 모델을 금지하자고 주장한 적이 없다"며 입장을 명확히 했다. 위험 능력이 없는 오픈웨이트 모델은 공공재이며, 보호무역식 전면 금지는 핵심 안보 우려를 해결하지 못한다고 본다. 대신 대(對)중국 칩 수출통제, 산업 규모의 디스틸레이션 단속, 충분히 강력한 모델에 대한 의무 안전성 검증이라는 세 가지 표적 조치를 제시. 오픈소스 AI 규제 논쟁의 프레임을 바꾸는 정책 신호.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Cognizant–Anthropic 파트너십 확대 — Claude Partner Network 글로벌 프리미어 파트너</p>
+            <p class="item-meta">2026-07-27 · <a href="https://www.anthropic.com/news/cognizant-anthropic">anthropic.com</a></p>
+            <p class="item-summary">Cognizant가 Claude를 자사 비즈니스·엔지니어링 플랫폼(Flowsource·Neuro AI Engineering·Neuro IT Ops) 전반에 내장하며 Global Premier Partner로 격상. 이미 3만 명 이상의 임직원이 Claude 교육을 이수했고, 에이전트형 계약 검토 시스템은 검토 시간 최대 40% 단축·추출 정확도 88% 초과, 리스크 대응 도구는 1인당 주 약 8시간 절감을 기록. 대기업의 실사용 단계 진입을 보여주는 사례.</p>
+          </div>
+        </div>
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">React v19.2.8 (및 v19.1.9 / v19.0.8) 패치 릴리스</p>
+            <p class="item-meta">2026-07-21 · <a href="https://github.com/facebook/react/releases/tag/v19.2.8">GitHub Releases</a></p>
+            <p class="item-summary">현재 최신 React 안정 버전. 세 라인 모두 React Server Components 디코딩 시 성능 개선을 포함한 패치. RSC를 쓰는 앱이라면 최신 패치로 올려 디코딩 성능 이점을 확보할 수 있다.</p>
           </div>
         </div>
       </section>
