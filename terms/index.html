@@ -198,6 +198,9 @@
     <a class="nav-item" href="#mtls">mTLS (상호 TLS)</a>
     <a class="nav-item" href="#consistent-hashing">일관된 해싱</a>
     <a class="nav-item" href="#blast-radius">폭발 반경 (Blast Radius)</a>
+    <a class="nav-item" href="#presigned-url">사전 서명 URL</a>
+    <a class="nav-item" href="#liveness-readiness-probe">헬스체크 프로브</a>
+    <a class="nav-item" href="#trunk-based-development">트렁크 기반 개발</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3374,6 +3377,46 @@ export default function Error({ error, reset }) {
 </div>
 <p><strong>하나의 구성요소가 장애나거나 침해됐을 때, 그 여파가 미치는 범위</strong>를 폭탄의 폭발 반경에 빗댄 말. 예를 들어 계정 하나가 탈취됐을 때 그 계정으로 건드릴 수 있는 자원이 전부라면 폭발 반경이 크고, 딱 필요한 자원만이면 작다. 클라우드·보안 아키텍처는 <strong>계정·VPC·가용영역을 쪼개고(격리), 권한을 꼭 필요한 만큼만 주며(최소 권한), 장애를 특정 구획 안에 가두는</strong> 방식으로 "하나가 터져도 나머지는 멀쩡"하게 폭발 반경을 좁히는 것을 핵심 목표로 삼는다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>"이 권한·키가 유출되면 어디까지 뚫리나?", 장애·보안사고의 여파를 줄이려 운영·개발 환경이나 계정·네트워크를 어떻게 격리할지 설계·리뷰할 때 마주친다. <span style="color:var(--teal)">[클라우드·아키텍처]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="presigned-url">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="presigned-url-h">사전 서명 URL <span class="sub">Presigned URL</span></h2>
+    <div class="links"><a class="link-tag" href="#object-storage">Object Storage</a><a class="link-tag" href="#least-privilege">최소 권한</a><a class="link-tag" href="#token">Token 저장 전략</a></div>
+  </div>
+</div>
+<p><strong>오브젝트 스토리지(S3 등)가 자기 자격증명으로 서명해 만들어 주는, 짧은 유효기간이 붙은 URL</strong>. 이 URL 하나만 있으면 별도 로그인·자격증명 없이 <strong>특정 파일 하나에 대해서만</strong> 업로드(PUT)나 다운로드(GET)를 할 수 있다. 서버가 자기 권한으로 URL을 미리 서명해 클라이언트에게 건네주면, 브라우저는 자격증명을 갖지 않고도 정해진 시간 동안 그 객체에만 접근한다. 덕분에 <strong>파일이 서버를 거치지 않고 브라우저와 스토리지 사이를 직접 오가</strong> 서버의 부하·대역폭을 아끼면서도, 접근 범위와 만료 시각을 좁혀 안전하게 통제할 수 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>사용자가 올린 이미지·첨부파일을 서버를 거치지 않고 브라우저에서 S3로 바로 업로드하거나, 비공개 파일을 한시적으로만 열어 주는 다운로드 링크를 만들 때 마주친다. <span style="color:var(--teal)">[클라우드·스토리지]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="liveness-readiness-probe">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="liveness-readiness-probe-h">헬스체크 프로브 <span class="sub">Liveness · Readiness Probe</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#graceful-shutdown">Graceful Shutdown</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스가 컨테이너 상태를 주기적으로 확인하는 두 종류의 건강검진</strong>. <strong>Liveness(생존) 프로브</strong>는 "이 컨테이너가 살아 있나"를 확인해 실패하면 컨테이너를 <strong>재시작</strong>하고, <strong>Readiness(준비) 프로브</strong>는 "지금 트래픽을 받을 준비가 됐나"를 확인해 실패하면 재시작하지 않고 <strong>서비스(로드밸런서) 대상 목록에서 잠깐 빼둔다</strong>. 이 둘을 구분해야 "부팅 중이라 아직 준비가 안 된 파드로 요청이 흘러가" 오류가 나거나, 반대로 "이미 멈춘 파드가 계속 트래픽을 받는" 문제를 막을 수 있다. (부팅이 느린 앱을 위한 startup 프로브까지 세 종류가 있다.)</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Liveness (생존)</h4><ul><li>"살아 있나?" 확인</li><li>실패 시 → 컨테이너 <strong>재시작</strong></li><li>데드락·먹통 상태 복구용</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">Readiness (준비)</h4><ul><li>"트래픽 받을 준비 됐나?" 확인</li><li>실패 시 → 서비스에서 <strong>제외</strong>(재시작 X)</li><li>부팅 중·과부하 시 트래픽 차단용</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>배포 설정(YAML)에서 헬스체크 엔드포인트를 지정하거나, "새로 뜬 파드가 왜 트래픽을 못 받지 / 잘못 받지" 같은 배포 직후 장애를 진단할 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="trunk-based-development">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="trunk-based-development-h">트렁크 기반 개발 <span class="sub">Trunk-Based Development · TBD</span></h2>
+    <div class="links"><a class="link-tag" href="#feature-flag">Feature Flag</a><a class="link-tag" href="#conventional-commits">Conventional Commits</a><a class="link-tag" href="#canary-deployment">Canary Deployment</a></div>
+  </div>
+</div>
+<p><strong>오래 사는 기능 브랜치를 만들지 않고, 작은 변경을 하루에도 여러 번 하나의 공유 브랜치(main·trunk)에 바로 합치는 브랜치 전략</strong>. 큰 기능도 잘게 쪼개 조금씩 main에 넣되, 아직 미완성인 코드는 <strong>기능 플래그(Feature Flag)로 꺼둔 채</strong> 배포한다. 브랜치가 오래 갈라져 있지 않으니 대형 머지 충돌과 리뷰 부담이 줄고, <strong>main이 항상 배포 가능한 상태로 유지돼</strong> CI/CD·지속적 배포와 궁합이 좋다. 여러 릴리스·기능 브랜치를 오래 유지하는 Git Flow와 대비되는, 요즘 배포 자동화 팀들이 선호하는 방식이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>팀의 브랜치·머지 전략을 정하거나, 기능 플래그와 함께 "미완성 코드를 main에 넣고 켜고 끄며" 자주 배포하는 개발 프로세스를 논할 때 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
