@@ -201,6 +201,9 @@
     <a class="nav-item" href="#presigned-url">사전 서명 URL</a>
     <a class="nav-item" href="#liveness-readiness-probe">헬스체크 프로브</a>
     <a class="nav-item" href="#trunk-based-development">트렁크 기반 개발</a>
+    <a class="nav-item" href="#csp">CSP (콘텐츠 보안 정책)</a>
+    <a class="nav-item" href="#oltp-olap">OLTP vs OLAP</a>
+    <a class="nav-item" href="#chaos-engineering">카오스 엔지니어링</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3417,6 +3420,46 @@ export default function Error({ error, reset }) {
 </div>
 <p><strong>오래 사는 기능 브랜치를 만들지 않고, 작은 변경을 하루에도 여러 번 하나의 공유 브랜치(main·trunk)에 바로 합치는 브랜치 전략</strong>. 큰 기능도 잘게 쪼개 조금씩 main에 넣되, 아직 미완성인 코드는 <strong>기능 플래그(Feature Flag)로 꺼둔 채</strong> 배포한다. 브랜치가 오래 갈라져 있지 않으니 대형 머지 충돌과 리뷰 부담이 줄고, <strong>main이 항상 배포 가능한 상태로 유지돼</strong> CI/CD·지속적 배포와 궁합이 좋다. 여러 릴리스·기능 브랜치를 오래 유지하는 Git Flow와 대비되는, 요즘 배포 자동화 팀들이 선호하는 방식이다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>팀의 브랜치·머지 전략을 정하거나, 기능 플래그와 함께 "미완성 코드를 main에 넣고 켜고 끄며" 자주 배포하는 개발 프로세스를 논할 때 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="csp">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="csp-h">콘텐츠 보안 정책 <span class="sub">Content Security Policy · CSP</span></h2>
+    <div class="links"><a class="link-tag" href="#csrf">CSRF·SameSite</a><a class="link-tag" href="#cors">CORS</a><a class="link-tag" href="#waf">WAF</a></div>
+  </div>
+</div>
+<p><strong>브라우저에게 "이 페이지에서 스크립트·이미지·스타일 등을 어느 출처에서만 불러와도 되는지"를 알려주는 HTTP 응답 헤더</strong>(<code>Content-Security-Policy</code>). 허용 목록에 없는 출처의 코드 실행과 인라인 스크립트를 브라우저가 차단하기 때문에, 공격자가 페이지에 악성 스크립트를 심는 <strong>XSS(교차 사이트 스크립팅)·코드 주입 공격을 완화</strong>하는 대표적 방어선이다. <code>default-src</code>(기본 출처), <code>script-src</code>(스크립트 출처), <code>frame-ancestors</code>(클릭재킹 방지) 같은 지시어(directive)로 자원 종류별 허용 출처를 세밀하게 지정한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>보안 점검에서 "CSP 헤더를 추가하라"는 요구를 받거나, CSP를 켠 뒤 인라인 스크립트·외부 위젯·애널리틱스가 차단돼 화면·기능이 깨질 때 마주친다. <span style="color:var(--blue)">[프론트엔드·보안]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="oltp-olap">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="oltp-olap-h">OLTP vs OLAP <span class="sub">온라인 트랜잭션 처리 · 온라인 분석 처리</span></h2>
+    <div class="links"><a class="link-tag" href="#read-replica">Read Replica</a><a class="link-tag" href="#etl">ETL</a><a class="link-tag" href="#sharding">샤딩</a></div>
+  </div>
+</div>
+<p><strong>데이터베이스를 '무엇에 쓰는가'로 나누는 두 방식</strong>. <strong>OLTP(온라인 트랜잭션 처리)</strong>는 주문·결제·회원가입처럼 <strong>짧고 잦은 읽기/쓰기를 빠르고 정확하게</strong> 처리하는 운영용 DB이고, <strong>OLAP(온라인 분석 처리)</strong>는 "지난달 지역별 매출 합계"처럼 <strong>대량의 과거 데이터를 집계·분석</strong>하는 데이터 웨어하우스용이다. 성격이 반대라 보통 운영 DB(OLTP)의 데이터를 ETL로 분석 DB(OLAP)로 옮겨, 무거운 분석 쿼리가 실서비스 성능을 갉아먹지 않게 분리한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">OLTP</h4><ul><li>운영·거래 처리용</li><li>짧고 잦은 읽기/쓰기</li><li>예: 주문·결제 DB</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">OLAP</h4><ul><li>분석·집계용</li><li>대량 데이터 복잡 조회</li><li>예: 데이터 웨어하우스·BI</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이 무거운 통계 쿼리는 운영 DB(OLTP) 말고 분석용(OLAP)에서 돌려라" 같은 요구를 듣거나, 데이터 웨어하우스·BI 리포트 파이프라인을 설계할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="chaos-engineering">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="chaos-engineering-h">카오스 엔지니어링 <span class="sub">Chaos Engineering</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#error-budget">에러 버짓</a><a class="link-tag" href="#postmortem">Postmortem</a></div>
+  </div>
+</div>
+<p><strong>서버 다운·네트워크 지연·의존 서비스 장애 같은 실패를 일부러 주입해, 실제 사고가 터지기 전에 시스템의 약점을 미리 찾아내는 신뢰성 실험 기법</strong>. "정상일 때만 잘 돌아가는 시스템"이 아니라 "장애가 나도 견디는 시스템"인지를 통제된 환경에서 검증한다. 넷플릭스가 무작위로 서버 인스턴스를 종료시키는 <strong>Chaos Monkey</strong>로 대중화했으며, 가설을 세우고(예: "결제 서비스가 죽어도 주문은 접수돼야 한다") 실제로 장애를 일으켜 시스템이 버티는지 관찰하는 방식으로 진행한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>장애 대응 훈련(게임데이)을 계획하거나, "장애를 일부러 일으켜 복구 절차·이중화를 검증하자"는 SRE·안정성 논의에서 마주친다. <span style="color:var(--purple)">[운영·SRE]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
