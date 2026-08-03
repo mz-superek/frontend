@@ -177,3 +177,42 @@ export async function updateMemberRole(params: {
 
   return { ...target };
 }
+
+export type InvitePayload = {
+  name: string;
+  email: string;
+  role: Role;
+  companyDomain: string;
+};
+
+/**
+ * 팀원 초대를 보낸다. 800ms 후 응답한다.
+ * 이미 팀에 있는 이메일이면 실패한다(예: minsu@example.com).
+ */
+export async function sendInvite(
+  payload: InvitePayload,
+): Promise<{ id: string }> {
+  const seq = ++requestSeq;
+
+  console.log(
+    `%c[api #${seq}] → sendInvite  name="${payload.name}"  email="${payload.email}"  role=${payload.role}  domain="${payload.companyDomain}"  (800ms 후 응답)`,
+    "color:#0891b2",
+  );
+
+  await sleep(800);
+
+  if (DB.some((member) => member.email === payload.email)) {
+    console.log(
+      `%c[api #${seq}] ← 실패  email=${payload.email} (이미 팀에 있는 이메일)`,
+      "color:#dc2626",
+    );
+    throw new Error("이미 팀에 있는 이메일입니다.");
+  }
+
+  console.log(
+    `%c[api #${seq}] ← 성공  email=${payload.email} (초대 발송됨)`,
+    "color:#16a34a",
+  );
+
+  return { id: `inv-${seq}` };
+}

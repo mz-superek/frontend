@@ -199,3 +199,35 @@ button:disabled {
   overflow-x: auto;
   white-space: pre-wrap;
 }
+
+/* 폼 */
+.field {
+  margin-bottom: 14px;
+}
+
+.field > label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.field > label.checkline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.ok {
+  color: #16a34a;
+  font-size: 13px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ok {
+    color: #4ade80;
+  }
+}

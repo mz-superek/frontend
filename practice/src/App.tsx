@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { resetServerData } from "./mock/api";
 import { TeamMemberList } from "./problems/01-team-members/TeamMemberList";
 import { Cart } from "./problems/02-cart/Cart";
+import { InviteForm } from "./problems/03-invite-form/InviteForm";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -17,6 +18,12 @@ const PROBLEMS = [
     title: "02. 장바구니 주문 요약",
     stack: "순수 React 상태 · useState · useEffect · 파생 상태",
     Component: Cart,
+  },
+  {
+    id: "03-invite-form",
+    title: "03. 팀원 초대 폼",
+    stack: "폼 · 유효성 검사 · 제출 상태 · 브라우저 기본 동작",
+    Component: InviteForm,
   },
 ] as const;
 
