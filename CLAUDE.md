@@ -109,7 +109,9 @@ TZ=Asia/Seoul date +"발송 기준일: %Y-%m-%d (%a) KST"
 - **daily-commit의 동기화 방향 (충돌 방지의 핵심)**:
   `news/` `terms/`는 **repo가 정본** → repo에서 마운트로 내려받기(rsync, 마운트는 unlink 불가이므로 --delete 금지).
   `index.html` `study/`는 **마운트가 정본** → repo로 올려 커밋. 메시지: `chore(daily): 데일리 콘텐츠 자동 갱신 (YYYY-MM-DD)`
-- **브랜치 생성 금지.** 모든 작업은 `main`에서만. `claude/*` 등 작업 브랜치를 만들어 푸시하지 말 것.
+- **브랜치: `main`에 직접 푸시가 정상.** daily-news·daily-terms 두 code 루틴은 **동일한 git 설정**이어야 한다(둘 다 main 직접 푸시). 스스로 `claude/*` 작업 브랜치를 만들지 말 것.
+  - ⚠️ **현재 daily-news 트리거만 "지정 개발 브랜치 + main 푸시 금지"로 설정돼 있어** 커밋이 `claude/*` 오펀 브랜치로 빠지고, 나중에 수동/자동 백필로만 main에 들어온다(daily-terms는 정상적으로 main 직접 푸시). **근본 해결 = daily-news 트리거의 git/브랜치 환경 설정을 daily-terms와 동일하게 맞추기** — 이는 Claude Code on the web의 트리거(env) 설정 사항으로, 프롬프트·코드로는 해결 불가.
+  - **하네스가 지정 브랜치를 강제하는 동안의 임시 대응**: (1) 자기 아카이브 파일 하나만 커밋한다. (2) 지정 브랜치를 **최신 `origin/main`에서 다시 만들어**(`git fetch origin main && git checkout -B <branch> origin/main`) 이미 병합·백필된 과거 커밋 위에 쌓지 않는다. (3) 오늘치 커밋만 얹어 push한다(이미 병합된 이력만 담긴 브랜치면 force-with-lease 허용).
 
 #### 7️⃣ 자동 루틴 체크사항
 발송 전 반드시 확인:
