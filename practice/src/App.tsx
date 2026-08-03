@@ -2,6 +2,7 @@ import { Component, useState, type ErrorInfo, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { resetServerData } from "./mock/api";
 import { TeamMemberList } from "./problems/01-team-members/TeamMemberList";
+import { Cart } from "./problems/02-cart/Cart";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -10,6 +11,12 @@ const PROBLEMS = [
     title: "01. 팀 멤버 관리 목록",
     stack: "TanStack Query v5 · useInfiniteQuery · 낙관적 업데이트",
     Component: TeamMemberList,
+  },
+  {
+    id: "02-cart",
+    title: "02. 장바구니 주문 요약",
+    stack: "순수 React 상태 · useState · useEffect · 파생 상태",
+    Component: Cart,
   },
 ] as const;
 
@@ -57,7 +64,9 @@ class ErrorBoundary extends Component<
 }
 
 export function App() {
-  const [selected, setSelected] = useState(PROBLEMS[0].id);
+  const [selected, setSelected] = useState<(typeof PROBLEMS)[number]["id"]>(
+    PROBLEMS[0].id,
+  );
   // 값이 바뀌면 문제 컴포넌트를 완전히 새로 마운트한다(초기 상태부터 다시 재현하려고)
   const [resetKey, setResetKey] = useState(0);
   const queryClient = useQueryClient();
