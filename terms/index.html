@@ -204,6 +204,9 @@
     <a class="nav-item" href="#csp">CSP (콘텐츠 보안 정책)</a>
     <a class="nav-item" href="#oltp-olap">OLTP vs OLAP</a>
     <a class="nav-item" href="#chaos-engineering">카오스 엔지니어링</a>
+    <a class="nav-item" href="#write-ahead-log">선행 기록 로그 (WAL)</a>
+    <a class="nav-item" href="#tls-termination">TLS 종료 (SSL 오프로딩)</a>
+    <a class="nav-item" href="#cross-region-replication">교차 리전 복제 (CRR)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3460,6 +3463,46 @@ export default function Error({ error, reset }) {
 </div>
 <p><strong>서버 다운·네트워크 지연·의존 서비스 장애 같은 실패를 일부러 주입해, 실제 사고가 터지기 전에 시스템의 약점을 미리 찾아내는 신뢰성 실험 기법</strong>. "정상일 때만 잘 돌아가는 시스템"이 아니라 "장애가 나도 견디는 시스템"인지를 통제된 환경에서 검증한다. 넷플릭스가 무작위로 서버 인스턴스를 종료시키는 <strong>Chaos Monkey</strong>로 대중화했으며, 가설을 세우고(예: "결제 서비스가 죽어도 주문은 접수돼야 한다") 실제로 장애를 일으켜 시스템이 버티는지 관찰하는 방식으로 진행한다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>장애 대응 훈련(게임데이)을 계획하거나, "장애를 일부러 일으켜 복구 절차·이중화를 검증하자"는 SRE·안정성 논의에서 마주친다. <span style="color:var(--purple)">[운영·SRE]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="write-ahead-log">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="write-ahead-log-h">선행 기록 로그 <span class="sub">Write-Ahead Log · WAL</span></h2>
+    <div class="links"><a class="link-tag" href="#read-replica">Read Replica</a><a class="link-tag" href="#cdc">CDC</a><a class="link-tag" href="#rto-rpo">RTO·RPO</a></div>
+  </div>
+</div>
+<p><strong>데이터베이스가 변경 내용을 실제 데이터 파일에 반영하기 전에, 먼저 "무엇을 어떻게 바꿀지"를 순차 기록 로그(append-only log)에 먼저 적어두는 방식</strong>. 서버가 갑자기 죽어도 재시작할 때 이 로그를 다시 실행(replay)해 <strong>커밋된 변경은 복구하고 미완료 변경은 되돌릴 수 있어</strong>, ACID의 '내구성(Durability)'을 데이터 페이지를 매번 즉시 디스크에 쓰지 않고도 보장한다. 무작위로 흩어진 데이터 파일 쓰기 대신 로그에 순차 append만 하면 되므로 쓰기 성능에도 유리하다. 이 로그를 복제본에 흘려보내면 그대로 <strong>복제(replication)와 시점 복구(PITR)</strong>의 토대가 된다. PostgreSQL의 WAL, SQLite의 WAL 모드, MySQL/InnoDB의 redo log가 모두 같은 원리다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>DB 장애 복구·복제·백업(시점 복구) 구조를 이해할 때, 또는 "WAL이 쌓여 디스크가 찬다", "복제 지연(replication lag)이 크다" 같은 운영 이슈를 다룰 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="tls-termination">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="tls-termination-h">TLS 종료 <span class="sub">TLS Termination · SSL 오프로딩</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#reverse-proxy">Reverse Proxy</a><a class="link-tag" href="#mtls">mTLS</a></div>
+  </div>
+</div>
+<p><strong>들어오는 HTTPS(TLS) 연결의 암호화를 어느 지점에서 풀지를 가리키는 개념</strong>. 보통 <strong>로드밸런서·리버스 프록시·CDN</strong>이 이 지점이 되어 여기서 TLS를 복호화하고, 뒤쪽 애플리케이션 서버로는 평문 HTTP를 넘긴다. 이렇게 하면 암호화·복호화 연산 부담을 앱 서버에서 덜어내고(그래서 'SSL 오프로딩'), <strong>인증서 설치·갱신 관리를 한곳으로 모을 수 있다</strong>. 종료 지점부터 백엔드까지의 내부 구간도 암호화가 필요하면, 그 지점에서 다시 암호화해 전달하는 <strong>재암호화(end-to-end TLS·mTLS)</strong> 방식을 쓴다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">TLS 종료 (Termination)</h4><ul><li>LB·프록시에서 복호화</li><li>백엔드 구간은 평문 HTTP</li><li>앱 서버 부담↓·인증서 관리 집중</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">종단간(end-to-end) TLS</h4><ul><li>종료 후 백엔드로 재암호화</li><li>내부 구간까지 암호화 유지</li><li>제로트러스트·규제 환경에 사용</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>로드밸런서·CDN·리버스 프록시에 인증서를 설치해 HTTPS를 처리하도록 설정하거나, 인증서 갱신·"백엔드 구간도 암호화할지(재암호화·mTLS)"를 논할 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cross-region-replication">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="cross-region-replication-h">교차 리전 복제 <span class="sub">Cross-Region Replication · CRR</span></h2>
+    <div class="links"><a class="link-tag" href="#rto-rpo">RTO·RPO</a><a class="link-tag" href="#availability-zone">Availability Zone</a><a class="link-tag" href="#read-replica">Read Replica</a></div>
+  </div>
+</div>
+<p><strong>데이터를 한 리전(지역)에서 지리적으로 떨어진 다른 리전으로 비동기 복제해두는 것</strong>. ① 리전 전체가 통째로 마비되는 사고에 대비하는 <strong>재해복구(DR)</strong>, ② 멀리 있는 사용자에게 가까운 리전에서 응답하는 <strong>지연 단축</strong>, ③ "데이터를 특정 국가에 둬야 한다"는 <strong>데이터 주권·규정 준수</strong>를 위해 쓴다. 대개 비동기라서 원격 사본은 원본보다 약간 뒤처지며(리전 간 결과적 일관성), 한 리전 안에서 여러 데이터센터에 걸치는 <strong>다중 AZ(가용영역)보다 훨씬 넓은 범위의 이중화</strong>다. S3 교차 리전 복제(CRR), RDS 교차 리전 리드 리플리카, DynamoDB Global Tables가 대표적이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>재해복구(DR) 아키텍처를 설계하거나 "한 리전이 죽어도 다른 리전에서 서비스가 되는가"를 검토할 때, 글로벌 서비스의 지연·규정 요건을 따질 때 마주친다. <span style="color:var(--amber)">[클라우드·재해복구]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
