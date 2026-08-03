@@ -197,6 +197,37 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-08-04">
+        <h2>2026-08-04 (화) · 트랜잭션과 ACID — "전부 성공 아니면 전부 취소"</h2>
+        <span class="topic-tag">클라우드·백엔드 기초</span>
+
+        <h3>핵심 개념</h3>
+        <p>서버에서 DB를 다루다 보면 "여러 쓰기 작업이 반드시 함께 성공해야 하는" 순간이 온다. 포인트 이체가 대표적 — A에서 차감 + B에 적립, 둘 중 하나만 실행되면 데이터가 깨진다. 트랜잭션은 이런 작업들을 하나의 묶음으로 묶어 <strong>전부 성공하면 반영(커밋), 하나라도 실패하면 전부 취소(롤백)</strong>하는 장치다. 퍼블리싱 시절 FTP로 파일 여러 개를 올리다 절반만 올라가서 사이트가 깨져 보이던 상황을 떠올리면 된다 — 트랜잭션은 그 "절반만 반영된 상태"가 아예 존재할 수 없게 만든다. 이 성질을 정리한 말이 ACID: 원자성(Atomicity, 전부 아니면 전무) · 일관성(Consistency, 규칙 위반 상태 금지) · 격리성(Isolation, 진행 중인 중간 상태를 다른 요청이 못 봄) · 지속성(Durability, 커밋된 건 장애가 나도 남음).</p>
+        <pre><code>// Next.js Server Action + Prisma
+'use server';
+export async function transferPoints(fromId: string, toId: string, amount: number) {
+  await prisma.$transaction(async (tx) =&gt; {
+    await tx.user.update({ where: { id: fromId }, data: { points: { decrement: amount } } });
+    await tx.user.update({ where: { id: toId },   data: { points: { increment: amount } } });
+  }); // 안에서 하나라도 throw되면 둘 다 롤백
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>Server Action이나 API 라우트에서 두 테이블 이상을 함께 수정하는 순간 트랜잭션이 필요해진다. "저장은 됐는데 데이터가 반쯤 이상하다"는 버그의 상당수가 트랜잭션 없는 다중 쓰기에서 나온다. 지난 7/24의 인덱스가 "읽기"의 기본기였다면, 트랜잭션은 "쓰기"의 기본기.</p>
+        <p class="refs">더 보기: <a href="https://www.prisma.io/docs/orm/prisma-client/queries/transactions" target="_blank" rel="noopener">Prisma 공식 문서 — Transactions</a> · <a href="https://www.postgresql.org/docs/current/tutorial-transactions.html" target="_blank" rel="noopener">PostgreSQL 튜토리얼 — Transactions</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. 위 코드에서 <code>$transaction</code> 없이 update 두 번을 그냥 실행했는데, 두 번째 update에서 에러가 났다. 결과는?<br>
+          ① 두 작업 모두 자동으로 취소된다<br>
+          ② 첫 번째 차감만 반영된 채 남는다<br>
+          ③ DB가 알아서 재시도한다<br>
+          ④ 두 번째 작업만 나중에 다시 실행된다</p>
+          <p>Q2. (단답) ACID 중 "커밋이 끝나기 전의 중간 상태를 다른 요청이 볼 수 없게 한다"는 성질의 이름은?</p>
+          <details><summary>정답·해설 보기</summary><p><strong>Q1 정답: ②</strong> — 트랜잭션 없이 실행한 각 update는 독립적으로 즉시 커밋된다. 두 번째에서 에러가 나도 첫 번째 차감은 이미 반영된 뒤라 되돌릴 수 없다. <code>$transaction</code>으로 묶어야 둘이 한 운명(전부 성공 or 전부 롤백)이 된다.<br><strong>Q2 정답: 격리성(Isolation)</strong> — 동시에 들어온 다른 요청이 "차감은 됐는데 적립은 아직 안 된" 중간 상태를 읽지 못하게 막는 성질이다.</p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-07-30">
         <h2>2026-07-30 (목) · 코드 스플리팅 — React.lazy와 next/dynamic으로 첫 로딩 가볍게</h2>
         <span class="topic-tag">프론트 심화</span>
