@@ -55,3 +55,4 @@ practice/
 | # | 제목 | 스택 | 상태 |
 | --- | --- | --- | --- |
 | 01 | 팀 멤버 관리 목록 | TanStack Query v5 · `useInfiniteQuery` · 낙관적 업데이트 | ✅ 완료 (스펙 6/6) |
+| 02 | 장바구니 주문 요약 | 순수 React 상태 · `useState` · `useEffect` · 파생 상태 | ✅ 완료 (스펙 5/5) |

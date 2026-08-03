@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 /**
  * 장바구니 주문 요약.
@@ -45,12 +45,13 @@ function CartRow({
           {won(item.price)} × {item.qty} = {won(item.price * item.qty)}
         </span>
         <label className='email' style={{ cursor: 'pointer' }}>
-          <input type='checkbox' checked={gift} onChange={(e) => setGift(e.target.checked)} /> 선물
-          포장
+          <input type='checkbox' checked={gift} onChange={(e) => setGift(e.target.checked)} /> 선물 포장
         </label>
       </div>
       <div className='actions'>
-        <button onClick={() => onQty(item.id, item.qty - 1)}>−</button>
+        <button disabled={item.qty <= 1} onClick={() => onQty(item.id, item.qty - 1)}>
+          −
+        </button>
         <span>{item.qty}</span>
         <button onClick={() => onQty(item.id, item.qty + 1)}>+</button>
         <button onClick={() => onRemove(item.id)}>삭제</button>
@@ -63,17 +64,15 @@ export function Cart() {
   const [items, setItems] = useState<CartItem[]>(INITIAL_ITEMS);
   const [coupon, setCoupon] = useState('');
   const [discountRate, setDiscountRate] = useState(0);
+  const [couponInvalid, setCouponInvalid] = useState(false);
 
   // 상품 금액 합계(할인 전)
   const subtotal = items.reduce((sum, it) => sum + it.price * it.qty, 0);
 
-  // 최종 결제 금액 — 합계에서 할인을 뺀 값
-  const [total, setTotal] = useState(subtotal);
-  useEffect(() => {
-    setTotal(subtotal - subtotal * discountRate);
-  }, [discountRate]);
+  const total = subtotal * (1 - discountRate);
 
   const handleQty = (id: string, qty: number) => {
+    if (qty < 1) return;
     setItems((prev) => prev.map((it) => (it.id === id ? { ...it, qty } : it)));
   };
 
@@ -84,32 +83,45 @@ export function Cart() {
   const applyCoupon = () => {
     if (coupon === 'SAVE10') {
       setDiscountRate(0.1);
+      setCouponInvalid(false);
+    } else if (coupon === '') {
+      setDiscountRate(0);
+      setCouponInvalid(false);
     } else {
       setDiscountRate(0);
+      setCouponInvalid(true);
     }
   };
-
-  const couponInvalid = coupon !== 'SAVE10';
 
   return (
     <div className='panel'>
       <ul className='list'>
-        {items.map((item, index) => (
-          <CartRow key={index} item={item} onQty={handleQty} onRemove={handleRemove} />
+        {items.map((item) => (
+          <CartRow item={item} key={item.id} onQty={handleQty} onRemove={handleRemove} />
         ))}
       </ul>
 
-      <div className='row'>
-        <input
-          className='search'
-          value={coupon}
-          onChange={(e) => setCoupon(e.target.value)}
-          placeholder='쿠폰 코드 (SAVE10)'
-        />
-        <button onClick={applyCoupon}>적용</button>
-      </div>
-      {couponInvalid && <p className='error'>유효하지 않은 쿠폰입니다.</p>}
-
+      <form
+        className='row'
+        onSubmit={(e) => {
+          e.preventDefault();
+          applyCoupon();
+        }}
+      >
+        <div className='row'>
+          <input
+            className='search'
+            value={coupon}
+            onChange={(e) => {
+              setCoupon(e.target.value);
+              setCouponInvalid(false);
+            }}
+            placeholder='쿠폰 코드 (SAVE10)'
+          />
+          <button>적용</button>
+        </div>
+        {couponInvalid && <p className='error'>유효하지 않은 쿠폰입니다.</p>}
+      </form>
       <div style={{ marginTop: 12 }}>
         <p className='hint'>상품 금액: {won(subtotal)}</p>
         {discountRate > 0 && <p className='hint'>할인: {discountRate * 100}%</p>}

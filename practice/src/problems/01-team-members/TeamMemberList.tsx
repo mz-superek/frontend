@@ -58,7 +58,7 @@ export function TeamMemberList() {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['members', debounceSearch] });
+      queryClient.invalidateQueries({ queryKey: ['members'] });
     },
   });
   const roleError = roleMutation.error;
