@@ -197,6 +197,35 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-08-05">
+        <h2>2026-08-05 (수) · Core Web Vitals — LCP·INP·CLS, 구글이 매기는 우리 페이지 성적표</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>Core Web Vitals는 구글이 "실제 사용자가 느끼는 페이지 품질"을 수치화한 3가지 지표다. <strong>LCP</strong>(Largest Contentful Paint)는 화면에서 가장 큰 콘텐츠(보통 히어로 이미지·제목)가 뜨기까지 걸린 시간, <strong>CLS</strong>(Cumulative Layout Shift)는 로딩 중 레이아웃이 덜컹 밀리는 정도, <strong>INP</strong>(Interaction to Next Paint)는 클릭·입력 후 화면이 반응하기까지의 지연이다. 퍼블리싱으로 비유하면 LCP는 "메인 비주얼이 몇 초 만에 보이나", CLS는 "이미지에 width/height 안 넣어서 본문이 밀려 내려가나", INP는 "버튼 눌렀는데 굳어 있나"를 재는 것. 기준은 LCP 2.5초 · CLS 0.1 · INP 200ms 이하가 "좋음"이고, 검색 순위에도 반영된다. 최근 공부한 코드 스플리팅(7/30)·메모이제이션(7/28)·useTransition(7/21)이 전부 이 지표를 좋게 만드는 "수단"이었다고 보면 된다.</p>
+        <pre><code>// npm i web-vitals — 실제 사용자 환경에서 측정
+import { onLCP, onCLS, onINP } from 'web-vitals';
+
+onLCP(console.log);  // 최대 콘텐츠 표시 시간
+onCLS(console.log);  // 레이아웃 밀림 누적 점수
+onINP(console.log);  // 상호작용 반응 지연
+
+/* CLS 예방은 사실 퍼블리셔의 오랜 습관 그대로 */
+img { width: 100%; aspect-ratio: 16 / 9; } /* 자리 미리 확보 */</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>"성능 개선해주세요"라는 요청은 사실 "이 세 숫자를 낮춰주세요"라는 뜻인 경우가 대부분이다. Lighthouse·Search Console에서 이 지표로 진단하고, 어떤 무기(스플리팅? memo? 이미지 최적화?)를 꺼낼지 정하는 게 실무 성능 작업의 순서다.</p>
+        <p class="refs">더 보기: <a href="https://web.dev/articles/vitals" target="_blank" rel="noopener">web.dev — Core Web Vitals 개요</a> · <a href="https://web.dev/articles/inp" target="_blank" rel="noopener">web.dev — INP 이해하기</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. 상세 페이지 상단 배너 이미지가 늦게 로드되면서 아래 본문이 아래로 밀려 내려간다. 가장 직접적으로 나빠지는 지표는?<br>
+          ① LCP  ② INP  ③ CLS  ④ TTFB</p>
+          <p>Q2. 검색 인풋에 타이핑할 때마다 1만 개 리스트를 동기로 필터링해서 타이핑이 버벅인다. (1) 이때 나빠지는 Core Web Vitals 지표는? (2) 최근에 배운 React 훅 중 이걸 개선할 수 있는 것은?</p>
+          <details><summary>정답·해설 보기</summary><p><strong>Q1 정답: ③ CLS</strong> — 로딩 중 콘텐츠가 밀리는 "레이아웃 이동"을 누적 측정하는 지표가 CLS다. 이미지에 width/height(또는 aspect-ratio)로 자리를 미리 확보하면 예방된다.<br><strong>Q2 정답: (1) INP, (2) useDeferredValue(또는 useTransition)</strong> — 입력 → 화면 반응까지의 지연이 길어지므로 INP가 나빠진다. 필터링 결과를 useDeferredValue로 "한 박자 늦은 값"으로 렌더링하면 인풋은 즉시 반응한다(7/22 학습 참고).</p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-08-04">
         <h2>2026-08-04 (화) · 트랜잭션과 ACID — "전부 성공 아니면 전부 취소"</h2>
         <span class="topic-tag">클라우드·백엔드 기초</span>
