@@ -3,7 +3,8 @@
 ## 📰 Daily Dev News Curation (매일 아침 자동 실행)
 
 ### 목적
-AI, 프론트엔드, 백엔드, HTML&CSS 분야의 최근 24시간 핵심 소식을 자동으로 수집, 큐레이션하여 Slack #with 채널에 발송하고 HTML 뉴스 아카이브에 기록.
+AI, 프론트엔드, 백엔드, HTML&CSS 분야의 최근 핵심 소식을 자동으로 수집, 큐레이션하여 Slack #with 채널에 발송하고 HTML 뉴스 아카이브에 기록.
+(시의성 기준은 **분야별 차등** — 0️⃣ 게이트 참조: AI는 24시간~수일, 그 외 분야는 최근 1~2주.)
 
 ### 핵심 규칙
 
@@ -43,21 +44,30 @@ TZ=Asia/Seoul date +"발송 기준일: %Y-%m-%d (%a) KST"
 > **전부 검증 가능한 팩트**이므로, 실으려면 반드시 1차 소스로 확인한다.
 
 **검증 채널 사다리 (위에서부터 시도, 어느 하나로 확인되면 1차 소스로 인정):**
-1. 공식 도메인 WebFetch (anthropic.com, openai.com, nodejs.org, devblogs.microsoft.com, webkit.org 등)
+1. 공식 도메인 WebFetch (anthropic.com, openai.com, nodejs.org, devblogs.microsoft.com, webkit.org, nextjs.org, developer.chrome.com, web.dev, developer.mozilla.org, huggingface.co 등)
+   - **HTML & CSS는** `web.dev`(특히 **Baseline** 페이지)·`developer.mozilla.org`(MDN)·`developer.chrome.com`·`caniuse.com`도 기능 지원/편입 여부의 **1차 소스로 인정**한다.
+   - **오픈웨이트 모델은** `huggingface.co` 모델 카드가 사양·라이선스·공개일의 1차 소스다(검색 요약의 파라미터·컨텍스트·가격 수치는 믿지 말고 카드 원문으로 대조).
 2. 1이 403 등으로 막히면 → **그 프로젝트의 공식 GitHub 저장소**(github.com은 이 환경에서 fetch 가능)의
    Releases/Tags/CHANGELOG로 확인. 이것도 1차 소스다.
    (예: vercel/next.js, microsoft/TypeScript, nodejs/node, WebKit/WebKit, facebook/react, denoland/deno, oven-sh/bun)
 3. 둘 다 불가 → `[접근 실패]`로 드롭. 규제·기업 동향처럼 GitHub 저장소가 없는 소식은
    공식 도메인이 열려야만 통과 가능 — 반복되면 환경 네트워크 정책에 도메인 추가가 근본 해결.
+   - ⚠️ **반복 차단 도메인(누적) — 매번 `[접근 실패]`로 드롭 중. 근본 해결은 환경(Claude Code on the web) 네트워크 허용목록에 추가하는 것(env 설정 변경 — 프롬프트/코드로는 불가):**
+     - `openai.com` — OpenAI 소식(학술연구자용 ChatGPT·GPT-5.6 등)
+     - `alizila.com`·`qwen.ai` — Alibaba/Qwen 소식. 단 Qwen **오픈웨이트 모델**은 `huggingface.co` 모델 카드(및 공식 GitHub)로 우회 검증이 되므로, 기업·발표성 소식만 이 도메인들이 열려야 통과된다.
 
 각 항목마다 다음을 확인하고, **하나라도 확인 안 되면 그 항목은 싣지 않는다(fail-closed):**
-- [ ] **발행일**: 공식 블로그/릴리스 노트/1차 소스 URL로 날짜 확인. "최근 24시간" 취지에 맞는지도 확인 — **1년 전 버전을 새 소식으로 싣지 않는다** (예: `vX.Y.Z` 릴리스는 연도까지 확인).
+- [ ] **발행일 (분야별 시의성 차등)**: 공식 블로그/릴리스 노트/1차 소스 URL로 날짜 확인. **1년 전 버전을 새 소식으로 싣지 않는다** (예: `vX.Y.Z` 릴리스는 연도까지 확인).
+  - **AI**: "최근 24시간~수일" 기준 — 모델·규제 소식이 거의 매일 나오므로 빡빡하게.
+  - **프론트엔드·백엔드·HTML & CSS**: "최근 **1~2주**" 기준 — 안정 릴리스·스펙 소식이 주 단위 주기라 하루 기준이면 매번 빈다. 단 1~2주를 넘긴 건 드롭.
 - [ ] **버전·수치**: "N배 빨라짐", "N조 파라미터", "N점" 같은 수치는 **공식 발표 수치**를 쓴다. 블로그마다 다른 값이 돌면 공식(제조사/저자) 값 우선, 없으면 수치를 빼고 정성적으로만 쓴다.
 - [ ] **상태**: "출시됨 / 중단됨 / 복원됨 / 예정" 같은 상태는 가장 최신 1차 소스 기준으로 확인. 상태는 며칠 만에 뒤집힐 수 있으니 반드시 최신 확인.
 - [ ] 검증에 쓴 1차 소스 URL을 항목 meta의 `<a>`에 실제로 반영.
 
 #### 3️⃣ 뉴스 검색 팁
 - **AI**: 개발 도구뿐 아니라 프론티어 모델, 규제, 수출통제, 기업 동향 포함
+- **분야 균형 — "뉴스"의 정의를 넓게 잡는다 (AI 편중 방지):** 프론트엔드·백엔드·HTML & CSS는 *신규 안정 릴리스*에만 묶지 말고 다음도 후보로 본다 — 주요 **RFC·스펙 제안**, 대형 **공식 블로그 발표**, Web Platform **Baseline 편입**, 표준/명세 변경, 그리고 **RC·베타·프리뷰(canary)**(반드시 "RC/베타/canary"라고 라벨을 붙여 안정판과 구분). 이들도 0️⃣ 게이트(1차 소스 확인)는 안정판과 **동일하게** 통과해야 한다.
+  - 왜: AI는 오픈웨이트·프론티어 모델이 거의 매일 쏟아지지만 프레임워크 안정판은 수 주 주기여서, "신규 안정 릴리스"만 고집하면 매일 AI만 남는다. 정확성 기준은 그대로 두되 **커버리지 정의만** 넓혀 균형을 맞춘다.
 - **영어/한국어 균형**: GeekNews(news.hada.io) 등 한국 IT 소스도 확인
 - **큰 주장 검증**: 모델 출시·버전·날짜·수치·상태는 0️⃣ 팩트 검증 게이트를 반드시 통과 (검증 안 되면 버린다)
 - **중복 회피**: Slack #with 최근 2주 메시지 확인 후 이미 다룬 주제 제외
@@ -101,7 +111,9 @@ TZ=Asia/Seoul date +"발송 기준일: %Y-%m-%d (%a) KST"
 - **daily-commit의 동기화 방향 (충돌 방지의 핵심)**:
   `news/` `terms/`는 **repo가 정본** → repo에서 마운트로 내려받기(rsync, 마운트는 unlink 불가이므로 --delete 금지).
   `index.html` `study/`는 **마운트가 정본** → repo로 올려 커밋. 메시지: `chore(daily): 데일리 콘텐츠 자동 갱신 (YYYY-MM-DD)`
-- **브랜치 생성 금지.** 모든 작업은 `main`에서만. `claude/*` 등 작업 브랜치를 만들어 푸시하지 말 것.
+- **브랜치: `main`에 직접 푸시가 정상.** daily-news·daily-terms 두 code 루틴은 **동일한 git 설정**이어야 한다(둘 다 main 직접 푸시). 스스로 `claude/*` 작업 브랜치를 만들지 말 것.
+  - ⚠️ **현재 daily-news 트리거만 "지정 개발 브랜치 + main 푸시 금지"로 설정돼 있어** 커밋이 `claude/*` 오펀 브랜치로 빠지고, 나중에 수동/자동 백필로만 main에 들어온다(daily-terms는 정상적으로 main 직접 푸시). **근본 해결 = daily-news 트리거의 git/브랜치 환경 설정을 daily-terms와 동일하게 맞추기** — 이는 Claude Code on the web의 트리거(env) 설정 사항으로, 프롬프트·코드로는 해결 불가.
+  - **하네스가 지정 브랜치를 강제하는 동안의 임시 대응**: (1) 자기 아카이브 파일 하나만 커밋한다. (2) 지정 브랜치를 **최신 `origin/main`에서 다시 만들어**(`git fetch origin main && git checkout -B <branch> origin/main`) 이미 병합·백필된 과거 커밋 위에 쌓지 않는다. (3) 오늘치 커밋만 얹어 push한다(이미 병합된 이력만 담긴 브랜치면 force-with-lease 허용).
 
 #### 7️⃣ 자동 루틴 체크사항
 발송 전 반드시 확인:
