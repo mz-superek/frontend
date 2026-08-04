@@ -52,7 +52,9 @@ TZ=Asia/Seoul date +"발송 기준일: %Y-%m-%d (%a) KST"
    (예: vercel/next.js, microsoft/TypeScript, nodejs/node, WebKit/WebKit, facebook/react, denoland/deno, oven-sh/bun)
 3. 둘 다 불가 → `[접근 실패]`로 드롭. 규제·기업 동향처럼 GitHub 저장소가 없는 소식은
    공식 도메인이 열려야만 통과 가능 — 반복되면 환경 네트워크 정책에 도메인 추가가 근본 해결.
-   - ⚠️ **`openai.com`은 현재 403으로 반복 차단되어 OpenAI 소식(학술연구자용 ChatGPT·GPT-5.6 등)이 매번 `[접근 실패]`로 드롭되고 있다. 근본 해결책은 환경(Claude Code on the web) 네트워크 허용목록에 `openai.com` 추가 — 이는 env 설정 변경 사항으로 프롬프트/코드로는 해결 불가하다.**
+   - ⚠️ **반복 차단 도메인(누적) — 매번 `[접근 실패]`로 드롭 중. 근본 해결은 환경(Claude Code on the web) 네트워크 허용목록에 추가하는 것(env 설정 변경 — 프롬프트/코드로는 불가):**
+     - `openai.com` — OpenAI 소식(학술연구자용 ChatGPT·GPT-5.6 등)
+     - `alizila.com`·`qwen.ai` — Alibaba/Qwen 소식. 단 Qwen **오픈웨이트 모델**은 `huggingface.co` 모델 카드(및 공식 GitHub)로 우회 검증이 되므로, 기업·발표성 소식만 이 도메인들이 열려야 통과된다.
 
 각 항목마다 다음을 확인하고, **하나라도 확인 안 되면 그 항목은 싣지 않는다(fail-closed):**
 - [ ] **발행일 (분야별 시의성 차등)**: 공식 블로그/릴리스 노트/1차 소스 URL로 날짜 확인. **1년 전 버전을 새 소식으로 싣지 않는다** (예: `vX.Y.Z` 릴리스는 연도까지 확인).
