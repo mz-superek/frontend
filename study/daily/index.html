@@ -197,6 +197,43 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-08-06">
+        <h2>2026-08-06 (목) · TanStack Query — 서버 상태는 "내 것"이 아니다: staleTime과 캐싱</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>useState에 담는 값은 내 앱이 소유한 "클라이언트 상태"지만, API로 받아온 데이터는 서버가 원본을 가진 <strong>서버 상태</strong>라서 받는 순간부터 낡기 시작한다(stale). TanStack Query(구 React Query)는 이 서버 상태를 <strong>queryKey</strong> 기준으로 캐시에 저장하고, <strong>staleTime</strong> 동안은 "신선(fresh)"으로 보고 재요청 없이 캐시를 쓰다가, 시간이 지나면 stale로 표시한 뒤 창 포커스·재마운트 같은 신호가 오면 백그라운드에서 조용히 다시 받아온다. 퍼블리싱으로 비유하면 캐시는 미리 뽑아둔 출력 시안 — 즉시 보여줄 수 있지만 원본 PSD(서버)가 바뀌었을 수 있으니 주기적으로 다시 뽑아야(refetch) 한다. useEffect+useState로 직접 fetch를 짜면 낡음 관리·중복 요청 제거·로딩/에러 처리를 전부 손으로 해야 하는데, 그걸 대신해주는 게 핵심이다.</p>
+        <pre><code>import { useQuery } from '@tanstack/react-query';
+
+function ProjectList({ teamId }: { teamId: string }) {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ['projects', teamId], // 캐시 식별자 — teamId가 바뀌면 별도 캐시
+    queryFn: () =&gt; fetch(`/api/teams/${teamId}/projects`).then(r =&gt; r.json()),
+    staleTime: 60_000, // 1분간 '신선' — 재마운트해도 재요청 안 함
+  });
+
+  if (isPending) return &lt;Spinner /&gt;;
+  if (isError) return &lt;ErrorBox /&gt;;
+  return &lt;ul&gt;{data.map(p =&gt; &lt;li key={p.id}&gt;{p.name}&lt;/li&gt;)}&lt;/ul&gt;;
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>실무 React/Next.js의 데이터 페칭 표준이라 코드 리뷰에서 반드시 만나고, "왜 화면 전환할 때마다 API를 다시 쏘지?" 같은 이슈의 답이 대부분 staleTime/queryKey 설정에 있다.</p>
+        <p class="refs">더 보기: <a href="https://tanstack.com/query/latest/docs/framework/react/overview" target="_blank" rel="noopener">TanStack Query 공식 개요</a> · <a href="https://tkdodo.eu/blog/practical-react-query" target="_blank" rel="noopener">Practical React Query (TkDodo)</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. staleTime: 60_000으로 설정한 쿼리가 있다. 데이터를 받아온 지 30초 뒤, 같은 queryKey를 쓰는 컴포넌트가 다시 마운트되면?<br>
+          ① 무조건 서버에 재요청한다  ② 캐시를 즉시 보여주고 재요청은 하지 않는다  ③ 캐시를 보여주면서 백그라운드로 재요청한다  ④ 빈 화면에서 로딩부터 시작한다</p>
+          <p>Q2. 아래 코드의 문제점 하나를 찾아보자.</p>
+          <pre><code>const { data } = useQuery({
+  queryKey: ['projects'],
+  queryFn: () =&gt; fetch(`/api/teams/${teamId}/projects`).then(r =&gt; r.json()),
+});</code></pre>
+          <details><summary>정답·해설 보기</summary><p><strong>Q1 정답: ②</strong> — 받아온 지 30초면 아직 staleTime(1분) 안이라 fresh 상태. fresh인 동안은 재마운트·포커스가 와도 캐시만 쓰고 재요청하지 않는다. 1분이 지나 stale이 된 뒤라면 ③처럼 캐시를 먼저 보여주고 백그라운드에서 refetch한다.<br><strong>Q2 정답: queryKey에 teamId가 빠졌다</strong> — queryFn은 teamId를 쓰는데 키가 ['projects']로 고정이라, teamId가 바뀌어도 캐시 키가 같아서 이전 팀 데이터를 그대로 보여주고 재요청도 안 한다. 쿼리가 의존하는 값은 전부 키에 넣어야 한다(useEffect 의존성 배열과 같은 원리).</p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-08-05">
         <h2>2026-08-05 (수) · Core Web Vitals — LCP·INP·CLS, 구글이 매기는 우리 페이지 성적표</h2>
         <span class="topic-tag">프론트 심화</span>
