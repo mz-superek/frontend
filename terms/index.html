@@ -207,6 +207,24 @@
     <a class="nav-item" href="#write-ahead-log">선행 기록 로그 (WAL)</a>
     <a class="nav-item" href="#tls-termination">TLS 종료 (SSL 오프로딩)</a>
     <a class="nav-item" href="#cross-region-replication">교차 리전 복제 (CRR)</a>
+    <a class="nav-item" href="#horizontal-vertical-scaling">스케일 아웃 vs 스케일 업</a>
+    <a class="nav-item" href="#cache-stampede">캐시 스탬피드</a>
+    <a class="nav-item" href="#data-lake">데이터 레이크</a>
+    <a class="nav-item" href="#zero-trust">제로 트러스트</a>
+    <a class="nav-item" href="#isolation-level">트랜잭션 격리 수준</a>
+    <a class="nav-item" href="#incident-commander">인시던트 커맨더 (IC)</a>
+    <a class="nav-item" href="#reserved-instance-savings-plan">예약 인스턴스·세이빙스 플랜</a>
+    <a class="nav-item" href="#distributed-lock">분산 락 (Distributed Lock)</a>
+    <a class="nav-item" href="#helm">헬름 (Helm)</a>
+    <a class="nav-item" href="#anycast">애니캐스트 (Anycast)</a>
+    <a class="nav-item" href="#materialized-view">구체화 뷰 (MV)</a>
+    <a class="nav-item" href="#bulkhead">격벽 패턴 (Bulkhead)</a>
+    <a class="nav-item" href="#percentile-latency">백분위 지연시간 (p95·p99)</a>
+    <a class="nav-item" href="#consensus">합의 알고리즘 (Raft)</a>
+    <a class="nav-item" href="#data-egress">데이터 이그레스 비용</a>
+    <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
+    <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
+    <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3504,6 +3522,255 @@ export default function Error({ error, reset }) {
 <p><strong>데이터를 한 리전(지역)에서 지리적으로 떨어진 다른 리전으로 비동기 복제해두는 것</strong>. ① 리전 전체가 통째로 마비되는 사고에 대비하는 <strong>재해복구(DR)</strong>, ② 멀리 있는 사용자에게 가까운 리전에서 응답하는 <strong>지연 단축</strong>, ③ "데이터를 특정 국가에 둬야 한다"는 <strong>데이터 주권·규정 준수</strong>를 위해 쓴다. 대개 비동기라서 원격 사본은 원본보다 약간 뒤처지며(리전 간 결과적 일관성), 한 리전 안에서 여러 데이터센터에 걸치는 <strong>다중 AZ(가용영역)보다 훨씬 넓은 범위의 이중화</strong>다. S3 교차 리전 복제(CRR), RDS 교차 리전 리드 리플리카, DynamoDB Global Tables가 대표적이다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>재해복구(DR) 아키텍처를 설계하거나 "한 리전이 죽어도 다른 리전에서 서비스가 되는가"를 검토할 때, 글로벌 서비스의 지연·규정 요건을 따질 때 마주친다. <span style="color:var(--amber)">[클라우드·재해복구]</span></div>
 </section><hr class="divider">
+
+<section class="term" id="horizontal-vertical-scaling">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="horizontal-vertical-scaling-h">스케일 아웃 vs 스케일 업 <span class="sub">Horizontal vs Vertical Scaling · 수평/수직 확장</span></h2>
+    <div class="links"><a class="link-tag" href="#auto-scaling">Auto Scaling</a><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#sticky-session">스티키 세션</a></div>
+  </div>
+</div>
+<p><strong>트래픽이 늘 때 시스템을 키우는 두 방향</strong>. <strong>스케일 업(수직 확장)</strong>은 서버 한 대의 사양(CPU·메모리·디스크)을 더 좋은 것으로 키우는 방식이라 구조 변경이 거의 없어 간단하지만, 한 대가 가질 수 있는 성능에 물리적 한계가 있고 교체·리사이즈 때 다운타임이 생기며 그 서버가 곧 단일 장애점이 된다. <strong>스케일 아웃(수평 확장)</strong>은 같은 역할의 서버 대수를 늘리고 앞단의 로드밸런서로 요청을 나눠 보내는 방식으로, 이론상 거의 무한히 늘릴 수 있고 한 대가 죽어도 나머지가 버티는 이중화 이점이 있지만, 어느 서버로 가도 똑같이 동작하도록 <strong>상태를 서버에 두지 않는 무상태(stateless) 설계</strong>와 세션·데이터를 외부(캐시·DB)에 공유하는 처리가 전제된다. 클라우드의 <strong>오토스케일링</strong>은 이 수평 확장을 부하에 맞춰 자동으로 늘렸다 줄이는 것이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">스케일 업 (수직)</h4><ul><li>한 대 사양을 키움</li><li>구조 변경 적음·간단</li><li>물리적 한계·다운타임·단일 장애점</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">스케일 아웃 (수평)</h4><ul><li>서버 대수를 늘림 + LB 분산</li><li>거의 무한 확장·이중화</li><li>무상태 설계·세션 공유 필요</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"트래픽이 늘었는데 서버를 키울까(업) 대수를 늘릴까(아웃)"를 논하거나, 오토스케일링·로드밸런서를 붙이며 "세션을 서버에 들고 있으면 스케일 아웃이 안 된다" 같은 설계 이슈를 다룰 때 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cache-stampede">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="cache-stampede-h">캐시 스탬피드 <span class="sub">Cache Stampede · Thundering Herd · Dog-pile</span></h2>
+    <div class="links"><a class="link-tag" href="#cache-invalidation">Cache Invalidation</a><a class="link-tag" href="#http-cache">HTTP Cache</a><a class="link-tag" href="#swr">Stale-While-Revalidate</a></div>
+  </div>
+</div>
+<p><strong>인기 있는 캐시 항목이 만료되는 바로 그 순간, 그 값을 기다리던 수많은 요청이 동시에 캐시 미스가 되어 한꺼번에 원본(DB·API·연산)으로 몰려 부하가 폭증하는 현상</strong>. 평소엔 캐시가 다 막아주던 요청이 만료·서버 재시작으로 캐시가 비는 순간(콜드 스타트) 방어막이 사라져, 똑같은 값을 만들려는 무거운 작업이 수백·수천 번 중복 실행되며 DB가 넘어지기도 한다. "개 무리처럼 한꺼번에 덤빈다"고 <strong>도그파일(dog-pile)</strong>, 하나의 이벤트에 다수의 프로세스가 동시에 깨어나는 더 넓은 문제를 <strong>천둥 무리(thundering herd)</strong>라고도 부른다. 완화책으로는 ① <strong>요청 병합(single-flight·락)</strong> — 한 요청만 값을 다시 만들고 나머지는 그 결과를 기다리게 하기, ② <strong>만료 임박 시 확률적 조기 갱신</strong>으로 만료 시점을 흩뜨리기, ③ <strong>stale-while-revalidate</strong> — 만료돼도 일단 헌 값을 주면서 뒤에서 조용히 갱신하기가 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"인기 상품 캐시가 만료되는 순간 DB가 튄다", "배포로 캐시가 비니 첫 요청들이 몰려 느려진다" 같은 장애를 분석하거나, 캐시 TTL·재검증 전략을 설계할 때 마주친다. <span style="color:var(--coral)">[백엔드·성능]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="data-lake">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="data-lake-h">데이터 레이크 <span class="sub">Data Lake</span></h2>
+    <div class="links"><a class="link-tag" href="#object-storage">Object Storage</a><a class="link-tag" href="#oltp-olap">OLTP vs OLAP</a><a class="link-tag" href="#etl">ETL</a></div>
+  </div>
+</div>
+<p><strong>정형·반정형·비정형 데이터를 원본 형식 그대로 대량으로 쌓아두는 중앙 저장소</strong>. 보통 값싼 <strong>오브젝트 스토리지(S3 등)</strong> 위에 구성하며, 넣을 때 미리 표 구조(스키마)를 강제하지 않고 <strong>읽어서 쓸 때 비로소 구조를 해석(schema-on-read)</strong>한다. 그래서 "일단 로그·이벤트·이미지·JSON 등 잡다한 원천을 다 담아두고, 나중에 분석·머신러닝 용도에 맞게 골라 쓰는" 유연함이 핵심이다. 반대로 <strong>데이터 웨어하우스</strong>는 미리 정형화해 적재(schema-on-write)하고 집계·BI 조회에 최적화된 곳이라, 보통 레이크의 원본을 정제·변환해 웨어하우스로 옮긴다. 최근엔 레이크의 유연함과 웨어하우스의 정형 분석을 합친 <strong>데이터 레이크하우스</strong>도 쓰인다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">데이터 레이크</h4><ul><li>원본 그대로 저장 (schema-on-read)</li><li>정형·비정형 다 수용</li><li>오브젝트 스토리지 기반·저비용</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">데이터 웨어하우스</h4><ul><li>미리 정형화해 적재 (schema-on-write)</li><li>집계·BI 분석에 최적</li><li>OLAP 쿼리 성능 중심</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>로그·이벤트·이미지 같은 잡다한 원천 데이터를 한곳에 모아 분석·ML 기반을 만들 때, "웨어하우스에 넣기 전 원본은 레이크에 쌓아두자"는 데이터 파이프라인 설계 논의에서 마주친다. <span style="color:var(--amber)">[데이터·분석]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="zero-trust">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="zero-trust-h">제로 트러스트 <span class="sub">Zero Trust · ZTA</span></h2>
+    <div class="links"><a class="link-tag" href="#least-privilege">최소 권한(PoLP)</a><a class="link-tag" href="#mtls">mTLS</a><a class="link-tag" href="#iam">IAM</a></div>
+  </div>
+</div>
+<p><strong>"사내망 안에 있으니 믿는다"는 경계(perimeter) 보안을 버리고, 위치·소유와 상관없이 모든 접근 요청을 매번 인증·인가하는 보안 모델</strong>. 핵심 구호가 <strong>"절대 신뢰하지 말고 항상 검증하라(never trust, always verify)"</strong>이고, "이미 침해당했다고 가정(assume breach)"한 채 설계한다. NIST 표준(SP 800-207)은 &lt;네트워크 위치(사내 LAN이냐 인터넷이냐)나 기기 소유 여부만으로는 어떤 신뢰도 부여하지 않는다&gt;고 정의한다 &mdash; 세션을 열기 전에 사용자와 기기를 각각 검증하고, 네트워크 구간이 아니라 개별 리소스(자원)를 보호 대상으로 본다. 재택근무·BYOD·클라우드로 &lt;믿을 수 있는 내부망&gt;이라는 경계 자체가 흐려진 상황에 대응하는 개념이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"VPN만 들어오면 다 통과"시키던 방식 대신 사내에서도 매 요청 신원·기기를 검증하는 아키텍처(예: Google BeyondCorp, IAP, mTLS, 최소권한 IAM)를 설계·도입하거나, 보안 감사·규정에서 "제로 트러스트 원칙을 지키는가"를 따질 때 마주친다. <span style="color:var(--blue)">[보안·클라우드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="isolation-level">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="isolation-level-h">트랜잭션 격리 수준 <span class="sub">Transaction Isolation Level · MVCC</span></h2>
+    <div class="links"><a class="link-tag" href="#eventual-consistency">결과적 일관성</a><a class="link-tag" href="#connection-pool">Connection Pool</a><a class="link-tag" href="#orm">ORM</a></div>
+  </div>
+</div>
+<p><strong>동시에 실행되는 트랜잭션들이 서로의 &lt;아직 안 끝난 중간 변경&gt;을 얼마나 볼 수 있는지 정하는 단계</strong>. SQL 표준은 4단계 &mdash; <strong>Read Uncommitted → Read Committed → Repeatable Read → Serializable</strong> &mdash; 를 두고, 낮을수록 이상현상을 허용하는 대신 빠르고, 높을수록 안전하지만 잠금·비용이 커진다. 대표 이상현상은 <strong>더티 리드</strong>(커밋 안 된 값을 읽음), <strong>반복 불가 읽기</strong>(같은 행을 두 번 읽었는데 값이 달라짐), <strong>팬텀 리드</strong>(같은 조건 조회인데 행 개수가 달라짐)다. 많은 DB(PostgreSQL·Oracle 등)는 <strong>MVCC(다중 버전 동시성 제어)</strong>로 각 트랜잭션에 &lt;그 시점의 스냅샷&gt;을 보여줘 읽기가 쓰기를 막지 않게 한다. PostgreSQL의 기본 수준은 Read Committed다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"남이 수정 중인 값을 읽어버렸다", "같은 쿼리를 두 번 읽었는데 결과가 달라졌다" 같은 동시성 버그를 분석하거나, 결제·재고처럼 정합성이 중요한 로직의 격리 수준을 올릴지(성능과 맞바꿀지) 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="incident-commander">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="incident-commander-h">인시던트 커맨더 <span class="sub">Incident Commander · IC</span></h2>
+    <div class="links"><a class="link-tag" href="#on-call">On-call·Escalation</a><a class="link-tag" href="#postmortem">Postmortem</a><a class="link-tag" href="#runbook">Runbook</a></div>
+  </div>
+</div>
+<p><strong>장애(인시던트) 대응 순간에 전체를 총괄·조율하는 사람</strong> &mdash; 상시 직책이 아니라 그 사건 동안 맡는 <strong>역할</strong>이다. 직접 코드를 고치는 대신 상황 파악, 역할 분담, 의사결정, 안팎 소통을 책임진다(&lt;지금 무엇이 문제고 누가 무엇을 하는가&gt;를 한 사람에게 모아 혼선을 없애는 것이 목적). 여러 재난 대응에 쓰이는 <strong>지휘체계(ICS)</strong>에서 유래했고 Google SRE·PagerDuty가 IT 장애 대응에 도입했다. IC 아래로 대개 <strong>운영 담당(직접 조치)·커뮤니케이션 담당·서기(scribe)</strong>로 역할을 나눈다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>여러 팀이 한꺼번에 달려드는 대형 장애에서 "지금 누가 지휘하나요?"를 정하거나, On-call·에스컬레이션·포스트모템 같은 장애 대응 프로세스를 세울 때 마주친다. <span style="color:var(--purple)">[운영·SRE]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="reserved-instance-savings-plan">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="reserved-instance-savings-plan-h">예약 인스턴스·세이빙스 플랜 <span class="sub">Reserved Instance · Savings Plans · RI/SP</span></h2>
+    <div class="links"><a class="link-tag" href="#spot-instance">Spot Instance</a><a class="link-tag" href="#finops">FinOps</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a></div>
+  </div>
+</div>
+<p>클라우드에서 서버(컴퓨트)를 그때그때 빌려 쓰는 <strong>온디맨드(On-Demand)</strong> 대신, <strong>1년 또는 3년 동안 꾸준히 쓰겠다고 미리 약정하고 그 대가로 요금을 크게 할인받는 구매 방식</strong>이다. 자주 헷갈리는 두 종류가 있는데 — <strong>예약 인스턴스(RI)</strong>는 "이 사양의 인스턴스를 이만큼 쓰겠다"고 특정 인스턴스 종류·리전에 묶어 예약하는 것이고, <strong>세이빙스 플랜(Savings Plans)</strong>은 인스턴스 종류를 고정하지 않고 "시간당 이만큼($/h)의 컴퓨트 비용을 쓰겠다"는 사용액 자체를 약정해 더 유연하다. 약정한 만큼 안 쓰면 오히려 손해이므로, <strong>사용량이 예측 가능한 상시 워크로드</strong>에만 걸고 변동이 큰 부분은 온디맨드·스팟으로 남겨두는 게 요령이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">예약 인스턴스 (RI)</h4><ul><li>특정 인스턴스 사양·리전에 묶임</li><li>유연성↓, 대신 할인 폭 큼</li><li>사양이 안 바뀌는 워크로드에 적합</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">세이빙스 플랜 (SP)</h4><ul><li>시간당 사용액($/h)만 약정</li><li>인스턴스를 자유롭게 교체해도 할인 유지</li><li>구성이 자주 바뀌어도 적용 가능</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>매달 클라우드 비용을 줄이는 방안(FinOps)을 논하거나, "상시 켜져 있는 서버는 예약 구매로 돌리자"는 결정을 검토할 때 마주친다. <span style="color:var(--amber)">[클라우드·비용]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="distributed-lock">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="distributed-lock-h">분산 락 <span class="sub">Distributed Lock</span></h2>
+    <div class="links"><a class="link-tag" href="#idempotency">Idempotency</a><a class="link-tag" href="#quorum">Quorum</a><a class="link-tag" href="#optimistic">Optimistic Update</a></div>
+  </div>
+</div>
+<p>여러 대의 서버(또는 프로세스)가 동시에 같은 자원을 건드리지 못하도록, <strong>공유 저장소를 이용해 "한 번에 하나만" 접근하게 보장하는 잠금 장치</strong>다. 한 컴퓨터 안에서만 통하는 뮤텍스·세마포어와 달리, 서버가 여러 대로 흩어진 환경에서는 <strong>Redis·ZooKeeper·etcd·DB 같은 외부 공용 저장소</strong>에 "내가 지금 이 작업을 잠갔다"는 표시를 남겨 서로 조율한다. 핵심 난점은 <strong>락을 쥔 서버가 죽으면 락이 영영 안 풀리는 것</strong>이라, 보통 <strong>만료 시간(TTL)</strong>을 둬 자동 해제하되 "작업이 TTL보다 오래 걸려 남이 먼저 락을 가져가버리는" 경계 상황까지 함께 설계해야 안전하다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>여러 인스턴스로 뜬 스케줄러·배치가 같은 작업을 중복 실행하지 않게 막거나, 재고 차감·쿠폰 발급처럼 "동시에 한 명만" 처리해야 하는 로직을 설계할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="helm">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="helm-h">헬름 <span class="sub">Helm · 쿠버네티스 패키지 매니저</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#iac">IaC</a><a class="link-tag" href="#gitops">GitOps</a></div>
+  </div>
+</div>
+<p>쿠버네티스에 무언가를 배포하려면 Deployment·Service·ConfigMap 등 <strong>여러 개의 YAML 파일</strong>을 일일이 작성해 적용해야 하는데, 이걸 <strong>"차트(Chart)"라는 하나의 템플릿 패키지로 묶어 한 번에 설치·업그레이드·롤백</strong>하게 해주는 도구다. 흔히 <strong>"쿠버네티스의 apt·npm"</strong>이라 불린다. 환경(개발·운영)마다 달라지는 값은 <strong>values.yaml</strong> 한 곳에서만 바꾸면 되므로 같은 차트를 재사용할 수 있고, 이미 만들어진 공개 차트(예: nginx·redis·prometheus)를 명령 한 줄로 설치할 수 있다. 배포가 잘못되면 <strong>이전 릴리스로 롤백</strong>하는 것도 명령 하나로 처리된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>쿠버네티스에 오픈소스 도구를 설치하거나 사내 서비스를 환경별로 배포·버전 관리할 때, "헬름 차트로 말아서 배포하자"는 이야기가 나올 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="anycast">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="anycast-h">애니캐스트 <span class="sub">Anycast</span></h2>
+    <div class="links"><a class="link-tag" href="#dns">DNS·Route 53</a><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#http-cache">HTTP Cache·CDN</a></div>
+  </div>
+</div>
+<p><strong>하나의 IP 주소를 지리적으로 떨어진 여러 서버(노드)가 동시에 광고(announce)해, 요청이 네트워크상 '가장 가까운/빠른' 노드로 자동 라우팅되게 하는 주소 지정 방식</strong>. 흔한 <strong>유니캐스트(1 IP = 1 서버)</strong>와 달리 <strong>같은 IP가 세계 곳곳에 존재</strong>하고, 라우터가 BGP 경로상 가장 가까운 곳으로 트래픽을 흘려보낸다. 덕분에 ① <strong>지연 단축</strong>(사용자와 가까운 지점이 응답), ② <strong>장애 대응</strong>(한 지점이 죽으면 다음 가까운 지점으로 자연스레 우회), ③ <strong>DDoS 완화</strong>(공격 트래픽이 한곳에 몰리지 않고 여러 지점에 분산 흡수)라는 이점이 있다. CDN, 공용 DNS(예: 8.8.8.8, 1.1.1.1)가 대표적으로 이 방식을 쓴다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">유니캐스트 (Unicast)</h4><ul><li>1 IP = 특정 서버 1대</li><li>항상 그 한 대로 도달</li><li>일반적인 서버 주소 방식</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">애니캐스트 (Anycast)</h4><ul><li>1 IP = 여러 지역 서버가 공유</li><li>가장 가까운 노드로 라우팅</li><li>CDN·공용 DNS·DDoS 흡수</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>CDN·글로벌 DNS·로드밸런싱 구조를 이해하거나 "이 IP는 애니캐스트라 지역마다 실제 도착하는 서버가 다르다" 같은 설명을 들을 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="materialized-view">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="materialized-view-h">구체화 뷰 <span class="sub">Materialized View · MV</span></h2>
+    <div class="links"><a class="link-tag" href="#oltp-olap">OLTP vs OLAP</a><a class="link-tag" href="#read-replica">Read Replica</a><a class="link-tag" href="#cache-invalidation">Cache Invalidation</a></div>
+  </div>
+</div>
+<p><strong>쿼리 결과를 실제로 계산해 물리적으로 저장해두는 데이터베이스 객체</strong>. 일반 <strong>뷰(View)</strong>가 조회할 때마다 원본 테이블에서 매번 다시 계산하는 '가상 테이블'인 반면, <strong>구체화 뷰</strong>는 무거운 집계·조인 결과를 <strong>미리 만들어 디스크에 담아두어</strong> 이후 읽기를 훨씬 빠르게 한다. 대신 원본이 바뀌어도 자동으로 따라가지 않아 <strong>주기적으로 새로고침(REFRESH)</strong> 해줘야 하고, 그 사이 데이터는 최신이 아닐 수 있다(신선도와 속도의 트레이드오프). 캐시가 애플리케이션 계층에서 결과를 들고 있는 것이라면, 구체화 뷰는 <strong>같은 아이디어를 DB 안에서 테이블처럼 구현한 것</strong>에 가깝다. PostgreSQL·Oracle 등이 지원한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">일반 뷰 (View)</h4><ul><li>조회할 때마다 매번 계산</li><li>항상 최신 데이터</li><li>무거운 쿼리면 매번 느림</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">구체화 뷰 (MV)</h4><ul><li>결과를 물리적으로 저장</li><li>읽기 빠름, 갱신 필요(REFRESH)</li><li>데이터는 새로고침 시점 기준</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>대시보드·리포트처럼 무거운 집계 쿼리가 느릴 때 "구체화 뷰로 미리 말아두자"는 최적화를 논하거나, 갱신 주기(신선도)를 어떻게 잡을지 정할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="bulkhead">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="bulkhead-h">격벽 패턴 <span class="sub">Bulkhead Pattern</span></h2>
+    <div class="links"><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a><a class="link-tag" href="#connection-pool">Connection Pool</a><a class="link-tag" href="#rate-limiting">Rate Limiting</a></div>
+  </div>
+</div>
+<p><strong>시스템 자원(스레드풀·커넥션풀 등)을 기능·의존성별로 격리해, 한 부분의 장애가 전체로 번지지 않게 하는 복원력 설계 패턴</strong>. 이름은 <strong>배의 격벽(bulkhead)</strong> 에서 왔다 &mdash; 한 구획에 물이 차도 칸이 막혀 있어 배 전체가 가라앉지 않는 원리다. 예를 들어 느려진 외부 API 호출이 공용 커넥션풀을 몽땅 붙잡아버리면 그 API와 무관한 정상 기능까지 대기하다 함께 마비되는데, <strong>의존성마다 자원 칸(전용 풀·동시 실행 한도)을 따로 두면</strong> 한 곳이 포화돼도 나머지는 계속 돈다. <strong>서킷 브레이커</strong>가 "고장난 호출을 아예 끊는" 것이라면, 격벽은 <strong>"고장이 번질 범위를 미리 가둬두는"</strong> 것이라 둘을 함께 쓰는 경우가 많다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>특정 외부 연동이 느려지면 전체 서비스가 같이 죽는 문제를 겪거나, 마이크로서비스에서 장애 격리·자원 분리(전용 스레드풀·커넥션풀)를 어떻게 나눌지 설계할 때 마주친다. <span style="color:var(--green)">[백엔드·복원력]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="percentile-latency">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="percentile-latency-h">백분위 지연시간 <span class="sub">Percentile Latency · p95·p99</span></h2>
+    <div class="links"><a class="link-tag" href="#web-vitals">Web Vitals</a><a class="link-tag" href="#sla">SLA·SLO</a><a class="link-tag" href="#observability">Observability</a></div>
+  </div>
+</div>
+<p><strong>응답 지연(latency)을 "평균"이 아니라 백분위(percentile)로 보는 지표</strong>. p99 = 전체 요청의 99%가 이 시간 안에 끝난다는 뜻이고, 뒤집으면 <strong>가장 느린 1%만 이 값보다 오래 걸린다</strong>는 의미다(p95는 상위 5%, p50은 중앙값). 평균(average)은 소수의 아주 느린 요청, 즉 <strong>꼬리 지연(tail latency)</strong>을 다른 빠른 요청들에 희석시켜 가려버리기 때문에 "다들 괜찮다"는 착시를 준다. 실제로는 그 느린 1~5%가 가장 불만이 큰 사용자이므로, 성능 목표(SLO)와 모니터링은 평균 대신 <strong>p95·p99 같은 상위 백분위</strong>를 기준으로 삼는 것이 표준이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>대시보드·SLO에서 "평균은 괜찮은데 p99가 튄다" 같은 성능 이슈를 진단하거나, 응답시간 알람 기준을 평균이 아닌 백분위로 잡을 때 마주친다. <span style="color:var(--green)">[성능·관측성]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="consensus">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="consensus-h">합의 알고리즘 <span class="sub">Consensus · Raft · Paxos</span></h2>
+    <div class="links"><a class="link-tag" href="#quorum">정족수(Quorum)</a><a class="link-tag" href="#distributed-lock">분산 락</a><a class="link-tag" href="#eventual-consistency">결과적 일관성</a></div>
+  </div>
+</div>
+<p><strong>여러 노드가 일부 장애·네트워크 지연 속에서도 하나의 값·순서에 똑같이 합의하도록 만드는 프로토콜</strong>. 보통 한 노드를 <strong>리더로 뽑고(리더 선출)</strong>, 리더가 받은 변경 로그를 <strong>과반(quorum)의 노드에 복제</strong>해 "과반이 기록한 것만 확정"하는 식으로 일관성을 맞춘다. 이 덕분에 노드 하나가 죽어도 남은 과반이 같은 상태를 이어갈 수 있다. <strong>Raft·Paxos</strong>가 대표적이며(Raft는 이해하기 쉽게 설계된 현대적 표준), etcd·Consul·<strong>쿠버네티스 컨트롤 플레인</strong>·Kafka(KRaft)·ZooKeeper가 모두 이 원리로 클러스터 상태를 맞춘다. 클러스터를 흔히 <strong>홀수(3·5대)</strong>로 구성하는 이유도 과반을 명확히 확보하기 위해서다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·분산 DB·메시지 큐가 "리더가 죽으면 어떻게 되나", "왜 홀수 노드로 구성하나(과반 확보)", "쿼럼을 잃으면 왜 쓰기가 멈추나" 같은 이야기를 들을 때 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="data-egress">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="data-egress-h">데이터 이그레스 비용 <span class="sub">Data Egress · 아웃바운드 전송 비용</span></h2>
+    <div class="links"><a class="link-tag" href="#finops">FinOps</a><a class="link-tag" href="#http-cache">CDN</a><a class="link-tag" href="#availability-zone">Availability Zone</a></div>
+  </div>
+</div>
+<p><strong>클라우드가 자기 네트워크 "밖으로" 나가는 데이터 전송(egress·아웃바운드)에 매기는 요금</strong>. 클라우드로 <strong>들어오는 트래픽(ingress·인바운드)은 대개 무료</strong>지만, 인터넷으로 내보내는 응답·다른 리전·심지어 같은 리전의 다른 AZ(가용영역)로 나가는 데이터는 과금되는 경우가 많다. 트래픽 양에 비례해 조용히 쌓이기 때문에 <strong>예상치 못한 클라우드 비용의 단골 원인</strong>이며, 특히 대용량 파일 배포·리전 간 복제·클라우드 간(멀티클라우드) 연동에서 크게 튄다. 그래서 <strong>CDN으로 반복 트래픽을 캐시하거나, 통신하는 자원을 같은 리전·같은 AZ에 배치</strong>해 전송 구간을 줄이는 것이 대표적 절감법이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>클라우드 청구서에서 데이터 전송 비용이 갑자기 늘어 원인을 찾거나, CDN 활용·같은 리전 배치로 전송 비용을 줄이는 최적화를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·비용]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="multi-stage-build">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="multi-stage-build-h">멀티스테이지 빌드 <span class="sub">Multi-stage Build</span></h2>
+    <div class="links"><a class="link-tag" href="#cold-start">Cold Start</a><a class="link-tag" href="#immutable-infrastructure">Immutable Infra</a><a class="link-tag" href="#kubernetes">Kubernetes</a></div>
+  </div>
+</div>
+<p><strong>하나의 Dockerfile 안에 여러 <code>FROM</code> 단계(stage)를 두어, 컴파일러·개발 의존성이 필요한 '빌드 단계'와 실제 실행에 필요한 것만 담는 '최종 단계'를 분리하는 기법</strong>. 빌드 단계에서 소스를 컴파일·번들링한 뒤, 그 <strong>산출물(바이너리·정적 번들)만 최종 단계로 <code>COPY</code></strong>하고 컴파일러·<code>devDependencies</code>·소스코드는 최종 이미지에서 버린다. 그 결과 이미지 크기가 수백 MB에서 수십 MB로 줄고, 이미지 안에 든 것이 적을수록 취약점이 노출될 <strong>공격 표면(attack surface)</strong>도 작아진다. 이미지가 가벼워지면 레지스트리 전송·배포가 빨라지고, 새 컨테이너가 뜨는 <strong>콜드 스타트도 짧아진다</strong>.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">단일 스테이지</h4><ul><li>빌드 도구·소스·산출물이 한 이미지에</li><li>이미지가 무겁고 취약점 표면 넓음</li><li>Dockerfile은 단순</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">멀티스테이지</h4><ul><li>빌드 단계와 실행 단계 분리</li><li>산출물만 최종 이미지로 복사</li><li>슬림·보안·전송속도에 유리</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>프론트엔드 앱(빌드 후 정적 파일)이나 Node 서버를 Docker로 배포할 때 무거운 이미지를 슬림하게 줄이거나, "이미지가 왜 이렇게 크냐·취약점 스캔이 많다" 같은 최적화·보안 논의를 할 때 마주친다. <span style="color:var(--blue)">[인프라·컨테이너]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cursor-pagination">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="cursor-pagination-h">커서 페이지네이션 <span class="sub">Cursor-based Pagination</span></h2>
+    <div class="links"><a class="link-tag" href="#graphql">GraphQL</a><a class="link-tag" href="#react-query">React Query</a><a class="link-tag" href="#n-plus-one">N+1 쿼리</a></div>
+  </div>
+</div>
+<p><strong>목록을 페이지로 나눠 줄 때 "몇 번째부터(<code>OFFSET N</code>)"가 아니라 "이 지점(커서) 다음부터"를 기준으로 다음 페이지를 가져오는 방식</strong>. 커서는 보통 마지막 항목의 고유값(id·정렬 키·타임스탬프)을 인코딩한 포인터다. 오프셋 방식은 페이지가 뒤로 갈수록 <strong>앞의 N개를 스캔해 버려야 해 느려지고</strong>, 조회하는 사이 데이터가 추가·삭제되면 항목이 <strong>중복되거나 누락</strong>된다. 커서 방식은 정해진 지점부터 바로 읽어 이 문제를 피하므로 대용량·실시간 목록에서 안정적이다. 대신 "5페이지로 바로 점프"나 전체 페이지 수 표시엔 약하다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">오프셋 (OFFSET/LIMIT)</h4><ul><li>임의 페이지 점프·총 개수 표시 쉬움</li><li>뒤 페이지일수록 느려짐</li><li>데이터 변경 시 중복·누락</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">커서 (Cursor)</h4><ul><li>항상 일정한 속도·안정적</li><li>무한 스크롤·피드에 적합</li><li>임의 점프·페이지 수엔 약함</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>무한 스크롤·피드·대용량 목록 API를 설계하거나, GraphQL 커넥션(edges·cursor)을 다루고 "페이지 뒤로 갈수록 느리다/항목이 중복돼 보인다"는 이슈를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·API]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="rolling-deployment">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="rolling-deployment-h">롤링 배포 <span class="sub">Rolling Deployment</span></h2>
+    <div class="links"><a class="link-tag" href="#blue-green-deployment">Blue-Green</a><a class="link-tag" href="#canary-deployment">Canary</a><a class="link-tag" href="#liveness-readiness-probe">Readiness Probe</a></div>
+  </div>
+</div>
+<p><strong>구버전 인스턴스를 한꺼번에 바꾸지 않고 몇 개씩 순차적으로 신버전으로 교체해 나가는 무중단 배포 전략</strong>. 배포 중에도 항상 일부 인스턴스가 서비스 중이라 <strong>다운타임이 없고</strong>, 블루/그린처럼 전체 환경을 두 벌 띄우지 않아 <strong>자원이 덜 든다</strong>. 대신 배포가 진행되는 동안 구·신 버전이 잠시 <strong>공존</strong>하므로 API·DB 스키마의 하위 호환이 필요하고, 문제가 생겨 롤백할 때도 다시 구버전을 순차 교체해야 해 <strong>즉시 전환(블루/그린)보다 되돌리기가 느리다</strong>. 쿠버네티스 Deployment의 기본 전략이며, 새 인스턴스가 <strong>readiness probe로 준비 완료</strong>됐는지 확인한 뒤에야 다음 것으로 넘어간다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">롤링 (Rolling)</h4><ul><li>몇 개씩 순차 교체</li><li>자원 추가 부담 작음</li><li>구·신 공존, 롤백은 느림</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
