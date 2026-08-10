@@ -5,6 +5,7 @@ import { TeamMemberList } from "./problems/01-team-members/TeamMemberList";
 import { Cart } from "./problems/02-cart/Cart";
 import { InviteForm } from "./problems/03-invite-form/InviteForm";
 import { TeamDashboard } from "./problems/04-dashboard/TeamDashboard";
+import { SettingsPanel } from "./problems/05-settings/SettingsPanel";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -31,6 +32,12 @@ const PROBLEMS = [
     title: "04. 팀 활동 대시보드",
     stack: "렌더링 성능 · memo · useMemo · useCallback",
     Component: TeamDashboard,
+  },
+  {
+    id: "05-settings",
+    title: "05. 알림 설정 패널",
+    stack: "useEffect 오남용 · 파생 상태 · 이벤트 처리",
+    Component: SettingsPanel,
   },
 ] as const;
 
