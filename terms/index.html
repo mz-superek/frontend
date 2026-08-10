@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#db-index">인덱스 (Index)</a>
+    <a class="nav-item" href="#network-acl">네트워크 ACL (NACL)</a>
+    <a class="nav-item" href="#ab-testing">A/B 테스트</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,54 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="db-index">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="db-index-h">인덱스 <span class="sub">Database Index · B-Tree Index</span></h2>
+    <div class="links"><a class="link-tag" href="#n-plus-one">N+1 쿼리</a><a class="link-tag" href="#read-replica">Read Replica</a><a class="link-tag" href="#orm">ORM</a></div>
+  </div>
+</div>
+<p><strong>책 뒤의 '찾아보기'처럼, 테이블 전체를 훑지 않고도 원하는 행을 빠르게 찾도록 DB가 컬럼 값을 따로 정렬해 만들어 두는 자료구조</strong>. 대부분 <strong>B-Tree(균형 트리)</strong> 구조라 값이 정렬된 상태로 유지되고, 그 덕분에 특정 값 검색뿐 아니라 <strong>범위 조회(<code>&lt;</code>, <code>BETWEEN</code>)·정렬(<code>ORDER BY</code>)·조인</strong>도 빨라진다. 인덱스가 없으면 DB는 조건에 맞는 행을 찾으려 테이블을 처음부터 끝까지 읽는 <strong>풀 스캔(full table scan)</strong>을 해야 해, 데이터가 많아질수록 급격히 느려진다. 다만 공짜가 아니다 — 인덱스도 저장 공간을 차지하고, 데이터를 <strong>넣고·고치고·지울 때마다 인덱스도 함께 갱신</strong>해야 하므로 쓰기가 느려진다. 그래서 "조회가 잦은 컬럼에만 꼭 필요한 만큼" 거는 것이 핵심이며, 무분별하게 많이 걸면 오히려 쓰기 성능과 용량을 해친다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">인덱스 없음 (풀 스캔)</h4><ul><li>행을 찾으려 테이블 전체를 읽음</li><li>데이터가 많아질수록 급격히 느림</li><li>쓰기·저장 부담은 없음</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">인덱스 있음 (B-Tree)</h4><ul><li>정렬된 구조로 바로 찾아감</li><li>검색·범위·정렬·조인에 유리</li><li>쓰기 시 갱신 비용·저장 공간 ↑</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이 쿼리 느린데 인덱스 걸어야 해요", "WHERE·정렬 컬럼에 인덱스 있어요?", "인덱스를 너무 많이 걸어서 쓰기가 느려졌다" 같은 조회 성능·DB 튜닝 이야기를 들을 때 마주친다. <span style="color:var(--coral)">[백엔드·DB]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="network-acl">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="network-acl-h">네트워크 ACL <span class="sub">NACL · Network ACL</span></h2>
+    <div class="links"><a class="link-tag" href="#security-group">Security Group</a><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#cidr">CIDR</a></div>
+  </div>
+</div>
+<p><strong>VPC의 서브넷 경계에 두는 방화벽 규칙 목록</strong>. 같은 방화벽이라도 <strong>보안그룹(Security Group)</strong>과는 성격이 다르다. 보안그룹은 <strong>인스턴스(ENI) 앞</strong>에 붙어 '허용(allow)' 규칙만 다루고, 나간 요청의 응답은 규칙 없이도 알아서 돌아오는 <strong>상태 저장(stateful)</strong> 방식이다. 반면 NACL은 <strong>서브넷 단위</strong>로 적용되고, <strong>번호가 낮은 규칙부터 순서대로 평가</strong>해 처음 일치하는 규칙에서 판정을 끝내며, <strong>허용과 차단(deny)을 둘 다</strong> 지정할 수 있다. 또 연결 상태를 기억하지 않는 <strong>상태 비저장(stateless)</strong> 방식이라, 들어오는(inbound)·나가는(outbound) 트래픽 규칙을 <strong>각각 열어줘야</strong> 한다. 그래서 특정 IP 대역을 서브넷 차원에서 통째로 막는 <strong>넓은 1차 방어선</strong>으로 쓰고, 세밀한 접근 제어는 보안그룹으로 하는 식으로 층을 나눈다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">보안그룹 (Security Group)</h4><ul><li>인스턴스(ENI) 레벨</li><li>허용(allow) 규칙만, 차단 불가</li><li>상태 저장 = 응답 자동 허용</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">네트워크 ACL (NACL)</h4><ul><li>서브넷 레벨</li><li>허용·차단(deny) 둘 다, 번호 순 평가</li><li>상태 비저장 = 인·아웃 각각 열어야</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"보안그룹은 열었는데 왜 막히지 → NACL에서 막고 있었네", 특정 IP 대역을 서브넷 차원에서 차단하거나 다중 계층 방화벽을 설계할 때 마주친다. <span style="color:var(--blue)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="ab-testing">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="ab-testing-h">A/B 테스트 <span class="sub">A/B Testing</span></h2>
+    <div class="links"><a class="link-tag" href="#feature-flag">Feature Flag</a><a class="link-tag" href="#canary-deployment">Canary</a><a class="link-tag" href="#rum">RUM</a></div>
+  </div>
+</div>
+<p><strong>사용자를 두 집단으로 무작위로 나눠 기존안(A·대조군)과 새안(B·실험군)을 동시에 보여주고, 목표 지표를 비교해 어느 쪽이 나은지 데이터로 판단하는 실험 기법</strong>. 감이나 의견 대신 <strong>전환율·클릭률·체류시간 같은 실제 지표</strong>로 의사결정을 하기 위한 방법으로, 두 집단이 같은 시점·같은 조건에서 갈리므로 "새 디자인이 정말 효과가 있었는지"를 공정하게 견줄 수 있다. 중요한 건 <strong>통계적 유의성</strong> — 표본이 충분히 쌓여 우연이 아니라고 볼 수 있을 때 비로소 결론을 내린다. '기능을 켜고 끄는 스위치'인 <strong>피처 플래그</strong>가 어떤 사용자에게 B안을 노출할지 <strong>나누는 수단</strong>이라면, A/B 테스트는 그 위에서 <strong>성과를 측정·비교하는 실험</strong> 그 자체다. 새 버전을 소수에게만 먼저 노출하는 <strong>카나리 배포</strong>가 '안전하게 배포'가 목적이라면, A/B 테스트는 '어느 쪽이 더 좋은가'가 목적이라는 점이 다르다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">피처 플래그 (Feature Flag)</h4><ul><li>기능을 켜고 끄는 배포 스위치</li><li>누구에게 B안을 노출할지 '나누는 수단'</li><li>목적: 배포 제어·점진 공개</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">A/B 테스트 (A/B Testing)</h4><ul><li>두 안의 성과를 지표로 비교하는 실험</li><li>통계적 유의성으로 승자 판단</li><li>목적: 어느 쪽이 더 나은지 결정</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이 버튼 색·문구 A/B로 돌려보자", "B안이 전환율 유의미하게 높아요", "표본 더 쌓일 때까지 결론 보류하자" 같은 실험·프로덕트 지표 논의에서 마주친다. <span style="color:var(--green)">[협업·프로덕트]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
