@@ -4,6 +4,7 @@ import { resetServerData } from "./mock/api";
 import { TeamMemberList } from "./problems/01-team-members/TeamMemberList";
 import { Cart } from "./problems/02-cart/Cart";
 import { InviteForm } from "./problems/03-invite-form/InviteForm";
+import { TeamDashboard } from "./problems/04-dashboard/TeamDashboard";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -24,6 +25,12 @@ const PROBLEMS = [
     title: "03. 팀원 초대 폼",
     stack: "폼 · 유효성 검사 · 제출 상태 · 브라우저 기본 동작",
     Component: InviteForm,
+  },
+  {
+    id: "04-dashboard",
+    title: "04. 팀 활동 대시보드",
+    stack: "렌더링 성능 · memo · useMemo · useCallback",
+    Component: TeamDashboard,
   },
 ] as const;
 
