@@ -6,6 +6,7 @@ import { Cart } from "./problems/02-cart/Cart";
 import { InviteForm } from "./problems/03-invite-form/InviteForm";
 import { TeamDashboard } from "./problems/04-dashboard/TeamDashboard";
 import { SettingsPanel } from "./problems/05-settings/SettingsPanel";
+import { OrderTable } from "./problems/06-orders/OrderTable";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -38,6 +39,12 @@ const PROBLEMS = [
     title: "05. 알림 설정 패널",
     stack: "useEffect 오남용 · 파생 상태 · 이벤트 처리",
     Component: SettingsPanel,
+  },
+  {
+    id: "06-orders",
+    title: "06. 주문 관리 테이블",
+    stack: "필터 · 정렬 · 다중 선택 · 페이지네이션 조합",
+    Component: OrderTable,
   },
 ] as const;
 
