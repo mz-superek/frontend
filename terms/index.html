@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#terraform-state">테라폼 상태 파일 (tfstate)</a>
+    <a class="nav-item" href="#deadlock">교착 상태 (Deadlock)</a>
+    <a class="nav-item" href="#load-shedding">로드 셰딩</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,42 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="terraform-state">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="terraform-state-h">테라폼 상태 파일 <span class="sub">Terraform State · tfstate</span></h2>
+    <div class="links"><a class="link-tag" href="#iac">IaC</a><a class="link-tag" href="#immutable-infrastructure">Immutable Infra</a><a class="link-tag" href="#distributed-lock">분산 락</a></div>
+  </div>
+</div>
+<p><strong>Terraform이 코드(<code>.tf</code>)로 선언한 자원과 실제로 만들어진 클라우드 자원을 1:1로 매핑해 기억하는 "정답지" 파일</strong>(<code>terraform.tfstate</code>). Terraform은 이 상태 파일과 코드, 그리고 실제 클라우드를 비교해 <strong>무엇을 새로 만들고·바꾸고·지울지(<code>plan</code>)</strong>를 계산하므로, 상태 파일이 없으면 "지금까지 뭘 만들었는지"를 알 수 없다. 혼자 쓰면 로컬에 두지만, 팀에서는 여러 명이 동시에 <code>apply</code>하다 상태가 깨지기 쉬워 <strong>원격 백엔드(예: S3+DynamoDB, Terraform Cloud)에 저장하고 잠금(state locking)</strong>을 건다 &mdash; 한 사람이 apply하는 동안 다른 apply를 막아 <a class="link-tag" href="#distributed-lock">분산 락</a>과 같은 역할을 한다. 또 상태 파일에는 비밀번호·키 같은 <strong>민감정보가 평문으로 담길 수 있어</strong> 접근 통제·암호화가 중요하고, 콘솔에서 손으로 자원을 고치면 코드·상태와 실제가 어긋나는 <strong>드리프트(drift)</strong>가 생긴다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"state 잠겼어요/state 꼬였어요", 콘솔 수동 수정으로 생긴 드리프트를 <code>terraform plan</code>으로 발견하거나, 원격 상태·잠금·<code>import</code>를 이야기할 때 마주칩니다. <span style="color:var(--teal)">[인프라·IaC]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="deadlock">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="deadlock-h">교착 상태 <span class="sub">Deadlock</span></h2>
+    <div class="links"><a class="link-tag" href="#distributed-lock">분산 락</a><a class="link-tag" href="#isolation-level">격리 수준</a><a class="link-tag" href="#connection-pool">Connection Pool</a></div>
+  </div>
+</div>
+<p><strong>둘 이상의 트랜잭션(또는 스레드)이 서로가 이미 쥔 자원(락)을 기다리며 아무도 앞으로 나아가지 못하고 영원히 멈춰버리는 상태</strong>. 흔한 예로 트랜잭션 A는 1번 행을 잠근 뒤 2번 행을, B는 2번 행을 잠근 뒤 1번 행을 노리면, 둘 다 상대가 놓아주길 기다리며 굳어버린다. 다행히 대부분의 DB(PostgreSQL·MySQL InnoDB 등)는 이런 순환 대기를 <strong>자동으로 감지</strong>해 한쪽 트랜잭션을 <strong>희생양(victim)으로 강제 롤백</strong>해 풀어주므로, 애플리케이션은 롤백된 트랜잭션을 다시 시도하면 된다. 근본 예방책은 <strong>여러 자원에 락을 잡는 순서를 항상 동일하게</strong> 맞추고, 트랜잭션을 짧게 유지하는 것이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>동시 업데이트가 많은 테이블에서 <code>"deadlock detected"</code> 로그로 트랜잭션이 실패하거나, 특정 요청이 간헐적으로 롤백되는 원인을 추적하고 락 순서를 정리할 때 마주칩니다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="load-shedding">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="load-shedding-h">로드 셰딩 <span class="sub">Load Shedding · 부하 차단</span></h2>
+    <div class="links"><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a><a class="link-tag" href="#bulkhead">Bulkhead</a><a class="link-tag" href="#rate-limiting">Rate Limiting</a></div>
+  </div>
+</div>
+<p><strong>시스템이 감당할 수 없을 만큼 요청이 몰릴 때, 전체가 무너지지 않도록 일부 요청을 의도적으로 빠르게 거절(예: <code>503</code>·<code>429</code>)해 핵심 기능만이라도 살려두는 과부하 방어 기법</strong>. 과부하 상태에서 모든 요청을 억지로 받으면 응답이 전부 느려지다 결국 <strong>다 같이 죽는(cascading failure)</strong> 반면, 우선순위 낮은 요청부터 <strong>덜어내면(shed)</strong> 남은 용량으로 중요한 트래픽을 정상 처리할 수 있다. 비슷한 이웃 개념과 구분하면 &mdash; <a class="link-tag" href="#rate-limiting">Rate Limiting</a>이 "정해진 한도로 상시 제한"이라면 로드 셰딩은 "지금 과부하일 때만 발동"이고, <a class="link-tag" href="#circuit-breaker">서킷 브레이커</a>가 "고장난 <em>하위</em> 호출을 끊는" 것이라면 로드 셰딩은 "들어오는 과부하 <em>자체</em>를 덜어내는" 것이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>트래픽 폭주·과부하에서 서버가 연쇄적으로 죽지 않게 설계하거나, "덜 중요한 요청부터 버리자"·"헬스체크·핵심 API는 우선 보호하자"는 안정화 논의를 할 때 마주칩니다. <span style="color:var(--green)">[백엔드·복원력]</span></div>
 </section><hr class="divider">
 
 
