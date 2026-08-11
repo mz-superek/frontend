@@ -197,6 +197,41 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-08-12">
+        <h2>2026-08-12 (수) · TypeScript 제네릭(Generics) — 타입을 "매개변수"처럼 끼워 넣기</h2>
+        <span class="topic-tag">프론트 심화 (TypeScript)</span>
+
+        <h3>핵심 개념</h3>
+        <p>퍼블리싱 시절 공통 카드 마크업 하나를 만들어 두고 내용물만 갈아 끼우던 것과 같은 원리다. 제네릭은 로직(마크업)은 하나로 두고, 들어오는 <strong>타입</strong>만 바꿔 끼우는 문법이다. <code>&lt;T&gt;</code>는 "여기에 나중에 타입이 들어올 자리"라는 빈칸 표시이고, 함수를 호출하는 순간 TypeScript가 인자를 보고 그 빈칸을 자동으로 채운다(타입 추론). 덕분에 <code>any</code>처럼 타입 정보를 버리지 않으면서도, 타입마다 함수를 복붙하지 않아도 된다.</p>
+        <pre><code>// T는 "나중에 정해질 타입"의 자리표시
+function first&lt;T&gt;(arr: T[]): T | undefined {
+  return arr[0];
+}
+const n = first([1, 2, 3]);    // n: number | undefined  ← T=number로 추론
+const s = first(['a', 'b']);   // s: string | undefined  ← T=string으로 추론
+
+// 실무 단골: API 공통 응답 래퍼
+interface ApiResponse&lt;T&gt; {
+  data: T;
+  status: number;
+  message: string;
+}
+type UserRes = ApiResponse&lt;{ id: number; name: string }&gt;;
+// data 부분만 갈아 끼우면 모든 API 응답 타입 완성</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>TanStack Query의 <code>useQuery&lt;User[]&gt;</code>, ShadCN 컴포넌트의 props, FSD <code>shared/api</code> 레이어의 응답 타입 — 전부 제네릭 문법이다. 이걸 읽을 줄 알면 라이브러리 타입 에러 메시지가 해석되기 시작한다.</p>
+        <p class="refs">더 보기: <a href="https://www.typescriptlang.org/docs/handbook/2/generics.html" target="_blank" rel="noopener">TS 공식 핸드북 — Generics</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1 (객관식). <code>function wrap&lt;T&gt;(value: T): T[] { return [value]; }</code> 일 때 <code>wrap('hello')</code>의 반환 타입은?<br>
+          (a) <code>string</code>  (b) <code>string[]</code>  (c) <code>any[]</code>  (d) <code>T[]</code></p>
+          <p>Q2 (단답). <code>interface ApiResponse&lt;T&gt;</code>를 타입 인수 없이 그냥 <code>ApiResponse</code>라고 쓰면 어떻게 될까? 그리고 이걸 허용하려면 선언부를 어떻게 고치면 될까?</p>
+          <details><summary>정답·해설 보기</summary><p><strong>Q1 정답: (b) string[]</strong> — 호출 순간 T가 string으로 추론되고, 반환 타입 T[]의 빈칸에 그대로 대입되어 string[]이 된다. T[]는 선언부에만 존재하는 자리표시라 호출 결과 타입으로는 남지 않는다.<br><strong>Q2 정답: 컴파일 에러</strong> — "Generic type 'ApiResponse&lt;T&gt;' requires 1 type argument(s)." 제네릭 인수는 기본적으로 필수다. 허용하려면 <code>interface ApiResponse&lt;T = unknown&gt;</code>처럼 기본값을 주면 되고, 이러면 <code>ApiResponse</code>만 써도 T가 unknown으로 채워진다. 함수 매개변수 기본값과 같은 원리.</p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-08-07">
         <h2>2026-08-07 (금) · TanStack Query 2편 — useMutation과 invalidateQueries: 데이터를 바꿨으면 화면에 알려줘라</h2>
         <span class="topic-tag">프론트 심화</span>
