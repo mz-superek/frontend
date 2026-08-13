@@ -83,6 +83,29 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-08-14">
+        <h2>📰 2026-08-14 (금)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건·프론트엔드 1건 통과. 백엔드·HTML &amp; CSS는 최근 1~2주 안에 1차 소스로 확인되는 신규 항목이 없어 헤더째 생략(Node.js 26.7.0은 8/5, Deno 2.9.5는 8/6 릴리스로 기존 발송분과 중복, Bun은 신규 릴리스 없음, TypeScript도 신규 릴리스 없음). AI 후보 중 OpenAI GPT-5.6 Sol(8/13)은 openai.com 403 반복 차단으로 접근 실패, Grok 4.6은 오픈웨이트 미공개에 xAI 1차 소스 확인 불가로 드롭, Anthropic·Macquarie·GIC &apos;Theseus&apos; 인프라 JV 소식은 anthropic.com 뉴스룸에서 확인되지 않아(1차 소스 미확인) 드롭. 8월 Baseline 다이제스트/신규 편입도 1차 소스로 확인되지 않아 CSS는 비움.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">DeepSeek-V4-Pro-0813 정식 공개 — 플래그십 모델 프리뷰 졸업(GA)</p>
+            <p class="item-meta">2026-08-13 · <a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813">huggingface.co</a></p>
+            <p class="item-summary">DeepSeek이 플래그십 <code>V4 Pro</code>를 프리뷰에서 정식(GA)으로 전환해 Hugging Face에 공개했다. 모델 카드 기준 라이선스는 MIT, 컨텍스트는 100만 토큰 규모의 MoE(전문가 혼합) 구조이며, 도구 사용·코드 실행·다단계 워크플로를 사람 개입 없이 수행하는 &apos;에이전트&apos; 능력에 초점을 맞춘 릴리스다(총 파라미터 수치는 모델 카드와 2차 보도가 엇갈려 본문에서는 정성적으로만 표기). 중국계 오픈웨이트 프론티어 모델이 GA로 계속 쏟아지며 경쟁이 가열되는 흐름을 보여준다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.3.1 패치 릴리스 — 16.3 안정판 이후 첫 유지보수 릴리스</p>
+            <p class="item-meta">2026-08-13 · <a href="https://github.com/vercel/next.js/releases/tag/v16.3.1">github.com</a></p>
+            <p class="item-summary">Next.js가 16.3 안정판 이후 첫 패치인 16.3.1을 릴리스했다. 공식 릴리스 노트 기준 Turbopack이 공유 런타임 청크에서 async-module 런타임을 잘못 제거하던 문제를 수정하고, <code>next/image</code> 최적화 이후 이미지 응답을 보존하도록 고쳤다. 그 밖에 Pages Router SSR에서 styled-jsx 스타일 누락, 들어오는 요청의 live <code>headers()</code> 뷰 복원, 최적화 라우팅의 프리페치 반복 루프, 레이아웃에서 평가되는 동적 import의 HMR 등 라우팅·캐시 관련 버그를 다수 정리한 유지보수 성격의 릴리스다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
