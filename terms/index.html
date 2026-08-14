@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#optimistic-pessimistic-locking">낙관적·비관적 락</a>
+    <a class="nav-item" href="#connection-draining">커넥션 드레이닝</a>
+    <a class="nav-item" href="#progressive-enhancement">점진적 향상</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="optimistic-pessimistic-locking">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="optimistic-pessimistic-locking-h">낙관적·비관적 락 <span class="sub">Optimistic vs Pessimistic Locking</span></h2>
+    <div class="links"><a class="link-tag" href="#optimistic">Optimistic Update</a><a class="link-tag" href="#isolation-level">Isolation Level</a><a class="link-tag" href="#distributed-lock">분산 락</a></div>
+  </div>
+</div>
+<p><strong>여러 요청이 같은 데이터를 동시에 고칠 때 서로의 변경을 덮어써 버리는 "갱신 손실(lost update)"을 막는 두 가지 동시성 제어 전략</strong>. <strong>비관적 락(Pessimistic)</strong>은 "충돌이 날 것"이라 가정하고 읽는 순간 그 행을 잠가(<code>SELECT ... FOR UPDATE</code>) 다른 요청을 끝날 때까지 대기시킨다 — 확실하지만 대기·처리량 저하·교착(deadlock) 위험이 따른다. <strong>낙관적 락(Optimistic)</strong>은 "웬만하면 안 부딪힌다"고 보고 잠그지 않되, 저장 시점에 <strong>버전 번호(또는 타임스탬프)를 비교</strong>해 그 사이 값이 바뀌었으면 저장을 실패시키고 애플리케이션이 다시 읽어 재시도하게 한다 — 충돌이 드물 때 잠금 비용이 없어 빠르다. 화면 UI에서 서버 응답을 미리 반영하는 <strong>낙관적 업데이트(Optimistic Update)</strong>와는 이름만 비슷할 뿐 다른 개념이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">비관적 락 (Pessimistic)</h4><ul><li>읽을 때 미리 잠금(FOR UPDATE)</li><li>충돌 잦을 때 안전</li><li>대기·교착·처리량 저하</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">낙관적 락 (Optimistic)</h4><ul><li>버전 비교로 저장 시 검증</li><li>충돌 드물 때 빠름</li><li>충돌 시 재시도 로직 필요</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"동시에 수정했더니 한 사람 변경이 사라진다"·"version 불일치로 저장 실패", JPA <code>@Version</code>·<code>SELECT ... FOR UPDATE</code>를 언제 쓸지 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="connection-draining">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="connection-draining-h">커넥션 드레이닝 <span class="sub">Connection Draining · Deregistration Delay</span></h2>
+    <div class="links"><a class="link-tag" href="#graceful-shutdown">그레이스풀 셧다운</a><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#rolling-deployment">롤링 배포</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a></div>
+  </div>
+</div>
+<p><strong>배포나 스케일인으로 인스턴스를 로드밸런서에서 뺄 때, 새 요청은 그 인스턴스로 더 이상 보내지 않되 이미 처리 중이던 요청은 끝까지 마치도록 기다렸다가 제거하는 기능</strong>. 이게 없으면 인스턴스를 내리는 순간 진행 중이던 요청이 뚝 끊겨 사용자에게 <strong>502·5xx 에러</strong>가 뜬다. AWS ALB에서는 대상 그룹의 <strong>등록 해제 지연(deregistration delay, 기본 300초·설정 가능)</strong> 동안 대상이 <code>draining</code> 상태로 남아 남은 요청을 흘려보내고, 시간이 지나면 <code>unused</code>로 넘어가 종료·교체된다. 앱 프로세스가 <code>SIGTERM</code>을 받고 스스로 정리하는 <strong>그레이스풀 셧다운</strong>과 짝으로 동작한다 — 드레이닝은 <strong>로드밸런서단</strong>에서 트래픽을 끊고, 그레이스풀 셧다운은 <strong>앱단</strong>에서 마무리를 책임진다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">커넥션 드레이닝 (LB단)</h4><ul><li>새 요청 차단·기존 요청은 완료 대기</li><li>ALB deregistration delay(기본 300초)</li><li>배포·스케일인 시 502 방지</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">그레이스풀 셧다운 (앱단)</h4><ul><li>SIGTERM 수신 후 정리</li><li>진행 작업 마치고 커넥션 정리</li><li>둘을 함께 맞춰야 무중단</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"무중단 배포인데 배포·스케일 축소 순간 잠깐 에러가 난다"·"ALB 타깃이 draining에 멈춰 있다"·배포 시 종료 대기 시간을 조정할 때 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="progressive-enhancement">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="progressive-enhancement-h">점진적 향상 <span class="sub">Progressive Enhancement</span></h2>
+    <div class="links"><a class="link-tag" href="#service-worker">Service Worker</a><a class="link-tag" href="#hydration">Hydration</a><a class="link-tag" href="#web-vitals">Web Vitals</a></div>
+  </div>
+</div>
+<p><strong>먼저 HTML만으로 핵심 콘텐츠·기능이 어떤 환경에서든 동작하는 바탕을 깔고, 그 위에 CSS(모양)와 JS(상호작용)를 "지원되는 브라우저에서만" 얹어 경험을 끌어올리는 설계 철학</strong>. 세 겹으로 쌓는다 — <strong>HTML(구조·내용) → CSS(표현) → JS(동작)</strong>. 기능 감지(feature detection)로 브라우저가 어떤 기능을 지원하는지 확인하고, 안 되는 환경엔 <strong>폴리필·대체 수단</strong>을 준다. 완전한 기능에서 출발해 안 되는 부분을 깎아 내리는 <strong>우아한 성능저하(graceful degradation)</strong>와는 방향이 정반대로, 이쪽은 <strong>바닥부터 쌓아 올린다</strong>. JS가 실패하거나 저사양·네트워크 취약 환경에서도 최소한의 사용은 보장하는 게 목적이라 접근성·견고함과 직결된다. 퍼블리싱·마크업 기반에서 프론트엔드로 넘어올 때 특히 몸에 익혀 두면 좋은 사고방식.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">점진적 향상 (Progressive Enhancement)</h4><ul><li>바닥(HTML)부터 위로 쌓음</li><li>기능 감지로 얹기</li><li>저사양·접근성에 강함</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">우아한 성능저하 (Graceful Degradation)</h4><ul><li>완전한 기능에서 시작</li><li>안 되는 환경에 폴백</li><li>구형 지원을 사후 보정</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"JS가 안 떠도 링크·폼은 동작해야 한다"·"이 기능은 최신 브라우저에서만"·접근성/기능 감지/폴리필을 논할 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
 </section><hr class="divider">
 
 
