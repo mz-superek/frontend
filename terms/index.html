@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#ttl">유효 시간 (TTL)</a>
+    <a class="nav-item" href="#vpc-peering">VPC 피어링</a>
+    <a class="nav-item" href="#sri">하위 리소스 무결성 (SRI)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,54 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="ttl">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="ttl-h">유효 시간 <span class="sub">Time To Live · TTL</span></h2>
+    <div class="links"><a class="link-tag" href="#http-cache">HTTP Cache</a><a class="link-tag" href="#dns">DNS</a><a class="link-tag" href="#cache-invalidation">Cache Invalidation</a></div>
+  </div>
+</div>
+<p><strong>데이터가 "언제까지 유효한가"를 정해 그 시간이 지나면 폐기·재요청하게 만드는 만료 수명</strong>. 어떤 값을 캐시에 담아두면 매번 원본을 다시 묻지 않아 빠르지만, 원본이 바뀌어도 낡은 값을 계속 쓰게 될 위험이 있다. TTL은 "이 값을 이만큼(보통 초 단위)만 믿어라"는 상한을 걸어 그 사이 균형을 잡는다. 프론트엔드·인프라에서 마주치는 곳은 여럿이다 &mdash; <strong>DNS TTL</strong>(리졸버가 도메인&rarr;IP 레코드를 몇 초 캐시할지), <strong>HTTP·CDN·브라우저 캐시 TTL</strong>(<code>Cache-Control: max-age</code>로 정한 응답 재사용 기간), <strong>Redis·세션 TTL</strong>(키에 만료를 걸어 자동 삭제), 그리고 원래 뜻인 <strong>IP 패킷 TTL</strong>(거칠 수 있는 최대 홉 수). TTL이 지나면 "만료(expire)"돼 다음 요청 때 원본에서 새로 가져온다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">짧은 TTL</h4><ul><li>변경이 빨리 반영됨</li><li>원본 재요청이 잦아 부하·지연 &uarr;</li><li>배포·전환 직전에 유리</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">긴 TTL</h4><ul><li>캐시 적중률·성능 &uarr;</li><li>원본 부하 &darr;</li><li>낡은 값을 오래 쓸 위험</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"CDN·브라우저 캐시 TTL이 얼마냐"·"배포했는데 옛 파일이 남는다(캐시 TTL·무효화)"·"도메인 옮기기 전 DNS TTL을 낮추자"·"Redis 세션이 언제 만료되냐"를 논할 때 마주친다. <span style="color:var(--blue)">[인프라·캐시·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="vpc-peering">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="vpc-peering-h">VPC 피어링 <span class="sub">VPC Peering</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#vpc-endpoint">VPC Endpoint</a><a class="link-tag" href="#cidr">CIDR</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a></div>
+  </div>
+</div>
+<p><strong>서로 격리된 두 VPC(가상 사설 네트워크)를 사설 IP로 직접 통신하게 이어 주는 1:1 네트워크 연결</strong>. 원래 VPC끼리는 인터넷을 거치지 않으면 서로 못 닿는데, 피어링을 맺으면 두 VPC가 <strong>같은 사설망인 것처럼</strong> 통신한다 &mdash; 트래픽이 공용 인터넷·NAT·VPN을 타지 않아 안전하고 빠르다. 두 가지 함정이 유명하다. ① <strong>CIDR(IP 대역)이 겹치면 안 된다</strong> &mdash; 양쪽 사설 대역이 같으면 어디로 보낼지 정할 수 없어 피어링 자체가 불가능하다. ② <strong>비전이적(non-transitive)</strong> &mdash; A-B, B-C를 각각 피어링해도 A가 B를 거쳐 C로 갈 수는 없다. VPC가 많아져 그물처럼 얽히면 필요한 피어링 수가 폭증하므로, 규모가 커지면 허브 역할을 하는 <strong>트랜짓 게이트웨이</strong>로 옮겨 간다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">VPC 피어링</h4><ul><li>두 VPC를 1:1로 연결</li><li>설정 단순·저렴</li><li>비전이적, VPC 많아지면 관리 폭증</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">트랜짓 게이트웨이</h4><ul><li>여러 VPC를 허브 하나에 연결</li><li>전이적 라우팅·중앙 관리</li><li>대규모 멀티 VPC에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>서로 다른 계정·환경의 VPC(예: 공용 서비스 VPC &harr; 앱 VPC)를 잇거나, "피어링 걸었는데 통신이 안 된다(라우팅 테이블·보안 그룹·CIDR 중복)"·"VPC가 많아 피어링이 너무 복잡하다"를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="sri">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="sri-h">하위 리소스 무결성 <span class="sub">Subresource Integrity · SRI</span></h2>
+    <div class="links"><a class="link-tag" href="#csp">CSP</a><a class="link-tag" href="#cors">CORS</a><a class="link-tag" href="#http-cache">HTTP Cache·CDN</a></div>
+  </div>
+</div>
+<p><strong>CDN 등 외부에서 받아온 스크립트·스타일이 중간에 변조되지 않았는지 브라우저가 해시로 검증하게 하는 웹 보안 기능</strong>. <code>&lt;script&gt;</code>·<code>&lt;link&gt;</code> 태그에 <code>integrity="sha384-…"</code> 속성으로 파일의 암호학적 해시를 미리 박아 두면, 브라우저는 실제로 내려받은 파일의 해시를 계산해 <strong>값이 일치할 때만 실행·적용하고, 다르면 로드를 거부</strong>한다. 공용 CDN에 올린 라이브러리를 누군가 몰래 바꿔치기하는 <strong>공급망 공격</strong>을 막는 게 핵심 목적이다. 외부 출처 파일이라 보통 <code>crossorigin="anonymous"</code>를 함께 붙여 CORS로 응답을 읽을 수 있게 한다. 파일을 한 글자라도 바꾸면 해시가 달라지므로, CDN 버전을 갱신할 땐 <code>integrity</code> 값도 새 해시로 같이 바꿔 줘야 한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">SRI</h4><ul><li>받아온 파일 "내용"이 그대로인지 검증</li><li>해시 불일치 시 로드 거부</li><li>CDN 변조·공급망 공격 방어</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">CSP</h4><ul><li>"어느 출처"에서 로드 허용할지 통제</li><li>허용 목록 밖 리소스 차단</li><li>SRI와 상호 보완적</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>공용 CDN(jsDelivr·cdnjs 등)에서 라이브러리를 <code>&lt;script&gt;</code>로 불러오거나, "CDN 스크립트에 integrity 해시를 붙이자"·"버전 올렸더니 integrity 불일치로 스크립트가 안 뜬다"를 논할 때 마주친다. <span style="color:var(--coral)">[프론트엔드·보안]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
