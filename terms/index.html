@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#l4-l7-load-balancing">L4/L7 로드 밸런싱</a>
+    <a class="nav-item" href="#strangler-fig">스트랭글러 무화과 패턴</a>
+    <a class="nav-item" href="#columnar-storage">컬럼형 저장 (Columnar)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,50 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="l4-l7-load-balancing">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="l4-l7-load-balancing-h">L4 / L7 로드 밸런싱 <span class="sub">Layer 4 vs Layer 7 Load Balancing</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#reverse-proxy">Reverse Proxy</a><a class="link-tag" href="#tls-termination">TLS 종료</a></div>
+  </div>
+</div>
+<p><strong>로드 밸런서가 요청을 "어느 계층(OSI Layer)의 정보로" 분배하느냐의 차이</strong>. <strong>L4(전송 계층)</strong>는 <strong>IP·포트(TCP/UDP)</strong>만 보고 패킷 내용은 열어보지 않은 채 그대로 대상에 넘긴다 — 처리가 단순해 <strong>초저지연·높은 처리량·고정 IP</strong>에 강하다(AWS <strong>NLB</strong>). <strong>L7(응용 계층)</strong>은 <strong>HTTP 안까지 열어</strong> URL 경로·호스트 이름·헤더·쿠키 같은 내용을 보고 <strong>콘텐츠 기반 라우팅</strong>을 하며, TLS 종료나 쿠키 기반 스티키 세션도 이 계층에서 처리한다(AWS <strong>ALB</strong>) — 그만큼 오버헤드가 있다. 기존 '로드 밸런서'가 "요청을 고르게 나눠준다"는 개념이라면, L4/L7은 그 안에서 <strong>무엇을 보고 나누느냐</strong>를 가르는 축이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">L4 (예: NLB)</h4><ul><li>IP·포트(TCP/UDP)만 보고 전달</li><li>초저지연·고정 IP·높은 처리량</li><li>경로·헤더 기반 분기는 불가</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">L7 (예: ALB)</h4><ul><li>HTTP 경로·호스트·헤더로 라우팅</li><li>TLS 종료·스티키 세션 처리</li><li>기능 많은 대신 오버헤드 있음</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이 서비스는 NLB(L4)로 갈까 ALB(L7)로 갈까", "<code>/api</code>는 백엔드로 <code>/img</code>는 다른 타깃으로 — 경로별 라우팅하려면 L7이어야 해요" 같은 로드밸런서 선택 논의에서 마주친다. <span style="color:var(--teal)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="strangler-fig">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="strangler-fig-h">스트랭글러 무화과 패턴 <span class="sub">Strangler Fig Pattern</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#reverse-proxy">Reverse Proxy</a><a class="link-tag" href="#blue-green-deployment">Blue-Green</a></div>
+  </div>
+</div>
+<p><strong>레거시 시스템을 한 번에 갈아엎지 않고, 앞단에 프록시(파사드)를 두어 기능을 조각조각 새 시스템으로 옮기다가 결국 레거시를 걷어내는 점진적 마이그레이션 패턴</strong>. 처음엔 파사드가 대부분의 요청을 <strong>레거시로</strong> 보내다가, 새 시스템으로 옮긴 기능이 늘수록 <strong>그쪽으로 라우팅을 점점 넘긴다</strong>. 레거시가 하는 일이 0이 되면 안전하게 <strong>폐기(decommission)</strong>하고, 마지막엔 파사드까지 걷어내 클라이언트가 새 시스템과 직접 통신한다. 전체를 한꺼번에 다시 만드는 <strong>빅뱅 재작성의 위험</strong>을, 서비스 중단 없이 조각 단위로 옮겨 낮추는 것이 핵심. 이름은 숙주 나무를 서서히 감아 대체하는 <strong>'교살 무화과나무'</strong>에서 왔다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>모놀리스를 MSA로 쪼개거나 노후 시스템을 단계적으로 현대화하며 "이번엔 주문 도메인만 새 서비스로 떼고 나머지는 레거시에 두자", "앞단 프록시에서 옮긴 것만 새 서비스로 넘기자" 같은 마이그레이션 논의에서 마주친다. <span style="color:var(--purple)">[백엔드·아키텍처]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="columnar-storage">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="columnar-storage-h">컬럼형 저장 <span class="sub">Columnar Storage · Column-oriented</span></h2>
+    <div class="links"><a class="link-tag" href="#oltp-olap">OLTP·OLAP</a><a class="link-tag" href="#data-lake">데이터 레이크</a><a class="link-tag" href="#sharding">샤딩</a></div>
+  </div>
+</div>
+<p><strong>데이터를 행(row) 단위가 아니라 열(column) 단위로 붙여 저장하는 방식</strong>. 한 행의 필드들을 나란히 두는 <strong>행 지향</strong>과 달리, 같은 열의 값들을 한데 모아 둔다. 그래서 분석 쿼리처럼 <strong>'특정 몇 개 열만 전부 훑어 집계'</strong>할 때 필요한 열만 읽으면 되어 <strong>디스크 I/O가 크게 줄고</strong>, 같은 열은 값의 성격·타입이 비슷해 <strong>압축률도 높다</strong>. OLAP·데이터 웨어하우스(Redshift·BigQuery)와 Parquet·ORC 같은 분석용 파일 포맷이 이 구조다. 반대로 <strong>한 행 전체를 자주 읽고 쓰는 OLTP</strong>(주문 한 건 조회·수정)엔 행을 한 번에 집는 행 지향이 유리 — 목적에 따라 갈린다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">행 지향 (Row)</h4><ul><li>한 행의 모든 필드를 나란히 저장</li><li>한 건 조회·수정에 강함 (OLTP)</li><li>일부 열만 집계엔 불필요한 읽기 많음</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">열 지향 (Column)</h4><ul><li>같은 열 값을 한데 저장</li><li>대량 집계·분석에 강함 (OLAP)</li><li>압축률 높음, 한 행 통째 읽기엔 불리</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>분석용 DB·데이터 웨어하우스를 고르거나, "왜 트랜잭션 DB는 행 지향인데 분석은 컬럼 지향이냐"·"Parquet가 왜 집계 쿼리에 빠르냐"를 논할 때 마주친다. <span style="color:var(--green)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
