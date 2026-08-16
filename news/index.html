@@ -83,6 +83,34 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-08-17">
+        <h2>📰 2026-08-17 (월)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 2건·HTML &amp; CSS 1건 통과. 프론트엔드는 시의성 창(최근 1~2주) 내 신규 안정 릴리스인 Next.js 16.3/16.3.1이 8/5·8/14 발송분과 중복이라 생략, 백엔드는 이 창 안에서 1차 소스로 확인되는 신규 릴리스가 없어 생략(Deno 2.9는 6/25, Bun 1.3.14는 5월로 시의성 미달). GLM-5.3(8/14)은 오픈웨이트가 아직 게이트 상태라 HF 모델 카드를 열 수 없어(접근 실패) 드롭. Qwen3.8-27B는 검색 요약의 발행일이 엇갈렸으나 HF 카드의 &quot;Updated 3 days ago&quot;로 8/14 공개를 확정. Anthropic 사용량 상향+SpaceX 컴퓨트 소식은 검색 요약과 달리 공식 뉴스룸 발행일이 5/6이라 시의성 미달로 드롭.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Google, Gemini 3.7 Flash 공개 — 1M 컨텍스트·thinking 설정, GPT-5.6-Terra급을 절반 비용으로</p>
+            <p class="item-meta">2026-08-13 · <a href="https://deepmind.google/models/model-cards/gemini-3-7-flash/">deepmind.google</a></p>
+            <p class="item-summary">Google DeepMind가 Gemini 3.6 Flash의 후속인 Gemini 3.7 Flash를 공개했다(모델 카드 &quot;Published 13 August 2026&quot;). 코어 추론을 알고리즘적으로 개선한 &apos;워크호스&apos; 모델로, 텍스트·이미지·오디오·비디오 입력에 <strong>1M 토큰 컨텍스트</strong>(출력 최대 64K)를 지원하고, 품질·비용·지연을 조절하는 <em>커스터마이즈 가능한 thinking 설정</em>을 제공한다. 공식 발표 기준 GPT-5.6-Terra 같은 중형 모델과 대등한 벤치 성능을 약 절반 비용으로 내며, 연말까지 도입가는 1M 입력 $0.75·출력 $3.75(2027-01-01부터 $1.50/$7.50). 3.6 Flash 출시 약 3주 만의 후속으로, 플래그십 Gemini 3.5 Pro는 여전히 지연 중이다.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Qwen3.8-27B 오픈웨이트 공개 — 로컬 구동 가능한 소형 멀티모달, Apache-2.0</p>
+            <p class="item-meta">2026-08-14 · <a href="https://huggingface.co/Qwen/Qwen3.8-27B">huggingface.co</a></p>
+            <p class="item-summary">Qwen 팀이 Qwen3.8 라인의 소형 멀티모달 모델 Qwen3.8-27B를 Hugging Face에 공개했다. 모델 카드 기준 <strong>27B 파라미터·Apache-2.0</strong> 라이선스이며, 컨텍스트는 <strong>262,144 토큰(최대 1,000,000까지 확장)</strong>, 이미지·비디오 이해를 지원하는 image-text-to-text 비전-언어 모델이다(Gated DeltaNet+어텐션 구조). 대형 형제 모델과 달리 단일 소비자 GPU에서 로컬 구동을 노린 소형 라인으로, 공개 직후 Hacker News 1위에 올랐다. 오픈웨이트 진영이 &apos;작지만 멀티모달&apos; 방향으로도 빠르게 확장하는 흐름을 보여준다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">Safari Technology Preview 250 (프리뷰) — 새 CSS 다수 + JS &apos;using&apos; 키워드 지원</p>
+            <p class="item-meta">2026-08-13 · <a href="https://webkit.org/blog/18191/release-notes-for-safari-technology-preview-250/">webkit.org</a></p>
+            <p class="item-summary">WebKit이 Safari Technology Preview 250(안정판 아님·프리뷰)을 공개했다. 새 CSS로 <code>::marker</code> 의사요소의 <code>content</code> 속성, <code>text-decoration-inset</code>, <code>white-space-trim</code>, <code>wrap-inside</code>, 그리고 <code>ruby-overhang</code>의 <code>spaces</code> 값을 추가했다. 자바스크립트에서는 <strong>Explicit Resource Management</strong> 제안(<code>using</code>·<code>await using</code> 선언과 <code>Symbol.dispose</code>·<code>DisposableStack</code>·<code>AsyncDisposableStack</code>)을 지원해, 그동안 Safari에만 없던 <code>using</code> 키워드의 크로스브라우저 마지막 격차를 좁혔다. 이 밖에 Joint Iteration의 <code>Iterator.zip()</code>·<code>Iterator.zipKeyed()</code>도 들어갔다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
