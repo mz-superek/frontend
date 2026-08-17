@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#service-control-policy">SCP·조직 정책</a>
+    <a class="nav-item" href="#two-phase-commit">2단계 커밋(2PC)</a>
+    <a class="nav-item" href="#structured-logging">구조화 로깅</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,57 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="service-control-policy">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="service-control-policy-h">서비스 제어 정책 <span class="sub">Service Control Policy · SCP · AWS Organizations</span></h2>
+    <div class="links"><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#least-privilege">최소 권한</a><a class="link-tag" href="#landing-zone">Landing Zone</a></div>
+  </div>
+</div>
+<p><strong>여러 AWS 계정을 조직(AWS Organizations)으로 묶었을 때, 각 계정·조직 단위(OU)가 <em>가질 수 있는 권한의 상한선(가드레일)</em>을 조직 차원에서 정하는 정책</strong>. 핵심은 SCP가 권한을 <strong>부여하지 않는다</strong>는 점이다 &mdash; 실제 권한은 여전히 계정 안의 IAM 정책이 준다. SCP는 그 위에 <strong>"여기까지만 허용"이라는 천장</strong>을 씌워, 최종 권한 = <strong>SCP가 허용한 범위 &cap; IAM이 허용한 범위</strong>가 된다. 그래서 계정 관리자가 IAM으로 아무리 넓게 열어도 SCP가 막은 행위(예: 특정 리전 사용 금지, 루트 계정 이용 차단, 로그 삭제 금지)는 할 수 없다. 단, 조직의 <strong>관리(management) 계정에는 SCP가 적용되지 않는</strong> 점은 주의해야 한다. 대규모 멀티계정 환경(랜딩 존)에서 보안·규정 준수를 <strong>중앙에서 일괄 강제</strong>하는 수단이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">SCP (조직 가드레일)</h4><ul><li>권한의 <strong>상한선</strong>만 정함 — 부여는 안 함</li><li>계정·OU 전체에 일괄 적용</li><li>관리 계정엔 미적용</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">IAM 정책 (실제 권한)</h4><ul><li>사용자·역할에 권한을 <strong>실제로 부여</strong></li><li>각 계정 안에서 설정</li><li>SCP 천장 안에서만 유효</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>MSP처럼 고객사 계정을 여러 개 관리하며 "특정 리전만 쓰게 하자·루트 사용 막자·CloudTrail 로그 삭제 금지" 같은 조직 전체 통제를 걸거나, "IAM에서 분명히 열었는데 왜 권한이 막히지?(SCP 천장에 걸림)"를 진단할 때 마주친다. <span style="color:var(--teal)">[클라우드·거버넌스]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="two-phase-commit">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="two-phase-commit-h">2단계 커밋 <span class="sub">Two-Phase Commit · 2PC</span></h2>
+    <div class="links"><a class="link-tag" href="#saga-pattern">Saga 패턴</a><a class="link-tag" href="#transactional-outbox">Outbox</a><a class="link-tag" href="#distributed-lock">분산 락</a></div>
+  </div>
+</div>
+<p><strong>여러 대의 노드·DB에 걸친 작업을 "전부 성공하거나 전부 취소(all-or-nothing)"로 묶는 분산 트랜잭션 프로토콜</strong>. 한 명의 <strong>코디네이터(조정자)</strong>가 여러 <strong>참가자</strong>를 두 단계로 지휘한다. ① <strong>준비(prepare)</strong> 단계 — 코디네이터가 "커밋할 수 있어?"라고 묻고, 각 참가자는 변경을 미리 기록·잠근 뒤 <em>예/아니오</em>를 투표한다. ② <strong>커밋(commit)</strong> 단계 — 모두 '예'면 전원에게 커밋을, 하나라도 '아니오'면 전원에게 취소를 지시한다. 강한 일관성을 보장하지만 치명적 약점이 있다: 참가자들이 '예'로 투표해 자원을 잠근 채 <strong>코디네이터가 죽으면, 결정을 받지 못해 계속 잠긴 채 대기(blocking)</strong>한다. 또 모두의 응답을 기다리는 <strong>동기 방식이라 느리고</strong> 네트워크 분단에 취약하다. 그래서 마이크로서비스에서는 2PC 대신 느슨한 <strong>Saga 패턴</strong>으로 우회하는 경우가 많다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">2PC</h4><ul><li>강한 일관성·즉시 원자성</li><li>동기·잠금 → 느리고 blocking</li><li>코디네이터 장애에 취약</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Saga</h4><ul><li>단계별 로컬 커밋 + 보상 트랜잭션</li><li>비동기·느슨 → 확장성 좋음</li><li>중간 상태 노출(결과적 일관성)</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>결제·재고처럼 여러 서비스·DB를 한꺼번에 확정해야 하는 흐름을 설계하거나, "분산 트랜잭션을 2PC로 묶을까 Saga로 갈까"·"XA 트랜잭션이 왜 이렇게 느리고 자주 걸리나"를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산시스템]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="structured-logging">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="structured-logging-h">구조화 로깅 <span class="sub">Structured Logging</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#open-tracing">분산 추적</a><a class="link-tag" href="#sentry">Sentry</a></div>
+  </div>
+</div>
+<p><strong>로그를 사람이 읽는 자유형 문장이 아니라, 기계가 파싱하기 쉬운 <em>키-값 구조(대개 JSON)</em>로 남기는 방식</strong>. 예를 들어 <code>"user 42 login failed from 1.2.3.4"</code>라는 한 줄 문장 대신 <code>{"level":"error","event":"login_failed","user_id":42,"ip":"1.2.3.4"}</code>처럼 필드를 나눠 기록한다. 이렇게 하면 로그 수집·검색 시스템(CloudWatch Logs Insights·ELK·Datadog 등)이 <strong>필드 단위로 필터·집계·알람</strong>을 걸 수 있어 "user_id=42의 에러만", "최근 5분간 login_failed 개수" 같은 질의가 정규식 없이 바로 된다. 여러 서비스 로그에 <strong>공통 필드(요청 ID·트레이스 ID)</strong>를 심어 두면 분산 추적과 연결돼 하나의 요청 흐름을 꿰어 볼 수 있다. 관측성(로그·메트릭·트레이스) 중 <strong>'로그' 축을 실제로 쓸모 있게 만드는 토대</strong>다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">평문 로그</h4><ul><li>사람이 읽기 편한 문장</li><li>검색·집계엔 정규식이 필요</li><li>필드 기준 질의·알람이 어려움</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">구조화 로그(JSON)</h4><ul><li>키-값으로 기계가 파싱</li><li>필드 필터·집계·알람 즉시</li><li>트레이스 ID로 요청 추적과 연결</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>서버·람다 로그를 CloudWatch·Datadog에서 검색·대시보드로 볼 때, "로그가 문자열이라 필터가 안 걸린다"·"요청 하나를 여러 서비스 로그에서 어떻게 추적하냐"를 논하거나 로거(pino·winston·zap 등)에 JSON 출력을 붙일 때 마주친다. <span style="color:var(--green)">[관측성·운영]</span></div>
 </section><hr class="divider">
 
 
