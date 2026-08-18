@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#schema-migration">스키마 마이그레이션</a>
+    <a class="nav-item" href="#configuration-drift">구성 드리프트</a>
+    <a class="nav-item" href="#polyfill-transpile">폴리필 vs 트랜스파일</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="schema-migration">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="schema-migration-h">스키마 마이그레이션 <span class="sub">Schema Migration · Flyway·Liquibase</span></h2>
+    <div class="links"><a class="link-tag" href="#rolling-deployment">롤링 배포</a><a class="link-tag" href="#orm">ORM</a><a class="link-tag" href="#blue-green-deployment">Blue-Green</a></div>
+  </div>
+</div>
+<p><strong>DB 테이블 구조(스키마)의 변경을 코드처럼 버전으로 관리하며, 정해진 순서대로 적용·되돌리는 방식</strong>. 각 변경을 번호가 매겨진 마이그레이션 파일(V1·V2…)로 남기면 어느 환경이든 같은 순서로 적용돼 스키마가 <strong>재현 가능</strong>하고, 팀·CI가 동일한 DB 구조를 공유한다. 무중단 배포가 까다로운 이유는 배포 도중 구·신 버전 코드가 잠시 <strong>공존</strong>하기 때문 — 그래서 컬럼을 곧바로 rename·drop하지 않고 <strong>확장-축소(expand-contract)</strong>로 나눈다: ① 새 컬럼 추가(확장), ② 코드가 구·신 양쪽을 함께 읽고 쓰도록 배포, ③ 구 컬럼 제거(축소). 각 단계가 앞뒤 버전과 호환되면 롤링 배포·롤백 중에도 깨지지 않는다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">한 번에 변경 (파괴적)</h4><ul><li>배포 즉시 rename·drop</li><li>배포 순간 구버전 코드가 깨짐</li><li>롤백 시 데이터 손실 위험</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">확장-축소 (expand-contract)</h4><ul><li>추가 → 양쪽 호환 → 제거 단계</li><li>무중단·롤백 안전</li><li>대신 배포를 여러 번 나눠야 함</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>Flyway·Liquibase·Prisma Migrate·Alembic으로 스키마 변경을 배포 파이프라인에 태우거나, "무중단으로 컬럼을 어떻게 바꾸지"·"마이그레이션을 롤백하면 데이터가 날아가지 않나"를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="configuration-drift">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="configuration-drift-h">구성 드리프트 <span class="sub">Configuration Drift</span></h2>
+    <div class="links"><a class="link-tag" href="#iac">IaC</a><a class="link-tag" href="#immutable-infrastructure">불변 인프라</a><a class="link-tag" href="#gitops">GitOps</a></div>
+  </div>
+</div>
+<p><strong>IaC(Terraform 등)로 코드에 정의한 "이상적 상태"와 클라우드에 실제로 존재하는 상태가 서로 어긋나는 현상</strong>. 누군가 콘솔에서 급히 손으로 고치거나, 오토스케일링·외부 자동화가 리소스를 바꾸면 코드와 현실이 벌어진다. Terraform은 <code>plan</code>·<code>apply</code> 때 실제 인프라를 조회(refresh)해 상태 파일과 비교하고, <code>-refresh-only</code> 플래그로 변경 없이 차이만 확인할 수도 있다. 드리프트를 방치하면 다음 <code>apply</code>가 손으로 바꾼 설정을 코드 기준으로 <strong>되돌리거나 자원을 재생성</strong>해 장애로 이어질 수 있어, "인프라는 코드로만 바꾼다"는 규율과 주기적 드리프트 감지가 중요하다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">코드 (선언된 상태)</h4><ul><li>Terraform 파일·state가 정본</li><li>PR·리뷰 거쳐 변경</li><li>어느 환경이든 재현 가능</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">실제 (런타임 상태)</h4><ul><li>콘솔·CLI·자동화가 바꿈</li><li>기록 안 남으면 추적 불가</li><li>코드와 벌어지면 = 드리프트</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"코드는 그대론데 왜 실제 설정이 다르지"·"누가 콘솔에서 손댔나"를 추적하거나, <code>terraform plan</code>·드리프트 감지를 CI에 넣어 수동 변경을 막을 때 마주친다. <span style="color:var(--teal)">[인프라·IaC]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="polyfill-transpile">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="polyfill-transpile-h">폴리필 vs 트랜스파일 <span class="sub">Polyfill vs Transpile</span></h2>
+    <div class="links"><a class="link-tag" href="#bundler">번들러</a><a class="link-tag" href="#tree-shaking">Tree Shaking</a><a class="link-tag" href="#code-splitting">Code Splitting</a></div>
+  </div>
+</div>
+<p><strong>둘 다 "구형 브라우저에서도 돌아가게" 만드는 기법이지만 다루는 대상이 다르다</strong>. <strong>트랜스파일</strong>(Babel·SWC·TypeScript)은 최신 <em>문법</em>(화살표 함수·<code>?.</code> 옵셔널 체이닝·클래스 필드)을 구형 브라우저가 이해하는 옛 문법으로 <strong>변환</strong>한다. <strong>폴리필</strong>(core-js·whatwg-fetch)은 문법이 아니라 아예 <em>없는 기능·API</em>(<code>Promise</code>·<code>fetch</code>·<code>Array.prototype.flat</code>)를 런타임에 직접 구현해 <strong>채워 넣는다</strong>. 그래서 "문법이 안 먹히면 트랜스파일, 함수·객체가 없다고 하면 폴리필"로 갈린다. 어디까지 지원할지는 <code>browserslist</code> 타깃으로 정하고, 그 타깃에 맞춰 꼭 필요한 변환·폴리필만 넣어 번들을 가볍게 유지한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--purple)">트랜스파일 (Transpile)</h4><ul><li>최신 <em>문법</em> → 옛 문법으로 변환</li><li>Babel·SWC·tsc</li><li>없는 API는 못 만듦</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">폴리필 (Polyfill)</h4><ul><li>없는 <em>기능·API</em>를 런타임 구현</li><li>core-js·fetch·flat</li><li>문법 자체는 못 바꿈</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"구형 사파리·구버전에서 왜 깨지지"·"Babel 돌렸는데 <code>fetch is not defined</code>가 뜬다"를 디버깅하거나, <code>browserslist</code>·번들러 타깃을 조정할 때 마주친다. <span style="color:var(--purple)">[프론트엔드·빌드]</span></div>
 </section><hr class="divider">
 
 
