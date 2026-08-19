@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#acid">ACID (트랜잭션 보증)</a>
+    <a class="nav-item" href="#token-bucket">토큰 버킷 (Rate Limiting)</a>
+    <a class="nav-item" href="#golden-image">골든 이미지 (Golden Image)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="acid">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="acid-h">ACID <span class="sub">Atomicity · Consistency · Isolation · Durability · 트랜잭션 4대 보증</span></h2>
+    <div class="links"><a class="link-tag" href="#isolation-level">격리 수준</a><a class="link-tag" href="#eventual-consistency">결과적 일관성</a><a class="link-tag" href="#write-ahead-log">WAL</a></div>
+  </div>
+</div>
+<p><strong>하나의 DB 트랜잭션이 지켜야 할 네 가지 보증을 묶은 원칙</strong>으로, 관계형 DB가 "믿고 쓸 수 있는" 근거다. <strong>원자성(Atomicity)</strong>은 트랜잭션 안의 여러 작업이 <strong>전부 성공하거나 전부 취소</strong>되어 중간 상태가 남지 않음을, <strong>일관성(Consistency)</strong>은 트랜잭션 전후로 제약·규칙(외래키·유니크 등)이 <strong>깨지지 않음</strong>을, <strong>격리성(Isolation)</strong>은 여러 트랜잭션이 동시에 돌아도 <strong>서로 간섭 없이 순차 실행된 것처럼</strong> 보이게 함을(→ 격리 수준으로 강도 조절), <strong>지속성(Durability)</strong>은 한 번 커밋되면 장애·정전이 나도 <strong>결과가 사라지지 않음</strong>을(→ 보통 WAL로 보장) 뜻한다. NoSQL·분산 시스템이 성능·확장을 위해 이 중 일부를 느슨하게 한 것이 흔히 말하는 <strong>BASE(결과적 일관성)</strong>다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>주문·결제·재고 차감처럼 "중간에 실패하면 절대 안 되는" 로직을 트랜잭션으로 묶거나, "이 저장소가 ACID를 보장하냐 / 왜 이 NoSQL은 BASE라 하냐"를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="token-bucket">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="token-bucket-h">토큰 버킷 <span class="sub">Token Bucket</span></h2>
+    <div class="links"><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#api-gateway">API 게이트웨이</a><a class="link-tag" href="#retry-backoff">재시도 백오프</a></div>
+  </div>
+</div>
+<p><strong>요청 속도를 제어(rate limiting)하는 대표 알고리즘</strong>. 버킷(양동이)에 <strong>일정 속도로 토큰이 채워지고</strong>(최대 용량까지만 쌓임), 요청 1건이 들어올 때마다 <strong>토큰 1개를 소비</strong>한다. 토큰이 남아 있으면 즉시 통과, 없으면 거부(429)하거나 대기시킨다. 평소 안 쓰고 쌓아둔 토큰만큼 <strong>순간적인 폭주(burst)를 허용</strong>하되 <strong>장기 평균 속도는 채우는 속도로 수렴</strong>시키는 것이 핵심이다. 들어오는 요청을 무조건 <strong>일정 속도로만 흘려보내는 '리키 버킷(Leaky Bucket)'</strong>과 자주 비교되는데, 리키 버킷은 버스트를 깎아 평탄화하는 반면 토큰 버킷은 짧은 버스트를 허용한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">토큰 버킷 (Token Bucket)</h4><ul><li>토큰을 쌓아 둠</li><li>짧은 버스트 허용</li><li>API 제한에 널리 쓰임</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">리키 버킷 (Leaky Bucket)</h4><ul><li>고정 속도로만 배출</li><li>버스트를 평탄화</li><li>트래픽 셰이핑에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>API 게이트웨이·로드밸런서·WAF에서 "초당 N건, 버스트 M건" 같은 제한을 설정하거나, 429(Too Many Requests)를 받아 재시도 백오프를 설계할 때 마주친다. <span style="color:var(--teal)">[인프라·트래픽제어]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="golden-image">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="golden-image-h">골든 이미지 <span class="sub">Golden Image · 베이스 이미지 · AMI</span></h2>
+    <div class="links"><a class="link-tag" href="#immutable-infrastructure">불변 인프라</a><a class="link-tag" href="#auto-scaling">오토스케일링</a><a class="link-tag" href="#iac">IaC</a></div>
+  </div>
+</div>
+<p><strong>OS·런타임·보안 패치·모니터링 에이전트 등을 미리 설치·설정해 "구워둔(baking)" 표준 기준 이미지</strong>다. 서버(VM)나 컨테이너를 띄울 때마다 매번 처음부터 설치·설정하는 대신, 이 이미지를 <strong>복제해 동일한 인스턴스를 빠르고 일관되게 찍어낸다</strong>. 그래서 부팅 즉시 서비스 준비가 끝나 <strong>오토스케일링의 확장 속도가 빨라지고</strong>, 모든 인스턴스가 같은 상태라 <strong>"내 서버만 다르다"는 설정 드리프트가 사라진다</strong>. AWS에서는 <code>AMI</code>, 컨테이너에서는 베이스 이미지가 이에 해당하며, 이미지를 코드로 굽는 도구(Packer 등)와 함께 <strong>불변 인프라</strong>의 토대가 된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>오토스케일링 그룹·런치 템플릿에 쓸 AMI를 만들거나, "이미지를 굽는다 / 베이스 이미지를 갱신한다"·"인스턴스마다 환경이 다르다"는 문제를 불변 인프라로 풀 때 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
 </section><hr class="divider">
 
 
