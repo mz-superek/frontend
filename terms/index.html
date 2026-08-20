@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#split-brain">스플릿 브레인 (Split-brain)</a>
+    <a class="nav-item" href="#graceful-degradation">우아한 성능 저하 (Graceful Degradation)</a>
+    <a class="nav-item" href="#definition-of-done">완료 정의 (DoD)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,43 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="split-brain">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="split-brain-h">스플릿 브레인 <span class="sub">Split-brain</span></h2>
+    <div class="links"><a class="link-tag" href="#quorum">정족수 (Quorum)</a><a class="link-tag" href="#consensus">합의 알고리즘</a><a class="link-tag" href="#distributed-lock">분산 락</a></div>
+  </div>
+</div>
+<p><strong>여러 대로 이중화한 클러스터에서 노드 사이 네트워크가 끊겨 서로를 "죽었다"고 오판하고, 양쪽이 동시에 자기가 주(primary)라고 믿어버리는 상황</strong>. 두 진영이 각각 쓰기 요청을 받아들이면 같은 데이터가 서로 다르게 갈라져(&quot;뇌가 둘로 쪼개진&quot;) 나중에 네트워크가 복구돼도 <strong>어느 쪽이 진짜인지 판단할 수 없어 데이터가 손상</strong>된다. 그래서 HA 시스템은 살아있는 노드가 <strong>과반(정족수·quorum)</strong>을 확보한 진영만 주로 인정하고, 소수 진영은 스스로 물러나게 하거나 <strong>펜싱(fencing)</strong>으로 강제 차단해 이 사태를 막는다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>DB 이중화(마스터-슬레이브)·쿠버네티스 컨트롤 플레인·Redis Sentinel 같은 HA 구성을 잡으며 "정족수를 홀수로 둔다"·"장애 조치(failover) 시 스플릿 브레인을 어떻게 막느냐"를 논할 때 마주친다. <span style="color:var(--teal)">[인프라·분산시스템]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="graceful-degradation">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="graceful-degradation-h">우아한 성능 저하 <span class="sub">Graceful Degradation</span></h2>
+    <div class="links"><a class="link-tag" href="#circuit-breaker">서킷 브레이커</a><a class="link-tag" href="#bulkhead">격벽 패턴</a><a class="link-tag" href="#error-budget">에러 버짓</a></div>
+  </div>
+</div>
+<p><strong>일부 기능이나 의존 서비스가 죽어도 시스템 전체를 멈추지 않고, 핵심 기능만 남기거나 대체 응답으로 서비스를 계속 굴러가게 하는 복원력 설계 원칙</strong>. "전부 아니면 전무"로 전면 장애를 내는 대신, 죽은 부분만 <strong>부분적으로 저하</strong>시켜 사용자가 최소한의 서비스는 받게 한다. 구체적으로는 다운된 의존성 대신 <strong>캐시된 옛 값·기본값·빈 목록</strong>을 돌려주거나, 부가 기능(추천·리뷰·광고)을 숨기고 핵심 흐름(상품 조회·결제)만 유지하는 식이다. 흔히 서킷 브레이커·타임아웃과 짝지어 "다운스트림이 죽었을 때 무엇을 대신 보여줄지(fallback)"를 미리 정해 둔다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>추천·리뷰 서비스가 죽어도 상품 페이지는 뜨게 하거나, 외부 API 장애 시 캐시·기본 응답으로 버티는 폴백을 설계할 때, 또 "이 기능이 죽으면 전체가 같이 죽나"를 점검할 때 마주친다. <span style="color:var(--green)">[백엔드·복원력]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="definition-of-done">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="definition-of-done-h">완료 정의 <span class="sub">Definition of Done · DoD</span></h2>
+    <div class="links"><a class="link-tag" href="#conventional-commits">Conventional Commits</a><a class="link-tag" href="#adr">ADR</a><a class="link-tag" href="#sow">SOW</a></div>
+  </div>
+</div>
+<p><strong>작업 하나(스토리·티켓)를 "끝났다"고 부르려면 충족해야 하는, 팀이 미리 합의해 둔 공통 기준 목록</strong>. 예를 들어 코드 리뷰 통과·테스트 작성·문서 갱신·스테이징 배포·QA 확인까지 다 돼야 비로소 "완료"로 친다. 핵심은 <strong>"완료"의 뜻을 사람마다 다르게 해석하지 않도록 한 줄로 통일</strong>하는 것 — 개발자는 "코드 짰으니 끝", 기획자는 "배포돼야 끝"으로 어긋나는 일을 막는다. 특정 작업에만 붙는 인수 조건(Acceptance Criteria)과 달리, DoD는 <strong>모든 작업에 공통으로 적용</strong>되는 팀의 최소 품질 게이트다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>스프린트·칸반 보드에서 "이거 done 맞아?"로 옥신각신하거나, PR 머지·QA 이관·릴리스 기준을 팀 규칙(체크리스트)으로 세울 때 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 
