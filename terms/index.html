@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#denormalization">역정규화 (Denormalization)</a>
+    <a class="nav-item" href="#cardinality">카디널리티 (Cardinality)</a>
+    <a class="nav-item" href="#toil">토일 (Toil)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,46 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="denormalization">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="denormalization-h">역정규화 <span class="sub">Denormalization</span></h2>
+    <div class="links"><a class="link-tag" href="#n-plus-one">N+1 쿼리</a><a class="link-tag" href="#materialized-view">구체화 뷰</a><a class="link-tag" href="#oltp-olap">OLTP vs OLAP</a></div>
+  </div>
+</div>
+<p><strong>정규화(normalization)로 잘게 쪼갠 테이블을, 조회 성능을 위해 일부러 되돌려 데이터를 중복 저장하거나 테이블을 합치는 설계 기법</strong>. 정규화는 같은 데이터를 한 곳에만 두어 <strong>중복을 없애고 갱신을 안전하게</strong> 하지만, 필요한 정보가 여러 테이블에 흩어져 있어 읽을 때마다 <strong>조인(join)</strong>이 늘고 느려질 수 있다. 역정규화는 자주 함께 읽는 값을 <strong>한 테이블에 미리 복제·집계</strong>해 조인을 줄여 읽기를 빠르게 한다. 대신 같은 데이터가 여러 곳에 있으니 하나가 바뀌면 <strong>전부 맞춰 써야 하고(쓰기 복잡·정합성 위험)</strong>, 자칫 값이 서로 어긋날 수 있다. 그래서 보통 <strong>읽기가 압도적으로 많고 쓰기는 드문</strong> 곳에서, 정합성 관리를 감수하고 선택한다. NoSQL(문서·키-값)에서는 조인이 약해 처음부터 역정규화를 기본으로 삼는 경우가 많다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">정규화 (Normalization)</h4><ul><li>데이터를 한 곳에만 저장·중복 제거</li><li>갱신이 안전하고 정합성 유지 쉬움</li><li>조인이 많아 읽기가 느려질 수 있음</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">역정규화 (Denormalization)</h4><ul><li>자주 읽는 값을 미리 복제·집계</li><li>조인이 줄어 읽기가 빠름</li><li>중복 갱신 부담·정합성 어긋날 위험</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>읽기가 많은 피드·리포트·대시보드 테이블을 튜닝하거나, "조인이 느리니 값을 미리 복제·집계해 두자"·"이 화면은 구체화 뷰로 빼자"·NoSQL 데이터 모델링을 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cardinality">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="cardinality-h">카디널리티 <span class="sub">Cardinality · 고유값 개수</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#percentile-latency">백분위 지연시간</a><a class="link-tag" href="#materialized-view">구체화 뷰</a></div>
+  </div>
+</div>
+<p><strong>어떤 집합에 들어 있는 "서로 다른 값의 개수"</strong>. 실무에선 크게 두 맥락에서 마주친다. ① <strong>데이터베이스</strong>에서는 한 컬럼이 가진 고유값의 수를 뜻한다 — 예컨대 <code>성별</code>은 값 종류가 적어 <strong>저(低)카디널리티</strong>, <code>user_id</code>·<code>email</code>은 거의 전부 달라 <strong>고(高)카디널리티</strong>다. 이 값은 옵티마이저가 인덱스를 탈지, 어떤 실행 계획을 고를지에 영향을 준다. ② <strong>관측성(모니터링)</strong>에서는 하나의 메트릭에 붙는 <strong>라벨(태그) 조합이 만들어 내는 고유 시계열(time series)의 수</strong>를 가리킨다. <code>user_id</code>·요청 <code>URL</code>·요청 ID처럼 값 종류가 폭발하는 라벨을 붙이면 시계열이 수백만 개로 불어나 <strong>저장·질의 비용과 부하가 급증</strong>한다(이른바 "카디널리티 폭발"). 그래서 라벨은 값의 가짓수가 제한된 것(지역·상태코드·서비스명 등)으로 설계하고, 고유 식별자는 로그·트레이스로 넘기는 것이 정석이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>Datadog·Prometheus·Grafana에서 "고카디널리티 라벨 때문에 요금·쿼리 성능이 튄다"는 이슈를 다루거나, DB 인덱스 설계·쿼리 튜닝에서 "이 컬럼은 카디널리티가 낮아 인덱스가 효과 없다"를 논할 때 마주친다. <span style="color:var(--green)">[관측성·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="toil">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="toil-h">토일 <span class="sub">Toil · 반복 운영 부담</span></h2>
+    <div class="links"><a class="link-tag" href="#runbook">런북</a><a class="link-tag" href="#on-call">온콜</a><a class="link-tag" href="#dora-metrics">DORA 메트릭</a></div>
+  </div>
+</div>
+<p><strong>서비스를 운영하며 반복적으로 해야 하는, 손이 많이 가는 운영 잡무</strong>를 가리키는 SRE(사이트 신뢰성 엔지니어링) 용어. Google SRE는 토일을 <strong>수동적·반복적·자동화 가능·전술적(그때그때 대응)이며, 지속적인 가치를 남기지 않고, 서비스 규모가 커질수록 비례해 늘어나는</strong> 종류의 일로 정의한다. 예를 들어 매번 손으로 하는 배포, 인증서 수동 교체, 반복되는 알림에 사람이 일일이 대응하는 것이 토일이다. 새 기능·구조 개선처럼 <strong>한 번 하면 두고두고 가치가 남는 엔지니어링 작업과 구분</strong>되며, 토일은 아무리 열심히 해도 시스템이 나아지지 않고 사람만 갈려 나간다. 그래서 SRE는 토일을 <strong>자동화(런북 → 스크립트 → 셀프서비스)로 걷어내</strong> 엔지니어가 개선 작업에 집중하게 하는 것을 지향하며, Google SRE는 팀의 토일을 <strong>업무의 절반 이하로 억제</strong>할 것을 권고한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>온콜·운영 회고에서 "이거 자동화 안 하고 매번 사람이 하네"를 짚어 자동화 대상을 고르거나, SRE·플랫폼 팀의 업무 배분·번아웃, "런북을 스크립트로 만들자" 같은 개선을 논할 때 마주친다. <span style="color:var(--purple)">[운영·SRE]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
