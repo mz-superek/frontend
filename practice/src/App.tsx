@@ -7,6 +7,7 @@ import { InviteForm } from "./problems/03-invite-form/InviteForm";
 import { TeamDashboard } from "./problems/04-dashboard/TeamDashboard";
 import { SettingsPanel } from "./problems/05-settings/SettingsPanel";
 import { OrderTable } from "./problems/06-orders/OrderTable";
+import { BookmarkLists } from "./problems/07-hooks/BookmarkLists";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -45,6 +46,12 @@ const PROBLEMS = [
     title: "06. 주문 관리 테이블",
     stack: "필터 · 정렬 · 다중 선택 · 페이지네이션 조합",
     Component: OrderTable,
+  },
+  {
+    id: "07-hooks",
+    title: "07. 북마크 목록",
+    stack: "커스텀 훅 설계 · 상태 공유 범위 · 참조 안정성",
+    Component: BookmarkLists,
   },
 ] as const;
 
