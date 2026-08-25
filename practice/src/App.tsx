@@ -9,6 +9,7 @@ import { SettingsPanel } from "./problems/05-settings/SettingsPanel";
 import { OrderTable } from "./problems/06-orders/OrderTable";
 import { BookmarkLists } from "./problems/07-hooks/BookmarkLists";
 import { NotificationFeed } from "./problems/08-notifications/NotificationFeed";
+import { DocumentManager } from "./problems/09-modal/DocumentManager";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -59,6 +60,12 @@ const PROBLEMS = [
     title: "08. 알림 피드",
     stack: "날짜·시간 · 상대 시간 갱신 · Date 불변성",
     Component: NotificationFeed,
+  },
+  {
+    id: "09-modal",
+    title: "09. 삭제 확인 다이얼로그",
+    stack: "모달 · 이벤트 정리 · 키보드 접근성",
+    Component: DocumentManager,
   },
 ] as const;
 

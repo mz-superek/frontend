@@ -226,6 +226,44 @@ button:disabled {
   font-size: 13px;
 }
 
+/* 다이얼로그 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 380px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.dialog h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+button.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
 @media (prefers-color-scheme: dark) {
   .ok {
     color: #4ade80;
