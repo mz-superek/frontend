@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#load-shedding">로드 셰딩</a>
+    <a class="nav-item" href="#bloom-filter">블룸 필터</a>
+    <a class="nav-item" href="#connection-draining">커넥션 드레이닝</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,42 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="load-shedding">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="load-shedding-h">로드 셰딩 <span class="sub">Load Shedding · 부하 차단</span></h2>
+    <div class="links"><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#backpressure">Backpressure</a><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a></div>
+  </div>
+</div>
+<p><strong>시스템이 감당할 수 있는 한계를 넘는 과부하 상태가 되면, 들어오는 요청 중 일부(대개 우선순위가 낮은 것)를 일부러 즉시 거절해서 나머지 요청은 정상 속도로 처리되게 지키는 기법</strong>. 모든 요청을 다 받으려다 <strong>전체가 함께 느려지거나(응답 지연 폭증) 결국 다 죽는 것</strong>보다, 일부를 버리고 핵심 트래픽을 살리는 쪽을 택하는 것이다. 보통 서버의 부하 지표(큐 길이·CPU·응답시간)를 보고 임계치를 넘으면 초과분을 <code>503 Service Unavailable</code> 등으로 빠르게 흘려보낸다. <strong>레이트 리밋</strong>이 "클라이언트마다 초당 N건" 같은 <em>고정된 정책</em>이라면, 로드 셰딩은 <em>지금 시스템이 위험한지</em>에 반응해 동적으로 버리는 <strong>과부하 방어(복원력)</strong>라는 점이 다르다. 우아한 성능 저하(graceful degradation)를 실현하는 대표적 수단이기도 하다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>트래픽 폭주·장애 전파 상황에서 "이 이상 넘으면 우선순위 낮은 요청은 흘려보내 핵심만 살리자"는 과부하 방어책을 설계하거나, "레이트 리밋으로 막을지 로드 셰딩으로 막을지"를 논할 때 마주친다. <span style="color:var(--blue)">[인프라·복원력]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="bloom-filter">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="bloom-filter-h">블룸 필터 <span class="sub">Bloom Filter</span></h2>
+    <div class="links"><a class="link-tag" href="#consistent-hashing">Consistent Hashing</a><a class="link-tag" href="#cache-stampede">Cache Stampede</a><a class="link-tag" href="#read-replica">Read Replica</a></div>
+  </div>
+</div>
+<p><strong>"이 값이 집합 안에 있는지"를 아주 적은 메모리로 빠르게 검사하는 확률형(probabilistic) 자료구조</strong>. 답은 두 가지뿐 — <strong>"확실히 없음"</strong> 또는 <strong>"아마 있음(있을 수도 있음)"</strong>. 즉 <strong>거짓 양성(false positive·없는데 있다고 함)은 생길 수 있어도, 거짓 음성(false negative·있는데 없다고 함)은 절대 없다</strong>. 원리는 하나의 <strong>비트 배열</strong>에 값을 여러 개의 해시 함수로 매핑해 해당 비트들을 켜 두고, 조회 시 그 비트가 전부 켜져 있으면 "아마 있음", 하나라도 꺼져 있으면 "확실히 없음"으로 판정하는 것이다. 실제 값을 저장하지 않아 공간이 매우 작지만, 그 대신 원소를 개별적으로 <strong>삭제할 수 없고</strong> 오탐률은 배열 크기·해시 개수로 조절한다. "일단 없는 건 확실히 걸러내서, 비싼 진짜 조회(디스크·네트워크)를 건너뛴다"는 용도에 쓰인다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>DB·캐시 조회 전에 "없는 키인데 괜히 디스크까지 읽지 말자"로 헛조회를 걸러내는 최적화(Cassandra·HBase의 SSTable, CDN, Redis 등)나, "존재 여부만 대략 확인하면 되는" 대용량 검사를 논할 때 마주친다. <span style="color:var(--teal)">[백엔드·자료구조]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="connection-draining">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="connection-draining-h">커넥션 드레이닝 <span class="sub">Connection Draining · Deregistration Delay</span></h2>
+    <div class="links"><a class="link-tag" href="#graceful-shutdown">Graceful Shutdown</a><a class="link-tag" href="#rolling-deployment">롤링 배포</a><a class="link-tag" href="#load-balancer">Load Balancer</a></div>
+  </div>
+</div>
+<p><strong>로드밸런서에서 인스턴스를 뺄 때(배포·스케일인·헬스체크 실패) 그 인스턴스로 <em>새 연결은 더 이상 보내지 않되, 이미 처리 중이던 요청은 타임아웃 동안 끝까지 마치게</em> 기다렸다가 제거하는 기능</strong>. 이 유예가 없으면 인스턴스가 빠지는 순간 진행 중이던 요청이 <strong>뚝 끊겨 사용자에게 502·504 오류</strong>로 나타난다. 드레이닝을 켜 두면 로드밸런서가 해당 대상을 <strong>"draining" 상태</strong>로 두고, 남은 인플라이트 요청이 끝나거나 설정한 타임아웃이 지날 때까지 기다린 뒤에야 완전히 내린다(AWS ALB/NLB에선 <strong>deregistration delay</strong>라 부르며 기본 300초, 조정 가능). 애플리케이션 쪽의 <strong>Graceful Shutdown</strong>(프로세스가 SIGTERM을 받고 마무리)과 짝을 이뤄야 무중단 배포가 매끄럽게 완성된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>무중단 배포·오토스케일링에서 "배포만 하면 진행 중이던 요청이 502로 끊긴다"를 해결하거나, ALB/NLB 타깃그룹의 deregistration delay·헬스체크 설정을 조정할 때 마주친다. <span style="color:var(--amber)">[클라우드·로드밸런서]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
