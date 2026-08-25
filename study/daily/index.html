@@ -197,6 +197,68 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-08-26">
+        <h2>2026-08-26 (수) · TypeScript 유틸리티 타입 — Partial · Pick · Omit · Record: 있는 타입을 "가공"해서 재사용하기</h2>
+        <span class="topic-tag">프론트 심화 (TypeScript)</span>
+
+        <h3>핵심 개념</h3>
+        <p>지난 시간 제네릭이 "타입을 끼워 넣는 빈칸"이었다면, 유틸리티 타입은 TypeScript가 그 제네릭으로 미리 만들어 둔 <strong>기성품 타입 가공 도구</strong>다. 퍼블리싱 시절 <code>.btn</code> 하나 만들어 두고 <code>.btn--sm</code>, <code>.btn--ghost</code>를 SCSS mixin으로 변형해 뽑아 쓰던 것과 같다 — 원본 <code>interface User</code>를 복붙해서 두 번 세 번 정의하는 대신, 원본 하나만 두고 필요한 모양으로 깎아 쓴다. <code>Partial&lt;T&gt;</code>는 모든 속성을 선택(optional)으로, <code>Pick&lt;T, K&gt;</code>는 필요한 키만 골라내고, <code>Omit&lt;T, K&gt;</code>는 특정 키만 빼내며, <code>Record&lt;K, T&gt;</code>는 "키 목록 → 값 타입" 객체를 만든다. 핵심 이득은 <strong>원본이 바뀌면 파생 타입도 자동으로 따라 바뀐다</strong>는 것 — 복붙 타입은 원본이 바뀌어도 조용히 낡는다.</p>
+
+        <pre><code>interface User {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+}
+
+// Omit — 클라이언트로 내려보낼 때 민감 필드 제거
+type PublicUser = Omit&lt;User, 'password'&gt;;
+// { id: number; name: string; email: string }
+
+// Pick — 목록 카드에 필요한 필드만
+type UserCardProps = Pick&lt;User, 'id' | 'name'&gt;;
+
+// Partial — 수정 폼: 바꾼 필드만 보낸다
+type UserPatch = Partial&lt;Pick&lt;User, 'name' | 'email'&gt;&gt;;
+// { name?: string; email?: string }
+
+// Record — "상태 → 뱃지 스타일" 매핑 테이블 (ShadCN variant 만들 때 단골)
+type Status = 'idle' | 'loading' | 'error';
+const badgeClass: Record&lt;Status, string&gt; = {
+  idle: 'bg-gray-100',
+  loading: 'bg-blue-100',
+  error: 'bg-red-100',
+}; // Status에 'success'를 추가하는 순간 여기서 컴파일 에러 → 빠뜨릴 수 없음</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>FSD의 <code>entities/user/model/types.ts</code>에 원본 타입 하나만 두고 <code>shared/api</code> DTO, ShadCN 컴포넌트 props, 폼 상태를 전부 파생시키면 타입 중복이 사라진다. 특히 <code>Record</code>는 union 상태값에 대한 매핑을 <strong>빠뜨리면 컴파일이 안 되게</strong> 강제해 주니, 상태 하나 추가하고 스타일 분기 깜빡하는 사고를 원천 차단한다.</p>
+
+        <p class="refs">더 보기: <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html">TS 공식 핸드북 — Utility Types</a> · <a href="https://www.typescriptlang.org/docs/handbook/2/types-from-types.html">TS 공식 핸드북 — Creating Types from Types</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1 (객관식).</strong> 위 <code>User</code>에 대해 <code>type A = Partial&lt;Pick&lt;User, 'name' | 'email'&gt;&gt;</code> 일 때, <code>const a: A = {}</code> 는 어떻게 될까요?<br>
+          (a) 에러 — name, email이 없어서<br>
+          (b) 통과 — 두 속성이 모두 optional이라서<br>
+          (c) 에러 — Pick은 빈 객체를 허용하지 않아서<br>
+          (d) 통과하지만 런타임에 undefined 에러</p>
+          <p><strong>Q2 (문제점 찾기).</strong> 아래 수정 API의 DTO 타입에는 문제가 <strong>두 가지</strong> 있습니다. 무엇일까요?</p>
+          <pre><code>type UpdateUserDto = Partial&lt;User&gt;;
+
+async function updateUser(id: number, dto: UpdateUserDto) {
+  await db.user.update({ where: { id }, data: dto });
+}</code></pre>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>Q1 → (b) 통과.</strong> <code>Pick&lt;User, 'name' | 'email'&gt;</code>로 두 속성만 골라낸 뒤 <code>Partial</code>이 그 둘을 모두 <code>?</code> optional로 바꿔놓기 때문에, 필수 속성이 하나도 남지 않아 빈 객체 <code>{}</code>도 타입 검사를 통과한다. "부분 수정"에는 편하지만 <strong>아무것도 안 보낸 요청까지 허용된다</strong>는 뜻이기도 하다.</p>
+            <p><strong>Q2 → 두 가지 문제.</strong><br>
+            1. <strong>수정하면 안 되는 필드까지 열려 있다.</strong> <code>Partial&lt;User&gt;</code>는 <code>id</code>와 <code>password</code>까지 optional로 포함하므로 <code>updateUser(1, { id: 999, password: 'x' })</code>가 타입상 합법이다. → <code>Partial&lt;Omit&lt;User, 'id' | 'password'&gt;&gt;</code>처럼 먼저 <code>Omit</code>으로 잠그는 게 안전하다.<br>
+            2. <strong>빈 객체 <code>{}</code>가 통과한다.</strong> 모든 필드가 optional이라 <code>updateUser(1, {})</code>도 컴파일되고, 런타임에는 아무것도 안 바뀌는 무의미한 UPDATE가 나간다. → 최소 한 필드는 필수임을 강제하려면 <code>AtLeastOne</code> 같은 커스텀 타입을 쓰거나, 런타임 검증(zod 등)으로 막아야 한다.</p>
+            <p><strong>보너스 함정</strong> — <code>Omit&lt;User, 'passwrod'&gt;</code>처럼 <strong>키 이름을 오타내도 TypeScript는 에러를 내지 않는다.</strong> <code>Omit</code>의 두 번째 인자는 <code>keyof T</code>로 제한되지 않기 때문이다(반면 <code>Pick</code>은 오타를 잡아준다). 그래서 <code>Omit</code>을 쓸 땐 결과 타입을 한 번 눈으로 확인하는 습관이 필요하다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-08-12">
         <h2>2026-08-12 (수) · TypeScript 제네릭(Generics) — 타입을 "매개변수"처럼 끼워 넣기</h2>
         <span class="topic-tag">프론트 심화 (TypeScript)</span>
