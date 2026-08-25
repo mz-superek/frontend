@@ -83,6 +83,38 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-08-26">
+        <h2>📰 2026-08-26 (수)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건·프론트엔드 1건·HTML &amp; CSS 1건 통과. 백엔드는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 릴리스가 없어 헤더째 생략(Node.js 최신은 26.7.0·8/5로 창 초과, Bun 1.4는 8/20로 8/21 발송분과 중복). AI 후보 Gemini 3.7 Flash 정식 전환(GA)은 8/13로 시의성 창 초과, OpenAI 소식은 openai.com 403 접근 실패로 제외. 프론트엔드·HTML &amp; CSS 항목은 어제까지 &apos;예고/미확정&apos;이던 것이 오늘 1차 소스로 &apos;실제 출시&apos; 확인돼 상태 변화로 수록.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, &apos;AI가 웰빙에 미치는 영향&apos; 평가 연구에 500만 달러 그랜트 신설</p>
+            <p class="item-meta">2026-08-25 · <a href="https://www.anthropic.com/news/wellbeing-research-grants">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 AI가 사용자 웰빙에 미치는 영향을 측정하는 독립 연구를 지원하기 위해 500만 달러 규모의 그랜트 프로그램을 신설한다고 공식 뉴스룸을 통해 발표했다. 오픈소스 평가도구(evaluations)를 만드는 연구자에게 자금과 함께 모델 접근·기술 지원을 제공하며, 특히 감정적 지지·정신건강 맥락에서 대화형 AI가 사용자에게 어떤 영향을 주는지를 어떻게 잴지에 초점을 둔다. 모델 성능 벤치마크 위주였던 평가 논의를 &apos;사용자에게 미치는 실제 영향&apos;으로 넓히고, 그 측정 역량을 외부 생태계로 분산하려는 프론티어 랩의 움직임으로 읽힌다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 8월 보안 릴리스 실제 배포 — 16.3.3 · 15.5.24 (Critical 2건)</p>
+            <p class="item-meta">2026-08-25 · <a href="https://nextjs.org/blog/august-2026-security-release">nextjs.org</a></p>
+            <p class="item-summary">지난주 예고했던 Next.js 8월 정기 보안 릴리스가, upstream 의존성에서 추가 critical 취약점이 발견되면서 일정을 앞당겨 8/25에 실제 공개됐다(어제분은 &apos;예고&apos;, 오늘은 설치 가능한 패치). Critical 등급 취약점 2건을 수정한다 — ① 이미지 최적화 API가 공격자가 제어하는 AVIF 이미지를 최적화할 때 <code>sharp</code>가 쓰는 <code>libheif</code>를 통해 발생하는 <strong>비인증 원격코드실행(RCE)</strong>(GHSA-2xp9-vwfh-vxw4). 패치판은 upstream 수정이 전파될 때까지 AVIF 최적화를 비활성화한다. ② Pages Router와 App Router를 Cache Components 없이 함께 쓰는 앱이 <strong>Windows 파일시스템</strong> 위에서 구동될 때의 비인증 RCE(CVE-2026-75604) — Linux·macOS는 영향 없고 알려진 우회책도 없다. <code>16.3.3</code>(Active LTS)·<code>15.5.24</code>(Maintenance LTS)로 즉시 업그레이드가 권장된다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">Chrome 152 안정판 출시 — 새 CSS 기능 다수 (베타 → 안정판)</p>
+            <p class="item-meta">2026-08-25 · <a href="https://developer.chrome.com/release-notes/152">developer.chrome.com</a></p>
+            <p class="item-summary">8/6에 &apos;베타&apos;로 예고했던 Chrome 152의 CSS 기능들이 8/25 안정판으로 전 사용자에게 배포됐다(Android·ChromeOS·Linux·macOS·Windows). 주요 CSS 기능: 원본 색상의 알파 채널만 조정하는 <em>상대 알파 색상</em>을 제공하는 CSS Color 5 <code>alpha()</code> 함수, 설치형 데스크톱 웹앱에서 창 타이틀바처럼 드래그 가능한 영역을 지정하는 <code>window-drag</code> 속성(기존 <code>app-region</code>을 표준화, 값은 <code>move</code>·<code>none</code>), 그리고 <code>CSSPseudoElement</code>가 <code>::backdrop</code>(백드롭 클릭으로 다이얼로그 닫기)·<code>::scroll-marker</code>·<code>::view-transition</code>까지 확장된 점 등. 어제까지 1차 소스로 배포일을 확정하지 못해 보류했던 항목이 오늘 릴리스 노트로 확인됐다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
