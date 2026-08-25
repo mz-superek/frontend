@@ -8,6 +8,7 @@ import { TeamDashboard } from "./problems/04-dashboard/TeamDashboard";
 import { SettingsPanel } from "./problems/05-settings/SettingsPanel";
 import { OrderTable } from "./problems/06-orders/OrderTable";
 import { BookmarkLists } from "./problems/07-hooks/BookmarkLists";
+import { NotificationFeed } from "./problems/08-notifications/NotificationFeed";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -52,6 +53,12 @@ const PROBLEMS = [
     title: "07. 북마크 목록",
     stack: "커스텀 훅 설계 · 상태 공유 범위 · 참조 안정성",
     Component: BookmarkLists,
+  },
+  {
+    id: "08-notifications",
+    title: "08. 알림 피드",
+    stack: "날짜·시간 · 상대 시간 갱신 · Date 불변성",
+    Component: NotificationFeed,
   },
 ] as const;
 
