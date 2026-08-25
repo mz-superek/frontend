@@ -264,6 +264,30 @@ button.danger {
   color: var(--danger);
 }
 
+/* <dialog> 태그 버전 — 배경은 ::backdrop이 담당하므로 .overlay가 필요 없다 */
+.modal {
+  width: 100%;
+  max-width: 380px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-body h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
 @media (prefers-color-scheme: dark) {
   .ok {
     color: #4ade80;

@@ -26,36 +26,46 @@ const DOCS: Doc[] = [
  * - ESC를 누르거나 바깥을 클릭하면 닫힌다
  * - 열려 있는 동안 뒤쪽 목록은 스크롤되지 않는다
  */
-function ConfirmDialog({ title, onConfirm, onCancel }: { title: string; onConfirm: () => void; onCancel: () => void }) {
-  // ESC로 닫기
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel();
-    };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [onCancel]);
+function ConfirmDialog({
+  open,
+  title,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean;
+  title: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   // 뒤쪽 스크롤 잠그기
   useEffect(() => {
+    if (!open) return;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = '';
     };
-  }, []);
+  }, [open]);
 
-  const dialogRef = useRef<HTMLDivElement>(null);
+  // 자식 — open이 바뀔 때마다 dialog에게 명령한다
   useEffect(() => {
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    dialogRef.current?.querySelector('button')?.focus(); // 다이얼로그가 열리면 포커스를 가져간다
-    return () => {
-      previouslyFocused?.focus(); // 다이얼로그가 닫히면 이전 포커스를 복원한다
-    };
-  }, []);
+    const el = dialogRef.current;
+    if (!el) return;
+    if (open) el.showModal();
+    else el.close();
+  }, [open]);
 
   return (
-    <div className='overlay' onClick={onCancel}>
-      <div ref={dialogRef} className='dialog' role='dialog' aria-modal='true' onClick={(e) => e.stopPropagation()}>
+    <dialog
+      ref={dialogRef}
+      className='modal'
+      onCancel={onCancel}
+      onClick={(e) => {
+        if (e.target === dialogRef.current) onCancel();
+      }}
+    >
+      <div className='modal-body'>
         <h3>문서를 삭제할까요?</h3>
         <p className='hint'>
           <strong>{title}</strong> 을(를) 삭제합니다. 되돌릴 수 없습니다.
@@ -69,7 +79,7 @@ function ConfirmDialog({ title, onConfirm, onCancel }: { title: string; onConfir
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
 
@@ -120,7 +130,12 @@ export function DocumentManager() {
         </div>
       )}
 
-      {target && <ConfirmDialog title={target.title} onConfirm={handleConfirm} onCancel={() => setTarget(null)} />}
+      <ConfirmDialog
+        open={target !== null}
+        title={target?.title ?? ''}
+        onConfirm={handleConfirm}
+        onCancel={() => setTarget(null)}
+      />
     </div>
   );
 }
