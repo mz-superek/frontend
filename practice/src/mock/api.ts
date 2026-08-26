@@ -178,6 +178,55 @@ export async function updateMemberRole(params: {
   return { ...target };
 }
 
+const ALL_TAGS = [
+  "react",
+  "react-query",
+  "react-router",
+  "typescript",
+  "tailwind",
+  "testing-library",
+  "vite",
+  "vitest",
+  "zustand",
+  "zod",
+  "storybook",
+  "eslint",
+  "prettier",
+  "nextjs",
+  "node",
+  "nestjs",
+  "kotlin",
+  "spring",
+  "docker",
+  "kubernetes",
+];
+
+/**
+ * 태그를 검색한다.
+ * 검색어가 짧을수록 느리게 응답한다 — 빨리 타이핑하면 응답 순서가 뒤집힌다.
+ */
+export async function searchTags(query: string): Promise<string[]> {
+  const seq = ++requestSeq;
+  const trimmed = query.trim().toLowerCase();
+  const delay = Math.max(200, 1100 - trimmed.length * 250);
+
+  console.log(
+    `%c[api #${seq}] → searchTags  query="${query}"  (${delay}ms 후 응답)`,
+    "color:#7c3aed",
+  );
+
+  await sleep(delay);
+
+  const result = ALL_TAGS.filter((tag) => tag.includes(trimmed));
+
+  console.log(
+    `%c[api #${seq}] ← searchTags  query="${query}"  ${result.length}건`,
+    "color:#7c3aed",
+  );
+
+  return result;
+}
+
 export type InvitePayload = {
   name: string;
   email: string;

@@ -10,6 +10,7 @@ import { OrderTable } from "./problems/06-orders/OrderTable";
 import { BookmarkLists } from "./problems/07-hooks/BookmarkLists";
 import { NotificationFeed } from "./problems/08-notifications/NotificationFeed";
 import { DocumentManager } from "./problems/09-modal/DocumentManager";
+import { TagAutocomplete } from "./problems/10-autocomplete/TagAutocomplete";
 
 /** 문제 목록. 새 문제가 추가되면 여기에 한 줄 늘린다. */
 const PROBLEMS = [
@@ -66,6 +67,12 @@ const PROBLEMS = [
     title: "09. 삭제 확인 다이얼로그",
     stack: "모달 · 이벤트 정리 · 키보드 접근성",
     Component: DocumentManager,
+  },
+  {
+    id: "10-autocomplete",
+    title: "10. 태그 자동완성",
+    stack: "자동완성 · 키보드 조작 · 비동기 경쟁 (01·09 복습)",
+    Component: TagAutocomplete,
   },
 ] as const;
 
