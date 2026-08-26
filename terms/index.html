@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#pub-sub">발행-구독 (Pub/Sub)</a>
+    <a class="nav-item" href="#vpc-peering">VPC 피어링</a>
+    <a class="nav-item" href="#ttl">TTL (유효 시간)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="pub-sub">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="pub-sub-h">발행-구독 <span class="sub">Pub/Sub · Publish-Subscribe</span></h2>
+    <div class="links"><a class="link-tag" href="#message-queue">메시지 큐</a><a class="link-tag" href="#fanout">Fanout</a><a class="link-tag" href="#event-sourcing">Event Sourcing</a></div>
+  </div>
+</div>
+<p><strong>메시지를 보내는 쪽(발행자, publisher)이 받는 쪽(구독자, subscriber)을 직접 알지 못한 채, 가운데의 "토픽(topic)"에 메시지를 던지기만 하면 그 토픽을 구독한 모든 대상에게 자동으로 전달되는 메시징 패턴</strong>. 발행자와 구독자가 서로를 모르고 토픽으로만 연결되므로 <strong>느슨하게 결합(decoupling)</strong>되고, 구독자를 나중에 추가·제거해도 발행자 코드는 그대로다. 한 번 발행한 메시지가 <strong>여러 구독자에게 동시에 퍼지는(1:N 팬아웃)</strong> 것이 핵심이라, 소비자 하나가 가져가면 사라지는 <strong>메시지 큐(1:1, 작업 분배)</strong>와 대비된다. 대표 구현으로 AWS SNS, Google Pub/Sub, Kafka(토픽·컨슈머 그룹), Redis Pub/Sub 등이 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Pub/Sub (발행-구독)</h4><ul><li>토픽에 발행 → 구독자 모두에게 전달</li><li>1:N 브로드캐스트(팬아웃)</li><li>이벤트 알림·상태 전파에 적합</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">메시지 큐 (Queue)</h4><ul><li>큐에 넣으면 소비자 하나가 가져감</li><li>1:1 작업 분배·부하 분산</li><li>주문 처리 같은 작업 큐에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"주문 완료 이벤트를 알림·정산·배송 서비스에 동시에 뿌리자" 같은 이벤트 기반 설계를 하거나, SNS→SQS 팬아웃·Kafka 토픽 구조를 잡을 때, "큐로 할지 pub/sub로 할지"를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·메시징]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="vpc-peering">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="vpc-peering-h">VPC 피어링 <span class="sub">VPC Peering</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#vpc-endpoint">VPC 엔드포인트</a><a class="link-tag" href="#cidr">CIDR</a></div>
+  </div>
+</div>
+<p><strong>서로 분리된 두 VPC(가상 사설망)를 연결해, 인터넷을 거치지 않고 <strong>사설 IP로 마치 같은 네트워크인 것처럼</strong> 통신하게 해주는 기능</strong>. 트래픽이 공용 인터넷이 아니라 클라우드 내부망으로만 흐르므로 안전하고 지연도 낮다. 두 가지 중요한 제약이 있다 — ① <strong>연결이 전이(transitive)되지 않는다</strong>: A-B, B-C를 각각 피어링해도 A는 C와 자동으로 통신되지 않아, 필요하면 A-C를 따로 맺어야 한다(그래서 VPC가 많아지면 연결이 그물처럼 폭증해, 대신 Transit Gateway 같은 허브를 쓴다). ② 양쪽 VPC의 <strong>IP 대역(CIDR)이 겹치면 안 된다</strong>(어디로 보낼지 라우팅이 모호해지므로). 서로 다른 계정·리전 간에도 맺을 수 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>여러 VPC(예: 서비스망과 공용 DB망, 또는 고객사 계정과 우리 계정)를 사설 IP로 연결하거나, "왜 A에서 C가 안 붙지(전이 안 됨)"·"CIDR이 겹쳐서 피어링이 안 된다"·"피어링이 많아져 Transit Gateway로 바꾸자" 같은 네트워크 설계를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="ttl">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="ttl-h">TTL (유효 시간) <span class="sub">Time to Live</span></h2>
+    <div class="links"><a class="link-tag" href="#http-cache">HTTP 캐시·CDN</a><a class="link-tag" href="#dns">DNS</a><a class="link-tag" href="#cache-invalidation">캐시 무효화</a></div>
+  </div>
+</div>
+<p><strong>어떤 데이터가 "언제까지 유효한지"를 정해두고, 그 시간이 지나면 만료(폐기·재검증)되게 하는 값</strong>. 같은 이름이지만 맥락에 따라 쓰임이 다르다 — <strong>DNS TTL</strong>은 도메인의 IP 응답을 리졸버가 며칠이 아니라 몇 초·몇 분만 캐싱하도록 정해, TTL을 짧게 두면 IP 변경(장애 조치·이전)이 빨리 퍼진다. <strong>캐시 TTL</strong>(CDN·Redis 등)은 캐시된 값을 얼마 뒤에 만료시킬지를 정해, 너무 길면 낡은 데이터, 너무 짧으면 원본 조회 폭증(캐시 스탬피드)으로 이어지는 <strong>트레이드오프</strong>가 된다. 원래 <strong>IP 패킷의 TTL</strong>은 시간이 아니라 "거칠 수 있는 라우터 홉 수"로, 라우터를 지날 때마다 1씩 줄고 0이 되면 폐기돼 무한 루프를 막는다(<code>traceroute</code>가 이걸 이용).</p>
+<div class="tip"><div class="tip-l">실무에서</div>DNS 레코드를 바꾸며 "TTL이 길어 아직 옛 IP로 간다"를 겪거나, CDN·Redis 캐시 만료 시간을 정하고 "TTL을 얼마로 둘까(신선도 vs 부하)"를 조율할 때, 쿠키·토큰 만료를 설정할 때 마주친다. <span style="color:var(--blue)">[인프라·네트워크]</span></div>
 </section><hr class="divider">
 
 
