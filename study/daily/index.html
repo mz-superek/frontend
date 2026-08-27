@@ -197,6 +197,148 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-08-28">
+        <h2>2026-08-28 (금) · 타입 좁히기(Narrowing)와 판별 유니온 — <code>as</code>를 쓰고 싶어질 때가 신호다</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>유니온 타입(<code>A | B</code>)을 받으면 TS는 "둘 중 뭔지 모르니 공통된 것만 써라"라고 막습니다. 이때 <code>as</code>로 우겨넣는 대신, 코드로 조건을 확인해서 TS에게 "이 블록 안에서는 A가 확실하다"를 납득시키는 게 <strong>타입 좁히기(narrowing)</strong>예요. 퍼블리싱으로 치면 <code>.btn.is-loading</code>처럼 상태 클래스가 붙어야 안에 스피너 마크업이 있다고 확신할 수 있는 것과 같습니다 — 클래스가 곧 판별자죠. 그 판별자를 타입에 명시적으로 심어둔 게 <strong>판별 유니온(discriminated union)</strong>이고, <code>status</code>·<code>type</code>처럼 리터럴 값을 가진 공통 필드 하나만 있으면 <code>switch</code>/<code>if</code>만으로 TS가 알아서 나머지 필드를 열어줍니다. 핵심 감각: <strong><code>as</code>나 <code>?.</code>를 연달아 쓰고 있다면, 타입이 틀린 게 아니라 상태 모델링이 덜 된 것</strong>입니다.</p>
+
+        <h3>코드 예시 — 불가능한 상태를 타입에서 없애기</h3>
+        <pre><code>// ❌ 상태를 boolean 3개로 쪼개면 "불가능한 조합"이 타입상 허용된다
+type BadState = { isLoading: boolean; data?: User; error?: Error };
+// isLoading:true 인데 data도 error도 있는 상태가 타입상 합법 → 화면 버그의 온상
+// 세 필드가 만드는 8가지 조합이 전부 통과한다
+
+// ✅ 판별 유니온: status가 판별자(discriminant)
+type State =
+  | { status: 'loading' }
+  | { status: 'success'; data: User }
+  | { status: 'error'; error: Error };
+
+function render(s: State) {
+  switch (s.status) {
+    case 'loading': return &lt;Spinner /&gt;;
+    case 'success': return &lt;p&gt;{s.data.name}&lt;/p&gt;;      // data가 옵셔널이 아님! ?. 불필요
+    case 'error':   return &lt;p&gt;{s.error.message}&lt;/p&gt;;
+    default: {
+      const _never: never = s;   // 소진 검사(exhaustiveness): case 빠지면 컴파일 에러
+      return null;
+    }
+  }
+}
+
+// 좁히기의 다른 도구들
+if (typeof v === 'string') { /* v: string */ }        // typeof 가드
+if (err instanceof Error) { /* err: Error */ }        // instanceof 가드
+if ('email' in user) { /* user: Member */ }           // in 연산자 가드
+function isPost(x: unknown): x is Post {              // 사용자 정의 타입 가드
+  return typeof x === 'object' &amp;&amp; x !== null &amp;&amp; 'title' in x;
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>TanStack Query의 응답 객체, Server Actions 반환값, ShadCN 컴포넌트의 variant props가 전부 이 패턴으로 되어 있어서, 이걸 알면 남의 타입 정의를 읽는 속도가 확 붙습니다. 그리고 <code>never</code> 소진 검사를 걸어두면 나중에 상태를 하나 추가할 때 고쳐야 할 곳을 컴파일러가 대신 찾아줍니다 — 리뷰어보다 빠르게요.</p>
+
+        <p class="refs">더 보기: <a href="https://www.typescriptlang.org/docs/handbook/2/narrowing.html">TS Handbook — Narrowing</a> · <a href="https://www.totaltypescript.com/discriminated-unions-are-a-devs-best-friend">Discriminated Unions Are a Dev's Best Friend</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1 (객관식).</strong> 아래 코드에서 <code>user.email</code>에 접근하면 에러가 납니다. 가장 적절한 해결은?</p>
+          <pre><code>type Guest = { role: 'guest' };
+type Member = { role: 'member'; email: string };
+
+function f(user: Guest | Member) {
+  console.log(user.email);   // ❌ Property 'email' does not exist on type 'Guest'
+}</code></pre>
+          <p>(a) <code>(user as Member).email</code> 로 단언한다<br />
+          (b) <code>Guest</code>에도 <code>email?: string</code> 을 추가한다<br />
+          (c) <code>if (user.role === 'member')</code> 로 감싼다<br />
+          (d) <code>user?.email</code> 로 옵셔널 체이닝한다</p>
+
+          <p><strong>Q2 (문제점 찾기).</strong> 아래 컴포넌트는 컴파일은 통과하는데, 실행하면 특정 상황에서 <code>undefined</code> 에러가 납니다. 어떤 상황이고, 왜 타입이 이걸 못 막았을까요?</p>
+          <pre><code>type Props = { isLoading: boolean; data?: Post[]; error?: string };
+
+function List({ isLoading, data, error }: Props) {
+  if (isLoading) return &lt;Skeleton /&gt;;
+  if (error) return &lt;Error msg={error} /&gt;;
+  return &lt;ul&gt;{data.map(p =&gt; &lt;li key={p.id}&gt;{p.title}&lt;/li&gt;)}&lt;/ul&gt;;
+}</code></pre>
+
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>Q1 → (c)</strong> <code>if (user.role === 'member')</code> 로 감싼다.<br />
+            <code>role</code>이 리터럴 타입(<code>'guest' | 'member'</code>)이라 판별자로 동작합니다. 비교문 안쪽에서 TS가 자동으로 <code>Member</code>로 좁혀주므로 <code>email</code>이 안전하게 열립니다. (a)는 단언이라 TS가 검사를 포기하는 것 — 실제로 Guest가 들어오면 런타임에 <code>undefined</code>가 그대로 흘러갑니다. (b)는 Guest에 없어야 할 필드를 억지로 만들어 모델을 흐리고, (d)는 에러만 가릴 뿐 "게스트인데 email을 읽는" 잘못된 접근을 그대로 둡니다.</p>
+            <p><strong>Q2 → <code>data</code>가 <code>undefined</code>인데 <code>.map()</code>을 호출하는 경우.</strong><br />
+            로딩이 끝났고(<code>isLoading: false</code>) 에러도 없는데 <code>data</code>가 아직 안 채워진 상태 — 빈 응답, 초기 렌더, 혹은 부모가 <code>data</code>를 안 넘긴 경우 — 에 터집니다. <strong>타입이 못 막은 이유</strong>는 <code>isLoading</code>·<code>error</code>·<code>data</code>가 서로 독립된 세 필드라, TS 입장에서 "isLoading이 false면 data가 있다"는 관계를 알 방법이 없기 때문입니다. 그래서 <code>data</code>는 끝까지 <code>Post[] | undefined</code>로 남습니다. 해결은 판별 유니온으로 상태를 하나의 <code>status</code> 필드로 묶는 것 — <code>status === 'success'</code> 블록 안에서 <code>data</code>는 옵셔널이 아니게 되고, "불가능한 조합" 자체가 타입에서 사라집니다. 이게 <strong>"make impossible states impossible"</strong>이라 불리는 원칙입니다.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="study-day" data-date="2026-08-27">
+        <h2>2026-08-27 (목) · 무상태(Stateless) 서버와 수평 확장 — 서버가 2대가 되는 순간 깨지는 코드들</h2>
+        <span class="topic-tag">클라우드·백엔드 기초</span>
+
+        <h3>핵심 개념</h3>
+        <p>서버가 1대일 땐 잘 돌던 코드가 2대로 늘리는 순간 이상하게 동작하는 일이 자주 생깁니다. 원인은 대부분 하나 — 서버가 <strong>자기 메모리나 로컬 디스크에 사용자별 상태를 들고 있어서</strong>예요. 퍼블리싱으로 치면, 공통 스타일을 CSS 파일에 두지 않고 특정 페이지에만 인라인 style로 박아둔 것과 비슷합니다. 그 페이지에선 멀쩡하지만 다른 페이지로 넘어가면 스타일이 사라지죠. 로드밸런서(요청을 여러 서버에 나눠주는 교통정리 장치)는 매 요청을 아무 서버에나 보내기 때문에, 1번 서버 메모리에 저장한 세션은 2번 서버가 알 리가 없습니다. 그래서 클라우드에서 오토스케일링(부하에 따라 서버 대수를 자동으로 늘리고 줄이는 것)을 쓰려면 서버는 <strong>무상태(stateless)</strong> — 상태를 자기 안에 두지 않고 Redis·DB·S3 같은 공용 저장소에 위임 — 여야 합니다.</p>
+
+        <h3>코드 예시 — 서버 2대가 되면 깨지는 3가지</h3>
+        <pre><code>// ❌ 1. 세션을 서버 메모리에 (7/16에 본 세션 방식의 함정)
+const sessions = new Map();               // 이 Map은 "이 프로세스" 안에만 존재
+app.post('/login', (req, res) =&gt; {
+  const sid = crypto.randomUUID();
+  sessions.set(sid, { userId: 1 });       // 1번 서버에만 저장됨
+  res.cookie('sid', sid);
+});
+// → 다음 요청이 2번 서버로 가면 sessions.get(sid) === undefined → 로그아웃
+
+// ❌ 2. 업로드 파일을 로컬 디스크에
+fs.writeFileSync(`./uploads/${file.name}`, buf);
+// → 1번 서버 디스크에만 존재. 2번 서버로 간 조회 요청은 404.
+//   게다가 컨테이너가 재시작되면 그냥 증발한다.
+
+// ❌ 3. 캐시를 전역 변수에
+let cachedRates = null;
+// → 서버마다 값이 달라서, 새로고침할 때마다 환율이 왔다 갔다 한다.
+
+// ✅ 상태를 "밖"으로 빼면 서버는 몇 대든 상관없어진다
+await redis.set(`sess:${sid}`, JSON.stringify({ userId: 1 }), 'EX', 3600);
+await s3.putObject({ Bucket: 'my-uploads', Key: file.name, Body: buf });
+await redis.set('rates', JSON.stringify(rates), 'EX', 60);</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>클라우드에서 "서버 늘려서 트래픽 견디자"가 가능하려면 애플리케이션이 먼저 무상태여야 합니다 — 인프라 설정만으로는 해결되지 않아요. 프론트에서도 같은 원리가 적용되는데, Next.js를 서버리스(Vercel·Lambda)에 올리면 요청마다 다른 인스턴스가 뜨기 때문에 라우트 핸들러의 모듈 전역 변수는 절대 신뢰하면 안 됩니다.</p>
+
+        <p class="refs">더 보기: <a href="https://12factor.net/processes">The Twelve-Factor App — VI. Processes (무상태 프로세스)</a> · <a href="https://developer.mozilla.org/ko/docs/Web/HTTP/Guides/Session">MDN — HTTP 세션</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1 (객관식).</strong> 로드밸런서 뒤에 서버 3대를 두고, 세션은 위 ❌1번처럼 서버 메모리 Map에 저장했습니다. 로그인 후 새로고침하면 3번에 1번꼴로 로그아웃됩니다. 다음 중 이 현상을 가장 정확히 설명한 것은?<br />
+          (a) 쿠키가 브라우저에서 삭제돼서<br />
+          (b) 로드밸런서가 요청을 라운드로빈으로 뿌려서, 세션이 없는 다른 서버로 갈 때만 실패해서<br />
+          (c) 세션 만료 시간(EX)이 너무 짧아서<br />
+          (d) HTTPS가 아니라서 쿠키가 전송되지 않아서</p>
+
+          <p><strong>Q2 (문제점 찾기).</strong> 아래 API는 개발 환경(서버 1대)에선 완벽히 동작하지만, 오토스케일링이 켜진 운영 환경에 올리면 두 가지가 깨집니다. 무엇이 왜 깨질까요?</p>
+          <pre><code>const viewCounts = new Map();
+
+app.post('/api/posts/:id/view', (req, res) =&gt; {
+  const id = req.params.id;
+  viewCounts.set(id, (viewCounts.get(id) ?? 0) + 1);
+  res.json({ views: viewCounts.get(id) });
+});
+
+// 5분마다 DB에 한 번에 반영
+setInterval(() =&gt; flushToDb(viewCounts), 5 * 60 * 1000);</code></pre>
+
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1 → (b)</strong> 쿠키는 브라우저가 매 요청에 잘 실어 보내고 있지만, 그 <code>sid</code>를 아는 건 로그인 요청을 처리했던 <em>그 1대</em>뿐입니다. 로드밸런서가 요청을 3대에 고르게 뿌리니 2/3 확률로 세션을 모르는 서버에 도착해 로그아웃처럼 보이는 것 — "가끔씩만 실패한다"는 증상 자체가 무상태 문제의 전형적인 신호입니다. (스티키 세션으로 임시 회피는 가능하지만, 그 서버가 죽으면 세션도 같이 죽어서 근본 해결은 아닙니다.)</p>
+            <p><strong>Q2 → 깨지는 것 두 가지</strong><br />
+            1️⃣ <strong>조회수가 서버마다 쪼개진다.</strong> <code>viewCounts</code>는 프로세스 메모리라 서버 3대면 카운트도 3벌로 나뉩니다. 응답으로 내려주는 <code>views</code> 값이 요청마다 들쭉날쭉해지고(1 → 1 → 2 → 1…), DB 반영도 서로 덮어쓰거나 누락됩니다. → <code>redis.incr('views:{id}')</code> 같은 공용 카운터로 옮겨야 합니다.<br />
+            2️⃣ <strong>스케일인(서버 축소)·재배포 때 5분치가 통째로 증발한다.</strong> <code>setInterval</code> 플러시는 프로세스가 살아있다는 전제인데, 오토스케일링은 트래픽이 줄면 인스턴스를 예고 없이 종료합니다. 아직 flush 안 된 메모리 카운트는 그대로 사라져요. → 즉시 반영(Redis)하거나, 최소한 종료 시그널(SIGTERM)을 받아 graceful shutdown에서 flush 해야 합니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-08-26">
         <h2>2026-08-26 (수) · TypeScript 유틸리티 타입 — Partial · Pick · Omit · Record: 있는 타입을 "가공"해서 재사용하기</h2>
         <span class="topic-tag">프론트 심화 (TypeScript)</span>
