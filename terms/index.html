@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#forward-proxy">포워드 프록시 (Forward Proxy)</a>
+    <a class="nav-item" href="#anti-corruption-layer">부패 방지 계층 (ACL)</a>
+    <a class="nav-item" href="#golden-signals">골든 시그널 (Golden Signals)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="forward-proxy">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="forward-proxy-h">포워드 프록시 <span class="sub">Forward Proxy · 정방향 프록시</span></h2>
+    <div class="links"><a class="link-tag" href="#reverse-proxy">Reverse Proxy</a><a class="link-tag" href="#http-cache">CDN</a><a class="link-tag" href="#waf">WAF</a></div>
+  </div>
+</div>
+<p><strong>클라이언트(내부 사용자·서버) 앞에 서서, 이들이 바깥으로 나가는 요청을 대신 받아 외부 서버로 전달해 주는 중계 서버</strong>. 클라이언트가 "이 프록시를 거쳐 나가라"고 <strong>설정</strong>돼 있고, 외부 서버 입장에선 진짜 클라이언트가 아니라 프록시가 요청을 보낸 것처럼 보인다. 그래서 <strong>사내 아웃바운드 트래픽 통제</strong>(허용 도메인만 통과·유해 사이트 차단), <strong>공용 캐시</strong>(여러 사용자가 같은 자원을 받으면 한 번만 받아 공유), 출발지 IP 숨김 같은 용도로 쓴다. 핵심은 방향 — <strong>포워드 프록시는 "나가는 쪽(클라이언트 측)"을 대리</strong>하고, <strong>리버스 프록시는 "들어오는 쪽(서버 측)"을 대리</strong>한다. (지금 이 개발 환경도 외부 HTTPS 요청이 사내 <strong>에이전트 프록시</strong>를 거쳐 나가는 포워드 프록시 구조다.)</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">포워드 프록시 (Forward)</h4><ul><li>클라이언트 측을 대리(나가는 요청)</li><li>클라이언트가 프록시를 알고 설정</li><li>아웃바운드 통제·공용 캐시·IP 은닉</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">리버스 프록시 (Reverse)</h4><ul><li>서버 측을 대리(들어오는 요청)</li><li>클라이언트는 프록시 존재를 모름</li><li>로드밸런싱·TLS 종료·캐싱·WAF</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"사내망에서 외부 API가 프록시를 거쳐야만 나간다·허용 도메인만 뚫린다"를 겪거나, 프록시·게이트웨이 설정에서 "포워드냐 리버스냐"로 방향을 구분해 이야기할 때 마주친다. <span style="color:var(--teal)">[네트워크·프록시]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="anti-corruption-layer">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="anti-corruption-layer-h">부패 방지 계층 <span class="sub">Anti-corruption Layer · ACL</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#bff">BFF</a><a class="link-tag" href="#cdc">CDC</a></div>
+  </div>
+</div>
+<p><strong>서로 모델·용어가 다른 두 시스템(대개 새 시스템 ↔ 레거시·외부 시스템) 사이에 끼워, 한쪽의 데이터·개념을 다른 쪽 방식으로 번역해 주는 격리·변환 계층</strong>(DDD에서 Eric Evans가 정리). 목적은 이름 그대로 <strong>레거시나 외부의 낡고 지저분한 모델이 새 시스템 안으로 "새어 들어와 오염시키는 것"을 막는 것</strong> — 모든 연동을 이 계층 하나로 모아 바깥 모델을 내부 도메인 모델로 갈아 끼운다. 그러면 내부 코드는 외부 스키마 변화에 흔들리지 않고, 나중에 레거시를 걷어낼 때도 이 계층만 손보면 된다. 그래서 <strong>레거시를 점진 대체하는 마이그레이션에서 짝으로 자주 쓰이며</strong>, 어댑터·파사드·변환기 형태로 구현된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>레거시·외부 API를 새 서비스에 붙이며 "저쪽 이상한 필드 이름·구조가 우리 도메인에 그대로 퍼지지 않게 번역 계층을 두자"를 논하거나, 점진 마이그레이션에서 내부 모델을 보호할 때 마주친다. <span style="color:var(--purple)">[아키텍처·DDD]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="golden-signals">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="golden-signals-h">골든 시그널 <span class="sub">The Four Golden Signals</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#percentile-latency">p95·p99</a><a class="link-tag" href="#dora-metrics">DORA 메트릭</a></div>
+  </div>
+</div>
+<p><strong>구글 SRE가 제시한, 사용자 대면 시스템을 감시할 때 우선 봐야 할 네 가지 핵심 지표</strong>. ① <strong>지연시간(Latency)</strong> — 요청 처리에 걸린 시간(성공·실패 요청을 나눠 봐야 함), ② <strong>트래픽(Traffic)</strong> — 초당 요청 수처럼 시스템이 받는 수요량, ③ <strong>에러(Errors)</strong> — 실패한 요청의 비율, ④ <strong>포화도(Saturation)</strong> — CPU·메모리·큐 등 자원이 한계에 얼마나 가까운지. 수백 개 지표를 다 보는 대신 이 <strong>네 가지만 대시보드·알람의 축</strong>으로 잡으면 "느린가·많이 오나·실패하나·자원이 꽉 찼나"를 빠르게 짚어 장애를 조기에 감지할 수 있다. 비슷한 축약 기준으로 요청 관점의 <strong>RED(Rate·Errors·Duration)</strong>, 자원 관점의 <strong>USE(Utilization·Saturation·Errors)</strong>가 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>모니터링 대시보드·알람을 처음 설계하며 "무슨 지표부터 볼까"를 정하거나, 장애 대응 회고에서 "포화도를 놓쳤다"처럼 감시 축을 점검할 때 마주친다. <span style="color:var(--blue)">[관측성·SRE]</span></div>
 </section><hr class="divider">
 
 
