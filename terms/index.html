@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#deadlock">데드락 (Deadlock)</a>
+    <a class="nav-item" href="#affinity-anti-affinity">어피니티·안티-어피니티</a>
+    <a class="nav-item" href="#definition-of-ready">준비 완료 정의 (DoR)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,46 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="deadlock">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="deadlock-h">데드락 <span class="sub">Deadlock · 교착 상태</span></h2>
+    <div class="links"><a class="link-tag" href="#isolation-level">트랜잭션 격리 수준</a><a class="link-tag" href="#distributed-lock">분산 락</a><a class="link-tag" href="#connection-pool">Connection Pool</a></div>
+  </div>
+</div>
+<p><strong>둘 이상의 트랜잭션·프로세스가 서로 상대가 쥔 잠금(lock)을 기다리며 아무도 진행하지 못하고 영원히 멈추는 상태</strong>. 대표적으로 <strong>순환 대기(circular wait)</strong>가 원인이다 &mdash; T1이 A행을 잠근 채 B행을 기다리는데, T2는 B행을 잠근 채 A행을 기다리면 둘 다 상대를 영원히 기다린다. 대부분의 DB는 <strong>데드락 감지기(deadlock detector)</strong>가 이 순환을 발견하면 한쪽 트랜잭션을 <strong>victim으로 골라 자동 롤백</strong>해(예: PostgreSQL, MySQL InnoDB) 나머지를 진행시키므로, 애플리케이션은 롤백된 트랜잭션을 <strong>재시도</strong>하도록 짜야 한다. 예방책은 <strong>여러 자원의 잠금 획득 순서를 항상 일관되게</strong> 하고(모두 A→B 순으로), 트랜잭션을 짧게 유지하며, 필요한 행만 잠그는 것이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"요청이 가끔 멈췄다가 한쪽만 롤백된다"·"<code>deadlock detected</code> 로그가 뜬다"를 겪거나, 동시 업데이트가 많은 테이블의 잠금 순서·재시도 전략을 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·동시성]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="affinity-anti-affinity">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="affinity-anti-affinity-h">어피니티 / 안티-어피니티 <span class="sub">Pod Affinity / Anti-affinity</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#availability-zone">Availability Zone</a><a class="link-tag" href="#blast-radius">폭발 반경</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스가 파드(pod)를 어느 노드에 배치할지 정할 때, 라벨(label)을 기준으로 "끌어당기거나(어피니티) 밀어내는(안티-어피니티)" 스케줄링 규칙</strong>. <strong>노드 어피니티</strong>는 특정 조건의 노드에만 배치하고(예: GPU 노드), <strong>파드 어피니티</strong>는 관련 파드를 같은 노드·존에 모아 <strong>통신 지연을 줄인다</strong>. 반대로 <strong>파드 안티-어피니티</strong>는 같은 역할의 레플리카를 서로 다른 노드·<strong>AZ(가용영역)</strong>로 흩어, 노드나 존 하나가 죽어도 서비스가 전부 내려가지 않게 하는 <strong>고가용성·폭발 반경 축소</strong>의 핵심 도구다. 강도는 <strong>required</strong>(반드시 지켜야 배치, 하드)와 <strong>preferred</strong>(되도록, 소프트)로 나뉜다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">어피니티 (모으기)</h4><ul><li>관련 파드를 같은 노드·존에</li><li>통신 지연↓·데이터 지역성↑</li><li>예: 캐시와 앱을 같은 존에</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">안티-어피니티 (흩기)</h4><ul><li>같은 역할 레플리카를 분산</li><li>단일 노드·AZ 장애에도 생존</li><li>고가용성·폭발 반경 축소</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"레플리카가 한 노드에 몰려 그 노드가 죽자 서비스가 전부 내려갔다"를 겪거나, 워크로드를 여러 AZ에 흩어 배치하도록 매니페스트(<code>affinity</code>)를 설정할 때 마주친다. <span style="color:var(--blue)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="definition-of-ready">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="definition-of-ready-h">준비 완료 정의 <span class="sub">Definition of Ready · DoR</span></h2>
+    <div class="links"><a class="link-tag" href="#adr">ADR</a><a class="link-tag" href="#raci">RACI</a><a class="link-tag" href="#conventional-commits">Conventional Commits</a></div>
+  </div>
+</div>
+<p><strong>백로그 항목(스토리)을 스프린트에 넣어 착수하기 "전에" 갖춰야 할 조건을 팀이 미리 합의해 둔 체크리스트</strong>. 보통 &mdash; 수용 기준(acceptance criteria)이 명확한가, <strong>의존성이 해소</strong>됐는가, 팀이 <strong>산정(estimate) 가능</strong>한가, 디자인·API 스펙이 준비됐는가 &mdash; 같은 항목으로 구성된다. 일이 <strong>끝났는지</strong>를 판단하는 <strong>완료 정의(DoD, Definition of Done)</strong>의 짝으로, DoR은 <strong>착수 전</strong>·DoD는 <strong>완료 시점</strong>에 적용된다. 준비 안 된 일을 성급히 당겨 스프린트 중간에 막히는 것을 줄여 준다(스크럼의 <strong>공식 산출물은 아니고</strong> 팀이 정하는 관례라, 지나치게 빡빡하면 오히려 착수를 가로막을 수 있어 균형이 필요).</p>
+<div class="tip"><div class="tip-l">실무에서</div>스프린트 계획·백로그 리파인먼트 회의에서 "이건 아직 DoR을 못 채웠으니 요건부터 정리하고 다음 스프린트로"라며 착수 가능 여부를 가릴 때 마주친다. <span style="color:var(--purple)">[협업·애자일]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
