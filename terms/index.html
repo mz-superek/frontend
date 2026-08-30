@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#elastic-ip">탄력적 IP (Elastic IP)</a>
+    <a class="nav-item" href="#warm-standby">웜 스탠바이·파일럿 라이트</a>
+    <a class="nav-item" href="#hot-partition">핫 파티션 (Hot Partition)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="elastic-ip">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="elastic-ip-h">탄력적 IP <span class="sub">Elastic IP · 고정 공인 IP</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a><a class="link-tag" href="#availability-zone">Availability Zone</a></div>
+  </div>
+</div>
+<p><strong>클라우드 계정에 미리 할당받아 인스턴스에 붙였다 뗐다 할 수 있는 "고정" 공인 IPv4 주소</strong>. 인스턴스는 중지·교체하면 자동 부여된 기본 공인 IP가 바뀌지만, 탄력적 IP는 <strong>인스턴스가 아니라 계정 소유</strong>라 다른 인스턴스로 다시 연결(remap)해도 같은 주소를 유지한다. 덕분에 장애가 나면 대기 인스턴스로 <strong>IP만 옮겨 빠르게 페일오버</strong>하거나, 외부(방화벽 화이트리스트·DNS)에서 참조하는 <strong>주소를 고정</strong>할 수 있다. 단, 인스턴스에 붙이지 않고 놀리는(미사용) 주소는 오히려 <strong>과금 대상</strong>이 되므로 안 쓰는 것은 반납하는 게 좋다. (AWS는 Elastic IP, GCP는 Static External IP, Azure는 Public IP로 이름만 다를 뿐 개념은 같다.)</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">기본 공인 IP (자동 할당)</h4><ul><li>인스턴스에 자동 부여</li><li>중지·교체하면 주소가 바뀜</li><li>추가 비용 없음</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">탄력적 IP (Elastic IP)</h4><ul><li>계정에 할당, 인스턴스에 재연결 가능</li><li>재연결해도 같은 주소 유지</li><li>미사용(미연결) 시 과금될 수 있음</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>서버 IP를 외부 방화벽·API 화이트리스트에 등록해야 하거나, "인스턴스를 재부팅했더니 공인 IP가 바뀌어 접속이 끊겼다"를 겪거나, 장애 시 대기 인스턴스로 IP를 옮겨 페일오버할 때 마주친다. <span style="color:var(--teal)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="warm-standby">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="warm-standby-h">웜 스탠바이 · 파일럿 라이트 <span class="sub">Warm Standby · Pilot Light</span></h2>
+    <div class="links"><a class="link-tag" href="#rto-rpo">RTO·RPO</a><a class="link-tag" href="#cross-region-replication">교차 리전 복제</a><a class="link-tag" href="#blue-green-deployment">Blue-Green</a></div>
+  </div>
+</div>
+<p><strong>재해복구(DR)에서 예비 환경을 평상시 "얼마나 켜 둘지"로 갈리는 두 전략</strong>. <strong>파일럿 라이트</strong>는 DB 복제처럼 <strong>핵심 최소 구성만 항상 켜 두고</strong> 앱 서버 등 나머지는 꺼 두었다가, 장애가 나면 그때 켜고 확장한다 — 비용은 싸지만 복구(RTO)는 느리다. <strong>웜 스탠바이</strong>는 <strong>축소된 규모지만 실제로 동작하는 복제 환경을 항상 띄워 두고</strong>, 장애 시 규모만 키워(scale up) 트래픽을 넘긴다 — 비용은 더 들지만 복구가 빠르다. AWS Well-Architected가 정의한 <strong>4단계 DR 전략(백업·복원 → 파일럿 라이트 → 웜 스탠바이 → 멀티사이트 액티브-액티브)</strong>의 중간 두 단계로, 오른쪽으로 갈수록 복구는 빨라지고 비용은 커진다. 결국 <strong>얼마나 빨리 복구해야 하는가(RTO·RPO)와 예산</strong>을 저울질해 고르는 문제다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">파일럿 라이트 (Pilot Light)</h4><ul><li>핵심(DB 등) 최소만 상시 가동</li><li>나머지는 껐다가 장애 시 켜서 확장</li><li>비용 ↓ · 복구(RTO) 느림</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">웜 스탠바이 (Warm Standby)</h4><ul><li>축소판이지만 항상 동작하는 복제 환경</li><li>장애 시 규모만 키워 전환</li><li>비용 ↑ · 복구(RTO) 빠름</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>재해복구 설계에서 "얼마나 빨리 복구해야 하고(RTO) 예산은 얼마인가"를 놓고 예비 리전·환경을 어느 수준으로 켜 둘지 정하거나, DR 훈련(리전 페일오버)을 계획할 때 마주친다. <span style="color:var(--amber)">[클라우드·재해복구]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="hot-partition">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="hot-partition-h">핫 파티션 <span class="sub">Hot Partition · 핫스팟</span></h2>
+    <div class="links"><a class="link-tag" href="#sharding">샤딩</a><a class="link-tag" href="#cardinality">카디널리티</a><a class="link-tag" href="#consistent-hashing">일관된 해싱</a></div>
+  </div>
+</div>
+<p><strong>데이터를 여러 파티션(샤드)으로 나눠 분산 저장했는데, 특정 파티션 하나에만 읽기·쓰기가 쏠려 그 파티션이 병목이 되는 현상</strong>. <strong>파티션 키를 잘못 고르면</strong> 생긴다 — 값이 특정 소수에 편중되거나(예: 인기 상품 하나에 트래픽 집중), <strong>순차 증가하는 타임스탬프·ID를 키로 써서 항상 "가장 최신" 파티션에만 쓰기가 몰리는</strong> 경우가 대표적이다. 이때 다른 파티션은 놀고 있어도 <strong>전체 용량은 남는데 한 파티션의 한도에 걸려</strong> 스로틀링·지연이 발생한다. 예방책은 <strong>카디널리티가 높고 고르게 퍼지는 파티션 키</strong>를 고르거나, 키에 접미·해시를 섞어 강제로 분산하는 <strong>키 샐팅(salting)</strong>이다. DynamoDB·Cassandra의 파티션 키, Kafka의 토픽 파티션에서 공통으로 나타난다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>DynamoDB에서 "용량은 남는데 특정 키만 throttling된다", Kafka에서 "한 파티션의 lag만 계속 쌓인다", 순차 ID를 파티션 키로 썼다가 쓰기가 한곳에 몰리는 문제를 진단·해결할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
 </section><hr class="divider">
 
 
