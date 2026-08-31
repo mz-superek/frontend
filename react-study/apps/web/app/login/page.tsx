@@ -2,28 +2,33 @@
 
 import React from 'react';
 import { supabase } from '@/lib/supabase';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
+  const router = useRouter();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [status, setStatus] = React.useState<'LOADING' | 'SUCCESS' | 'ERROR' | ''>('');
+  const [errorMessage, setErrorMessage] = React.useState('');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
     setStatus('LOADING');
     supabase.auth
       .signInWithPassword({ email, password })
       .then((response) => {
         if (response.error) {
           setStatus('ERROR');
+          setErrorMessage(response.error.message);
         } else {
           setStatus('SUCCESS');
-          router.push('/projects');
+          router.replace('/projects');
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error(error);
         setStatus('ERROR');
+        setErrorMessage(error.message || 'An unexpected error occurred.');
       });
   };
   return (
@@ -43,11 +48,7 @@ const LoginPage = () => {
         <button type='submit' disabled={status === 'LOADING'}>
           Login
         </button>
-        {status && (
-          <p>
-            {status} {status === 'ERROR' && ' - Login failed'}
-          </p>
-        )}
+        {status === 'ERROR' && <p role='alert'>{errorMessage}</p>}
       </form>
     </div>
   );
