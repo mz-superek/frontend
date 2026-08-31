@@ -38,10 +38,22 @@
         border-radius: var(--radius-md);
         padding: 14px 16px;
         overflow-x: auto;
+        /* 끝까지 밀어도 스크롤이 부모(슬라이더)·브라우저 뒤로가기로 새어나가지 않게 */
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
         font-size: 0.82rem;
         line-height: 1.55;
         margin: 0 0 12px;
       }
+      /* 가로로 밀 수 있다는 걸 알 수 있게 얇은 스크롤바를 항상 보이게 */
+      .study-day pre::-webkit-scrollbar { height: 8px; }
+      .study-day pre::-webkit-scrollbar-track { background: transparent; }
+      .study-day pre::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+      }
+      .study-day pre:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.38); }
+      .study-day pre { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.28) transparent; }
       .study-day .refs { font-size: 0.82rem; color: var(--text-faint); }
       .study-day .refs a { color: var(--accent); }
       .study-day .quiz {
@@ -90,6 +102,7 @@
         display: flex;
         gap: 6px;
         overflow-x: auto;
+        overscroll-behavior-x: contain;
         scroll-behavior: smooth;
         scrollbar-width: none;
         padding: 2px;
@@ -1849,13 +1862,30 @@ const ref = useRef(null);
           else if (e.key === 'ArrowRight') go(index + 1);
         });
 
+        // 손을 댄 지점부터 슬라이더까지 거슬러 올라가며
+        // "내용이 넘쳐서 가로로 스크롤되는 요소"가 있는지 찾는다.
+        // (긴 코드블럭 pre, 날짜 칩 목록 .slider-chips 등)
+        function startedInScrollableX(el) {
+          while (el && el !== slider) {
+            if (el.nodeType === 1 && el.scrollWidth > el.clientWidth + 1) {
+              var ox = getComputedStyle(el).overflowX;
+              if (ox === 'auto' || ox === 'scroll') return true;
+            }
+            el = el.parentNode;
+          }
+          return false;
+        }
+
         // 터치 스와이프 (가로 이동이 세로보다 뚜렷할 때만 반응)
-        var touchX = 0, touchY = 0;
+        var touchX = 0, touchY = 0, swipeLocked = false;
         slider.addEventListener('touchstart', function (e) {
           touchX = e.changedTouches[0].clientX;
           touchY = e.changedTouches[0].clientY;
+          // 코드블럭 안에서 시작한 스와이프는 "코드를 읽으려는 동작"이지 날짜 넘기기가 아니다
+          swipeLocked = startedInScrollableX(e.target);
         }, { passive: true });
         slider.addEventListener('touchend', function (e) {
+          if (swipeLocked) return;
           var dx = e.changedTouches[0].clientX - touchX;
           var dy = e.changedTouches[0].clientY - touchY;
           if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
