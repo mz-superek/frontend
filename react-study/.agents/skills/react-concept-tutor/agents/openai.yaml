@@ -1,0 +1,6 @@
+interface:
+  display_name: "React Concept Tutor"
+  short_description: "현재 React 코드로 개념 이해를 문답 검증"
+  default_prompt: "$react-concept-tutor 현재 diff의 React 개념을 한 번에 한 질문씩 점검해줘."
+policy:
+  allow_implicit_invocation: false

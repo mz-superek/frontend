@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI로 React 깊게 공부하는 실전 가이드</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --surface:#121a31;
+    --surface2:#18213d;
+    --text:#eef2ff;
+    --muted:#aab4d0;
+    --line:#2a355a;
+    --accent:#7c9cff;
+    --accent2:#9d7cff;
+    --good:#70d6a7;
+    --warn:#ffd166;
+    --danger:#ff7f8f;
+    --code:#090d19;
+    --max:1180px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 8% 0%, rgba(124,156,255,.16), transparent 28%),
+      radial-gradient(circle at 90% 10%, rgba(157,124,255,.14), transparent 28%),
+      var(--bg);
+    line-height:1.65;
+  }
+  a{color:#a9bcff;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{width:min(var(--max), calc(100% - 32px));margin:0 auto}
+  header{padding:72px 0 40px}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 12px;border:1px solid var(--line);border-radius:999px;
+    color:#d7def8;background:rgba(18,26,49,.72);font-size:13px
+  }
+  h1{font-size:clamp(34px,5vw,60px);line-height:1.08;letter-spacing:-.04em;margin:18px 0 18px}
+  .lead{max-width:880px;font-size:18px;color:var(--muted);margin:0}
+  .hero-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;margin-top:34px}
+  .card{
+    background:linear-gradient(180deg,rgba(24,33,61,.92),rgba(18,26,49,.92));
+    border:1px solid var(--line);border-radius:20px;padding:24px;
+    box-shadow:0 18px 45px rgba(0,0,0,.18)
+  }
+  .card h3,.card h2{margin-top:0;letter-spacing:-.02em}
+  .big-point{
+    font-size:24px;line-height:1.45;font-weight:800;letter-spacing:-.03em;
+    margin:0 0 12px
+  }
+  .muted{color:var(--muted)}
+  .good{color:var(--good)}
+  .warn{color:var(--warn)}
+  .danger{color:var(--danger)}
+  section{padding:34px 0}
+  h2{font-size:30px;margin:0 0 12px;letter-spacing:-.03em}
+  .section-desc{color:var(--muted);margin:0 0 22px}
+  .flow{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:10px
+  }
+  .step{
+    min-height:138px;padding:18px;border-radius:16px;border:1px solid var(--line);
+    background:var(--surface)
+  }
+  .step b{display:block;font-size:13px;color:#aebdff;margin-bottom:8px}
+  .step strong{font-size:17px}
+  .step p{font-size:14px;color:var(--muted);margin:8px 0 0}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .compare ul{margin:12px 0 0;padding-left:20px}
+  .compare li{margin:8px 0;color:var(--muted)}
+  .roadmap{display:grid;gap:16px}
+  .week{
+    display:grid;grid-template-columns:120px 1fr;gap:20px;
+    padding:22px;border:1px solid var(--line);border-radius:18px;background:var(--surface)
+  }
+  .week-num{
+    font-weight:900;font-size:20px;color:#b9c7ff
+  }
+  .week h3{margin:0 0 6px}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .pill{font-size:13px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);color:#cad3ef}
+  .daily{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .daily .card{padding:18px}
+  .time{font-size:28px;font-weight:900;color:#b9c7ff}
+  .prompt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .prompt-card{position:relative}
+  pre{
+    white-space:pre-wrap;word-break:keep-all;background:var(--code);border:1px solid #202a49;
+    padding:18px;border-radius:14px;color:#dfe6ff;overflow:auto;font-size:13px;line-height:1.7
+  }
+  .copy{
+    position:absolute;right:34px;top:34px;
+    background:#26345f;color:#fff;border:1px solid #425284;border-radius:10px;
+    padding:7px 10px;cursor:pointer;font-size:12px
+  }
+  .copy:hover{filter:brightness(1.15)}
+  .checklist{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .check{
+    padding:15px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);
+    color:#d9e0f5
+  }
+  .check input{margin-right:9px}
+  .project{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px
+  }
+  .project .card{min-height:230px}
+  .project h3{margin-bottom:8px}
+  .level{font-size:12px;color:#b9c7ff;margin-bottom:12px}
+  .rule-list{display:grid;gap:10px}
+  .rule{
+    display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:flex-start;
+    background:var(--surface);border:1px solid var(--line);padding:16px;border-radius:14px
+  }
+  .rule span{
+    width:36px;height:36px;display:grid;place-items:center;border-radius:10px;
+    background:#26345f;font-weight:900
+  }
+  .quote{
+    padding:20px;border-left:4px solid var(--accent);background:rgba(124,156,255,.07);
+    border-radius:0 14px 14px 0;color:#dfe6ff
+  }
+  table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:16px;overflow:hidden}
+  th,td{border-bottom:1px solid var(--line);padding:14px;text-align:left;vertical-align:top}
+  th{color:#c4ceee;background:#18213d}
+  td{color:var(--muted)}
+  footer{padding:40px 0 64px;color:#8f9abb;font-size:13px}
+  .sources li{margin:8px 0}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .doc-link{margin-top:18px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(18,26,49,.65)}
+  .table-scroll{overflow-x:auto;border-radius:16px}
+  .copy:focus-visible,a:focus-visible{outline:3px solid var(--warn);outline-offset:3px}
+  @media(max-width:900px){
+    .hero-grid,.compare,.prompt-grid{grid-template-columns:1fr}
+    .flow{grid-template-columns:repeat(2,1fr)}
+    .daily{grid-template-columns:repeat(2,1fr)}
+    .project{grid-template-columns:1fr}
+    .week{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .wrap{width:min(var(--max), calc(100% - 20px))}
+    header{padding-top:42px}
+    .flow,.daily,.checklist{grid-template-columns:1fr}
+    h1{font-size:38px}
+  }
+  @media print{
+    body{background:#fff;color:#111}
+    .card,.step,.week,.check,.rule,table{background:#fff;color:#111;box-shadow:none;border-color:#ccc}
+    .muted,.step p,.compare li,td,.section-desc{color:#444}
+    pre{color:#111;background:#fff;border-color:#999}
+    a{color:#111}
+    .copy{display:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="badge">React 실무자용 · AI 학습법 · 6주 로드맵</div>
+    <h1>AI로 React를<br>“쓰는 수준”에서 “이해하는 수준”으로</h1>
+    <p class="lead">
+      이미 React로 업무는 하고 있지만 개념의 깊이가 부족한 개발자를 위한 학습 가이드입니다.
+      목표는 예제 코드를 많이 만드는 것이 아니라, <strong>왜 렌더링되는지 · 왜 state가 이렇게 동작하는지 · 왜 Effect가 필요한지</strong>를
+      스스로 설명할 수 있게 만드는 것입니다.
+    </p>
+    <p class="doc-link">이 문서는 <strong>React 개념 참고서</strong>입니다. 실제 서비스 구현 순서는 <a href="react_vibe_coding_deep_project.html">바이브코딩 기반 React 심화 프로젝트 실행서</a>를 우선합니다.</p>
+
+    <div class="hero-grid">
+      <div class="card">
+        <p class="big-point">가장 좋은 방식은 <span class="good">“현재 업무 코드를 교재로 쓰고, AI를 개인 튜터 + 코드리뷰어로 사용하는 것”</span>입니다.</p>
+        <p class="muted">
+          AI에게 처음부터 완성 코드를 생성하게 하면 업무 속도는 빨라질 수 있지만 React 실력은 잘 늘지 않습니다.
+          반대로 기존 코드를 먼저 분석하고, 실행 결과를 예측하고, 직접 수정한 뒤 AI에게 리뷰받으면 학습 속도가 훨씬 빨라집니다.
+        </p>
+      </div>
+      <div class="card">
+        <h3>목표 상태</h3>
+        <p class="muted">아래 질문에 코드 없이 말로 답할 수 있으면 React 기본기가 잡힌 상태입니다.</p>
+        <ul>
+          <li>왜 이 컴포넌트가 다시 렌더링됐나?</li>
+          <li>이 값은 state여야 하나, 계산값이어야 하나?</li>
+          <li>useEffect가 정말 필요한가?</li>
+          <li>key가 바뀌면 왜 state가 초기화되나?</li>
+          <li>Context / reducer / 전역상태는 언제 필요한가?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section>
+  <h2>1. AI 학습의 핵심 루프</h2>
+  <p class="section-desc">AI를 “정답 생성기”가 아니라 “소크라테스식 튜터”로 사용합니다.</p>
+  <div class="flow">
+    <div class="step"><b>STEP 1</b><strong>설명</strong><p>업무 코드 한 파일을 AI에게 주고 동작 흐름을 설명하게 한다.</p></div>
+    <div class="step"><b>STEP 2</b><strong>예측</strong><p>Strict Mode 여부를 밝히고 render 시도와 commit 결과를 나눠 예상한다.</p></div>
+    <div class="step"><b>STEP 3</b><strong>질문</strong><p>AI가 바로 답하지 말고 힌트와 질문만 주게 만든다.</p></div>
+    <div class="step"><b>STEP 4</b><strong>수정</strong><p>내가 직접 코드를 바꾸고 왜 바꿨는지 설명한다.</p></div>
+    <div class="step"><b>STEP 5</b><strong>리뷰</strong><p>AI에게 잘못된 멘탈 모델, 불필요한 state/effect를 찾게 한다.</p></div>
+    <div class="step"><b>STEP 6</b><strong>재구현</strong><p>다음 날 코드를 안 보고 작은 버전부터 다시 만든다.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>2. 이렇게 쓰면 실력이 잘 안 는다</h2>
+  <div class="compare">
+    <div class="card">
+      <h3 class="danger">❌ AI 의존형</h3>
+      <ul>
+        <li>“검색 페이지 만들어줘” → 그대로 복붙</li>
+        <li>에러 메시지를 그대로 넣고 수정 코드만 받음</li>
+        <li>useEffect / useMemo / useCallback을 AI가 넣어준 이유를 모름</li>
+        <li>완성 코드만 보고 넘어감</li>
+        <li>라이브러리 사용법만 익히고 React 렌더링 원리는 건너뜀</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="good">✅ AI 튜터형</h3>
+      <ul>
+        <li>“정답 말고 먼저 내가 예측하게 질문해줘”</li>
+        <li>“Strict Mode 여부에 따라 render 시도와 commit 결과가 어떻게 다른지 설명해줘”</li>
+        <li>“state로 둘 필요 없는 값을 찾아줘”</li>
+        <li>“이 Effect가 외부 시스템 동기화인지 판별해줘”</li>
+        <li>“내 설명에서 틀린 부분만 지적해줘”</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>3. 프로젝트와 병행하는 6개 개념 모듈</h2>
+  <p class="section-desc">고정 주차가 아니라 프로젝트에서 해당 문제가 나타날 때 꺼내 보는 개념 참고 순서입니다.</p>
+
+  <div class="roadmap">
+    <div class="week">
+      <div class="week-num">모듈 1</div>
+      <div>
+        <h3>React 멘탈 모델</h3>
+        <p class="muted">컴포넌트 함수가 다시 호출되는 이유와 JSX가 “현재 시점의 UI 스냅샷”이라는 개념부터 잡습니다.</p>
+        <div class="pill-row">
+          <span class="pill">Component</span><span class="pill">Props</span><span class="pill">Render</span>
+          <span class="pill">State Snapshot</span><span class="pill">Event</span><span class="pill">Key</span>
+        </div>
+        <p><strong>AI 과제:</strong> 현재 업무 컴포넌트 3개를 골라 “어떤 값이 바뀔 때 왜 렌더되는지” 한 줄씩 설명.</p>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="week-num">모듈 2</div>
+      <div>
+        <h3>State 설계</h3>
+        <p class="muted">state를 많이 만드는 것이 좋은 것이 아닙니다. 계산 가능한 값, 중복 상태, 부모로 올려야 하는 상태를 구분합니다.</p>
+        <div class="pill-row">
+          <span class="pill">useState</span><span class="pill">Derived State</span><span class="pill">Lifting State</span>
+          <span class="pill">Controlled Input</span><span class="pill">State Reset</span>
+        </div>
+        <p><strong>AI 과제:</strong> 업무 화면 하나를 주고 “state가 아니어도 되는 값”을 전부 찾게 한 뒤 직접 리팩터링.</p>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="week-num">모듈 3</div>
+      <div>
+        <h3>Effect와 Ref 제대로 이해하기</h3>
+        <p class="muted">Effect는 렌더링 후 아무 코드나 넣는 장소가 아니라, React 밖의 시스템과 동기화하기 위한 탈출구라는 기준을 잡습니다.</p>
+        <div class="pill-row">
+          <span class="pill">useEffect</span><span class="pill">Dependency</span><span class="pill">Cleanup</span>
+          <span class="pill">useRef</span><span class="pill">DOM</span><span class="pill">External System</span>
+        </div>
+        <p><strong>AI 과제:</strong> 프로젝트의 useEffect를 모두 분류: “필요 / 불필요 / 이벤트 핸들러로 이동 / 계산값으로 변경”.</p>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="week-num">모듈 4</div>
+      <div>
+        <h3>상태 구조와 Custom Hook</h3>
+        <p class="muted">컴포넌트가 커졌을 때 로직을 어떻게 나누는지 학습합니다.</p>
+        <div class="pill-row">
+          <span class="pill">useReducer</span><span class="pill">Context</span><span class="pill">Custom Hook</span>
+          <span class="pill">Composition</span><span class="pill">Single Source of Truth</span>
+        </div>
+        <p><strong>AI 과제:</strong> 복잡한 폼/필터 화면을 useState 여러 개 버전 → useReducer 버전으로 각각 만들고 장단점 비교.</p>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="week-num">모듈 5</div>
+      <div>
+        <h3>렌더링과 성능</h3>
+        <p class="muted">memoization부터 쓰는 것이 아니라, 먼저 “무엇이 다시 렌더되고 왜 문제가 되는지”를 확인합니다.</p>
+        <div class="pill-row">
+          <span class="pill">React.memo</span><span class="pill">useMemo</span><span class="pill">useCallback</span>
+          <span class="pill">Profiler</span><span class="pill">Reference Equality</span>
+        </div>
+        <p><strong>AI 과제:</strong> 일부러 느린 리스트를 만든 뒤 Profiler 관찰 → 최적화 전후 이유를 글로 설명.</p>
+      </div>
+    </div>
+
+    <div class="week">
+      <div class="week-num">모듈 6</div>
+      <div>
+        <h3>실무 코드 리팩터링</h3>
+        <p class="muted">새 토이 프로젝트보다 현재 회사 코드를 교재로 쓰는 단계입니다.</p>
+        <div class="pill-row">
+          <span class="pill">Architecture</span><span class="pill">Data Flow</span><span class="pill">Error Handling</span>
+          <span class="pill">Testing</span><span class="pill">Code Review</span>
+        </div>
+        <p><strong>최종 과제:</strong> 업무 화면 하나를 골라 상태 흐름도 작성 → 리팩터링 → 테스트 → AI 코드리뷰 → 본인이 변경 이유 발표.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>4. 하루 70분 학습 루틴</h2>
+  <div class="daily">
+    <div class="card"><div class="time">10분</div><strong>개념</strong><p class="muted">React 공식 문서 1개 주제만 읽기.</p></div>
+    <div class="card"><div class="time">15분</div><strong>업무 코드 분석</strong><p class="muted">오늘 개념이 실제 코드 어디에 쓰였는지 찾기.</p></div>
+    <div class="card"><div class="time">15분</div><strong>AI 문답</strong><p class="muted">AI가 질문하고 내가 답하는 방식으로 진행.</p></div>
+    <div class="card"><div class="time">20분</div><strong>직접 수정</strong><p class="muted">코드 생성 금지. 직접 타이핑해서 변경.</p></div>
+    <div class="card"><div class="time">10분</div><strong>복습</strong><p class="muted">오늘 배운 것을 5줄로 정리하고 AI에게 채점.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>5. 바로 복사해서 쓰는 AI 프롬프트</h2>
+  <p class="section-desc">Claude, ChatGPT, Codex 등 어떤 AI에도 거의 그대로 사용할 수 있습니다.</p>
+
+  <div class="prompt-grid">
+    <div class="card prompt-card">
+      <button class="copy" type="button" aria-live="polite">복사</button>
+      <h3>① React 개인 튜터 모드</h3>
+      <pre>너는 React 시니어 개발자이자 개인 튜터야.
+
+나는 React를 실무에서 사용하고 있지만
+개념의 깊이가 부족한 프론트엔드 개발자야.
+
+규칙:
+1. 내가 코드를 주면 바로 정답이나 개선 코드를 주지 마.
+2. 먼저 이 코드의 렌더링 흐름을 내가 설명하도록 질문해.
+3. state, props, render, event, effect 관점에서 질문해.
+4. 내가 답하면 틀린 부분만 교정해.
+5. 튜터 세션을 끝내고 내가 별도로 요청한 경우에만 개선 코드를 보여줘.
+6. 개선 이유를 React의 동작 원리와 연결해서 설명해.
+
+오늘 주제는: [useEffect / state / rendering 등]</pre>
+    </div>
+
+    <div class="card prompt-card">
+      <button class="copy" type="button" aria-live="polite">복사</button>
+      <h3>② 코드 해부 프롬프트</h3>
+      <pre>아래 React 코드를 초급 설명이 아니라
+'실무 개발자가 React 내부 동작을 이해하기 위한 관점'에서 분석해줘.
+
+반드시 다음 순서로:
+1. 최초 렌더
+2. 이벤트 발생
+3. state update
+4. 재렌더 대상
+5. commit 이후 실행되는 것
+6. 불필요한 state
+7. 불필요한 effect
+8. 버그 가능성
+9. 내가 확인해야 할 질문 3개
+
+[코드 붙여넣기]</pre>
+    </div>
+
+    <div class="card prompt-card">
+      <button class="copy" type="button" aria-live="polite">복사</button>
+      <h3>③ 예측 훈련 프롬프트</h3>
+      <pre>아래 코드의 정답을 바로 알려주지 마.
+
+나에게 먼저 다음을 예측하게 해줘.
+- console.log 출력 순서
+- Strict Mode 여부에 따른 render 시도와 commit 결과
+- state 값
+- effect 실행 시점
+- cleanup 실행 시점
+
+첫 불완전 답변에는 힌트만 줘.
+두 번째 불완전 답변에는 원리를 짧게 설명하고
+조건을 바꾼 문제로 다시 확인해줘.
+그리고 비슷한 변형 문제를 2개 더 만들어줘.
+
+[코드 붙여넣기]</pre>
+    </div>
+
+    <div class="card prompt-card">
+      <button class="copy" type="button" aria-live="polite">복사</button>
+      <h3>④ useEffect 감사(Audit)</h3>
+      <pre>아래 컴포넌트의 모든 useEffect를 검토해줘.
+
+각 Effect를 다음 중 하나로 분류해:
+A. 외부 시스템 동기화라서 필요
+B. 계산 가능한 값이라 불필요
+C. 사용자 이벤트 핸들러로 이동 가능
+D. 부모/자식 상태 구조를 바꾸면 제거 가능
+E. cleanup 또는 dependency 수정 필요
+
+중요:
+코드를 먼저 고치지 말고
+왜 그런 분류가 되는지 React 관점에서 설명해줘.
+
+[코드 붙여넣기]</pre>
+    </div>
+
+    <div class="card prompt-card">
+      <button class="copy" type="button" aria-live="polite">복사</button>
+      <h3>⑤ 내 설명 점검 프롬프트</h3>
+      <pre>내가 지금부터 이 React 코드가 동작하는 이유를 설명할게.
+
+다음 영역을 숫자 점수 없이
+통과 / 보완 필요 / 오개념으로 판정해줘.
+
+- render와 state snapshot
+- props와 단방향 데이터 흐름
+- event와 state update
+- effect와 외부 시스템
+- 잘못된 용어 또는 멘탈 모델
+
+틀린 부분은 정답만 주지 말고
+'왜 그렇게 생각하면 안 되는지' 설명해줘.
+
+내 설명:
+[직접 작성]</pre>
+    </div>
+
+    <div class="card prompt-card">
+      <button class="copy" type="button" aria-live="polite">복사</button>
+      <h3>⑥ 코드리뷰 프롬프트</h3>
+      <pre>이 코드를 단순 스타일 리뷰 말고 React 설계 리뷰해줘.
+
+우선순위:
+1. 잘못된 state 설계
+2. 중복 state / derived state
+3. 불필요한 useEffect
+4. state 위치가 잘못된 부분
+5. 컴포넌트 책임 과다
+6. custom hook 후보
+7. 불필요한 memoization
+8. stale closure 가능성
+9. 테스트하기 어려운 구조
+
+각 항목은
+[문제] → [왜 문제인지] → [수정 방향]
+순서로 설명해줘.
+
+[코드 붙여넣기]</pre>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>6. AI 사용할 때 꼭 지킬 7가지 규칙</h2>
+  <div class="rule-list">
+    <div class="rule"><span>1</span><div><strong>AI가 먼저 코드를 완성하게 하지 않는다.</strong><div class="muted">최소 10~15분은 직접 생각하고 시도한 뒤 도움을 받습니다.</div></div></div>
+    <div class="rule"><span>2</span><div><strong>“왜?”를 최소 3번 묻는다.</strong><div class="muted">API 사용법보다 React가 그렇게 동작하는 이유를 묻습니다.</div></div></div>
+    <div class="rule"><span>3</span><div><strong>실행 전에 결과를 예측한다.</strong><div class="muted">Strict Mode 여부, render 시도, commit 결과, 로그 순서와 state 값을 먼저 써봅니다.</div></div></div>
+    <div class="rule"><span>4</span><div><strong>AI의 설명을 다시 내 말로 설명한다.</strong><div class="muted">이 과정에서 이해한 것과 외운 것이 분리됩니다.</div></div></div>
+    <div class="rule"><span>5</span><div><strong>새 프로젝트보다 업무 코드를 많이 사용한다.</strong><div class="muted">현업 문제와 연결해야 기억이 오래갑니다.</div></div></div>
+    <div class="rule"><span>6</span><div><strong>AI 답변과 React 공식 문서를 같이 본다.</strong><div class="muted">AI가 틀릴 수 있으므로 핵심 개념은 공식 문서로 검증합니다.</div></div></div>
+    <div class="rule"><span>7</span><div><strong>매주 한 번은 AI 없이 구현한다.</strong><div class="muted">검색과 AI 없이 30~60분 구현해 보면 실제 실력의 빈칸이 바로 드러납니다.</div></div></div>
+  </div>
+</section>
+
+<section>
+  <h2>7. 연습 프로젝트는 작게, 대신 반복</h2>
+  <div class="project">
+    <div class="card">
+      <div class="level">LEVEL 1</div>
+      <h3>검색 + 필터 리스트</h3>
+      <p class="muted">검색어, 카테고리, 정렬, 선택 상태를 구현합니다.</p>
+      <ul>
+        <li>derived state 구분</li>
+        <li>key 이해</li>
+        <li>불필요한 useEffect 제거</li>
+        <li>컴포넌트 분리</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="level">LEVEL 2</div>
+      <h3>다단계 회원가입 폼</h3>
+      <p class="muted">입력, 검증, 단계 이동, 초기화, 완료 처리를 구현합니다.</p>
+      <ul>
+        <li>controlled input</li>
+        <li>state 구조화</li>
+        <li>useReducer</li>
+        <li>custom hook</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="level">LEVEL 3</div>
+      <h3>상품/주문 관리 화면</h3>
+      <p class="muted">목록, 상세, 필터, 선택, 모달, API 상태를 구현합니다.</p>
+      <ul>
+        <li>서버 상태와 UI 상태 분리</li>
+        <li>컴포넌트 책임 분리</li>
+        <li>로딩/에러 처리</li>
+        <li>렌더링 최적화 판단</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>8. 학습 우선순위</h2>
+  <div class="table-scroll"><table>
+    <caption class="sr-only">React 개념 학습 우선순위</caption>
+    <thead>
+      <tr><th scope="col">우선순위</th><th scope="col">주제</th><th scope="col">중요한 이유</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>★★★★★</td><td>Render / State Snapshot</td><td>이걸 모르면 useEffect, memo, closure 문제까지 전부 암기가 됩니다.</td></tr>
+      <tr><td>★★★★★</td><td>State 설계</td><td>React 코드 품질 대부분은 state를 어디에 어떻게 두느냐에서 갈립니다.</td></tr>
+      <tr><td>★★★★★</td><td>Effect</td><td>실무 React 코드에서 가장 많이 오용되는 영역 중 하나입니다.</td></tr>
+      <tr><td>★★★★☆</td><td>Component Composition</td><td>재사용보다 “책임 분리” 관점이 중요합니다.</td></tr>
+      <tr><td>★★★★☆</td><td>Reducer / Context / Custom Hook</td><td>복잡한 화면을 구조화하는 기본 도구입니다.</td></tr>
+      <tr><td>★★★☆☆</td><td>Memoization / Performance</td><td>기본 렌더링 모델을 이해한 다음 학습해야 과최적화를 피할 수 있습니다.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>9. 6주 뒤 자가진단</h2>
+  <p class="section-desc">아래 항목의 80% 이상을 AI 도움 없이 설명할 수 있으면 React 기본기가 상당히 좋아진 상태입니다.</p>
+  <div class="checklist">
+    <label class="check"><input type="checkbox"> setState 후 값이 즉시 바뀐 것처럼 보이지 않는 이유를 설명할 수 있다.</label>
+    <label class="check"><input type="checkbox"> 부모 렌더링과 자식 렌더링의 관계를 설명할 수 있다.</label>
+    <label class="check"><input type="checkbox"> key가 state 보존/초기화에 미치는 영향을 설명할 수 있다.</label>
+    <label class="check"><input type="checkbox"> state로 둘 필요 없는 계산값을 구분할 수 있다.</label>
+    <label class="check"><input type="checkbox"> useEffect가 필요한 경우와 필요 없는 경우를 구분할 수 있다.</label>
+    <label class="check"><input type="checkbox"> effect cleanup이 필요한 이유를 설명할 수 있다.</label>
+    <label class="check"><input type="checkbox"> state를 부모로 올려야 하는 상황을 설명할 수 있다.</label>
+    <label class="check"><input type="checkbox"> reducer가 useState 여러 개보다 유리한 경우를 설명할 수 있다.</label>
+    <label class="check"><input type="checkbox"> Context가 전역 상태관리 도구와 정확히 같은 개념이 아님을 설명할 수 있다.</label>
+    <label class="check"><input type="checkbox"> useMemo/useCallback을 넣기 전에 무엇을 측정해야 하는지 설명할 수 있다.</label>
+  </div>
+</section>
+
+<section>
+  <div class="quote">
+    <strong>결론</strong><br><br>
+    이미 React로 업무를 하는 개발자라면 강의를 처음부터 끝까지 다시 듣는 것보다,
+    <strong>현재 프로젝트 코드 → React 공식 문서 → AI 문답 → 직접 리팩터링 → 다음 날 재구현</strong>
+    사이클이 훨씬 효율적입니다.<br><br>
+    특히 AI에게 “만들어줘”보다 <strong>“내가 이해했는지 시험해줘”</strong>라고 요청하는 순간부터
+    AI가 생산성 도구에서 학습 도구로 바뀝니다.
+  </div>
+</section>
+
+<section>
+  <h2>React 공식 문서 추천 순서</h2>
+  <ul class="sources">
+    <li><a href="https://react.dev/learn" target="_blank" rel="noreferrer">React Learn / Quick Start</a></li>
+    <li><a href="https://react.dev/learn/state-as-a-snapshot" target="_blank" rel="noreferrer">State as a Snapshot</a></li>
+    <li><a href="https://react.dev/learn/managing-state" target="_blank" rel="noreferrer">Managing State</a></li>
+    <li><a href="https://react.dev/learn/synchronizing-with-effects" target="_blank" rel="noreferrer">Synchronizing with Effects</a></li>
+    <li><a href="https://react.dev/learn/you-might-not-need-an-effect" target="_blank" rel="noreferrer">You Might Not Need an Effect</a></li>
+    <li><a href="https://react.dev/learn/scaling-up-with-reducer-and-context" target="_blank" rel="noreferrer">Scaling Up with Reducer and Context</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    AI 기반 React 학습 가이드 · 실무 React 개발자의 개념 심화를 위한 자료
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const pre = btn.parentElement.querySelector('pre');
+      const old = btn.textContent;
+      try{
+        await navigator.clipboard.writeText(pre.innerText);
+        btn.textContent = '복사됨';
+      }catch(e){
+        btn.textContent = '복사 실패';
+      }
+      setTimeout(() => btn.textContent = old, 1200);
+    });
+  });
+</script>
+</body>
+</html>
