@@ -83,6 +83,33 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-09-01">
+        <h2>📰 2026-09-01 (화)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 2건·프론트엔드 1건 통과. 백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Deno 2.9.x는 검색 요약상 날짜가 엇갈려 1차 확인 불가로 드롭, React 19.3은 canary만 존재해 안정판 아님, TypeScript 6.0은 3월 GA로 시의성 미달). OpenAI 소식은 openai.com이 계속 403으로 막혀 접근 실패 드롭.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Z.ai, GLM-5.3-Flash 오픈웨이트 공개 (MIT) — GLM-5 첫 네이티브 멀티모달</p>
+            <p class="item-meta">2026-08-26 · <a href="https://huggingface.co/zai-org/GLM-5.3-Flash">huggingface.co</a></p>
+            <p class="item-summary">Z.ai가 GLM-5 시리즈의 첫 네이티브 멀티모달 모델 GLM-5.3-Flash를 Hugging Face에 MIT 라이선스로 공개했다. 모델 카드 기준 총 320B·활성 18B MoE 구조에 300K 토큰 컨텍스트, 30T 토큰 멀티모달 사전학습 코퍼스로 훈련됐다. GLM 시리즈 최초로 희소(sparse)+선형(linear) 어텐션을 결합한 하이브리드 구조를 도입해 장문 서빙 비용을 크게 낮추면서 정밀한 장문 처리 능력을 유지한다고 밝혔다. MIT 라이선스라 상업적 이용이 자유로워, 중국계 오픈웨이트 프론티어 경쟁을 이어가는 대형 공개다.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Anthropic, Model Hardware Standard(MHS) 리서치 프리뷰 공개</p>
+            <p class="item-meta">2026-08-27 · <a href="https://www.anthropic.com/news/model-hardware-standard-research-preview">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 AI 에이전트가 현미경·액체 핸들러·로봇팔 같은 실험/제조 장비를 안전하게 병렬 제어하도록 하는 공통 규격 Model Hardware Standard(MHS)의 리서치 프리뷰를 과학 연구소·첨단 제조사 일부에 열었다. MCP(Model Context Protocol)가 소프트웨어에서 한 일을 물리 하드웨어에서 하려는 시도로, 여러 장비를 연결하는 통합 시간을 수주·수개월에서 수시간·수분으로 단축한다고 설명했다. 모델·에이전트 하네스에 종속되지 않는(model-agnostic) 개방형 규격을 지향하며, 향후 오픈소스화 계획도 밝혔다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 8월 보안 릴리스 — v16.3.3 · v15.5.24 (크리티컬 RCE 2건 패치)</p>
+            <p class="item-meta">2026-08-25 · <a href="https://nextjs.org/blog/august-2026-security-release">nextjs.org</a></p>
+            <p class="item-summary">Next.js가 크리티컬 등급 원격 코드 실행(RCE) 취약점 2건을 패치한 8월 보안 릴리스를 v16.3.3(Active LTS)과 v15.5.24(Maintenance LTS)로 배포했다. ① <code>sharp</code>가 쓰는 libheif 라이브러리 취약점으로 공격자가 조작한 AVIF 이미지를 이미지 최적화 API가 처리할 때 인증 없이 RCE가 가능하다(패치판은 업스트림 수정 전까지 AVIF 최적화를 비활성화). ② Pages Router와 App Router를 Cache Components 없이 함께 쓰는 앱이 Windows 파일시스템에서 구동될 때 인증 없는 RCE가 가능하다(Linux·macOS는 영향 없음, Windows는 알려진 우회책 없음). 해당 버전 사용자는 즉시 업데이트가 권장된다.</p>
+          </div>
+        </div>
+      </section>
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
