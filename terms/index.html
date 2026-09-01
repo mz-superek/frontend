@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#container-registry">컨테이너 레지스트리</a>
+    <a class="nav-item" href="#i18n-l10n">국제화·지역화 (i18n·l10n)</a>
+    <a class="nav-item" href="#codeowners">코드 오너스 (CODEOWNERS)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,46 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="container-registry">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="container-registry-h">컨테이너 레지스트리 <span class="sub">Container Registry · ECR/GCR/ACR</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#multi-stage-build">멀티스테이지 빌드</a><a class="link-tag" href="#cold-start">Cold Start</a></div>
+  </div>
+</div>
+<p><strong>도커/OCI 컨테이너 이미지를 태그별로 저장·버전 관리하고 배포처에 나눠주는 저장소</strong>. Docker Hub 같은 <strong>공용(public)</strong> 레지스트리와 AWS ECR·Google Artifact Registry·Azure ACR 같은 <strong>클라우드 프라이빗</strong> 레지스트리가 있다. CI가 빌드한 이미지를 레지스트리에 <code>push</code>해 두면, 쿠버네티스·ECS 같은 런타임이 컨테이너를 띄울 때 그 이미지를 <code>pull</code>해 온다 — 즉 <strong>"빌드한 이미지를 배포처로 옮기는 중간 창고"</strong> 역할이다. 프라이빗 레지스트리는 접근 권한(IAM) 제어와 이미지 <strong>취약점 스캔</strong>을 함께 제공해, 아무나 내려받지 못하게 하고 오래된 베이스 이미지의 보안 문제를 잡아낸다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>CI에서 만든 이미지를 ECR에 올리고 EKS/ECS가 받아 배포하도록 파이프라인을 짜거나, "이미지를 못 받아온다(pull 권한 없음)·어떤 태그였지"를 다룰 때 마주친다. <span style="color:var(--teal)">[클라우드·데브옵스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="i18n-l10n">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="i18n-l10n-h">국제화·지역화 <span class="sub">i18n · l10n · Internationalization · Localization</span></h2>
+    <div class="links"><a class="link-tag" href="#hydration">Hydration</a><a class="link-tag" href="#code-splitting">Code Splitting</a></div>
+  </div>
+</div>
+<p><strong>i18n(Internationalization)은 앱을 여러 언어·지역에 맞출 수 있도록 "구조를 만드는" 작업</strong>이고, <strong>l10n(Localization)은 그 구조 위에 특정 언어로 실제 "번역·현지화하는" 작업</strong>이다. i18n에서는 화면 문구를 코드 밖으로 빼 키(key)로 관리하고, 날짜·숫자·통화 포맷을 지역 설정(locale)에 따라 바꿀 수 있게 분리해 둔다. l10n은 그 키에 한국어·영어·일본어 번역을 채우고 통화·단위·표현을 현지 관습에 맞춘다. (i18n = <em>i</em>nternationalizatio<em>n</em>의 i와 n 사이 글자가 18개, l10n = <em>l</em>ocalizatio<em>n</em>에서 10개.) 먼저 i18n으로 갈아 끼울 수 있게 만들어 둬야 언어를 추가할 때마다 코드를 뜯어고치지 않는다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">i18n (국제화)</h4><ul><li>번역 "가능하게" 만드는 구조</li><li>문자열 외부화·포맷 분리</li><li>보통 한 번 설계</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">l10n (지역화)</h4><ul><li>실제 번역·현지화 "채우기"</li><li>언어·통화·단위·RTL 대응</li><li>언어마다 반복</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>다국어 서비스에서 react-i18next 등으로 문구를 키로 분리하거나, 통화·날짜 표기·RTL(오른→왼쪽 쓰는 언어) 대응을 고민할 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="codeowners">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="codeowners-h">코드 오너스 <span class="sub">CODEOWNERS</span></h2>
+    <div class="links"><a class="link-tag" href="#trunk-based-development">트렁크 기반 개발</a><a class="link-tag" href="#conventional-commits">Conventional Commits</a></div>
+  </div>
+</div>
+<p><strong>저장소의 특정 경로(파일·폴더)마다 "이 코드의 담당 리뷰어"를 지정해 두는 파일</strong>(GitHub은 <code>.github/CODEOWNERS</code>, GitLab도 유사 기능 제공). 지정된 경로를 건드린 PR이 열리면 해당 <strong>오너가 자동으로 리뷰어로 요청</strong>되고, 브랜치 보호 규칙(branch protection)과 묶으면 <strong>오너 승인 없이는 머지되지 않게</strong> 강제할 수 있다. 예를 들어 <code>/infra/</code>는 인프라팀, <code>/frontend/</code>는 프론트팀으로 매핑해 두면, 코드 영역별 책임이 명시돼 리뷰 누락과 "누구한테 리뷰 받지" 하는 혼선을 줄인다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>특정 디렉터리가 바뀌면 자동으로 담당 팀이 리뷰어로 걸리게 설정하거나, "왜 이 PR에 내가 자꾸 리뷰어로 지정되지"를 이해할 때 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
