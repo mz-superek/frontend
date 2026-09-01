@@ -83,6 +83,34 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-09-02">
+        <h2>📰 2026-09-02 (수)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 2건 · HTML &amp; CSS 1건 통과. 프론트엔드·백엔드는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 소식이 없어 헤더째 생략 — Next.js 8월 보안 릴리스(16.3.3/15.5.24)는 9/1 발송분과 중복, Node.js 26.8.0은 8/27 발송분과 중복, TypeScript 7.0(네이티브 컴파일러) 정식 발표는 7/8로 시의성 창 밖(8/20 v7.0.2는 패치라 신규 소식 아님)이라 드롭.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, Claude Fable 5.1 · Claude Mythos 5.1 공개 — 코딩·지식노동용 최신 모델</p>
+            <p class="item-meta">2026-09-01 · <a href="https://www.anthropic.com/claude-fable-and-mythos-5-1">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 코딩·지식노동을 위한 최신 모델 Claude Fable 5.1과 Claude Mythos 5.1을 공개했다. 공식 발표 기준 둘은 &apos;동일한 모델이되 세이프가드 수준만 다른&apos; 관계로, Fable 5.1은 일반 출시(GA)이고 Mythos 5.1은 사이버보안·생명과학 작업을 지원하도록 설계된 세이프가드를 갖춘 신뢰 접근(trusted access) 프로그램 한정판이다. Fable 5.1은 토큰 과금 기준 일반 작업에서 Fable 5 대비 비용이 약 25% 저렴하고, 사이버보안 세이프가드의 오탐(false positive)을 이전보다 60% 더 줄였다. 또 분자 설계 과제에서 Mythos 5.1이 Adaptyv Bio 단백질 설계 대회의 최고 제출작 대비 결합 친화도가 10배 높은 바인더를 설계했다고 밝혀, 과학 연구 기여 가능성을 함께 제시했다.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Google Gemini, &apos;에이전틱 비디오 이해&apos; 출시 (3.7/3.6 Flash · 3.5 Flash-Lite)</p>
+            <p class="item-meta">2026-09-01 · <a href="https://ai.google.dev/gemini-api/docs/changelog">ai.google.dev</a></p>
+            <p class="item-summary">Gemini API 체인지로그에 따르면 Gemini 3.7 Flash·3.6 Flash·3.5 Flash-Lite에 &apos;에이전틱 비디오 이해(agentic video understanding)&apos;가 추가됐다. 모델이 영상 타임라인을 스스로 탐색하며 필요한 시점의 자막(transcript)·프레임·오디오 트랙만 온디맨드로 요청하는 방식으로, 긴 영상에서 전체를 정적으로 처리할 때와 비교해 토큰 사용량을 최대 88%까지 줄인다(공식 체인지로그 수치). 장시간 영상 분석을 저비용으로 다룰 수 있게 하는 변화다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">web.dev &apos;8월의 웹 플랫폼 신기능&apos; — CSS <code>sibling-index()</code> · <code>sibling-count()</code> Baseline 편입</p>
+            <p class="item-meta">2026-08-28 · <a href="https://web.dev/blog/web-platform-08-2026">web.dev</a></p>
+            <p class="item-summary">web.dev의 월간 정리 글에 따르면, 형제(sibling) 요소 사이에서 자신의 순번과 전체 개수를 CSS만으로 계산하는 <code>sibling-index()</code>·<code>sibling-count()</code> 함수가 주요 브라우저 지원을 충족해 Baseline Newly available에 등재됐다. JavaScript 없이 스태거(stagger) 애니메이션 지연이나 열 개수에 따른 동적 그리드 계산 같은 패턴을 CSS로 구현할 수 있게 된다. 같은 정리 글에서 블록 방향 텍스트 정렬·간격을 세밀하게 제어하는 <code>text-box</code> 계열 속성도 함께 Baseline에 편입됐다고 소개했다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
