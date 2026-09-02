@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#taint-toleration">테인트 · 톨러레이션 (Taint)</a>
+    <a class="nav-item" href="#optimistic-pessimistic-locking">낙관적·비관적 잠금 (Locking)</a>
+    <a class="nav-item" href="#progressive-enhancement">점진적 향상 (PE)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,54 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="taint-toleration">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="taint-toleration-h">테인트 · 톨러레이션 <span class="sub">Taint · Toleration</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#liveness-readiness-probe">Readiness Probe</a><a class="link-tag" href="#availability-zone">Availability Zone</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스가 파드를 어느 노드에 배치할지 통제하는 짝 개념</strong>. <strong>테인트(taint)</strong>는 노드에 "이런 파드는 받지 않겠다"는 표식을 붙이는 것이고, <strong>톨러레이션(toleration)</strong>은 파드에 "그 표식을 견딜 수 있다"는 허용을 다는 것이다. 노드에 테인트가 걸리면 <strong>그에 맞는 톨러레이션을 가진 파드만</strong> 그 노드에 스케줄링될 수 있다. 앞서 다룬 <strong>어피니티가 라벨로 파드를 특정 노드에 "끌어당기는" 장치라면, 테인트는 노드가 파드를 "밀어내는" 반대 방향 장치</strong>다. 효과는 <code>NoSchedule</code>(새로 못 뜸)·<code>PreferNoSchedule</code>(되도록 피함)·<code>NoExecute</code>(이미 뜬 파드도 쫓아냄)로 강도를 나눈다. GPU·모니터링·시스템 전용 노드를 특정 워크로드에만 내주는 데 쓴다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">어피니티 (Affinity)</h4><ul><li>파드 쪽에서 "이 노드로 가고 싶다"</li><li>노드로 끌어당김</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">테인트·톨러레이션</h4><ul><li>노드 쪽에서 "아무나 받지 않겠다"</li><li>톨러레이션 없는 파드는 밀어냄</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>GPU·전용 노드에 아무 파드나 못 뜨게 막거나, "파드가 특정 노드에 안 붙는다·계속 Pending이다"를 진단할 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="optimistic-pessimistic-locking">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="optimistic-pessimistic-locking-h">낙관적 잠금 · 비관적 잠금 <span class="sub">Optimistic · Pessimistic Locking</span></h2>
+    <div class="links"><a class="link-tag" href="#isolation-level">트랜잭션 격리 수준</a><a class="link-tag" href="#idempotency">멱등성</a><a class="link-tag" href="#optimistic">Optimistic Update</a></div>
+  </div>
+</div>
+<p><strong>여러 요청이 같은 데이터를 동시에 고칠 때 충돌을 막는 두 가지 상반된 전략</strong>. <strong>비관적 잠금</strong>은 "충돌이 잦다"고 보고 읽는 순간부터 행을 잠가(<code>SELECT ... FOR UPDATE</code>) 다른 트랜잭션이 끝날 때까지 손대지 못하게 막는다 — 확실하지만 대기·데드락 위험이 있고 처리량이 떨어진다. <strong>낙관적 잠금</strong>은 "충돌이 드물다"고 보고 잠그지 않은 채 <strong>version·타임스탬프 컬럼</strong>을 두어, 저장할 때 "내가 읽은 뒤 이 행이 바뀌었나"를 확인하고 바뀌었으면 <strong>실패시켜 재시도</strong>하게 한다 — 빠르지만 충돌이 잦으면 재시도가 늘어난다. 읽기 많고 경쟁 적은 곳엔 낙관적, 쓰기 경쟁이 심한 곳엔 비관적이 어울린다. (프론트엔드의 <em>낙관적 업데이트</em>와는 이름만 비슷할 뿐 다른 개념이다.)</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">비관적 (Pessimistic)</h4><ul><li>읽을 때부터 행을 잠금</li><li>충돌을 확실히 차단</li><li>대기·데드락·낮은 처리량</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">낙관적 (Optimistic)</h4><ul><li>잠그지 않고 version으로 검사</li><li>빠르고 처리량 높음</li><li>충돌 시 실패→재시도 필요</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>재고 차감·포인트 정산·동시 편집처럼 경쟁이 있는 업데이트를 설계하거나, "version이 안 맞아 저장이 튕긴다"·"FOR UPDATE로 잠갔더니 대기가 길다"를 다룰 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="progressive-enhancement">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="progressive-enhancement-h">점진적 향상 <span class="sub">Progressive Enhancement</span></h2>
+    <div class="links"><a class="link-tag" href="#aria">ARIA</a><a class="link-tag" href="#service-worker">Service Worker</a><a class="link-tag" href="#web-vitals">Web Vitals</a></div>
+  </div>
+</div>
+<p><strong>모두에게 되는 핵심부터 보장하고, 여유가 되는 브라우저에만 기능을 얹어 경험을 올리는 설계 철학</strong>. 먼저 <strong>시맨틱 HTML</strong>로 콘텐츠와 폼 제출·링크 같은 필수 동작이 JS 없이도 되게 만든 뒤, 그 위에 <strong>CSS로 보기 좋게</strong>, 다시 <strong>JS로 편의 기능을</strong> 층층이 "향상"으로 얹는다. 그래서 JS가 실패하거나 구형·저사양 환경이어도 <strong>바닥 기능은 항상 살아 있다</strong>. 완성본을 먼저 만들고 지원 안 되는 환경에서 <strong>깎아내리는 우아한 성능 저하(graceful degradation)와 방향이 정반대</strong>다 — 하나는 바닥부터 쌓고, 하나는 위에서 덜어낸다. 접근성·성능·안정성에 유리해 폼·콘텐츠 중심 서비스에서 특히 권장된다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">점진적 향상 (PE)</h4><ul><li>핵심 HTML부터 → CSS·JS로 향상</li><li>바닥 기능이 항상 동작</li><li>바닥부터 쌓기</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">우아한 성능 저하 (GD)</h4><ul><li>완성본 먼저 → 안 되면 대체</li><li>구형에서 기능이 빠질 수 있음</li><li>위에서 덜어내기</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>JS 실패·구형 환경에서도 폼·링크가 동작하도록 마크업을 짜거나, 접근성·초기 로딩 성능(핵심 먼저)을 고려해 기능을 층으로 나눌 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
