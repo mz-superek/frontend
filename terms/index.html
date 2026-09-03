@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#preview-environment">미리보기 환경</a>
+    <a class="nav-item" href="#envelope-encryption">봉투 암호화</a>
+    <a class="nav-item" href="#backfill">백필</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="preview-environment">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="preview-environment-h">미리보기 환경 · 임시 환경 <span class="sub">Preview · Ephemeral Environment</span></h2>
+    <div class="links"><a class="link-tag" href="#blue-green-deployment">Blue-Green</a><a class="link-tag" href="#feature-flag">Feature Flag</a><a class="link-tag" href="#trunk-based-development">트렁크 기반 개발</a></div>
+  </div>
+</div>
+<p><strong>PR·브랜치마다 자동으로 잠깐 띄웠다가, 병합·종료되면 없애 버리는 일회용 격리 환경</strong>. 코드를 본 브랜치에 합치기 전에 그 변경만 반영된 "실제로 뜬 화면"을 고유 URL로 받아 리뷰어·기획·디자이너와 함께 확인하고, 역할이 끝나면 흔적 없이 사라진다. 항상 떠 있는 <strong>고정 스테이징 환경</strong>과 달리 변경 단위마다 독립적으로 생겼다 사라지므로, 여러 사람의 작업이 한 환경에서 뒤섞이지 않고 "이 PR만" 검증할 수 있다. 대신 매번 새 환경을 만들 인프라 자동화(IaC·CI 파이프라인)와, 환경마다 필요한 DB·외부 연동을 어떻게 붙일지에 대한 설계가 필요하다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--purple)">미리보기 · 임시 환경</h4><ul><li>PR·브랜치마다 생겼다 사라짐</li><li>변경 단위로 독립 검증</li><li>자동 생성·자동 정리 필요</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">고정 스테이징</h4><ul><li>항상 떠 있는 공용 환경</li><li>여러 작업이 한곳에 뒤섞임</li><li>운영과 유사한 통합 검증</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>Vercel·Netlify의 PR 미리보기(Deploy Preview)로 디자인·기능을 공유하거나, "이 브랜치 환경 링크 줘"·"미리보기가 왜 옛 버전으로 뜨지"·"PR 닫혔는데 환경이 안 지워졌다"를 다룰 때 마주친다. <span style="color:var(--purple)">[협업·배포]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="envelope-encryption">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="envelope-encryption-h">봉투 암호화 <span class="sub">Envelope Encryption · KMS</span></h2>
+    <div class="links"><a class="link-tag" href="#secrets-management">시크릿 관리</a><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#least-privilege">최소 권한</a></div>
+  </div>
+</div>
+<p><strong>데이터는 데이터키(DEK)로 암호화하고, 그 데이터키 자체는 KMS의 마스터키(KEK)로 다시 암호화해서 암호문 옆에 함께 저장하는 2단(중첩) 암호화 방식</strong>. 편지를 봉투에 넣고 그 봉투를 다시 더 안전한 금고 열쇠로 잠그는 것에 빗대어 "봉투"라 부른다. 크고 많은 데이터는 빠른 대칭키(DEK)로 직접 암호화하되, 정작 밖으로 새면 안 되는 <strong>진짜 비밀은 작은 데이터키뿐</strong>이라, 마스터키만 KMS(HSM) 안에 두고 절대 꺼내지 않으면 된다. 마스터키를 교체(로테이션)해도 데이터를 통째로 다시 암호화할 필요 없이 <strong>데이터키만 새로 감싸면</strong> 되므로 키 관리·감사가 쉬워진다. 복호화할 땐 KMS가 마스터키로 데이터키를 풀어 주고, 그 데이터키로 실제 데이터를 푼다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">직접 암호화</h4><ul><li>데이터를 마스터키로 바로 암호화</li><li>키 교체 시 전체 데이터 재암호화</li><li>큰 데이터마다 KMS 호출 부담</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">봉투 암호화</h4><ul><li>데이터키로 데이터를, 마스터키로 데이터키를</li><li>키 교체는 데이터키만 다시 감싸면 끝</li><li>마스터키는 KMS 밖으로 안 나감</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>S3·EBS·RDS의 저장 시 암호화(SSE-KMS)나 애플리케이션 레벨 암호화를 설정할 때, "마스터키는 KMS에만 두고 데이터키는 암호문으로 옆에 저장"하는 구조로 마주친다. <span style="color:var(--blue)">[보안·클라우드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="backfill">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="backfill-h">백필 <span class="sub">Backfill</span></h2>
+    <div class="links"><a class="link-tag" href="#etl">ETL</a><a class="link-tag" href="#cdc">CDC</a><a class="link-tag" href="#idempotency">멱등성</a></div>
+  </div>
+</div>
+<p><strong>이미 쌓여 있는 과거 데이터를 나중에 소급해서 채워 넣거나 다시 계산하는 작업</strong>. 지금 들어오는 데이터를 실시간으로 처리하는 "정방향" 흐름과 달리, 백필은 <strong>과거로 거슬러 올라가 빈칸을 메우는</strong> 일회성 대량 작업이다. 새 컬럼을 추가했는데 기존 행이 전부 비어 있거나, 새 집계·통계를 도입해 과거분까지 반영해야 하거나, 새 저장소·검색 인덱스로 옮기며 옛 데이터를 다시 밀어 넣어야 할 때 돌린다. 운영 DB에 큰 부하를 줄 수 있어 보통 <strong>나눠서(배치)·한가한 시간대에</strong> 실행하고, 중간에 실패해도 같은 구간을 다시 돌릴 수 있도록 <strong>멱등하게</strong> 설계한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>스키마 변경·데이터 이관·집계 로직 수정 후 "예전 데이터도 채워야 한다"·"백필 배치가 운영 DB에 부하를 준다"·"어디까지 백필됐는지"를 다룰 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
 </section><hr class="divider">
 
 
