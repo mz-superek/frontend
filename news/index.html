@@ -83,6 +83,38 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-09-04">
+        <h2>📰 2026-09-04 (금)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건·프론트엔드 1건·백엔드 1건 통과. HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 편입·발표가 없어 헤더째 생략(web.dev 8월 웹 플랫폼 다이제스트의 <code>sibling-index()</code>·<code>sibling-count()</code> Baseline 편입은 9/2 발송분과 중복, 9월 다이제스트는 아직 미발행, Chrome 142·Safari MCP 서버는 각각 &apos;25/10·&apos;26/7 발행으로 시의성 미달). AI 후보 중 Gemini 3.8 Flash GA·에이전틱 비디오 이해·Anthropic EFS·Fable/Mythos 5.1은 최근 발송분과 중복이라 제외했고, 미국의 &apos;원격 AI 서버 접근&apos; 수출통제 신규 규칙은 &apos;9월 중 업계 회람 예정&apos; 단계로 확정 상태가 아니라 드롭.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Google Gemini API, 음악 생성 모델 &apos;Lyria 3.5&apos; 2종 퍼블릭 프리뷰 공개</p>
+            <p class="item-meta">2026-09-03 · <a href="https://ai.google.dev/gemini-api/docs/changelog">ai.google.dev</a></p>
+            <p class="item-summary">Google이 Gemini API 체인지로그를 통해 음악 생성 모델 2종을 퍼블릭 프리뷰로 추가했다. 짧은 오디오에 최적화된 <code>lyria-3.5-clip-preview</code>와 풀렝스 곡 생성용 <code>lyria-3.5-pro-preview</code>로, 두 모델 모두 텍스트와 이미지 입력을 받아 44.1kHz 스테레오 고음질 오디오를 생성한다. 이미지 프롬프트를 곡의 분위기·컨셉으로 반영할 수 있어, 앱에서 API로 배경음악·짧은 클립을 프로그래매틱하게 만들어 붙이는 멀티모달 생성 워크플로가 넓어진다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.3, Turbopack 청킹 신기능 — 런타임 청크 병합·애널리틱스 기반 튜닝</p>
+            <p class="item-meta">2026-09-03 · <a href="https://nextjs.org/blog/turbopack-chunking">nextjs.org</a></p>
+            <p class="item-summary">Vercel이 Turbopack의 청킹(어떤 코드를 어느 JS 청크에 담을지 결정하는 과정) 동작과 Next.js 16.3에 새로 들어간 실험 기능을 공식 블로그로 설명했다. 빌드 시점에 고정되던 청크 병합을 런타임에 보정하는 <code>experimental.turbopackChunking.generateComponentChunks</code>(병합본과 함께 미병합 조각을 내보내 브라우저가 이미 받은 것에 맞춰 더 싼 쪽을 선택), 사이트별 이동 패턴을 반영하는 애널리틱스 기반 옵션(<code>firstPageLoadPriority</code>·<code>priorityRoutes</code>·<code>clusters</code>), 그리고 전송량을 줄이는 CJS 트리셰이킹(<code>turbopackCjsTreeShaking</code>)·공유 런타임(<code>turbopackSharedRuntime</code>, 내비게이션마다 블로킹 요청 1개와 약 10KB 절약)이 핵심이다. 요청 수와 다운로드 용량이라는 상충 목표를 사이트 특성에 맞게 조율할 수 있게 됐다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js v24.20.0 &apos;Krypton&apos; (Active LTS) 릴리스</p>
+            <p class="item-meta">2026-08-26 · <a href="https://github.com/nodejs/node/releases/tag/v24.20.0">github.com/nodejs/node</a></p>
+            <p class="item-summary">현재 Active LTS 라인인 Node.js 24.x의 신규 릴리스가 공개됐다. 릴리스 노트 기준 <code>AsyncLocalStorage</code>가 <code>using</code> 스코프를 지원해 비동기 컨텍스트의 리소스 정리를 명시적으로 다룰 수 있고, 권한(permission) 모델에 <code>drop()</code> 함수와 <code>--permission-audit</code> 플래그가 추가돼 보안 제어가 강화됐다. 또 스트림 순회를 위한 실험적 <code>node:stream/iter</code> 모듈, WebAssembly용 JSPI(JavaScript Promise Integration) 활성화, 테스트 러너의 <code>context.log()</code>·<code>test:log</code> 이벤트, 루트 인증서 NSS 3.125 갱신이 포함됐다. 프로덕션이 주로 쓰는 LTS 라인의 정기 업데이트라 도입 부담이 낮다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
