@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#connection-draining">연결 드레이닝 (Connection Draining)</a>
+    <a class="nav-item" href="#ddd">도메인 주도 설계 (DDD)</a>
+    <a class="nav-item" href="#http3-quic">HTTP/3 · QUIC</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="connection-draining">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="connection-draining-h">연결 드레이닝 <span class="sub">Connection Draining · Deregistration Delay</span></h2>
+    <div class="links"><a class="link-tag" href="#rolling-deployment">롤링 배포</a><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#graceful-shutdown">Graceful Shutdown</a></div>
+  </div>
+</div>
+<p><strong>로드밸런서에서 인스턴스를 빼거나(배포·스케일 인) 교체할 때, 그 대상으로 <em>새 요청은 더 보내지 않되 이미 처리 중인 요청(in-flight)</em>은 설정한 시간 동안 끝까지 마치게 해주는 기능</strong>. 이 안전장치가 없으면 배포·스케일 인으로 인스턴스가 빠지는 순간 그 위에서 처리되던 요청이 뚝 끊겨 사용자에게 5xx 오류가 튄다. 드레이닝을 켜면 대상은 곧바로 죽지 않고 <strong>draining 상태</strong>로 들어가, 정해진 시간 동안 남은 요청을 소진한 뒤 조용히 빠진다(요청이 하나도 없으면 즉시 완료). AWS ALB에서는 이 기능을 <strong>"등록 취소 지연(deregistration delay)"</strong>이라 부르며 <strong>기본값이 300초</strong>다. 롤링·블루그린 같은 무중단 배포가 실제로 "무중단"이 되려면 이 드레이닝 시간이 요청 처리 시간보다 넉넉해야 한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>롤링 배포 중 "배포만 하면 잠깐 5xx가 난다"를 진단하거나, ALB 타깃 그룹에서 "등록 취소 지연을 얼마로 잡을까"·오토스케일링 인스턴스 교체 시 끊김을 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="ddd">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="ddd-h">도메인 주도 설계 <span class="sub">Domain-Driven Design · DDD</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#bff">BFF</a><a class="link-tag" href="#cqrs">CQRS</a></div>
+  </div>
+</div>
+<p><strong>소프트웨어를 기술 구조가 아니라 업무 도메인(비즈니스 영역) 모델을 중심으로 설계하는 방법론</strong>. 핵심은 두 가지다. ① <strong>유비쿼터스 언어(Ubiquitous Language)</strong> — 도메인 전문가(기획·현업)와 개발자가 대화·문서·코드에서 <em>똑같은 용어</em>를 쓰도록 맞춰, "주문", "정산" 같은 말이 사람마다 다르게 해석되는 틈을 없앤다. ② <strong>바운디드 컨텍스트(Bounded Context)</strong> — 큰 시스템을 의미가 뭉치는 경계로 나누고, 같은 단어라도 경계마다 다른 뜻일 수 있음을 인정한다(예: "상품"이 주문 컨텍스트와 배송 컨텍스트에서 다른 모델). 그 경계 안에서 애그리거트·엔티티·값 객체 같은 구성요소로 도메인 규칙을 코드에 담는다. 복잡한 업무 로직의 소유권을 명확히 갈라주기 때문에, <strong>MSA에서 서비스 경계를 어디서 자를지</strong>를 정하는 이론적 토대로도 자주 쓰인다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>MSA 서비스·모듈 경계를 어떻게 나눌지 정하거나, "이 용어가 팀마다 다른 뜻으로 쓰인다"·"주문 도메인 로직을 어디에 둘까" 같은 설계 논의를 할 때 마주친다. <span style="color:var(--coral)">[백엔드·아키텍처]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="http3-quic">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="http3-quic-h">HTTP/3 · QUIC <span class="sub">HTTP/3 · QUIC (RFC 9114 · 9000)</span></h2>
+    <div class="links"><a class="link-tag" href="#http-cache">HTTP Cache · CDN</a><a class="link-tag" href="#web-vitals">Web Vitals</a><a class="link-tag" href="#realtime">SSE · WS</a></div>
+  </div>
+</div>
+<p><strong>HTTP/3는 전송 계층을 TCP가 아니라 <em>UDP 기반의 QUIC</em> 프로토콜 위에서 돌리는 최신 HTTP 버전</strong>(HTTP/3 = RFC 9114, 그 아래 QUIC = RFC 9000). 두 가지가 핵심 개선이다. ① <strong>빠른 연결 수립</strong> — 기존엔 TCP 핸드셰이크 뒤에 TLS 핸드셰이크가 따로 붙었지만, QUIC은 <strong>TLS 핸드셰이크를 연결 핸드셰이크에 통합</strong>해 주고받는 왕복을 줄인다. ② <strong>스트림 단위 손실 처리</strong> — HTTP/2는 한 TCP 연결에 여러 요청을 다중화하는데, 패킷 하나만 유실돼도 <em>같은 연결의 모든 요청</em>이 재전송을 기다리며 멈추는 <strong>TCP 레벨 head-of-line blocking</strong>이 있었다. QUIC은 UDP 위에서 손실 감지·재전송을 <strong>스트림마다 따로</strong> 하므로, 유실은 해당 스트림만 막고 나머지는 계속 흐른다. 그래서 특히 <strong>모바일·불안정한 네트워크</strong>에서 체감 성능이 좋다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">HTTP/2 (TCP)</h4><ul><li>TCP + 별도 TLS 핸드셰이크</li><li>한 연결에 요청 다중화</li><li>패킷 유실 시 전체 연결이 멈춤(HOL)</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">HTTP/3 (QUIC/UDP)</h4><ul><li>TLS 통합 → 연결 수립 빠름</li><li>스트림별 손실 처리</li><li>유실은 해당 스트림만 영향</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>CDN 설정이나 브라우저 네트워크 탭에서 프로토콜이 <code>h2</code>/<code>h3</code>로 뜨는 걸 확인하거나, 모바일·고지연 환경 성능을 논하며 "왜 UDP 기반인데 더 안정적이냐"를 다룰 때 마주친다. <span style="color:var(--teal)">[네트워크·성능]</span></div>
 </section><hr class="divider">
 
 
