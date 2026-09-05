@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#container-registry">컨테이너 레지스트리</a>
+    <a class="nav-item" href="#two-phase-commit">2단계 커밋 (2PC)</a>
+    <a class="nav-item" href="#http-compression">콘텐츠 압축 (gzip·Brotli)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="container-registry">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="container-registry-h">컨테이너 레지스트리 <span class="sub">Container Registry</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#multi-stage-build">멀티스테이지 빌드</a><a class="link-tag" href="#object-storage">Object Storage</a></div>
+  </div>
+</div>
+<p><strong>빌드한 컨테이너(Docker·OCI) 이미지를 저장하고 배포하는 창고</strong>. 코드를 이미지로 말면(<code>docker build</code>) 그 이미지를 레지스트리에 <strong>올려두고(<code>docker push</code>)</strong>, 실제로 실행할 서버·오케스트레이터가 거기서 <strong>내려받아(<code>docker pull</code>)</strong> 컨테이너를 띄운다. 이미지는 <strong>리포지터리 + 태그</strong>(예: <code>myapp:1.2.0</code>)로 버전을 구분해 저장한다. 누구나 받을 수 있는 <strong>퍼블릭</strong>(Docker Hub)과, 인증이 있어야 접근하는 <strong>프라이빗</strong>(Amazon ECR·GitHub Container Registry <code>ghcr.io</code>·Google Artifact Registry·자체 호스팅 Harbor)이 있으며, 접근 제어·<strong>취약점 스캔</strong>·이미지 서명 같은 보안 기능을 붙일 수 있다. Git이 소스 코드의 원격 저장소라면, 레지스트리는 <strong>실행 가능한 이미지의 원격 저장소</strong>인 셈이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>CI에서 빌드한 이미지를 어디에 올려 배포할지 정하거나, "이미지 pull이 느리다·레지스트리 로그인(인증)이 안 된다·어떤 태그를 배포하지" 같은 배포 파이프라인 이슈를 다룰 때 마주친다. <span style="color:var(--blue)">[인프라·컨테이너]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="two-phase-commit">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="two-phase-commit-h">2단계 커밋 <span class="sub">Two-Phase Commit · 2PC</span></h2>
+    <div class="links"><a class="link-tag" href="#saga-pattern">사가 패턴</a><a class="link-tag" href="#transactional-outbox">아웃박스 패턴</a><a class="link-tag" href="#quorum">정족수</a></div>
+  </div>
+</div>
+<p><strong>여러 DB·서비스에 걸친 작업을 "전부 성공 아니면 전부 취소(원자성)"로 묶는 분산 트랜잭션 프로토콜</strong>. 한 명의 <strong>코디네이터</strong>가 조율하는데, <strong>1단계(prepare·투표)</strong>에서 참여자 전원에게 "커밋할 준비가 됐냐"고 물어 각자 작업을 준비하고 자원을 잠근 뒤 <strong>찬성/반대를 투표</strong>한다. <strong>2단계(commit·확정)</strong>에서 모두 찬성이면 코디네이터가 "커밋하라"고 알려 확정하고, 하나라도 반대·응답 없음이면 전부 롤백한다. 원자성은 보장하지만, 준비를 마친 참여자가 코디네이터의 최종 지시를 <strong>기다리며 자원을 잠근 채 멈추는 블로킹 방식</strong>이라(코디네이터가 죽으면 참여자가 "in-doubt" 상태로 대기), 지연·장애에 취약하다. 그래서 MSA에서는 서비스마다 잠그는 2PC 대신, 실패 시 <strong>보상 트랜잭션</strong>으로 되돌리는 <strong>사가(Saga)</strong>를 더 많이 쓴다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">2단계 커밋 (2PC)</h4><ul><li>즉시 강한 일관성(원자적 커밋)</li><li>준비~확정 동안 자원 잠금</li><li>코디네이터 장애 시 블로킹</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">사가 (Saga)</h4><ul><li>단계별 로컬 트랜잭션 + 보상</li><li>잠금 없이 결과적 일관성</li><li>중간 상태 노출·보정 로직 필요</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"여러 서비스에 걸친 주문·결제를 어떻게 원자적으로 보장하지"를 논하거나, 분산 트랜잭션을 2PC로 갈지 사가로 갈지 고를 때, XA 트랜잭션·분산 DB 설정에서 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="http-compression">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="http-compression-h">콘텐츠 압축 <span class="sub">HTTP Compression · gzip·Brotli</span></h2>
+    <div class="links"><a class="link-tag" href="#content-negotiation">콘텐츠 협상</a><a class="link-tag" href="#http-cache">HTTP Cache</a><a class="link-tag" href="#web-vitals">Web Vitals</a></div>
+  </div>
+</div>
+<p><strong>서버가 응답 본문을 압축해 보내고 브라우저가 알아서 풀어, 네트워크로 오가는 전송량을 줄이는 기법</strong>. 브라우저가 요청에 <strong><code>Accept-Encoding: gzip, br</code></strong>로 "나는 이런 압축을 풀 수 있다"고 알리면, 서버가 하나를 골라 압축한 뒤 응답에 <strong><code>Content-Encoding: gzip</code></strong>(또는 <code>br</code>) 헤더를 붙여 보낸다. <strong>gzip</strong>은 사실상 모든 환경에서 지원되고, 구글이 만든 <strong>Brotli(<code>br</code>)</strong>는 HTML·CSS·JS 같은 <strong>텍스트에서 압축률이 더 좋아</strong> 최신 브라우저·HTTPS에서 정적 자산에 주로 쓴다. 텍스트 자원엔 전송량을 크게 줄여 로딩을 빠르게 하지만, <strong>이미 압축된 이미지(JPEG·PNG)·영상엔 효과가 거의 없다</strong>. 흔히 CDN·리버스 프록시(Nginx)나 서버 미들웨어 레벨에서 켠다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">gzip</h4><ul><li>사실상 모든 클라이언트 지원</li><li>압축·해제 빠름, 무난한 기본값</li><li>동적 응답에도 널리 사용</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">Brotli (br)</h4><ul><li>텍스트 압축률이 더 높음</li><li>최신 브라우저·HTTPS에서 지원</li><li>정적 자산은 미리 압축해 서빙</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>JS·CSS 번들이 무겁다는 성능 이슈에서 "gzip/brotli가 켜져 있나"를 확인하거나, CDN·서버 응답 헤더의 <code>Content-Encoding</code>을 점검하고 정적 파일을 미리 압축해 서빙할지 정할 때 마주친다. <span style="color:var(--green)">[프론트엔드·성능]</span></div>
 </section><hr class="divider">
 
 
