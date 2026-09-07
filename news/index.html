@@ -83,6 +83,34 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-09-08">
+        <h2>📰 2026-09-08 (화)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 2건·백엔드 1건 통과. 이번 주(9/1~9/3)에 프론티어 모델 출시가 몰렸으나 9/5~9/8에는 신규 소식이 거의 없어, 판도급 대형 모델 출시 두 건만 발행일 그대로 수록했다. 프론트엔드는 최근 안정 릴리스(Next.js 16.3.4, 8/31)가 이미 9/7 발송분에서 다뤄졌고 이후는 canary(16.4.0-canary)뿐이라 헤더째 생략. HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 Baseline 편입이 없어 생략. OpenAI GPT-6 Astra(9/3 주장)는 openai.com이 403으로 반복 차단돼 1차 소스 확인 불가로 드롭([접근 실패]). Gemini Lyria 3.5(9/3)·Next.js 16.3.4(8/31)·Node.js 26.8.0/24.20.0(8/26)은 지난 2주 발송분과 중복이라 제외.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, Claude Fable 5.1 · Mythos 5.1 공개 — 코딩·지식 작업용 최상위 모델</p>
+            <p class="item-meta">2026-09-01 · <a href="https://www.anthropic.com/news">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 공식 뉴스룸을 통해 Claude Fable 5.1과 신뢰 접근용 짝 모델 Mythos 5.1을 공개했다. &quot;코딩과 지식 작업을 위한 가장 진보된 모델&quot;로 소개됐으며, 여러 애플리케이션에 걸쳐 몇 시간 동안 이어지는 장시간·고난도 작업(코드베이스 전반의 기능 구현, 코드 리뷰, 성능 개선 등)에 초점을 맞췄다. 같은 발표에서 고객이 통제하는 클라우드 환경에 데이터를 보관하면서도 오용 탐지 세이프가드를 적용하는 &apos;Enterprise Frontier Safeguards&apos;도 함께 소개됐다. 프론티어 코딩·에이전트 경쟁의 최상위 라인 갱신.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Google, Gemini 3.8 Flash 정식 출시(GA) — 장기 SW 엔지니어링·에이전트용 플래시 모델</p>
+            <p class="item-meta">2026-09-02 · <a href="https://ai.google.dev/gemini-api/docs/changelog">ai.google.dev</a></p>
+            <p class="item-summary">Google이 Gemini API 체인지로그를 통해 Gemini 3.8 Flash를 정식(GA) 전환했다. 공식 표기는 &quot;가장 지능적인 Flash 모델(our most intelligent Flash model)&quot;로, 장기 지평(long-horizon) SW 엔지니어링, 자율 에이전트, 복잡한 엔터프라이즈 워크플로를 겨냥한다. 저지연·저비용 Flash 라인이 에이전트·코딩 실무에 쓰일 만큼 성능이 올라온 GA 전환이라는 점이 핵심이며, 프리뷰가 아닌 정식 제공이라 프로덕션 채택 문턱이 낮아졌다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Amazon Linux 2027 퍼블릭 프리뷰 공개 (프리뷰) — 커널 7.1+, 클라우드 네이티브 특화</p>
+            <p class="item-meta">2026-09-07 · <a href="https://aws.amazon.com/blogs/aws/aws-weekly-roundup-claude-fable-5-1-on-aws-amazon-linux-2027-preview-aws-certified-ai-business-strategist-and-more-september-7-2026/">aws.amazon.com</a></p>
+            <p class="item-summary">AWS 주간 라운드업(9/7)에서 차세대 배포판 Amazon Linux 2027이 퍼블릭 프리뷰로 공개됐다(정식 아님·프리뷰). 커널 7.1 이상에서 동작하며 &quot;AWS 상의 클라우드 네이티브 워크로드를 위해 성능·확장성·보안을 염두에 두고 설계&quot;됐다고 명시됐고, 웹 애플리케이션·데이터베이스·컨테이너 마이크로서비스·AI/ML 워크로드·대규모 인프라를 타깃으로 한다. 서버·컨테이너 베이스 OS를 다루는 팀이 다음 표준 이미지의 커널·기본 스택 변화를 미리 검토할 근거가 되는 소식.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
