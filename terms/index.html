@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#deadlock">교착 상태 (Deadlock)</a>
+    <a class="nav-item" href="#vpc-peering">VPC 피어링</a>
+    <a class="nav-item" href="#cardinality">카디널리티 (Cardinality)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,43 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="deadlock">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="deadlock-h">교착 상태 <span class="sub">Deadlock · 데드락</span></h2>
+    <div class="links"><a class="link-tag" href="#isolation-level">격리 수준</a><a class="link-tag" href="#distributed-lock">분산 락</a><a class="link-tag" href="#retry-backoff">Retry·Backoff</a></div>
+  </div>
+</div>
+<p><strong>둘 이상의 트랜잭션·스레드가 서로가 쥔 자원(락)을 기다리며 아무도 앞으로 나아가지 못하고 영원히 멈춰버린 상태</strong>. 대표 예로 트랜잭션 A가 행1의 락을 쥔 채 행2를 기다리고, 동시에 B가 행2의 락을 쥔 채 행1을 기다리면, 둘 다 상대가 놓아주기만 기다리며 무한 대기에 빠진다. 이런 <strong>순환 대기(circular wait)</strong>를 비롯한 네 가지 조건(상호 배제·점유와 대기·비선점·순환 대기, 이른바 Coffman 조건)이 모두 성립할 때 생긴다. 대부분의 DB는 교착을 <strong>자동으로 감지해 한쪽 트랜잭션을 희생양으로 골라 강제 롤백(deadlock victim)</strong>시켜 풀어주며, 애플리케이션은 그 트랜잭션을 <strong>다시 시도</strong>해야 한다. 예방의 핵심은 모든 트랜잭션이 <strong>자원을 항상 같은 순서로 잠그고</strong>, 락을 쥐는 범위·시간을 줄여 트랜잭션을 짧게 유지하는 것이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>동시 요청이 많은 상황에서 "deadlock detected" 에러로 트랜잭션이 롤백되거나, 여러 테이블·행을 갱신하는 주문 처리·배치가 간헐적으로 실패할 때 원인을 찾고 "락 잠그는 순서를 통일하자"를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="vpc-peering">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="vpc-peering-h">VPC 피어링 <span class="sub">VPC Peering</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#cidr">CIDR</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a></div>
+  </div>
+</div>
+<p><strong>서로 다른 두 VPC(가상 사설 네트워크)를 사설 IP로 직접 통신하게 이어주는 1:1 네트워크 연결</strong>. 인터넷·NAT·VPN을 거치지 않고, 두 VPC의 리소스가 마치 같은 네트워크 안에 있는 것처럼 사설 IP만으로 오간다. 가장 헷갈리기 쉬운 특성이 <strong>전이(transitive)되지 않는다</strong>는 점 — A와 B를 피어링하고 B와 C를 피어링해도 A는 C와 자동으로 통신하지 못하며, 통신하려는 <strong>모든 쌍마다 개별 피어링과 양쪽 라우팅 테이블 설정</strong>이 필요하다. 또 두 VPC의 <strong>CIDR(IP 대역)이 겹치면 피어링할 수 없다</strong>. 그래서 VPC가 늘어 피어링이 그물처럼 복잡해지면, 여러 VPC를 중앙 허브로 묶는 <strong>Transit Gateway</strong> 같은 방식으로 넘어간다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>서로 다른 계정·환경(예: 공용 서비스 VPC ↔ 애플리케이션 VPC)을 사설로 연결하거나, "이 VPC에서 저 VPC로 통신이 왜 안 되지(라우팅 누락·CIDR 중복·전이 안 됨)"를 진단할 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cardinality">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="cardinality-h">카디널리티 <span class="sub">Cardinality · 고유값 가짓수</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">Observability</a><a class="link-tag" href="#open-tracing">Open Tracing</a><a class="link-tag" href="#percentile-latency">백분위 지연시간</a></div>
+  </div>
+</div>
+<p><strong>어떤 데이터가 가질 수 있는 서로 다른 값(고유값)의 개수</strong>. 모니터링·관측성 문맥에서는 특히 지표(metric)에 붙는 <strong>레이블(태그) 조합의 가짓수</strong>를 뜻하고, 이 조합이 많으면 <strong>고카디널리티(high cardinality)</strong>라 부른다. 예를 들어 <code>http_requests</code> 지표에 값이 수백만 개인 <code>user_id</code> 같은 레이블을 붙이면, <strong>레이블 조합 하나하나가 별도의 시계열(time series)</strong>이 되어 개수가 폭발한다. 시계열 하나하나가 저장·메모리·쿼리 비용이므로, 고카디널리티는 Prometheus 같은 모니터링 시스템을 느리고 비싸게 만들거나 아예 터뜨리는 대표 원인이다. 그래서 사용자 ID·요청 ID처럼 값이 사실상 무한한 것은 <strong>레이블로 넣지 않는 것</strong>이 원칙이다. (DB에서도 한 컬럼의 고유값 개수를 카디널리티라 하며, 인덱스가 얼마나 효율적일지 판단하는 데 쓴다.)</p>
+<div class="tip"><div class="tip-l">실무에서</div>대시보드·알람이 느려지거나 모니터링 비용이 튈 때 "레이블 카디널리티가 너무 높다"를 원인으로 짚거나, 새 지표에 어떤 레이블을 붙일지(사용자 ID는 빼자) 정할 때 마주친다. <span style="color:var(--green)">[성능·관측성]</span></div>
 </section><hr class="divider">
 
 
