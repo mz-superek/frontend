@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#terraform-state">테라폼 상태 · 상태 잠금</a>
+    <a class="nav-item" href="#snapshot">스냅샷 (EBS·RDS)</a>
+    <a class="nav-item" href="#api-versioning">API 버저닝</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,57 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="terraform-state">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="terraform-state-h">테라폼 상태 · 상태 잠금 <span class="sub">Terraform State · State Lock</span></h2>
+    <div class="links"><a class="link-tag" href="#iac">IaC</a><a class="link-tag" href="#gitops">GitOps</a><a class="link-tag" href="#immutable-infrastructure">불변 인프라</a></div>
+  </div>
+</div>
+<p>테라폼(IaC 도구)이 <strong>"지금 클라우드에 실제로 뭐가 떠 있는지"를 기록해 두는 상태 파일</strong>(<code>terraform.tfstate</code>). 내가 쓴 코드와 실제 자원을 1:1로 대응시켜, 다음 <code>apply</code> 때 무엇을 새로 만들고·바꾸고·지울지 계산하는 <strong>기준</strong>이 된다. 그래서 이 파일이 실제와 어긋나면(누가 콘솔에서 손으로 바꾸는 등) 테라폼이 엉뚱한 변경을 하려 든다. 또 여러 사람이 <strong>동시에 apply하면 상태 파일이 깨질 수 있어</strong>, 상태를 로컬이 아니라 <strong>원격 백엔드(예: S3)</strong>에 두고 <strong>상태 잠금(lock)</strong>으로 한 번에 한 명만 변경하도록 막는다. 상태 파일엔 비밀번호·키 같은 민감정보가 평문으로 들어갈 수 있어 취급에 주의한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">로컬 상태</h4><ul><li>tfstate가 내 PC에만 존재</li><li>팀원과 상태가 안 맞고 잠금 없음</li><li>동시 apply 시 충돌·손상 위험</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">원격 상태 + 잠금</h4><ul><li>S3 등 공용 백엔드에 저장</li><li>apply 중엔 lock으로 동시 변경 차단</li><li>협업·CI에서 안전</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"apply가 lock에 걸려 안 된다"·"tfstate가 로컬에 있어 팀원과 안 맞는다"를 겪거나, 상태를 원격 백엔드로 옮기고 <code>terraform import</code>·<code>state</code> 명령으로 실제 자원과 맞출 때 마주친다. <span style="color:var(--teal)">[인프라·IaC]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="snapshot">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="snapshot-h">스냅샷 <span class="sub">Snapshot · EBS·RDS Snapshot</span></h2>
+    <div class="links"><a class="link-tag" href="#cross-region-replication">교차 리전 복제</a><a class="link-tag" href="#rto-rpo">RTO·RPO</a><a class="link-tag" href="#object-storage">오브젝트 스토리지</a></div>
+  </div>
+</div>
+<p><strong>특정 시점의 디스크(볼륨)나 DB 상태를 통째로 떠 두는 백업</strong>. EBS 스냅샷은 <strong>증분(incremental) 방식</strong>이라 처음 한 번만 전체를 뜨고 이후엔 <strong>바뀐 블록만</strong> 저장해 빠르고 저렴하다. 증분이라고 해서 중간 스냅샷을 지우면 뒤가 깨질까 걱정하기 쉬운데, <strong>필요한 블록은 자동으로 남겨두므로 어느 스냅샷으로든 복원엔 문제가 없다</strong>. 이 스냅샷으로 <strong>새 볼륨·새 인스턴스를 만들거나 다른 리전으로 복사</strong>해 재해복구(DR)에 쓴다. RDS도 마찬가지로 수동 스냅샷과 자동 백업(시점 복구)을 제공한다. 스냅샷은 "그 시점 그대로"라, 뜨는 동안 쓰기가 계속되면 정합성을 위해 잠깐 멈추거나 파일시스템을 플러시하기도 한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">전체 백업</h4><ul><li>매번 전체를 통째로 복사</li><li>느리고 저장 용량 큼</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">증분 스냅샷</h4><ul><li>바뀐 블록만 추가 저장</li><li>빠르고 저렴, 중간 삭제해도 복원 OK</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>배포·마이그레이션 전에 백업 스냅샷을 떠 두거나, "스냅샷으로 복구하자"·"스냅샷을 다른 리전에 복사해 DR을 구성하자"·"스냅샷 보관 주기(라이프사이클)를 어떻게 잡지"를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·백업]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="api-versioning">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="api-versioning-h">API 버저닝 <span class="sub">API Versioning</span></h2>
+    <div class="links"><a class="link-tag" href="#semver">SemVer</a><a class="link-tag" href="#content-negotiation">콘텐츠 협상</a><a class="link-tag" href="#openapi">OpenAPI</a></div>
+  </div>
+</div>
+<p><strong>이미 API를 쓰고 있는 클라이언트를 깨뜨리지 않으면서 API를 바꾸기 위해, 버전을 나눠 제공하는 것</strong>. 응답 필드를 없애거나 형식을 바꾸는 <strong>하위 호환이 깨지는(breaking) 변경</strong>이 생기면, 기존 앱이 그대로 돌아가도록 <strong>새 버전을 올리고 구버전은 한동안 함께 유지하다 폐기(deprecate)</strong>한다. 버전을 표시하는 방식은 흔히 <strong>URL 경로</strong>(<code>/v1/</code>, <code>/v2/</code>)이고, 요청 <strong>헤더</strong>나 <strong>Accept 미디어 타입</strong>(콘텐츠 협상)으로 지정하기도 한다. 핵심은 "언제 버전을 올릴지(breaking일 때만)"와 "구버전을 언제·어떻게 내릴지(폐기 정책)"를 정하는 것.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">URL 경로 방식</h4><ul><li><code>/v1/users</code> 처럼 경로에 버전</li><li>눈에 잘 보이고 캐시·라우팅 쉬움</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">헤더·미디어타입 방식</h4><ul><li><code>Accept: application/vnd.api+json;v=2</code></li><li>URL은 그대로, 협상으로 버전 선택</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>응답 포맷·필드를 바꿔야 하는데 기존 앱이 깨질 때 "/v2로 올리자"를 정하거나, "구버전 언제 내리지(폐기 공지·기간)"·"버전 표기를 경로로 할까 헤더로 할까"를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·API]</span></div>
 </section><hr class="divider">
 
 
