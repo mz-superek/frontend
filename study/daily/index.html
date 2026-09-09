@@ -210,6 +210,165 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-10">
+        <h2>2026-09-10 (목) · React Hook Form + Zod — 폼은 "비제어"로 두고, 검증은 스키마 하나로</h2>
+        <span class="topic-tag">프론트 심화 (React · Forms)</span>
+
+        <h3>핵심 개념</h3>
+        <p>지난주 Zod로 "바깥에서 들어온 데이터는 안 믿는다"를 배웠다면, 오늘은 그 스키마를 폼에 그대로 꽂는 이야기입니다. React에서 폼을 만들면 보통 input마다 <code>useState</code>를 걸어 제어 컴포넌트로 만드는데, 이러면 한 글자 칠 때마다 폼 전체가 리렌더링됩니다. React Hook Form(RHF)은 반대로 가요 — <code>register()</code>가 input에 <code>ref</code>를 꽂아 <strong>비제어(uncontrolled)</strong>로 두고 값은 DOM에서 직접 읽습니다. 퍼블리싱 시절 순수 HTML <code>&lt;form&gt;</code>을 submit하면 브라우저가 알아서 값을 모아 보내주던 그 감각에 가깝고, React는 "제출 시점"과 "에러 표시"에만 개입하는 거죠. 여기에 <code>zodResolver</code>를 물리면 검증 규칙과 타입이 스키마 한 곳에서 나오고(<code>z.infer</code>), 에러는 <code>formState.errors</code>에 필드 이름 그대로 담깁니다.</p>
+
+        <h3>코드 예시 — 스키마 하나로 검증과 타입을 동시에</h3>
+        <pre><code>'use client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+// ① 검증 규칙 = 타입의 단일 출처(single source of truth)
+const schema = z.object({
+  email: z.string().email('이메일 형식이 아니에요'),
+  age: z.coerce.number().min(19, '19세 이상만 가입할 수 있어요'),
+});
+type FormValues = z.infer&lt;typeof schema&gt;; // { email: string; age: number }
+
+export function JoinForm() {
+  const {
+    register,       // ② input에 ref+name+onBlur를 꽂아주는 함수 (비제어)
+    handleSubmit,   // ③ 검증 통과했을 때만 내 onSubmit을 불러줌
+    formState: { errors, isSubmitting },
+  } = useForm&lt;FormValues&gt;({
+    resolver: zodResolver(schema),
+    defaultValues: { email: '', age: 19 }, // ④ 비제어라 초기값은 여기서
+  });
+
+  return (
+    &lt;form onSubmit={handleSubmit(async (data) =&gt; { /* data는 이미 FormValues */ })}&gt;
+      &lt;label htmlFor="email"&gt;이메일&lt;/label&gt;
+      &lt;input id="email" {...register('email')} /&gt;
+      {errors.email &amp;&amp; &lt;p role="alert"&gt;{errors.email.message}&lt;/p&gt;}
+
+      &lt;label htmlFor="age"&gt;나이&lt;/label&gt;
+      &lt;input id="age" type="number" {...register('age')} /&gt;
+      {errors.age &amp;&amp; &lt;p role="alert"&gt;{errors.age.message}&lt;/p&gt;}
+
+      &lt;button disabled={isSubmitting}&gt;가입&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+        <p>포인트 하나 더: <code>&lt;input type="number"&gt;</code>도 DOM 값은 <strong>문자열</strong>이라 <code>z.number()</code>만 쓰면 검증에서 튕깁니다. 그래서 <code>z.coerce.number()</code>로 변환을 스키마에 맡겼어요.</p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>ShadCN의 <code>Form</code> 컴포넌트가 바로 RHF + zodResolver를 감싼 얇은 껍데기라, 이 구조를 모르면 shadcn 폼을 커스터마이즈하는 순간 막힙니다. 그리고 같은 Zod 스키마를 Server Action이나 API 라우트에서 한 번 더 <code>parse</code> 하면, 클라이언트·서버 검증 규칙을 한 벌로 유지할 수 있어요.</p>
+
+        <p class="refs">더 보기:
+          <a href="https://react-hook-form.com/get-started">React Hook Form — Get Started</a> ·
+          <a href="https://github.com/react-hook-form/resolvers">@hookform/resolvers (zodResolver 공식 저장소)</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1 (객관식).</strong> RHF로 만든 폼은 20개 필드에 타이핑을 해도 리렌더링이 거의 일어나지 않습니다. 가장 근본적인 이유는?</p>
+          <p>① 내부적으로 모든 input을 <code>React.memo</code>로 감싸기 때문<br />
+          ② <code>register</code>가 input을 비제어로 두고 <code>ref</code>로 DOM 값을 직접 읽어, 타이핑이 React state를 건드리지 않기 때문<br />
+          ③ 입력값에 debounce가 기본으로 걸려 있기 때문<br />
+          ④ <code>useMemo</code>로 폼 값을 캐싱하기 때문</p>
+
+          <p><strong>Q2 (문제점 찾기).</strong> 동료가 아래 가입 폼을 올리며 "Zod로 검증하니 안전하고 완성"이라고 합니다. 사용자 경험·안전성 관점에서 빠진 게 최소 2가지 있어요. 무엇일까요?</p>
+          <pre><code>'use client';
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+export function SignUpForm() {
+  const { register, handleSubmit } = useForm({ resolver: zodResolver(schema) });
+
+  return (
+    &lt;form onSubmit={handleSubmit(async (data) =&gt; {
+      await fetch('/api/signup', { method: 'POST', body: JSON.stringify(data) });
+    })}&gt;
+      &lt;input {...register('email')} /&gt;
+      &lt;input type="password" {...register('password')} /&gt;
+      &lt;button&gt;가입&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+          <p>힌트: 검증에 걸렸을 때 화면에서 무슨 일이 벌어지는지 / 그리고 <code>/api/signup</code> 입장에서 이 요청은 어디서 온 걸까요?</p>
+
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>A1. 정답 ②.</strong> <code>register('email')</code>이 돌려주는 건 <code>{ name, ref, onChange, onBlur }</code>이고, 값은 React state가 아니라 <strong>DOM 노드 자체</strong>에 있습니다. 타이핑해도 상태 업데이트가 없으니 리렌더링도 없고, RHF는 제출·blur 시점에 ref로 값을 긁어옵니다. ①③④는 모두 "리렌더링은 일어나되 비용을 줄이는" 방향인데, RHF는 애초에 리렌더링을 발생시키지 않는 쪽을 택했다는 게 핵심 차이예요. (참고: <code>watch()</code>나 <code>useWatch()</code>로 값을 구독하는 순간에는 그 부분만 다시 렌더링됩니다.)</p>
+            <p><strong>A2.</strong> ① <strong>에러 피드백이 없다</strong> — <code>formState.errors</code>를 쓰지 않아서, 이메일 형식이 틀리면 <code>handleSubmit</code>이 조용히 제출을 막기만 합니다. 사용자 입장에선 "가입 버튼이 안 눌리는 고장난 폼"이 돼요. <code>formState: { errors }</code>를 꺼내 필드 아래에 <code>errors.email?.message</code>를 <code>role="alert"</code>로 띄워야 합니다. ② <strong>서버 검증이 없다</strong> — 클라이언트 검증은 UX용 편의일 뿐, <code>/api/signup</code>은 curl이나 Postman으로도 얼마든지 호출됩니다. 같은 <code>schema</code>를 서버 라우트에서 <code>schema.parse(await req.json())</code>로 한 번 더 통과시켜야 실제 방어가 됩니다(9/8 Zod 편의 "경계에서 검증"이 그대로 적용).</p>
+            <p><strong>보너스.</strong> ③ <code>&lt;label htmlFor&gt;</code>·<code>id</code> 연결이 없어 스크린리더가 각 input이 뭘 묻는지 모릅니다. <code>type="email"</code>, <code>autoComplete="email" / "new-password"</code> 같은 속성도 빠져 있고요 — 퍼블리싱에서 늘 챙기던 부분인데 React로 넘어오면 로직에 신경 쓰다 자주 놓칩니다. ④ <code>isSubmitting</code>으로 버튼을 막지 않아 더블 클릭 시 가입 요청이 두 번 나갈 수 있어요.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="study-day" data-date="2026-09-09">
+        <h2>2026-09-09 (수) · 환경 변수와 시크릿 관리 — <code>NEXT_PUBLIC_</code> 한 글자 차이로 API 키가 전 세계에 공개된다</h2>
+        <span class="topic-tag">클라우드·백엔드 기초</span>
+
+        <h3>핵심 개념</h3>
+        <p>어제까지 "바깥에서 들어오는 데이터를 안 믿는 법"(Zod)을 봤다면, 오늘은 반대로 <strong>안에 있는 값이 밖으로 새는 문제</strong>입니다. 12-Factor App의 원칙 중 하나가 <strong>설정(config)은 코드가 아니라 환경에 둔다</strong>인데, 같은 이미지 하나로 개발·스테이징·운영을 다 돌리려면 DB 주소나 API 키가 코드에 박혀 있으면 안 되기 때문이에요. 퍼블리싱으로 치면 색상값을 각 파일에 하드코딩하지 않고 CSS 변수로 빼두는 것과 같은 발상 — 단, CSS 변수와 결정적으로 다른 점은 <strong>일부는 절대로 브라우저에 도달하면 안 된다</strong>는 것입니다. Next.js는 이걸 접두사로 구분해서, <code>NEXT_PUBLIC_</code>이 붙은 값만 브라우저용 번들에 넣고 나머지는 서버에만 남깁니다. 그리고 이 주입은 런타임이 아니라 <strong><code>next build</code> 시점에 문자열로 치환(inline)</strong>되기 때문에, 빌드가 끝난 뒤에는 환경 변수를 바꿔도 브라우저 쪽 값은 바뀌지 않습니다.</p>
+
+        <h3>코드 예시 — 어디까지가 서버의 영역인가</h3>
+        <pre><code># .env.local  (반드시 .gitignore — 저장소에 올라가는 순간 히스토리에서 지우기 매우 어렵다)
+DATABASE_URL="postgres://user:pw@db:5432/app"       # 서버 전용
+STRIPE_SECRET_KEY="sk_live_xxx"                     # 서버 전용
+NEXT_PUBLIC_API_BASE_URL="https://api.example.com"  # 공개돼도 괜찮은 값만</code></pre>
+        <pre><code>// app/api/checkout/route.ts — 서버에서만 실행되는 코드
+export async function POST(req: Request) {
+  const key = process.env.STRIPE_SECRET_KEY;  // ✅ 서버 프로세스라 읽힌다
+  // ...
+}
+
+// components/PriceCard.tsx
+'use client';
+export function PriceCard() {
+  const secret = process.env.STRIPE_SECRET_KEY;        // ❌ undefined (다행인 것)
+  const base   = process.env.NEXT_PUBLIC_API_BASE_URL; // ✅ 읽힌다
+
+  // 빌드 결과물(.next/static/chunks/*.js)에는 이렇게 "박혀서" 나간다:
+  //   const base = "https://api.example.com";
+  // → 개발자도구 Sources 탭에서 누구나 볼 수 있다는 뜻.
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>풀스택으로 넘어오면 "프론트에서 외부 API를 직접 부르고 싶은데 키가 필요하다"는 상황이 반드시 오는데, 이때 <code>NEXT_PUBLIC_</code>을 붙이면 에러는 사라지지만 그 키는 그대로 공개됩니다. 정답은 접두사가 아니라 <strong>서버 라우트(또는 Server Action)를 프록시로 두고 키는 서버에만 남기는 것</strong>이에요. 또 컨테이너로 배포할 때 "환경 변수만 바꾸고 재시작했는데 왜 안 바뀌지?"는 이 빌드타임 인라인 때문에 생기는 대표적인 사고라, 원리를 알면 배포 사고를 몇 시간씩 헤매지 않게 됩니다.</p>
+
+        <p class="refs">더 보기:
+          <a href="https://nextjs.org/docs/pages/guides/environment-variables">Next.js — Environment Variables</a> ·
+          <a href="https://12factor.net/config">The Twelve-Factor App — III. Config</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1 (문제점 찾기).</strong> 동료가 아래 코드를 올리며 "환경 변수로 뺐으니 안전하다"고 합니다. 무엇이 위험하고, 어떻게 고쳐야 할까요?</p>
+          <pre><code>'use client';
+
+async function ask(prompt: string) {
+  const res = await fetch('https://api.example-ai.com/v1/chat', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_AI_API_KEY}`,
+    },
+    body: JSON.stringify({ prompt }),
+  });
+  return res.json();
+}</code></pre>
+          <p><strong>Q2 (객관식).</strong> 빌드해둔 Next.js 이미지를 운영 서버에 띄웠습니다. <code>NEXT_PUBLIC_API_BASE_URL</code>을 스테이징 주소에서 운영 주소로 바꾸고 <em>컨테이너만 재시작</em>했는데, 브라우저는 여전히 스테이징 API를 호출합니다. 가장 근본적인 원인은?</p>
+          <p>① <code>.env.local</code>이 <code>.gitignore</code>에 있어서 서버에 파일이 없다<br />
+          ② <code>NEXT_PUBLIC_</code> 값은 <code>next build</code> 시점에 번들에 문자열로 박히므로, 재빌드 없이는 바뀌지 않는다<br />
+          ③ 브라우저가 이전 응답을 캐싱하고 있어서<br />
+          ④ 클라이언트 컴포넌트에서는 <code>process.env</code> 자체를 읽을 수 없어서</p>
+
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>A1.</strong> <code>'use client'</code> 파일이라 <code>NEXT_PUBLIC_AI_API_KEY</code>가 빌드 때 번들에 평문으로 인라인되고, 요청이 브라우저에서 직접 나가므로 네트워크 탭의 <code>Authorization</code> 헤더에도 그대로 노출됩니다. 즉 "환경 변수로 뺀 것"은 코드 가독성 문제만 해결했을 뿐 유출은 그대로예요. 고치는 방법은 접두사를 떼고(<code>AI_API_KEY</code>) 서버 라우트 <code>app/api/ask/route.ts</code>를 만들어 그 안에서 외부 API를 호출한 뒤, 클라이언트는 <code>fetch('/api/ask')</code>로 우리 서버만 부르게 하는 것 — 키는 서버 프로세스 밖으로 나가지 않습니다.</p>
+            <p><strong>A2.</strong> 정답 ②. <code>NEXT_PUBLIC_</code> 값은 런타임에 읽히는 게 아니라 빌드 시점에 <code>process.env.X</code> 참조가 문자열 리터럴로 치환되어 정적 청크에 굳습니다. 그래서 환경 변수 교체 후에는 <strong>재빌드(또는 환경별 빌드)</strong>가 필요해요. ③은 증상이 겹쳐 보일 수 있지만 강력 새로고침해도 그대로라면 캐시가 원인이 아니고, ④는 틀린 설명입니다(<code>NEXT_PUBLIC_</code> 접두사가 붙은 값은 클라이언트에서 읽힙니다). 참고로 런타임에 바꿔야 하는 값이라면 서버에서 읽어 props나 API 응답으로 내려주는 방식으로 설계해야 합니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-08">
         <h2>2026-09-08 (화) · 런타임 타입 검증(Zod) — TypeScript 타입은 빌드되면 사라진다</h2>
         <span class="topic-tag">프론트 심화 (TypeScript)</span>
