@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#stateless-stateful">무상태 vs 상태 유지</a>
+    <a class="nav-item" href="#columnar-storage">컬럼형 스토리지</a>
+    <a class="nav-item" href="#container-queries">컨테이너 쿼리</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="stateless-stateful">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="stateless-stateful-h">무상태 vs 상태 유지 <span class="sub">Stateless vs Stateful</span></h2>
+    <div class="links"><a class="link-tag" href="#sticky-session">스티키 세션</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a><a class="link-tag" href="#load-balancer">로드밸런서</a><a class="link-tag" href="#twelve-factor-app">12요소 앱</a></div>
+  </div>
+</div>
+<p><strong>서버가 요청과 요청 사이에 특정 클라이언트의 상태(세션·이전 요청 정보)를 기억하지 않는 것이 스테이트리스(무상태)</strong>다. 각 요청이 처리에 필요한 정보를 스스로 다 담고 있어, 아무 인스턴스에 보내도 똑같이 처리된다. 반대로 <strong>스테이트풀(상태 유지)</strong>은 서버가 그 클라이언트의 상태를 메모리에 들고 있어(예: 로그인 세션을 서버 메모리에 저장) 같은 클라이언트는 계속 같은 서버로 가야 한다. 서버가 무상태여야 인스턴스를 자유롭게 늘리고(오토스케일)·로드밸런서로 아무 데나 분산하고·죽은 인스턴스를 새것으로 교체하기 쉽다. 그래서 상태가 필요하면 서버 메모리 대신 외부 저장소(Redis·DB)로 빼서, 서버 자체는 무상태로 유지하는 것이 정석이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">무상태 (Stateless)</h4><ul><li>요청마다 필요한 정보 자체 포함</li><li>아무 인스턴스나 처리 → 확장·교체 쉬움</li><li>상태는 Redis·DB 등 외부에 보관</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">상태 유지 (Stateful)</h4><ul><li>서버가 클라이언트 상태를 들고 있음</li><li>같은 서버로 계속 가야 함(스티키 세션)</li><li>인스턴스 확장·교체가 까다로움</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"서버를 stateless하게 만들어야 오토스케일이 된다"·"세션을 서버 메모리에 두지 말고 Redis로 빼라"를 듣거나, 스티키 세션을 왜 쓰고/없애는지를 논할 때 마주친다. <span style="color:var(--teal)">[아키텍처·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="columnar-storage">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="columnar-storage-h">컬럼형 스토리지 <span class="sub">Columnar Storage · 열 지향 저장</span></h2>
+    <div class="links"><a class="link-tag" href="#oltp-olap">OLTP vs OLAP</a><a class="link-tag" href="#data-lake">데이터 레이크</a><a class="link-tag" href="#materialized-view">구체화 뷰</a></div>
+  </div>
+</div>
+<p><strong>데이터를 행(row) 단위로 붙여 저장하지 않고, 같은 컬럼(열)의 값끼리 모아 저장하는 방식</strong>이다. 같은 종류 값이 이웃해 있어 <strong>압축률이 높고</strong>, 특정 컬럼 몇 개만 읽는 집계·분석 쿼리(SUM·평균·GROUP BY)에서 <strong>필요한 열만 스캔</strong>해 매우 빠르다. 대신 한 행 전체를 자주 넣고 빼는 트랜잭션 처리(OLTP)엔 불리해, 보통 분석용 DB·데이터 웨어하우스(Redshift·BigQuery·ClickHouse)나 Parquet·ORC 같은 분석 파일 포맷에서 쓴다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">행 지향 (Row · OLTP)</h4><ul><li>한 행을 통째로 저장</li><li>단건 조회·삽입·수정에 강함</li><li>일반 업무 DB(주문·회원)에 적합</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">열 지향 (Columnar · OLAP)</h4><ul><li>같은 컬럼끼리 모아 저장</li><li>압축·대량 집계 스캔에 강함</li><li>분석·대시보드·웨어하우스에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>로그·이벤트·매출 데이터를 대시보드로 집계하거나, "이 분석 쿼리는 왜 이렇게 빠르지/느리지"·데이터 웨어하우스나 Parquet 파일을 다룰 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="container-queries">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="container-queries-h">컨테이너 쿼리 <span class="sub">Container Queries</span></h2>
+    <div class="links"><a class="link-tag" href="#design-token">디자인 토큰</a><a class="link-tag" href="#islands-architecture">아일랜드 아키텍처</a></div>
+  </div>
+</div>
+<p><strong>요소의 스타일을 화면(뷰포트) 크기가 아니라, 그 요소가 담긴 부모 컨테이너의 크기에 따라 바꾸는 CSS 기능</strong>이다. 컨테이너에 <code>container-type: inline-size</code>를 주고 <code>@container (width &gt; 400px)</code>처럼 조건을 건다. 미디어 쿼리는 항상 <strong>화면 전체</strong> 기준이라 같은 카드 컴포넌트가 좁은 사이드바에 있든 넓은 본문에 있든 똑같이 반응하지만, 컨테이너 쿼리는 <strong>"놓인 자리의 폭"</strong>에 맞춰 반응해 어디에 두든 알맞게 배치되는 진짜 재사용 가능한 반응형 컴포넌트를 만든다. 2023년부터 주요 브라우저(Chrome·Safari·Firefox)에 널리 지원(Baseline)된다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">미디어 쿼리 (@media)</h4><ul><li>기준이 화면(뷰포트) 크기</li><li>페이지 전체 레이아웃 분기에 적합</li><li>컴포넌트 위치와 무관하게 동일 반응</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">컨테이너 쿼리 (@container)</h4><ul><li>기준이 부모 컨테이너 크기</li><li>놓인 자리에 맞춰 컴포넌트가 반응</li><li>재사용 컴포넌트 반응형에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>카드·위젯 같은 컴포넌트를 여러 레이아웃에 재사용하며 "같은 컴포넌트인데 좁은 칸에선 세로로, 넓은 칸에선 가로로" 배치를 바꾸고 싶을 때 마주친다. <span style="color:var(--blue)">[프론트엔드·CSS]</span></div>
 </section><hr class="divider">
 
 
