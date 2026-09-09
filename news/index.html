@@ -83,6 +83,29 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-09-10">
+        <h2>📰 2026-09-10 (목)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 프론트엔드 1건·백엔드 1건 통과. AI는 헤더째 생략 — 프론티어 신규(Claude Fable 5.1·Gemini 3.8 Flash·Lyria 3.5)는 9/1~9/3 릴리스로 이미 발송했거나 AI 시의성 창(수일)을 벗어났고, OpenAI GPT-6 Astra·ChatGPT Images 2.5는 openai.com 차단으로 1차 소스 확인 불가(접근 실패), Qwen3.8 27B·Meta Muse Spark 1.3(9/2)은 시의성 미달로 드롭. HTML &amp; CSS도 생략 — Chrome 143은 2025-12-02 안정판이라 시의성 미달, web.dev 8~9월 Baseline 다이제스트가 미발행이라 1차 소스로 확인되는 신규 편입이 없다. TypeScript 7.0.2(8/20)는 프론트엔드 시의성 창(1~2주)을 초과해 제외.</p>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드</h3>
+          <div class="news-item">
+            <p class="item-title">React 19.3.0 릴리스 — <code>&lt;ViewTransition&gt;</code>·Fragment Refs 정식 추가</p>
+            <p class="item-meta">2026-09-09 · <a href="https://github.com/facebook/react/releases/tag/v19.3.0">github.com/facebook/react</a></p>
+            <p class="item-summary">React 19.2 계열 이후의 신규 마이너 릴리스. 뷰 전환 애니메이션을 React 안에서 선언적으로 다루는 <code>&lt;ViewTransition /&gt;</code> 컴포넌트와 <code>addTransitionType</code> API, <code>&lt;Fragment /&gt;</code>에 ref를 달아 자식 DOM에 대한 플랫폼 동작을 조합할 수 있는 <strong>Fragment Refs</strong>가 정식 추가됐다. 또한 트랜지션이 하나의 렌더로 얽히지(entangled) 않고 독립적으로 렌더되도록 개선됐고, <code>react-dom</code>에 서버 렌더링 시 에러를 내는 <code>browser()</code> 유틸, Trusted Types API 통합, 조건부 <code>use()</code>로 언블록되는 컴포넌트에 대한 DEV 경고 등이 들어갔다. 36명이 기여했으며 Fast Refresh·성능 추적·RSC 관련 버그 수정도 다수 포함. 애니메이션·전환 처리가 표준 컴포넌트 API로 편입된 의미 있는 업데이트다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js v24.21.0 &apos;Krypton&apos; (Active LTS) 릴리스</p>
+            <p class="item-meta">2026-09-08 · <a href="https://github.com/nodejs/node/releases/tag/v24.21.0">github.com/nodejs/node</a></p>
+            <p class="item-summary">프로덕션이 주로 쓰는 Active LTS(24.x) 라인의 정기 릴리스. 보안·의존성 측면에서 OpenSSL 3.5.8 업그레이드와 루트 인증서(NSS 3.126) 갱신, STORE 로더를 통한 개인키 로딩 지원이 들어갔고, <code>perf_hooks</code> 히스토그램에 통계적 가설검정 기능, <code>Net.BlockList</code>·WHATWG URL 파싱 성능 개선, 예외를 던지지 않는 <code>MIMEType.parse</code> 유틸, TTY raw 모드 개선, Undici 7.29.1 등이 포함됐다. 100건이 넘는 커밋으로 HTTP·streams·SQLite 전반의 버그 수정과 성능 최적화를 담은, 운영 환경에서 바로 채택 가능한 LTS 업데이트.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
