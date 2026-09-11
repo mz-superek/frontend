@@ -210,6 +210,64 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-11">
+        <h2>2026-09-11 (금) · 접근성 있는 폼 에러 — 빨간 글씨는 눈에만 보인다 (aria-invalid · aria-describedby · 포커스 이동)</h2>
+        <span class="topic-tag">프론트 심화 (React · 접근성)</span>
+
+        <h3>핵심 개념</h3>
+        <p>어제 RHF + Zod로 <code>errors.email.message</code>를 화면에 뿌렸습니다. 그런데 그 빨간 글씨는 <strong>시각적으로만</strong> 존재합니다. 스크린리더는 DOM 순서대로 읽기 때문에, 입력창에 포커스를 둔 사용자에게는 "이메일, 편집"까지만 들리고 바로 아래 에러 문구는 존재조차 모릅니다. 이 둘을 잇는 게 <code>aria-describedby</code> — 퍼블리싱에서 <code>&lt;label for&gt;</code>로 라벨과 입력창을 묶던 것과 똑같은 원리를, 이번엔 에러 메시지에 적용하는 겁니다. 여기에 <code>aria-invalid="true"</code>(이 필드는 지금 오류 상태)를 얹으면 스크린리더가 "잘못된 입력"이라고 먼저 알려주고, <code>[aria-invalid="true"]</code> 속성 선택자로 CSS까지 한 방에 처리할 수 있습니다. 마지막 한 조각은 <strong>포커스</strong> — 제출 실패 시 첫 에러 필드로 포커스를 옮겨야 키보드 사용자가 헤매지 않습니다.</p>
+
+        <h3>코드 예시 — 에러를 '기계에게도' 전달하기</h3>
+        <pre><code>function EmailField() {
+  const { register, formState: { errors } } = useFormContext();
+  const err = errors.email;
+
+  return (
+    &lt;div&gt;
+      &lt;label htmlFor="email"&gt;이메일&lt;/label&gt;
+      &lt;input
+        id="email"
+        {...register("email")}
+        aria-invalid={err ? "true" : "false"}              // 오류 상태를 '기계에게' 알림
+        aria-describedby={err ? "email-error" : undefined} // 에러 문구와 연결
+      /&gt;
+      {err &amp;&amp; (
+        &lt;p id="email-error" role="alert"&gt;   {/* 동적으로 나타난 문구를 즉시 낭독 */}
+          {err.message}
+        &lt;/p&gt;
+      )}
+    &lt;/div&gt;
+  );
+}</code></pre>
+        <p>포커스 이동은 직접 짤 필요가 없습니다 — RHF <code>useForm</code>의 <code>shouldFocusError</code>가 기본 <code>true</code>라 제출 실패 시 첫 에러 필드로 알아서 포커스가 갑니다(단, <code>register</code>로 ref가 실제 DOM에 붙어 있어야 동작).</p>
+
+        <h3>트레이드오프</h3>
+        <p><code>aria-errormessage</code>라는 "에러 전용" 속성도 있지만 스크린리더 지원이 아직 고르지 않아, 실무에서는 <code>aria-describedby</code>가 안전한 기본값입니다. <code>role="alert"</code>는 편리한 대신 강제로 끼어들어 읽는(assertive) 성격이라 필드마다 남발하면 낭독이 서로 잘립니다.</p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>공공·금융·엔터프라이즈 프로젝트는 웹 접근성 심사에서 폼 에러 처리(WCAG 3.3.1 오류 식별)가 거의 항상 지적 사항으로 나옵니다. 10년 마크업 경력이 React에서 그대로 무기가 되는 몇 안 되는 영역이고, ShadCN의 <code>FormMessage</code>·<code>FormControl</code>도 정확히 이 속성들을 자동으로 붙여주는 래퍼라 원리를 알아야 커스텀할 때 안 깨뜨립니다.</p>
+
+        <p class="refs">더 보기: <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-invalid" target="_blank" rel="noopener">MDN — aria-invalid</a> · <a href="https://react-hook-form.com/docs/useform" target="_blank" rel="noopener">React Hook Form — useForm (shouldFocusError)</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>1.</strong> 아래 코드는 디자인 시안대로 에러가 빨갛게 잘 나옵니다. 스크린리더 사용자 관점에서 무엇이 잘못됐고, 최소 몇 가지를 고쳐야 할까요?</p>
+          <pre><code>&lt;label htmlFor="email"&gt;이메일&lt;/label&gt;
+&lt;input id="email" {...register("email")} /&gt;
+{errors.email &amp;&amp; &lt;span className="error"&gt;{errors.email.message}&lt;/span&gt;}</code></pre>
+          <p><strong>2.</strong> 제출 버튼을 눌렀는데 3개 필드에서 동시에 검증 에러가 났습니다. 스크린리더 사용자를 위해 가장 적절한 처리는?<br>
+          ① 에러 3개 모두에 <code>role="alert"</code>를 붙여 전부 즉시 읽게 한다<br>
+          ② 첫 번째 에러 필드로 포커스를 옮긴다<br>
+          ③ <code>alert("3개의 오류가 있습니다")</code>로 브라우저 경고창을 띄운다<br>
+          ④ 에러 필드 테두리를 빨간색으로 처리한다</p>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>1.</strong> 입력창과 에러 메시지가 <em>프로그램적으로</em> 전혀 연결돼 있지 않은 게 핵심 문제입니다. 고칠 것은 3가지 — ① <code>aria-invalid="true"</code>로 오류 상태 표시, ② <code>&lt;span&gt;</code>에 <code>id</code>를 주고 input에 <code>aria-describedby</code>로 연결, ③ 나중에 나타난 문구이므로 <code>role="alert"</code>(또는 <code>aria-live</code>)로 낭독 트리거. 지금 상태에서는 스크린리더가 "이메일, 편집"만 읽고 끝나서 사용자는 제출이 왜 막히는지 알 수 없습니다.</p>
+            <p><strong>2.</strong> 정답 ②. <code>role="alert"</code>는 assertive라 3개가 동시에 큐에 쌓이면 서로 잘리거나 겹쳐 읽힙니다(①). <code>alert()</code>는 포커스를 뺏고 원인 필드를 알려주지 못합니다(③). ④는 색에만 의존해 시각장애·색각이상 사용자에게 정보가 전달되지 않습니다. RHF의 <code>shouldFocusError</code>(기본 <code>true</code>)가 해주는 "첫 에러 필드로 포커스" + 상단 에러 요약 배너 조합이 WCAG 권장 패턴입니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-10">
         <h2>2026-09-10 (목) · React Hook Form + Zod — 폼은 "비제어"로 두고, 검증은 스키마 하나로</h2>
         <span class="topic-tag">프론트 심화 (React · Forms)</span>
