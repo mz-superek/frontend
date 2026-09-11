@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#transit-gateway">트랜싯 게이트웨이</a>
+    <a class="nav-item" href="#hot-partition">핫 파티션</a>
+    <a class="nav-item" href="#toil">토일 (Toil)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="transit-gateway">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="transit-gateway-h">트랜싯 게이트웨이 <span class="sub">AWS Transit Gateway · TGW</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#vpc-endpoint">VPC Endpoint</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a></div>
+  </div>
+</div>
+<p><strong>여러 VPC와 온프레미스(사내망)를 하나의 중앙 허브에 연결해, 네트워크끼리 일일이 1:1로 잇던 복잡한 연결을 "허브 앤 스포크(hub-and-spoke)" 한 곳으로 모으는 AWS의 네트워크 전송 허브</strong>. VPC가 몇 개 안 될 땐 <strong>VPC 피어링</strong>으로 서로 직접 연결하면 되지만, 개수가 늘면 연결 수가 폭발적으로 많아져(그물망) 관리가 어려워진다. 트랜싯 게이트웨이는 각 VPC·<strong>VPN·Direct Connect(전용선)</strong>·다른 리전의 TGW를 <strong>어태치먼트(attachment)</strong>로 붙여 두면, 라우팅 테이블에 따라 알아서 서로 통신시켜 준다. 덕분에 네트워크가 커져도 <strong>연결·라우팅을 한 곳에서 중앙 관리</strong>할 수 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">VPC 피어링 (그물망)</h4><ul><li>두 VPC를 1:1로 직접 연결</li><li>개수 늘면 연결 수 폭증·관리 난이도↑</li><li>전이적 라우팅 안 됨 (A-B, B-C여도 A-C 불가)</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">트랜싯 게이트웨이 (허브)</h4><ul><li>모든 네트워크를 중앙 허브에 연결</li><li>연결·라우팅 중앙 관리</li><li>VPN·전용선·리전 간까지 확장</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>VPC·계정이 여러 개로 늘어 "피어링이 너무 많아 관리가 안 된다"거나, 온프레미스-클라우드(하이브리드)·멀티 계정 네트워크를 설계·정리할 때 마주친다. <span style="color:var(--teal)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="hot-partition">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="hot-partition-h">핫 파티션 <span class="sub">Hot Partition · Hot Key</span></h2>
+    <div class="links"><a class="link-tag" href="#sharding">샤딩</a><a class="link-tag" href="#consistent-hashing">일관된 해싱</a><a class="link-tag" href="#cache-stampede">캐시 스탬피드</a></div>
+  </div>
+</div>
+<p><strong>데이터를 여러 파티션(샤드)에 나눠 저장하는 DB·메시징 시스템에서, 특정 파티션 키 하나에 읽기·쓰기가 쏠려 그 파티션만 처리 한도를 넘겨 느려지거나 스로틀링(요청 거부·throttle)되는 현상</strong>. 전체 용량은 남아도는데 <strong>한 곳만 과부하</strong>가 걸리는 게 핵심이다. "인기 상품 ID", "오늘 날짜", "특정 인기 사용자"처럼 <strong>값이 한쪽으로 몰리는 키 설계</strong>가 원인이다. 파티션은 보통 <strong>개별 처리 한도</strong>가 정해져 있어, 아무리 전체 용량을 키워도 쏠린 키 하나가 병목이 된다. 그래서 키에 접미어를 붙여 쓰기를 여러 파티션으로 흩뿌리는 <strong>'쓰기 샤딩(write sharding)'</strong> 같은 기법으로 분산시킨다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">핫 파티션 (쏠림)</h4><ul><li>한 키에 트래픽 집중</li><li>그 파티션만 한도 초과·스로틀링</li><li>전체 용량은 남아도 병목</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">균등 분산 (이상적)</h4><ul><li>키가 여러 파티션에 고르게 흩어짐</li><li>파티션마다 부하 비슷</li><li>전체 처리량을 온전히 활용</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>DynamoDB·Kafka·Redis 등에서 "용량은 남는데 특정 키만 스로틀링·지연된다"거나, 파티션 키·샤드 키를 무엇으로 잡을지(쓰기 샤딩으로 흩뿌릴지) 설계할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="toil">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="toil-h">토일 <span class="sub">Toil</span></h2>
+    <div class="links"><a class="link-tag" href="#on-call">On-call</a><a class="link-tag" href="#error-budget">에러 버짓</a><a class="link-tag" href="#runbook">Runbook</a></div>
+  </div>
+</div>
+<p><strong>SRE(사이트 신뢰성 엔지니어링)에서 말하는, 손으로 반복하게 되고·자동화가 가능하며·그때그때 쳐내는 성격이고·항구적 가치가 없으며·서비스가 커질수록 비례해 늘어나는 운영성 잡무</strong>. 예컨대 매번 수동으로 하는 배포, 인증서 갱신, 반복되는 알람 대응 같은 것이다. 장애 원인을 근본적으로 없애는 '진짜 엔지니어링'과 구분되며, <strong>방치하면 팀 시간을 갉아먹어 정작 개선·자동화할 여력을 뺏는다</strong>. 그래서 SRE는 업무 중 토일이 차지하는 비중을 측정하고(흔히 상한선을 두어), 자동화로 꾸준히 줄이는 것을 핵심 목표로 삼는다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이 반복 작업 자동화하자", "운영 잡무가 너무 많아 개발할 시간이 없다" 같은 운영 부담·자동화 우선순위를 논하거나, 온콜·배포 프로세스를 개선할 때 마주친다. <span style="color:var(--purple)">[운영·SRE]</span></div>
 </section><hr class="divider">
 
 
