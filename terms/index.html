@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#token-leaky-bucket">토큰 버킷·리키 버킷</a>
+    <a class="nav-item" href="#placement-group">배치 그룹</a>
+    <a class="nav-item" href="#view-transitions">뷰 트랜지션 API</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="token-leaky-bucket">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="token-leaky-bucket-h">토큰 버킷 · 리키 버킷 <span class="sub">Token Bucket · Leaky Bucket</span></h2>
+    <div class="links"><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#backpressure">Backpressure</a><a class="link-tag" href="#retry-backoff">Retry·Backoff</a></div>
+  </div>
+</div>
+<p><strong>요청 속도를 제한(rate limiting)하거나 평활화하는 두 가지 고전 알고리즘</strong>. <strong>토큰 버킷</strong>은 일정 속도로 채워지는 토큰을 요청마다 하나씩 소비해, 토큰이 있으면 통과·없으면 거부하며 <strong>버킷에 모인 토큰만큼 순간적인 버스트를 허용</strong>한다(평소 아낀 만큼 잠깐 몰아 쓸 수 있음). <strong>리키 버킷</strong>은 요청을 큐(버킷)에 담아 바닥 구멍으로 새듯 <strong>일정한 속도로만 흘려보내</strong> 출력 트래픽을 고르게 평탄화하고, 큐가 가득 차면 넘치는 요청을 버린다. 즉 토큰 버킷은 "평균은 제한하되 버스트는 허용", 리키 버킷은 "출력 속도를 항상 일정하게"에 강점이 있다. 많은 게이트웨이·프록시가 이 둘(또는 변형)로 유량을 제어한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">토큰 버킷 (Token Bucket)</h4><ul><li>토큰이 있으면 통과, 없으면 거부</li><li>쌓인 토큰만큼 버스트 허용</li><li>평균 속도 제한 + 순간 몰림 수용</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">리키 버킷 (Leaky Bucket)</h4><ul><li>큐에 담아 일정 속도로 방출</li><li>출력 트래픽이 항상 매끈함</li><li>큐가 차면 초과분 폐기</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이 API rate limit을 어떻게 구현·설정하지", Nginx <code>limit_req</code>·API Gateway 사용량 제한·메시지 소비 속도 조절을 논하거나, 429(Too Many Requests) 대응·버스트 허용 정책을 정할 때 마주친다. <span style="color:var(--coral)">[백엔드·트래픽]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="placement-group">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="placement-group-h">배치 그룹 <span class="sub">Placement Group</span></h2>
+    <div class="links"><a class="link-tag" href="#availability-zone">가용 영역(AZ)</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a><a class="link-tag" href="#spot-instance">Spot Instance</a></div>
+  </div>
+</div>
+<p><strong>AWS EC2에서 인스턴스들을 물리적으로 어떻게 배치할지 지정하는 논리 그룹</strong>. 세 가지 전략이 있다 — <strong>클러스터(Cluster)</strong>는 같은 AZ 안에 인스턴스를 촘촘히 모아 <strong>초저지연·고대역 네트워크</strong>를 얻고(HPC·대용량 트래픽), <strong>스프레드(Spread)</strong>는 서로 다른 하드웨어(랙)에 흩어 놓아 <strong>동시 장애 위험을 최소화</strong>하며(소수의 중요 인스턴스), <strong>파티션(Partition)</strong>은 랙 단위 파티션으로 나눠 <strong>대규모 분산 시스템의 장애를 파티션 경계로 격리</strong>한다(HDFS·Kafka·Cassandra 등). 요컨대 <strong>성능이냐 가용성이냐</strong>에 따라 인스턴스의 물리 위치를 제어하는 장치다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">클러스터 (Cluster)</h4><ul><li>한 AZ에 촘촘히 모음</li><li>초저지연·고대역 네트워크</li><li>같이 몰린 만큼 장애도 함께</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">스프레드·파티션 (Spread·Partition)</h4><ul><li>하드웨어·랙 단위로 분산</li><li>동시 장애 위험·블래스트 반경 축소</li><li>분산 DB·중요 인스턴스에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>HPC·저지연 클러스터나 Kafka·Cassandra 같은 분산 시스템을 EC2에 올릴 때, 또는 중요한 인스턴스를 하드웨어 장애로부터 흩어 배치해 가용성을 높일 때 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="view-transitions">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="view-transitions-h">뷰 트랜지션 API <span class="sub">View Transitions API</span></h2>
+    <div class="links"><a class="link-tag" href="#crp">Critical Rendering Path</a><a class="link-tag" href="#raf">requestAnimationFrame</a><a class="link-tag" href="#hydration">Hydration</a></div>
+  </div>
+</div>
+<p><strong>화면(DOM) 상태가 바뀔 때 이전·이후 모습을 브라우저가 스냅샷으로 떠서 그 사이를 자동으로 애니메이션 전환해 주는 웹 표준 API</strong>. <code>document.startViewTransition()</code>으로 <strong>SPA 안의 상태 전환</strong>(목록↔상세, 탭 전환 등)을 감싸면, 개발자가 직접 애니메이션을 짜지 않아도 브라우저가 옛 화면과 새 화면을 겹쳐 부드럽게 이어 준다. 나아가 링크로 페이지가 통째로 바뀌는 <strong>MPA(다중 문서) 전환</strong>에도 CSS만으로 네이티브 전환 효과를 붙일 수 있어, 그동안 프레임워크·라이브러리로 힘겹게 만들던 페이지 전환을 플랫폼 차원에서 처리한다. 전환에 참여할 요소는 <code>view-transition-name</code>으로 지정하고, 세부 모션은 <code>::view-transition</code> 계열 의사요소를 CSS로 다룬다. (크로미엄·사파리에서 지원되며 점진적으로 확산 중.)</p>
+<div class="tip"><div class="tip-l">실무에서</div>SPA 라우팅이나 목록→상세 화면 전환에 부드러운 모션을 넣거나, 일반 페이지 이동(MPA)에 네이티브 전환 효과를 적용하려 "뷰 트랜지션 쓰자"는 얘기가 나올 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
 </section><hr class="divider">
 
 
