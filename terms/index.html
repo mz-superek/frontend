@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#bloom-filter">블룸 필터</a>
+    <a class="nav-item" href="#split-brain">스플릿 브레인</a>
+    <a class="nav-item" href="#technical-debt">기술 부채</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,54 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="bloom-filter">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="bloom-filter-h">블룸 필터 <span class="sub">Bloom Filter</span></h2>
+    <div class="links"><a class="link-tag" href="#cache-stampede">Cache Stampede</a><a class="link-tag" href="#read-replica">Read Replica</a><a class="link-tag" href="#sharding">샤딩</a></div>
+  </div>
+</div>
+<p><strong>어떤 값이 집합에 들어있는지를 아주 적은 메모리로 검사하는 확률형(probabilistic) 자료구조</strong>. 하나의 비트 배열과 여러 개의 해시 함수로 이뤄진다. 값을 넣을 땐 그 값을 여러 해시에 통과시켜 나온 위치의 비트를 켜고, 검사할 땐 같은 위치가 모두 켜져 있는지 본다. 핵심 성질은 비대칭이다 &mdash; <strong>"없다"는 100% 확실</strong>(거짓 음성이 절대 없음)하지만, 우연히 비트가 겹칠 수 있어 <strong>"있다"는 가끔 틀릴 수 있다</strong>(거짓 양성 가능). 그래서 "확실히 없음"을 값싸게 걸러내, 실제로 디스크·DB·캐시를 뒤지는 <strong>비싼 조회 자체를 건너뛰는</strong> 앞단 필터로 쓴다. 원소를 직접 저장하지 않으므로 데이터가 아무리 많아도 크기가 거의 일정하고, 대신 개별 원소를 꺼내거나 삭제하는 용도로는 쓰지 못한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">일반 집합 (HashSet)</h4><ul><li>원소를 실제로 저장 &rarr; 정확</li><li>거짓 양성·음성 모두 없음</li><li>원소 수에 비례해 메모리 증가</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">블룸 필터</h4><ul><li>비트+해시로 존재 여부만 근사</li><li>"없음"은 확실, "있음"은 근사</li><li>메모리 아주 작고 거의 일정</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>DB(LSM 트리)·캐시·CDN이 "이 키는 없으니 디스크·원본을 안 뒤져도 됨"으로 불필요한 조회를 줄이거나, 대량 데이터의 존재 여부·중복을 값싸게 검사하는 설계를 논할 때 마주친다. <span style="color:var(--teal)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="split-brain">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="split-brain-h">스플릿 브레인 <span class="sub">Split Brain</span></h2>
+    <div class="links"><a class="link-tag" href="#quorum">정족수 (Quorum)</a><a class="link-tag" href="#consensus">합의 알고리즘</a><a class="link-tag" href="#distributed-lock">분산 락</a></div>
+  </div>
+</div>
+<p><strong>네트워크 단절(파티션)로 클러스터가 두 조각으로 갈라졌을 때, 각 조각이 서로 상대가 죽은 줄 알고 저마다 "내가 살아있는 주(primary)"라고 착각해 동시에 쓰기를 받아 데이터가 서로 다르게 분기해 버리는 장애</strong>. 리더가 하나여야 할 시스템에 리더가 둘 생기는 셈이라, 단절이 복구된 뒤에도 어느 쪽 데이터가 옳은지 알 수 없어 충돌·유실이 생긴다. 이를 막는 표준 처방이 <strong>정족수(quorum)</strong> &mdash; 전체 노드의 <strong>과반수를 확보한 쪽만 쓰기를 허용</strong>하고, 과반이 안 되는 소수 쪽은 스스로 읽기 전용으로 강등하거나 <strong>펜싱(fencing)</strong>으로 차단해 리더가 절대 둘이 되지 않게 한다. 그래서 HA 클러스터는 노드를 3·5개처럼 홀수로 두어 과반이 명확히 갈리게 구성한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">정족수 없음</h4><ul><li>단절 시 양쪽 다 주로 승격</li><li>두 리더가 각자 쓰기 수용</li><li>데이터 분기·충돌 &rarr; 스플릿 브레인</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">정족수·펜싱</h4><ul><li>과반 확보한 쪽만 쓰기 허용</li><li>소수 쪽은 강등·차단</li><li>리더는 항상 하나로 유지</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>DB 이중화 페일오버, Redis Sentinel·etcd·주키퍼 같은 HA 클러스터를 운영하며 "장애 조치 중 마스터가 둘 떠서 데이터가 어긋났다"·"노드는 왜 홀수로 두나"·정족수 설정을 논할 때 마주친다. <span style="color:var(--coral)">[인프라·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="technical-debt">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="technical-debt-h">기술 부채 <span class="sub">Technical Debt</span></h2>
+    <div class="links"><a class="link-tag" href="#adr">ADR</a><a class="link-tag" href="#dora-metrics">DORA 메트릭</a><a class="link-tag" href="#error-budget">에러 버짓</a></div>
+  </div>
+</div>
+<p><strong>지금 빠르고 쉬운 방법을 택한 대가로, 나중에 더 많은 수정·보완 비용을 "빚"처럼 떠안게 되는 상태를 가리키는 비유</strong>(워드 커닝햄이 처음 쓴 표현). 급한 마감에 밀린 임시 구현, 미룬 리팩터링, 낡은 의존성, 빠진 테스트·문서가 쌓이면 마치 <strong>"이자"처럼</strong> 이후 모든 작업이 점점 느려지고 버그가 늘어난다. 다만 기술 부채가 무조건 나쁜 것은 아니다 &mdash; 시장에 빨리 내놓기 위해 <strong>의도적으로 빚을 내고, 나중에 리팩터링으로 갚는</strong> 전략적 선택일 수도 있기 때문이다. 문제는 빚을 낸 사실조차 잊고 방치하는 경우다. 그래서 핵심은 <strong>부채를 인지하고 기록해, 갚을 시점과 계획을 팀이 공유</strong>하는 것이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">관리되는 부채</h4><ul><li>의도적으로 빌리고 기록</li><li>상환 계획·시점이 있음</li><li>속도와 품질을 저울질한 선택</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">방치된 부채</h4><ul><li>빚인 줄도 모르고 쌓임</li><li>이자만 불어 개발이 느려짐</li><li>결국 대규모 재작성으로 폭발</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이건 일단 이렇게 하고 나중에 고치자"는 결정을 하거나, 리팩터링·레거시 정리의 우선순위를 정하고 스프린트에 부채 상환 작업을 넣을지 논할 때 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
