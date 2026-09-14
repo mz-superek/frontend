@@ -210,6 +210,87 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-14">
+        <h2>2026-09-14 (월) · 에러 바운더리(Error Boundary) — 컴포넌트 하나가 터지면 왜 화면 전체가 백지가 될까</h2>
+        <span class="topic-tag">프론트 심화 (React · Next.js)</span>
+
+        <h3>핵심 개념</h3>
+        <p>퍼블리싱할 땐 어느 한 요소의 스타일이 깨져도 나머지 페이지는 멀쩡했습니다. React는 다릅니다. 렌더링 도중 에러가 던져지면 React는 "잘못된 UI를 보여주느니 아무것도 안 보여주는 게 낫다"고 판단해 <strong>컴포넌트 트리 전체를 언마운트</strong>합니다. 그래서 하얀 화면이 나옵니다. 이걸 막는 게 <strong>에러 바운더리</strong> — 자식 트리에서 터진 렌더링 에러를 잡아 대체 UI(fallback)를 보여주는 컴포넌트로, 방화문에 가깝습니다. 불이 나도 그 구역에서 막고 나머지 층은 계속 씁니다.</p>
+        <p>중요한 건 <strong><code>try/catch</code>로는 못 잡는다</strong>는 점입니다. <code>try/catch</code>는 그 코드가 "실행되는 순간"만 감싸는데, React의 렌더링은 내가 호출하는 게 아니라 React가 나중에 호출하기 때문입니다. 그래서 React는 클래스 컴포넌트의 <code>static getDerivedStateFromError</code>(에러 발생 시 state를 바꿔 fallback을 렌더)와 <code>componentDidCatch</code>(로깅 같은 부수효과)라는 별도 통로를 제공합니다. 함수 컴포넌트로는 아직 만들 수 없어서, 보통 <code>react-error-boundary</code> 패키지를 쓰거나 클래스 하나를 만들어 재사용합니다.</p>
+
+        <h3>코드 예시 — Next.js App Router에서는 파일 하나면 끝</h3>
+        <pre><code>// app/dashboard/error.tsx
+'use client'; // ← 에러 바운더리는 반드시 클라이언트 컴포넌트
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error &amp; { digest?: string };
+  reset: () =&gt; void;   // 해당 세그먼트만 다시 렌더 시도
+}) {
+  return (
+    &lt;div role="alert"&gt;
+      &lt;h2&gt;대시보드를 불러오지 못했어요&lt;/h2&gt;
+      &lt;button onClick={() =&gt; reset()}&gt;다시 시도&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        <ul>
+          <li><code>error.tsx</code>는 그 세그먼트의 <code>page.tsx</code>·<code>loading.tsx</code>·하위 <code>layout.tsx</code>를 자동으로 에러 바운더리로 감쌉니다.</li>
+          <li>단, <strong>같은 세그먼트의 <code>layout.tsx</code>는 감싸지 못합니다.</strong> 레이아웃이 바운더리보다 바깥에 있기 때문입니다. 루트 레이아웃까지 커버하려면 <code>app/global-error.tsx</code>가 필요하고, 이 파일은 루트 레이아웃을 대체하므로 자체 <code>&lt;html&gt;</code>·<code>&lt;body&gt;</code>를 가져야 합니다.</li>
+          <li>에러는 <strong>가장 가까운 부모 바운더리로 버블링</strong>되므로, 라우트 계층 곳곳에 <code>error.tsx</code>를 두면 "이 위젯만 실패" 같은 세밀한 처리가 가능합니다.</li>
+          <li>프로덕션에서는 에러 메시지가 가려지고 <code>error.digest</code>(서버 로그와 대조할 해시)만 전달됩니다.</li>
+        </ul>
+
+        <h3>에러 바운더리가 못 잡는 것들</h3>
+        <p>이벤트 핸들러 내부 에러 / <code>setTimeout</code>·<code>Promise</code> 같은 비동기 콜백 / 서버 사이드 렌더링 중 서버 측 에러 / 바운더리 자기 자신의 에러. 이것들은 <code>try/catch</code>나 상태 관리로 직접 처리해야 합니다.</p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>폼 검증과 접근성까지 다듬어놔도, 응답 형태 하나가 달라져서 <code>data.items.map(...)</code>이 터지면 사용자는 백지 화면만 봅니다. FSD 구조라면 widget 단위로 바운더리를 두는 것이 실무 기본값이고, <code>componentDidCatch</code>와 <code>digest</code>는 Sentry 같은 모니터링 도구를 붙이는 연결 지점이기도 합니다.</p>
+
+        <p class="refs">더 보기: <a href="https://nextjs.org/docs/app/getting-started/error-handling" target="_blank" rel="noopener">Next.js — Error Handling</a> · <a href="https://react.dev/reference/react/Component" target="_blank" rel="noopener">React — Component (getDerivedStateFromError · componentDidCatch)</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1.</strong> 다음 중 <code>app/dashboard/error.tsx</code>가 <strong>잡지 못하는</strong> 에러는? (복수 가능)<br>
+          ① <code>app/dashboard/page.tsx</code> 렌더링 중 <code>undefined.map()</code> 호출<br>
+          ② <code>app/dashboard/layout.tsx</code> 렌더링 중 발생한 에러<br>
+          ③ <code>&lt;button onClick={() =&gt; { throw new Error('앗') }}&gt;</code> 클릭 시<br>
+          ④ <code>app/dashboard/settings/page.tsx</code> 렌더링 중 발생한 에러</p>
+
+          <p><strong>Q2.</strong> 이 코드의 문제점을 찾아보세요.</p>
+          <pre><code>'use client';
+import { useState } from 'react';
+
+export default function UserCard({ userId }: { userId: string }) {
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+
+  useEffect(() =&gt; {
+    fetch(`/api/users/${userId}`)
+      .then((res) =&gt; res.json())
+      .then(setUser);
+  }, [userId]);
+
+  return &lt;p&gt;{user.name}님 환영합니다&lt;/p&gt;;
+}</code></pre>
+          <p>힌트: 에러가 "언제" 터지는지, 그리고 그 에러를 <code>error.tsx</code>가 잡아줄지 생각해보세요. 그리고 fetch가 500을 뱉으면 어떻게 될까요?</p>
+
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>A1. ② 와 ③</strong><br>
+            ② <code>error.tsx</code>는 <strong>같은 세그먼트의 <code>layout.tsx</code>보다 안쪽</strong>에 렌더되기 때문에, 그 레이아웃 자체의 에러는 바깥으로 빠져나가 부모 세그먼트의 <code>error.tsx</code>(또는 <code>global-error.tsx</code>)로 갑니다.<br>
+            ③ 에러 바운더리는 <strong>렌더링 단계</strong>의 에러만 잡습니다. 이벤트 핸들러는 React 렌더링 밖에서 실행되므로 그대로 window로 튑니다.<br>
+            (①은 그 세그먼트의 렌더링 에러라 잡히고, ④는 하위 세그먼트라 위로 버블링되어 잡힙니다.)</p>
+            <p><strong>A2. 문제는 세 겹입니다.</strong><br>
+            1️⃣ <strong>첫 렌더에서 무조건 터집니다.</strong> <code>user</code>의 초기값이 <code>null</code>인데 <code>user.name</code>을 바로 읽으니 <code>Cannot read properties of null</code>. 로딩 분기(<code>if (!user) return &lt;Skeleton /&gt;</code>)가 빠졌습니다.<br>
+            2️⃣ 이건 <strong>렌더링 중 에러</strong>라 <code>error.tsx</code>가 잡아주긴 합니다. 하지만 "정상적인 로딩 상태"를 에러 화면으로 처리하는 셈이라 UX가 망가집니다. 바운더리는 예외 상황용이지 로딩 상태의 대용이 아닙니다.<br>
+            3️⃣ <strong>fetch가 500을 뱉으면 아무도 못 잡습니다.</strong> <code>fetch</code>는 4xx·5xx에 reject하지 않고 <code>res.ok === false</code>인 응답만 돌려줍니다. 게다가 <code>.then</code> 안에서 던진 에러는 <strong>비동기 콜백</strong>이라 에러 바운더리 밖이어서, 조용히 <code>user</code>가 <code>null</code>로 남거나 unhandled rejection이 됩니다. <code>res.ok</code> 체크 + 에러 상태를 <code>useState</code>로 직접 관리하거나, 아예 TanStack Query(8/6·8/7에 다룬 그것)의 <code>isPending</code>·<code>isError</code>에 맡기는 것이 맞습니다.</p>
+            <p>👉 한 줄 정리: <strong>에러 바운더리는 "렌더링 중 예상 못 한 폭발"용 안전망이지, 로딩·비동기 실패 처리의 대체재가 아니다.</strong></p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-11">
         <h2>2026-09-11 (금) · 접근성 있는 폼 에러 — 빨간 글씨는 눈에만 보인다 (aria-invalid · aria-describedby · 포커스 이동)</h2>
         <span class="topic-tag">프론트 심화 (React · 접근성)</span>
