@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#daemonset">데몬셋</a>
+    <a class="nav-item" href="#load-shedding">로드 셰딩</a>
+    <a class="nav-item" href="#bfcache">BFCache</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="daemonset">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="daemonset-h">데몬셋 <span class="sub">DaemonSet</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#sidecar-pattern">사이드카 패턴</a><a class="link-tag" href="#liveness-readiness-probe">Readiness Probe</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스에서 클러스터의 모든(또는 특정 라벨을 가진) 노드마다 파드를 정확히 하나씩 띄우도록 보장하는 워크로드 컨트롤러</strong>. 노드가 새로 추가되면 자동으로 그 노드에도 파드가 뜨고, 노드가 빠지면 해당 파드는 함께 정리(가비지 컬렉션)된다. 여러 개를 띄워 부하를 나누는 일반 앱(<code>Deployment</code>)과 목적이 다르다 — <strong>"노드마다 하나"가 핵심</strong>이라, 로그 수집기·모니터링 에이전트·네트워크(CNI)·스토리지 데몬처럼 <strong>노드 단위로 깔려야 하는 백그라운드 일꾼</strong>에 쓴다. 노드에 특정 테인트(taint)가 있으면 그에 맞는 톨러레이션을 줘야 스케줄된다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">데몬셋 (DaemonSet)</h4><ul><li>노드마다 파드 하나</li><li>노드 추가 시 자동 확장</li><li>로그·모니터링·네트워크 에이전트</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">디플로이먼트 (Deployment)</h4><ul><li>원하는 개수만큼 파드 배치</li><li>노드 수와 무관, 부하 분산이 목적</li><li>일반 웹·API 서버</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>로그·메트릭 수집 에이전트(Fluentd·Datadog Agent)나 노드 네트워킹·보안 에이전트를 클러스터 전체에 배포할 때, "이건 Deployment가 아니라 DaemonSet으로 띄워야 한다"는 이야기가 나올 때 마주친다. <span style="color:var(--teal)">[클라우드·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="load-shedding">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="load-shedding-h">로드 셰딩 <span class="sub">Load Shedding · 부하 차단</span></h2>
+    <div class="links"><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#backpressure">Backpressure</a><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a></div>
+  </div>
+</div>
+<p><strong>시스템이 감당할 수 없을 만큼 요청이 몰릴 때, 전체가 무너지는 대신 일부 요청을 의도적으로 빠르게 거절해 핵심 기능과 남은 용량을 지키는 과부하 방어 기법</strong>. 클라이언트별 할당량을 미리 정해 막는 rate limiting과 결이 다르다 — 로드 셰딩은 <strong>서버의 실제 상태(부하·지연·큐 길이)를 보고</strong> "지금 위험하니 낮은 우선순위부터 버린다"는 식으로 동작한다. 헬스체크·결제 같은 중요 요청은 남기고 덜 중요한 요청부터 흘려보내, 과부하가 장애로 번지기 전에 <strong>천천히 나빠지도록(graceful degradation)</strong> 만든다. 서킷 브레이커가 "고장 난 하류를 끊는" 것이라면, 로드 셰딩은 "들어오는 입구에서 넘치는 요청을 버리는" 쪽이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>트래픽 폭주·장애 전파로 서버가 줄줄이 느려질 때 "전부 죽느니 일부는 빠르게 503을 주자"·우선순위 큐·과부하 시 기능 저하 설계를 논하거나, 프록시·게이트웨이의 동시성·큐 한도를 튜닝할 때 마주친다. <span style="color:var(--coral)">[백엔드·복원력]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="bfcache">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="bfcache-h">BFCache <span class="sub">Back/Forward Cache · 뒤로/앞으로 캐시</span></h2>
+    <div class="links"><a class="link-tag" href="#service-worker">Service Worker</a><a class="link-tag" href="#http-cache">HTTP 캐시</a><a class="link-tag" href="#web-vitals">Web Vitals</a></div>
+  </div>
+</div>
+<p><strong>사용자가 페이지를 떠날 때 브라우저가 그 페이지를 자바스크립트 메모리 상태까지 통째로 스냅샷으로 저장해 두었다가, 뒤로·앞으로 버튼으로 돌아오면 새로 내려받거나 다시 실행하지 않고 즉시 복원하는 인메모리 캐시</strong>. HTTP 캐시가 "받아 둔 리소스"를 재사용하는 것이라면, BFCache는 <strong>렌더링·스크립트 실행이 끝난 페이지 전체를 통째로</strong> 얼려 두는 것이라 뒤로 가기가 순간이동처럼 빨라진다. 단 <code>unload</code> 이벤트 리스너나 <code>Cache-Control: no-store</code> 응답, 열린 연결(진행 중인 fetch 등)이 있으면 페이지가 캐시 대상에서 제외돼 이 이점을 못 받는다. (크롬·파이어폭스·사파리 모두 지원.)</p>
+<div class="tip"><div class="tip-l">실무에서</div>"뒤로 가기가 왜 이렇게 느리지"·"뒤로 왔더니 페이지가 처음부터 다시 뜬다"를 디버깅하거나, SPA·분석 스크립트의 <code>unload</code> 핸들러 때문에 BFCache가 깨지는 문제를 web.dev·DevTools의 Back/forward cache 패널로 점검할 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
 </section><hr class="divider">
 
 
