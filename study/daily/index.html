@@ -210,6 +210,74 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-15">
+        <h2>2026-09-15 (화) · CORS와 프리플라이트 — "서버는 200을 줬는데 브라우저가 막았다"</h2>
+        <span class="topic-tag">클라우드·백엔드 기초</span>
+
+        <h3>핵심 개념</h3>
+        <p>퍼블리싱 시절 <code>&lt;img src="https://남의사이트/a.png"&gt;</code>는 아무 문제 없이 떴습니다. 그런데 <code>fetch</code>로 남의 도메인 API를 부르면 콘솔이 빨개집니다. 차이는 <strong>"JS가 응답 내용을 읽을 수 있느냐"</strong>입니다. 브라우저는 A 사이트에 열려 있는 스크립트가 B 사이트(예: 은행)의 응답을 마음대로 읽어가는 걸 기본적으로 막습니다(동일 출처 정책). <strong>CORS(교차 출처 리소스 공유)</strong>는 그 금지를 <strong>서버가 응답 헤더로 풀어주는</strong> 절차입니다.</p>
+        <p>여기서 가장 많이 헷갈리는 지점: <strong>CORS를 막는 건 브라우저지 서버가 아닙니다.</strong> 서버는 요청을 정상 처리하고 200을 돌려줬는데, 응답에 허가 헤더가 없으니 브라우저가 그 결과를 JS에게 넘겨주지 않는 것뿐입니다. 그래서 같은 요청을 <code>curl</code>이나 Postman으로 쏘면 멀쩡히 성공합니다(브라우저가 아니니까). "내 코드가 잘못됐나?"보다 <strong>"서버 응답 헤더가 뭐가 오나?"</strong>를 먼저 봐야 하는 이유입니다.</p>
+        <p><strong>출처(origin)</strong>는 <strong>스킴 + 호스트 + 포트</strong> 셋 다입니다. 그래서 로컬에서 프론트가 <code>localhost:3000</code>, API가 <code>localhost:8080</code>이면 이미 교차 출처입니다. 포트 하나 다를 뿐인데 남남 취급입니다.</p>
+
+        <h3>프리플라이트(preflight) — 본 요청 전에 던지는 사전 질문</h3>
+        <p>브라우저는 "조건이 단순한 요청"은 그냥 보내고 응답 헤더만 검사합니다. 하지만 서버 데이터를 <strong>바꿀 수도 있는</strong> 요청(DELETE, 커스텀 헤더 등)은 일단 보내놓고 후회할 수 없으니, <strong><code>OPTIONS</code> 메서드로 "이런 거 보내도 됩니까?"를 먼저 물어봅니다.</strong> 이게 프리플라이트(사전 요청)입니다. 네트워크 탭에 내가 짜지도 않은 <code>OPTIONS</code>가 하나 더 찍히는 이유죠.</p>
+        <pre><code>// 1) 단순 요청 — 프리플라이트 없음
+fetch('https://api.example.com/items');
+
+// 2) 프리플라이트가 붙는 요청
+fetch('https://api.example.com/items', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json', // ← 안전 목록(safelist) 밖
+    'Authorization': 'Bearer xxx',      // ← 안전 목록 밖
+  },
+  body: JSON.stringify({ name: '은경' }),
+});</code></pre>
+        <p>2번에서 브라우저가 <strong>먼저</strong> 보내는 것:</p>
+        <pre><code>OPTIONS /items HTTP/1.1
+Origin: https://app.example.com
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: authorization,content-type</code></pre>
+        <p>서버가 이렇게 답해야 본 요청이 나갑니다:</p>
+        <pre><code>HTTP/1.1 204 No Content
+Access-Control-Allow-Origin: https://app.example.com
+Access-Control-Allow-Methods: POST
+Access-Control-Allow-Headers: authorization,content-type
+Access-Control-Max-Age: 600   ← 이 결과를 600초간 캐시(매번 OPTIONS 안 보냄)</code></pre>
+        <p>단순 요청의 조건은 대략 <strong>메서드가 GET·HEAD·POST</strong>이고, <strong>직접 붙인 헤더가 안전 목록 안</strong>이며, <code>Content-Type</code>이 <code>application/x-www-form-urlencoded</code>·<code>multipart/form-data</code>·<code>text/plain</code> 중 하나일 때입니다. 우리가 늘 쓰는 <code>application/json</code>은 <strong>여기 없습니다</strong> — 그래서 실무에서 만나는 API 호출은 대부분 프리플라이트가 붙습니다.</p>
+
+        <h3>제일 자주 밟는 지뢰 — 쿠키를 같이 보낼 때</h3>
+        <pre><code>fetch('https://api.example.com/me', { credentials: 'include' }); // 쿠키 동봉</code></pre>
+        <p>이 순간 규칙이 빡빡해집니다. 서버는 <code>Access-Control-Allow-Credentials: true</code>를 줘야 하고, <strong><code>Access-Control-Allow-Origin</code>에 와일드카드 <code>*</code>를 쓸 수 없습니다.</strong> 요청의 <code>Origin</code> 값을 그대로 되돌려줘야 합니다(그리고 캐시가 출처를 섞지 않도록 <code>Vary: Origin</code>도 함께). <code>Allow-Headers</code>·<code>Allow-Methods</code>의 <code>*</code>도 이때는 무효입니다. "인증 안 붙였을 땐 되다가 로그인 붙이니까 깨졌다"의 십중팔구가 이 케이스입니다.</p>
+        <p>하나 더: JS가 읽을 수 있는 <strong>응답</strong> 헤더도 기본은 몇 개뿐입니다. <code>X-Total-Count</code> 같은 커스텀 헤더를 <code>res.headers.get()</code>으로 읽으려면 서버가 <code>Access-Control-Expose-Headers: X-Total-Count</code>를 내려줘야 합니다. 값이 <code>null</code>로만 나온다면 이걸 의심하세요.</p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>풀스택으로 넘어가면 이 문제를 <strong>양쪽에서</strong> 보게 됩니다. 프론트에서 막혔다고 프론트를 고치면 영원히 안 고쳐지고, 답은 서버의 CORS 설정(또는 Next.js <code>rewrites</code>·리버스 프록시로 아예 같은 출처로 만들기)에 있습니다. 또 CORS는 보안 기능처럼 보이지만 <strong>브라우저 안에서만 동작</strong>하므로, 서버 인증·인가를 대체하지 않습니다 — 허용 출처를 넓게 열어두면 그만큼 노출이 커집니다.</p>
+
+        <p class="refs">더 보기: <a href="https://developer.mozilla.org/ko/docs/Web/HTTP/Guides/CORS" target="_blank" rel="noopener">MDN — 교차 출처 리소스 공유(CORS)</a> · <a href="https://developer.mozilla.org/ko/docs/Glossary/Preflight_request" target="_blank" rel="noopener">MDN — 사전 요청(Preflight request)</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1.</strong> 현재 페이지는 <code>https://app.example.com</code>입니다. 다음 중 브라우저가 <strong>프리플라이트(OPTIONS)를 먼저 보내는</strong> 요청을 모두 고르세요.<br>
+          ① <code>fetch('/api/list')</code><br>
+          ② <code>fetch('https://api.example.com/list')</code> (옵션 없음)<br>
+          ③ <code>fetch('https://api.example.com/items', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body })</code><br>
+          ④ <code>fetch('https://api.example.com/items/1', { method: 'DELETE' })</code></p>
+          <p><strong>Q2. (문제점 찾기)</strong> 로그인 후 내 정보를 불러오려는데 콘솔에 CORS 에러가 납니다. 설정은 이렇습니다. 무엇이 잘못됐고 어떻게 고쳐야 할까요?</p>
+          <pre><code>// 프론트
+fetch('https://api.example.com/me', { credentials: 'include' });
+
+// 서버 응답 헤더
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true</code></pre>
+          <details><summary>정답·해설 보기</summary>
+          <p><strong>A1. ③, ④</strong><br>
+          ①은 같은 출처(상대 경로)라 CORS 자체가 적용되지 않습니다. ②는 GET + 직접 붙인 헤더 없음 = 단순 요청이라 프리플라이트 없이 바로 나가고, 응답 헤더만 검사합니다. ③은 <code>Content-Type: application/json</code>이 단순 요청의 허용 목록(<code>x-www-form-urlencoded</code>·<code>multipart/form-data</code>·<code>text/plain</code>)에 없어서, ④는 메서드가 GET·HEAD·POST가 아니라서 프리플라이트가 붙습니다.</p>
+          <p><strong>A2.</strong> <code>credentials: 'include'</code>로 쿠키를 보내는 요청에서는 <code>Access-Control-Allow-Origin</code>에 <strong>와일드카드 <code>*</code>를 쓸 수 없습니다</strong>. "아무나 다 허용"과 "이 사용자의 인증 정보를 실어 보냄"이 함께 있으면 임의의 사이트가 로그인된 계정으로 API를 읽어갈 수 있기 때문에, 명세가 이 조합을 금지합니다. 고치는 법: 서버에서 허용 출처 목록을 두고 요청의 <code>Origin</code>이 목록에 있으면 <strong>그 값을 그대로</strong> <code>Access-Control-Allow-Origin</code>에 내려주고, 캐시가 출처를 섞지 않도록 <code>Vary: Origin</code>을 함께 붙입니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-14">
         <h2>2026-09-14 (월) · 에러 바운더리(Error Boundary) — 컴포넌트 하나가 터지면 왜 화면 전체가 백지가 될까</h2>
         <span class="topic-tag">프론트 심화 (React · Next.js)</span>
