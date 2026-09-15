@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#golden-signals">골든 시그널 (Golden Signals)</a>
+    <a class="nav-item" href="#direct-connect">클라우드 전용선 (Direct Connect)</a>
+    <a class="nav-item" href="#cache-write-strategy">캐시 쓰기 전략 (Write-Through·Back)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,54 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="golden-signals">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="golden-signals-h">골든 시그널 <span class="sub">The Four Golden Signals</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#percentile-latency">p95·p99</a><a class="link-tag" href="#dora-metrics">DORA 메트릭</a></div>
+  </div>
+</div>
+<p><strong>구글 SRE 팀이 "서비스를 모니터링할 때 딱 이 4가지부터 보라"고 정리한 핵심 지표</strong>로, <strong>지연시간(Latency)·트래픽(Traffic)·에러(Errors)·포화도(Saturation)</strong>를 말한다. 지표가 수백 개라도 이 4개만 대시보드 맨 위에 두면 "지금 서비스가 건강한가"를 빠르게 판단할 수 있다는 발상이다. 여기서 <strong>지연시간</strong>은 요청 처리에 걸린 시간(성공·실패를 나눠 봐야 함), <strong>트래픽</strong>은 초당 요청 수 같은 수요량, <strong>에러</strong>는 실패 요청 비율, <strong>포화도</strong>는 CPU·메모리·큐 등 자원이 한계에 얼마나 가까운지를 뜻한다. 웹 서비스에 더 쓰기 쉽게 다듬은 <strong>RED</strong>(Rate·Errors·Duration)나, 자원 관점의 <strong>USE</strong>(Utilization·Saturation·Errors) 같은 변형과 함께 자주 언급된다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--green)">골든 시그널 (요청 관점)</h4><ul><li>Latency · Traffic · Errors · Saturation</li><li>사용자가 겪는 서비스 상태 중심</li><li>대시보드·알람의 출발점</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">USE (자원 관점)</h4><ul><li>Utilization · Saturation · Errors</li><li>서버·디스크 등 개별 자원 진단</li><li>병목 자원 찾기에 강함</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>Datadog·CloudWatch·Grafana 대시보드나 알람을 설계하며 "무슨 지표를 봐야 하나"를 정하거나, 장애 회고에서 "어떤 신호를 놓쳤나"를 논할 때 마주친다. <span style="color:var(--green)">[관측성·SRE]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="direct-connect">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="direct-connect-h">클라우드 전용선 <span class="sub">Direct Connect · ExpressRoute · Interconnect</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#vpc-endpoint">VPC 엔드포인트</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a></div>
+  </div>
+</div>
+<p><strong>사내 데이터센터·사무실(온프레미스)과 클라우드를 공용 인터넷을 거치지 않고 통신사 전용 회선으로 사설 연결하는 서비스</strong>(AWS Direct Connect, Azure ExpressRoute, GCP Cloud Interconnect). 인터넷을 타지 않으므로 <strong>대역폭·지연시간이 일정하고</strong> 트래픽이 외부에 노출되지 않아 보안·규제 대응에 유리하다. 대신 물리 회선을 까는 것이라 <strong>구축에 시간·비용이 들고 즉시 늘렸다 줄이기 어렵다</strong>. 그래서 급하거나 유동적인 연결은 인터넷 위에 암호화 터널을 즉시 만드는 <strong>VPN Gateway</strong>로 시작했다가, 트래픽이 크고 안정성이 중요해지면 전용선으로 옮기거나 둘을 병행(전용선 장애 시 VPN 백업)하는 식으로 쓴다. 하이브리드 클라우드·클라우드 마이그레이션 설계의 핵심 선택지다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">전용선 (Direct Connect)</h4><ul><li>전용 물리 회선 = 일정한 성능·보안</li><li>구축에 시간·비용, 유연성 낮음</li><li>대용량·상시 연결에 적합</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">VPN Gateway</h4><ul><li>인터넷 위 암호화 터널, 즉시 개통</li><li>인터넷 품질에 성능이 좌우됨</li><li>소규모·임시·백업 연결에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>온프레미스 시스템과 클라우드를 연동하거나 대규모 데이터를 옮길 때 "전용선을 깔까 VPN으로 갈까"를 논하는 하이브리드 아키텍처 설계에서 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cache-write-strategy">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="cache-write-strategy-h">캐시 쓰기 전략 <span class="sub">Write-Through · Write-Back · Write-Around</span></h2>
+    <div class="links"><a class="link-tag" href="#http-cache">HTTP 캐시</a><a class="link-tag" href="#cache-invalidation">캐시 무효화</a><a class="link-tag" href="#cache-stampede">캐시 스탬피드</a></div>
+  </div>
+</div>
+<p><strong>캐시(예: Redis)를 쓸 때 "데이터를 쓸 때 캐시와 원본 DB를 어떤 순서·타이밍으로 갱신할지"를 정하는 방식</strong>이다. <strong>Write-Through</strong>는 쓰기 요청 시 캐시와 DB에 동시에(동기) 기록해 <strong>둘이 항상 일치</strong>하지만 매 쓰기가 DB까지 기다려 느리다. <strong>Write-Back(Write-Behind)</strong>은 일단 캐시에만 쓰고 잠시 뒤 비동기로 DB에 모아 반영해 <strong>쓰기가 매우 빠르지만</strong>, DB 반영 전 캐시가 죽으면 <strong>데이터가 유실될 위험</strong>이 있다. <strong>Write-Around</strong>는 쓸 때 캐시를 건너뛰고 DB에만 쓴 뒤 나중에 읽힐 때 캐시에 채워, 한 번 쓰고 잘 안 읽는 데이터로 캐시가 오염되는 걸 막는다. 읽기 쪽 전략인 Cache-Aside와 짝지어 함께 설계한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">Write-Through</h4><ul><li>캐시+DB 동시 기록 → 항상 일치</li><li>쓰기 지연은 큼</li><li>일관성이 중요할 때</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Write-Back</h4><ul><li>캐시 먼저, DB는 나중에 비동기</li><li>쓰기 매우 빠름</li><li>장애 시 유실 위험 감수</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>Redis 등 캐시를 도입하며 "쓰기를 어떻게 DB에 반영할지", "캐시와 DB가 안 맞는다"는 일관성 이슈를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·캐싱]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
