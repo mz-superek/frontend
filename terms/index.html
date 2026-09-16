@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#block-storage">블록 스토리지</a>
+    <a class="nav-item" href="#data-warehouse">데이터 웨어하우스</a>
+    <a class="nav-item" href="#definition-of-done">정의 완료 기준 (DoD)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="block-storage">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="block-storage-h">블록 스토리지 <span class="sub">Block Storage · EBS</span></h2>
+    <div class="links"><a class="link-tag" href="#object-storage">오브젝트 스토리지</a><a class="link-tag" href="#presigned-url">Presigned URL</a><a class="link-tag" href="#availability-zone">가용영역(AZ)</a></div>
+  </div>
+</div>
+<p><strong>가상 하드디스크처럼 하나의 서버(인스턴스)에 붙여서 쓰는 저장소</strong>. 데이터를 고정 크기의 <strong>블록(block)</strong> 단위로 읽고 쓰며, OS가 이 볼륨을 파일시스템으로 포맷해 <strong>부팅 디스크·DB 데이터 파일</strong> 등으로 사용한다. 파일을 통째로 HTTP API로 넣고 빼는 <strong>오브젝트 스토리지(S3)</strong>와 달리, 블록 스토리지는 파일의 일부만 바꿔 쓸 수 있고 <strong>지연시간이 짧아</strong> 데이터베이스처럼 잦은 읽기·쓰기가 필요한 워크로드에 적합하다. 다만 대개 <strong>한 번에 하나의 인스턴스에만 연결</strong>되고(공유가 필요하면 파일 스토리지/NFS를 씀), 용량·성능을 미리 정해 붙이는 물리 볼륨 개념이라 무한 확장되는 오브젝트 스토리지와 성격이 다르다. AWS EBS·Azure Managed Disk·GCP Persistent Disk가 대표.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">블록 스토리지 (EBS)</h4><ul><li>인스턴스에 붙는 가상 디스크</li><li>블록 단위·저지연 → DB·부팅 디스크</li><li>보통 1개 인스턴스에 연결</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">오브젝트 스토리지 (S3)</h4><ul><li>HTTP API로 파일 통째 넣고 뺌</li><li>사실상 무한 확장·저렴</li><li>정적 파일·백업·로그 보관에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>EC2·VM에 디스크(볼륨)를 붙이고 용량·IOPS·스냅샷 백업을 정하거나, "이 데이터는 S3(오브젝트)에 둘까 EBS(블록)에 둘까"를 고를 때 마주친다. <span style="color:var(--teal)">[클라우드·스토리지]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="data-warehouse">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="data-warehouse-h">데이터 웨어하우스 <span class="sub">Data Warehouse · DW</span></h2>
+    <div class="links"><a class="link-tag" href="#data-lake">데이터 레이크</a><a class="link-tag" href="#oltp-olap">OLTP·OLAP</a><a class="link-tag" href="#etl">ETL</a></div>
+  </div>
+</div>
+<p><strong>여러 시스템에 흩어진 데이터를 정제·적재해 분석·리포팅 질의(OLAP)에 최적화한 중앙 저장소</strong>. 보통 <strong>컬럼(열) 기반 저장</strong>이라 "이번 분기 지역별 매출 합계" 같은 대량 집계 질의가 빠르다. 원본을 형식 그대로 일단 쌓아 두는 <strong>데이터 레이크</strong>가 "쌓고 나중에 정하자(schema-on-read)"라면, 웨어하우스는 <strong>미리 스키마를 정하고 정제된 정형 데이터</strong>를 넣는다(schema-on-write). 또 실시간 주문·결제 한 건 한 건을 처리하는 서비스 DB(OLTP)와 목적이 달라, 분석 질의로 서비스 DB에 부담을 주지 않으려고 <strong>별도의 분석 전용 저장소</strong>로 분리한다. Redshift·BigQuery·Snowflake가 대표.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">데이터 레이크</h4><ul><li>원본을 형식 그대로 저장(비정형 포함)</li><li>읽을 때 스키마 적용(schema-on-read)</li><li>저렴·유연, 정제는 나중</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">데이터 웨어하우스</h4><ul><li>정제된 정형 데이터만 적재</li><li>미리 스키마 정의(schema-on-write)</li><li>컬럼 저장·집계 질의에 최적</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>BI 대시보드·매출/로그 분석을 위해 서비스 DB가 아닌 별도 분석 저장소로 데이터를 모으거나, "레이크에 원본 쌓고 웨어하우스로 정제하는" 데이터 파이프라인을 설계·논의할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="definition-of-done">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="definition-of-done-h">정의 완료 기준 <span class="sub">Definition of Done · DoD</span></h2>
+    <div class="links"><a class="link-tag" href="#conventional-commits">Conventional Commits</a><a class="link-tag" href="#trunk-based-development">트렁크 기반 개발</a><a class="link-tag" href="#dora-metrics">DORA 지표</a></div>
+  </div>
+</div>
+<p><strong>하나의 작업(스토리·티켓)을 "완료"로 인정하기 위해 팀이 미리 합의해 둔 공통 체크리스트</strong>. 예: 코드리뷰 통과·자동화 테스트 통과·문서/변경 이력 갱신·스테이징 배포·QA 확인 등. 사람마다 "다 됐다"의 기준이 달라 <strong>리뷰·테스트·배포가 안 끝났는데 완료 처리되고 나중에 터지는 일</strong>을 막는 장치다. 특정 기능이 요구대로 동작하는지 검증하는 <strong>인수 조건(Acceptance Criteria)</strong>이 스토리마다 다른 '무엇을 만들 것인가'라면, DoD는 <strong>모든 작업에 공통으로 적용되는 '어디까지 해야 끝인가'</strong>의 품질 기준이다. 팀·조직 성숙도에 따라 항목을 늘려 가며 관리한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">인수 조건 (Acceptance Criteria)</h4><ul><li>스토리마다 다름</li><li>"이 기능이 이렇게 동작하면 OK"</li><li>무엇을 만들지(기능 충족)</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">정의 완료 기준 (DoD)</h4><ul><li>모든 작업에 공통 적용</li><li>리뷰·테스트·배포 등 절차 완결</li><li>어디까지 해야 '끝'인지(품질)</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>스프린트·칸반 보드에서 "이거 done 맞아?"를 판단하거나, 리뷰·QA·배포가 남았는데 완료로 넘어가 나중에 문제가 생기는 걸 막을 팀 규칙을 정할 때 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 
