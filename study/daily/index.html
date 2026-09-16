@@ -210,6 +210,76 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-16">
+        <h2>2026-09-16 (수) · 경쟁 상태(Race Condition)와 AbortController — "먼저 보낸 요청이 나중에 도착한다"</h2>
+        <span class="topic-tag">프론트 심화</span>
+
+        <h3>핵심 개념</h3>
+        <p>어제 CORS에서 "요청이 나가고 응답이 돌아오는 과정"을 봤다면, 오늘은 그 응답이 <strong>순서를 지키지 않는다</strong>는 얘기입니다. 검색창에 "가"를 치고 바로 "가나"를 치면 요청이 두 번 나갑니다. 우리는 당연히 "가" → "가나" 순으로 응답이 올 거라 생각하지만, 네트워크는 약속한 적이 없습니다. "가" 요청이 서버에서 느리게 처리되면 <strong>"가나"의 응답이 먼저 도착하고, 뒤늦게 "가"의 응답이 덮어씁니다.</strong> 화면엔 "가나"라고 쓰여 있는데 결과는 "가"의 결과인, 재현도 안 되는 버그가 이렇게 태어납니다.</p>
+        <p>퍼블리싱 비유로 보면, 디자이너에게 시안 A와 시안 B를 연달아 요청해놓고 <strong>먼저 도착한 파일을 무조건 최종본으로 덮어쓰는</strong> 상황입니다. 해결책은 두 가지 — (1) 늦게 온 A를 <strong>무시</strong>하거나, (2) A 요청 자체를 <strong>취소</strong>하거나. React에서 (1)은 <code>useEffect</code>의 <strong>정리 함수(cleanup)</strong>에서 플래그를 내리는 방식이고, (2)는 <strong><code>AbortController</code></strong>(진행 중인 fetch에 "그만"을 보낼 수 있는 리모컨)로 실제 요청을 끊는 방식입니다.</p>
+        <p>핵심은 <strong>useEffect의 정리 함수가 "다음 effect가 실행되기 직전"에 반드시 먼저 호출된다</strong>는 점입니다. 즉 새 검색어로 요청이 나가기 전에 이전 요청을 정리할 수 있는 틈이 React가 보장해 줍니다. 이게 정리 함수의 존재 이유이고, 언마운트 때만 도는 게 아닙니다.</p>
+
+        <h3>코드 — 문제 있는 버전</h3>
+        <pre><code>function SearchResult({ query }) {
+  const [data, setData] = useState(null);
+
+  useEffect(() =&gt; {
+    fetch(`/api/search?q=${query}`)
+      .then((r) =&gt; r.json())
+      .then(setData);   // ← 늦게 온 옛날 응답도 그대로 setData
+  }, [query]);
+
+  return &lt;ul&gt;{data?.map(...)}&lt;/ul&gt;;
+}</code></pre>
+
+        <h3>코드 — 정리 함수 + AbortController</h3>
+        <pre><code>useEffect(() =&gt; {
+  const controller = new AbortController();   // 이번 요청 전용 리모컨
+
+  fetch(`/api/search?q=${query}`, { signal: controller.signal })
+    .then((r) =&gt; r.json())
+    .then(setData)
+    .catch((err) =&gt; {
+      // 취소는 "에러"가 아니라 "의도된 중단" → 무시해야 함
+      if (err.name === 'AbortError') return;
+      setError(err);
+    });
+
+  return () =&gt; controller.abort();  // query가 바뀌거나 언마운트되면 이전 요청 취소
+}, [query]);</code></pre>
+        <p><code>controller.signal</code>을 <code>fetch</code>에 넘겨두면, <code>abort()</code>를 부르는 순간 그 fetch의 프라미스가 <code>AbortError</code>로 <strong>거부(reject)</strong>됩니다. 그래서 <code>.then(setData)</code>는 아예 실행되지 않고, <code>catch</code>에서 <code>AbortError</code>만 걸러 조용히 빠져나가면 됩니다. 이 분기를 빼먹으면 "사용자가 타이핑할 때마다 에러 토스트가 뜨는" 새 버그가 생깁니다.</p>
+
+        <h3>왜 이 방식을 골랐나 (트레이드오프)</h3>
+        <p><strong>플래그 방식</strong>(<code>let ignore = false; return () =&gt; { ignore = true; }</code>)은 의존성이 없고 어디서나 통하지만, 요청 자체는 계속 날아가 서버 부하와 데이터는 그대로 씁니다. <strong>AbortController</strong>는 실제로 연결을 끊어 낭비가 없지만 <code>AbortError</code> 분기를 손으로 처리해야 하고, 취소를 지원하지 않는 옛 라이브러리엔 못 씁니다. <strong>TanStack Query</strong>(8/6·8/7에 다룬)를 쓰면 이 취소·중복 제거·최신 응답 판정을 라이브러리가 대신 해 줍니다 — 실무에선 이게 정답에 가깝지만, <em>무엇을 대신해 주고 있는지</em>를 알아야 라이브러리가 안 먹히는 자리에서 직접 짤 수 있습니다.</p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>검색 자동완성, 탭 전환, 목록 필터, 무한 스크롤 — 사용자가 빠르게 조작할 수 있는 모든 화면이 잠재적 경쟁 상태입니다. 게다가 React 18 <code>StrictMode</code>는 개발 모드에서 effect를 <strong>일부러 두 번</strong> 실행해 정리 함수를 안 짠 코드를 드러내는데, 이때 "요청이 두 번 나가요"를 버그로 오해하지 않으려면 이 구조를 알고 있어야 합니다.</p>
+        <p class="refs">더 보기: <a href="https://react.dev/learn/synchronizing-with-effects#fetching-data" target="_blank" rel="noopener">React 공식 문서 — Synchronizing with Effects (데이터 페칭)</a> · <a href="https://developer.mozilla.org/ko/docs/Web/API/AbortController" target="_blank" rel="noopener">MDN — AbortController</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1.</strong> <code>useEffect</code>가 반환한 정리 함수(cleanup)가 호출되는 시점으로 <strong>맞는 것</strong>은?<br>
+          ① 컴포넌트가 화면에서 사라질(언마운트) 때만<br>
+          ② 매 렌더링이 끝날 때마다 항상<br>
+          ③ 의존성이 바뀌어 다음 effect가 실행되기 <em>직전</em>, 그리고 언마운트될 때<br>
+          ④ effect 내부에서 에러가 났을 때</p>
+          <p><strong>Q2. (실전형)</strong> 아래 코드는 <code>AbortController</code>를 붙였는데도 사용자가 타이핑할 때마다 화면에 "불러오기 실패" 에러 메시지가 뜹니다. 무엇이 문제일까요?</p>
+          <pre><code>useEffect(() =&gt; {
+  const controller = new AbortController();
+  fetch(url, { signal: controller.signal })
+    .then((r) =&gt; r.json())
+    .then(setData)
+    .catch(() =&gt; setError('불러오기 실패'));
+  return () =&gt; controller.abort();
+}, [url]);</code></pre>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>Q1 정답: ③</strong> — 정리 함수는 언마운트 전용이 아닙니다. 의존성 배열의 값이 바뀌면 React는 <em>이전 effect의 정리 함수를 먼저 실행한 뒤</em> 새 effect를 실행합니다. 덕분에 "새 요청을 보내기 전에 이전 요청을 취소한다"가 가능해집니다.</p>
+            <p><strong>Q2 정답: <code>AbortError</code>를 걸러내지 않았기 때문.</strong> <code>abort()</code>가 호출되면 해당 fetch 프라미스는 <code>AbortError</code>로 reject되는데, <code>catch</code>가 이걸 실패로 취급해 에러 상태를 세팅합니다. 취소는 "실패"가 아니라 "내가 의도한 중단"이므로 <code>if (err.name === 'AbortError') return;</code>으로 먼저 빠져나가야 합니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-15">
         <h2>2026-09-15 (화) · CORS와 프리플라이트 — "서버는 200을 줬는데 브라우저가 막았다"</h2>
         <span class="topic-tag">클라우드·백엔드 기초</span>
