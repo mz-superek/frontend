@@ -210,6 +210,61 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-17">
+        <h2>2026-09-17 (목) · 컨테이너와 이미지 — "제 로컬에선 되는데요"가 사라지는 이유</h2>
+        <span class="topic-tag">클라우드·백엔드 기초</span>
+
+        <h3>핵심 개념</h3>
+        <p><strong>이미지(image)</strong>는 앱 코드 + Node 런타임 + OS 라이브러리 + 설정까지 통째로 굳혀놓은 <strong>읽기 전용 스냅샷</strong>입니다. 퍼블리싱으로 치면 HTML만 보내는 게 아니라 폰트·이미지·CSS·심지어 브라우저 버전까지 한 압축파일에 담아 보내는 것에 가까워요. <strong>컨테이너(container)</strong>는 그 이미지를 실행한 한 개의 인스턴스이고, 같은 이미지로 3개를 띄우면 완전히 똑같은 서버 3대가 생깁니다 (지난 <em>무상태 서버</em> 편이 왜 중요했는지 여기서 이어집니다).</p>
+        <p>핵심은 <strong>이미지는 불변(immutable)</strong>이라는 점입니다. 코드를 고쳤다면 컨테이너 안을 수정하는 게 아니라 <strong>새 이미지를 빌드해서 갈아 끼웁니다.</strong> 컨테이너에 <code>exec</code>로 들어가 파일을 고쳐도 재시작하면 증발해요. 그리고 Dockerfile의 각 줄은 <strong>레이어</strong>로 쌓이며 위에서부터 캐시되기 때문에, "잘 안 바뀌는 것 먼저, 자주 바뀌는 것 나중에" 쓰는 순서가 빌드 속도를 좌우합니다.</p>
+
+        <h3>코드 예시 — Next.js 멀티스테이지 Dockerfile</h3>
+<pre><code># 1) 빌드 스테이지 — 무거운 빌드 도구는 여기서만 쓴다
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci                # ← package.json이 안 바뀌면 이 레이어는 캐시 재사용
+COPY . .
+RUN npm run build         # NEXT_PUBLIC_* 값은 "이 순간" 번들에 박힌다
+
+# 2) 실행 스테이지 — 결과물만 옮겨 담아 이미지를 가볍게
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+EXPOSE 3000
+CMD [&quot;node&quot;, &quot;server.js&quot;]</code></pre>
+        <p>※ <code>.next/standalone</code>은 <code>next.config</code>에 <code>output: 'standalone'</code>을 켜야 생성됩니다. 필요한 파일만 담아 이미지가 훨씬 작아져요.</p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>지난 9/9 환경 변수 편 퀴즈였던 "환경 변수만 바꾸고 컨테이너를 재시작했는데 왜 그대로지?"의 진짜 답이 여기 있습니다 — <code>NEXT_PUBLIC_*</code>은 <strong>빌드 시점</strong>에 이미지 안에 굳어버리므로 재시작이 아니라 <strong>재빌드</strong>가 답입니다. 또 CI 빌드가 매번 10분씩 걸린다면 대부분 레이어 캐시 순서 문제라, 이 원리만 알아도 배포 파이프라인 디버깅이 가능해집니다.</p>
+
+        <p class="refs">더 보기: <a href="https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/">Docker Docs — What is an image?</a> · <a href="https://nextjs.org/docs/app/guides/self-hosting">Next.js — Self-Hosting (Docker / standalone)</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1 (실전형 — 문제점 찾기).</strong> 동료가 아래 Dockerfile을 올렸는데, CSS 한 줄만 고쳐도 CI 빌드가 매번 8분씩 걸립니다. 원인이 되는 줄과 이유는?</p>
+<pre><code>FROM node:22-alpine
+WORKDIR /app
+COPY . .
+RUN npm ci
+RUN npm run build
+CMD [&quot;node&quot;, &quot;server.js&quot;]</code></pre>
+          <p><strong>Q2 (객관식).</strong> 운영 장애가 나서 컨테이너에 <code>docker exec</code>로 들어가 설정 파일을 직접 고쳤더니 문제가 해결됐습니다. 그런데 다음 날 같은 장애가 다시 발생했습니다. 가장 근본적인 이유는?<br />
+          (a) 설정 파일 문법이 틀려서<br />
+          (b) 컨테이너가 재시작·재배포되면서 원본 이미지 상태로 되돌아가서<br />
+          (c) 로드밸런서가 캐시를 들고 있어서<br />
+          (d) <code>docker exec</code>는 파일을 저장하지 못해서</p>
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>A1.</strong> 문제의 줄은 <code>COPY . .</code>가 <code>RUN npm ci</code> <strong>앞에</strong> 있는 것. Docker는 레이어를 위에서부터 캐시하는데, <code>COPY . .</code>는 소스 파일이 한 글자라도 바뀌면 캐시가 깨집니다. 그 아래 줄들도 전부 무효가 되어 <code>npm ci</code>(의존성 설치)까지 매번 다시 돌게 되죠. <code>COPY package*.json ./</code> → <code>RUN npm ci</code> → <code>COPY . .</code> 순서로 바꾸면, 의존성이 그대로인 한 설치 레이어는 캐시로 넘어가 빌드가 몇 분 단위로 짧아집니다.</p>
+            <p><strong>A2.</strong> 정답은 <strong>(b)</strong>. 이미지는 불변이고 컨테이너는 그 이미지를 실행한 일회용 인스턴스라, 컨테이너 안에서 고친 내용은 그 컨테이너의 수명이 끝나는 순간(재시작·재배포·스케일 조정) 함께 사라집니다. 고쳐야 할 곳은 실행 중인 컨테이너가 아니라 <strong>Dockerfile·설정·환경 변수 같은 "원본"</strong>이고, 그걸 고쳐 새 이미지를 빌드해 배포해야 영구적으로 반영됩니다. (a)는 문제가 해결됐다고 했으니 아니고, (c)는 설정 파일과 무관하며, (d)는 <code>docker exec</code>로 파일 수정 자체는 되기 때문에 틀렸어요.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-16">
         <h2>2026-09-16 (수) · 경쟁 상태(Race Condition)와 AbortController — "먼저 보낸 요청이 나중에 도착한다"</h2>
         <span class="topic-tag">프론트 심화</span>
