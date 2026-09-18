@@ -210,6 +210,113 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-18">
+        <h2>2026-09-18 (금) · Suspense와 스트리밍 — <code>loading.tsx</code>는 어떻게 "화면 일부만 먼저" 보내주나</h2>
+        <span class="topic-tag">프론트 심화 (React · Next.js)</span>
+
+        <h3>핵심 개념</h3>
+        <p>9/14에 <code>error.tsx</code>로 "터졌을 때의 경계"를 봤다면, 오늘은 같은 자리에 놓이는 짝꿍 — <strong>"아직 안 왔을 때의 경계"</strong>입니다. 전통적 SSR은 서버가 HTML을 <em>전부 완성해야</em> 한 덩어리로 보냈어요. 느린 집계 쿼리 하나가 헤더·네비까지 붙잡는 구조죠 — 퍼블리싱으로 치면 이미지 한 장이 안 떠서 페이지 전체를 안 보여주는 꼴입니다.</p>
+        <p><strong>스트리밍 SSR</strong>은 HTML을 조각내서 <em>준비된 순서대로 흘려보냅니다.</em> 그 조각의 경계선을 긋는 게 <code>&lt;Suspense fallback={...}&gt;</code>이고, Next.js App Router의 <code>loading.tsx</code>는 그 세그먼트의 <code>page.tsx</code>를 자동으로 <code>&lt;Suspense&gt;</code>로 감싸주는 축약형이에요. 파일 하나 = 경계 하나.</p>
+        <p>핵심 감각은 <strong>"경계를 어디에 긋느냐가 곧 사용자가 언제 뭘 보느냐"</strong>입니다. 경계가 페이지 전체에 하나뿐이면 결국 다 기다렸다가 한꺼번에 나오고, 위젯 단위로 쪼개면 빠른 것부터 차례로 채워집니다.</p>
+
+        <pre><code>// app/dashboard/page.tsx — 서버 컴포넌트
+import { Suspense } from 'react';
+
+export default function Page() {
+  return (
+    &lt;&gt;
+      &lt;Header /&gt;                              {/* 즉시 전송됨 */}
+
+      &lt;Suspense fallback={&lt;StatsSkeleton /&gt;}&gt;
+        &lt;Stats /&gt;                             {/* 준비되면 나중에 흘러들어옴 */}
+      &lt;/Suspense&gt;
+
+      &lt;Suspense fallback={&lt;FeedSkeleton /&gt;}&gt;
+        &lt;Feed /&gt;
+      &lt;/Suspense&gt;
+    &lt;/&gt;
+  );
+}
+
+// async 서버 컴포넌트 — 여기서 await 해도 Header는 기다리지 않는다
+async function Stats() {
+  const data = await getStats();   // 느린 집계 쿼리
+  return &lt;StatCards data={data} /&gt;;
+}</code></pre>
+
+        <h3>같이 따라오는 함정 — 워터폴(waterfall)</h3>
+        <p>경계를 잘 그어도, 데이터 요청을 줄줄이 <code>await</code> 하면 시간은 그대로 더해집니다.</p>
+        <pre><code>// ❌ 순차 — 1.5s + 2s = 3.5s
+const user = await getUser();
+const posts = await getPosts();
+
+// ✅ 서로 의존이 없다면 병렬 — max(1.5, 2) = 2s
+const [user, posts] = await Promise.all([getUser(), getPosts()]);</code></pre>
+
+        <h3>트레이드오프</h3>
+        <p>
+          • <code>loading.tsx</code> — 파일 하나면 끝. 단 <em>세그먼트 전체</em>가 한 덩어리로 묶여서, 빠른 위젯도 느린 위젯을 기다립니다.<br>
+          • <code>&lt;Suspense&gt;</code> 직접 배치 — 위젯별로 잘게 쪼갤 수 있지만 스켈레톤을 직접 설계해야 함. 레이아웃 시프트 방지까지 신경 써야 하니 <em>마크업 감각이 그대로 쓰이는 자리</em>.<br>
+          • 둘 다 쓰는 게 보통입니다 — 세그먼트 기본값은 <code>loading.tsx</code>, 유독 느린 위젯만 <code>&lt;Suspense&gt;</code>로 추가 분리.
+        </p>
+
+        <h3>왜 알아야 하나</h3>
+        <p>FSD에서 widget 단위로 <code>Suspense</code>/<code>error</code> 경계를 나눠두면, 느린 위젯 하나가 첫 화면을 붙잡는 일이 사라집니다. LCP·TTFB 같은 지표가 코드 구조에서 직접 결정되는 흔치 않은 지점이고, "왜 우리 대시보드는 흰 화면이 3초냐"는 질문의 답이 대개 여기 있어요.</p>
+
+        <p class="refs">더 보기:
+          <a href="https://nextjs.org/docs/app/api-reference/file-conventions/loading">Next.js — loading.js (Streaming with Suspense)</a> ·
+          <a href="https://react.dev/reference/react/Suspense">React 공식 문서 — &lt;Suspense&gt;</a>
+        </p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1 (객관식).</strong> <code>app/dashboard/loading.tsx</code>를 만들었는데 스켈레톤이 <em>한 번도 안 보이고</em>, 빈 화면 뒤에 데이터가 툭 나타납니다. <code>page.tsx</code>는 이렇게 생겼어요.</p>
+          <pre><code>'use client';
+
+export default function Page() {
+  const [data, setData] = useState(null);
+
+  useEffect(() =&gt; {
+    fetch('/api/stats').then((r) =&gt; r.json()).then(setData);
+  }, []);
+
+  if (!data) return null;
+  return &lt;Stats data={data} /&gt;;
+}</code></pre>
+          <p>가장 정확한 설명은?<br>
+            ① <code>loading.tsx</code>는 App Router에서 아직 동작하지 않는다<br>
+            ② 서버가 기다릴 게 없어 페이지는 즉시 "완성"으로 전송되고, 로딩은 브라우저에서 시작되므로 <code>loading.tsx</code>가 개입할 구간 자체가 없다<br>
+            ③ <code>'use client'</code>가 붙은 페이지는 <code>loading.tsx</code>가 무시된다<br>
+            ④ <code>fetch</code>에 캐시 옵션을 안 줘서
+          </p>
+
+          <p><strong>Q2 (실전형 — 문제점 찾기).</strong> 아래 페이지는 루트 레이아웃에 <code>loading.tsx</code>를 하나 뒀는데도 첫 화면까지 6.5초가 걸립니다. 원인이 <em>두 가지</em> 있어요. 각각 무엇이고 어떻게 고칠까요?</p>
+          <pre><code>export default async function Page() {
+  const user  = await getUser();   // 1.5s
+  const posts = await getPosts();  // 2s
+  const ads   = await getAds();    // 3s
+
+  return (
+    &lt;&gt;
+      &lt;Profile user={user} /&gt;
+      &lt;PostList posts={posts} /&gt;
+      &lt;AdSlot ads={ads} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+          <details>
+            <summary>정답·해설 보기</summary>
+            <p><strong>Q1 → ②</strong><br>
+            <code>loading.tsx</code>(= <code>&lt;Suspense&gt;</code>)가 fallback을 보여주는 조건은 <em>서버 렌더링 도중 "아직 준비되지 않은 것"이 있을 때</em>입니다. 그런데 이 페이지는 <code>'use client'</code> + <code>useEffect</code> 구조라, 서버 입장에서는 기다릴 게 하나도 없는 <em>이미 완성된</em> HTML이에요. 데이터 로딩은 JS가 브라우저에서 실행된 <em>이후</em>에 시작되니 Suspense 경계가 개입할 구간 자체가 없습니다. 흰 화면의 정체는 <code>if (!data) return null</code> — 스켈레톤을 보여주고 싶다면 여기에 직접 넣거나, 데이터 fetch를 서버 컴포넌트로 올려야 합니다.</p>
+            <p><strong>Q2 → 원인 두 가지</strong><br>
+            <strong>(1) 순차 await로 인한 워터폴.</strong> <code>getUser</code> → <code>getPosts</code> → <code>getAds</code>가 서로 의존 관계가 없는데도 줄을 서서 1.5 + 2 + 3 = 6.5초가 됩니다. 의존이 없다면 <code>Promise.all([...])</code>로 묶어 <code>max(1.5, 2, 3) = 3초</code>로 줄일 수 있어요.<br>
+            <strong>(2) 경계가 페이지 전체에 하나뿐.</strong> 루트 <code>loading.tsx</code> 하나로 감싸면 <em>세 데이터가 전부 끝나야</em> 한꺼번에 노출됩니다. <code>&lt;Profile&gt;</code>·<code>&lt;PostList&gt;</code>·<code>&lt;AdSlot&gt;</code>을 각각 async 컴포넌트로 떼어내 개별 <code>&lt;Suspense&gt;</code>로 감싸면, 1.5초에 프로필이 뜨고 2초에 글 목록이 채워지고 3초에 광고가 들어옵니다 — 총 시간은 같아도 <em>체감은 완전히 달라져요.</em></p>
+            <p>💡 실무 감각 한 줄: <em><code>Promise.all</code>은 "총 시간"을 줄이고, <code>Suspense</code> 분리는 "첫 화면까지의 시간"을 줄입니다.</em> 둘은 대체재가 아니라 같이 씁니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-17">
         <h2>2026-09-17 (목) · 컨테이너와 이미지 — "제 로컬에선 되는데요"가 사라지는 이유</h2>
         <span class="topic-tag">클라우드·백엔드 기초</span>
