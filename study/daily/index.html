@@ -210,6 +210,53 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-28">
+        <h2>2026-09-28 (월) · 낙관적 업데이트(Optimistic Update) — 서버 응답 전에 먼저 바꿔 보여주고, 실패하면 되돌린다</h2>
+        <span class="topic-tag">프론트 심화 (React 19)</span>
+
+        <h3>핵심 개념</h3>
+        <p>8/7에 <code>useMutation</code> + <code>invalidateQueries</code>로 "바꿨으면 화면에 알려줘라"를 봤다면, 오늘은 한 걸음 더 — <strong>"서버 대답 오기 전에 화면부터 바꾸자"</strong>입니다. 좋아요 버튼을 눌렀는데 0.5초 뒤에야 하트가 채워지면 답답하죠. 낙관적 업데이트는 "어차피 99%는 성공하니까" 화면을 먼저 성공 상태로 그려두고, 실패하면 원래대로 되돌리는 방식이에요. 퍼블리싱으로 치면 <code>:active</code> 스타일을 즉시 주고 서버 확인은 뒤에서 조용히 하는 느낌입니다.</p>
+        <p>React 19의 <code>useOptimistic</code>은 "임시 화면 값"만 따로 들고 있다가, 요청이 끝나면 <em>진짜 값(props/서버 상태)으로 자동 교체</em>해 줍니다. 실패하면 진짜 값이 바뀌지 않았으니 저절로 롤백돼요.</p>
+
+        <pre><code>'use client';
+import { useOptimistic, useTransition } from 'react';
+
+function LikeButton({ liked, count, toggleLike }: Props) {
+  // [임시값, 임시값 바꾸는 함수] — 첫 인자는 "진짜 값"
+  const [optimistic, setOptimistic] = useOptimistic(
+    { liked, count },
+    (cur, nextLiked: boolean) =&gt; ({
+      liked: nextLiked,
+      count: cur.count + (nextLiked ? 1 : -1),
+    }),
+  );
+  const [, startTransition] = useTransition();
+
+  const onClick = () =&gt;
+    startTransition(async () =&gt; {
+      const next = !optimistic.liked;
+      setOptimistic(next);      // 1) 화면 먼저 바꿈
+      await toggleLike(next);   // 2) 서버 요청 (throw 나면 임시값 폐기 → 원복)
+    });
+
+  return &lt;button onClick={onClick}&gt;{optimistic.liked ? '♥' : '♡'} {optimistic.count}&lt;/button&gt;;
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>체감 속도는 실제 속도보다 UX에 더 크게 작용하고, 좋아요·체크·북마크·드래그 정렬 같은 UI는 거의 다 이 패턴을 씁니다. 다만 "실패했을 때 사용자에게 알리는 것"까지 같이 설계해야 해서, 9/14에 본 에러 바운더리/토스트와 짝으로 생각해야 해요.</p>
+        <p class="refs">더 보기: <a href="https://react.dev/reference/react/useOptimistic">React 공식 문서 — useOptimistic</a> · <a href="https://tanstack.com/query/latest/docs/framework/react/guides/optimistic-updates">TanStack Query — Optimistic Updates</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> 낙관적 업데이트를 적용하기 <em>가장 부적절한</em> 기능은? ① 게시글 좋아요 ② 결제 완료 처리 ③ 할 일 체크박스 ④ 북마크 토글</p>
+          <p><strong>Q2. (단답형)</strong> 위 코드에서 <code>toggleLike</code>가 에러를 throw 하면 화면의 하트와 숫자는 어떻게 될까요? 그리고 그건 어떤 값이 만들어주는 동작일까요?</p>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1: ②</strong> — 결제는 실패 시 되돌리기 어렵고 사용자가 "정말 됐는지"를 확실히 알아야 해서 서버 확인 후에 성공을 보여줘야 합니다. 나머지는 실패해도 부담이 적고 성공률이 높아 적합해요.</p>
+            <p><strong>Q2:</strong> 누르기 전 값으로 자동 복귀합니다. <code>useOptimistic</code>의 임시값은 트랜지션이 끝나면 버려지고 첫 인자인 "진짜 값(props)"으로 다시 그려지는데, 실패하면 진짜 값이 바뀌지 않았으니 롤백돼요. (실패 알림 토스트 등은 따로 필요)</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-18">
         <h2>2026-09-18 (금) · Suspense와 스트리밍 — <code>loading.tsx</code>는 어떻게 "화면 일부만 먼저" 보내주나</h2>
         <span class="topic-tag">프론트 심화 (React · Next.js)</span>
