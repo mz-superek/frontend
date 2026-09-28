@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#acid-base">ACID vs BASE</a>
+    <a class="nav-item" href="#sso-saml">SSO · SAML</a>
+    <a class="nav-item" href="#managed-service">관리형 vs 자체 운영</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="acid-base">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="acid-base-h">ACID vs BASE <span class="sub">트랜잭션 신뢰성 모델</span></h2>
+    <div class="links"><a class="link-tag" href="#isolation-level">격리 수준</a><a class="link-tag" href="#cap-theorem">CAP 정리</a><a class="link-tag" href="#eventual-consistency">결과적 일관성</a></div>
+  </div>
+</div>
+<p><strong>데이터를 얼마나 "엄격하게" 지킬지에 대한 두 가지 상반된 철학</strong>. <strong>ACID</strong>는 관계형 DB 트랜잭션의 보장으로 원자성(Atomicity·전부 되거나 전부 취소), 일관성(Consistency·제약을 항상 만족), 격리성(Isolation·동시 실행이 서로 안 꼬임), 지속성(Durability·커밋되면 안 사라짐)을 뜻한다. <strong>BASE</strong>는 분산·NoSQL 세계의 접근으로 Basically Available(거의 항상 응답), Soft state(상태가 잠시 흔들려도 됨), Eventually consistent(시간이 지나면 결국 일치)를 택한다. 즉 ACID는 강한 일관성을 위해 가용성·확장성을 양보하고, BASE는 규모·가용성을 위해 즉각적 일관성을 양보한다 — CAP 정리의 트레이드오프를 저장소 설계 철학으로 옮긴 셈이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">ACID (RDB)</h4><ul><li>강한 일관성·정확성 우선</li><li>은행·결제 등 정합성 중요 업무</li><li>수평 확장이 상대적으로 어려움</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">BASE (분산·NoSQL)</h4><ul><li>가용성·확장성 우선</li><li>잠깐의 불일치 허용(결국 수렴)</li><li>대규모 트래픽·글로벌 분산에 유리</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>저장소를 고를 때 "이 데이터는 조금이라도 어긋나면 안 되니 RDB(ACID)", "조회량이 폭발하고 잠깐 늦게 반영돼도 되니 NoSQL(BASE)"처럼 나누거나, "방금 저장한 값이 왜 다른 노드에선 아직 안 보이지"를 설명할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="sso-saml">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="sso-saml-h">SSO · SAML <span class="sub">Single Sign-On · Security Assertion Markup Language</span></h2>
+    <div class="links"><a class="link-tag" href="#oauth">OAuth</a><a class="link-tag" href="#token">토큰 저장 전략</a><a class="link-tag" href="#iam">IAM</a></div>
+  </div>
+</div>
+<p><strong>SSO(싱글 사인온)는 한 번만 로그인하면 연결된 여러 서비스에 다시 인증하지 않고 들어가는 방식</strong>이고, <strong>SAML은 그 SSO를 구현하는 XML 기반 표준(OASIS)</strong>이다. 사용자가 서비스(SP·Service Provider)에 접속하면 SP는 인증을 신원 제공자(IdP·Identity Provider)에게 넘기고, IdP는 로그인 성공 후 "이 사람은 누구이고 인증됐다"는 서명된 <strong>어설션(Assertion)</strong>을 발급한다. SP는 IdP의 서명을 신뢰해 그 어설션만으로 로그인을 인정한다. 덕분에 계정·비밀번호를 서비스마다 따로 두지 않고 한 곳에서 관리·회수할 수 있다. SAML은 브라우저 기반 기업 SSO에 강하고, 모바일 앱·API 인가에는 OAuth 2.0·OIDC가 더 널리 쓰인다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">SAML</h4><ul><li>XML 어설션 기반, 오래된 기업 표준</li><li>브라우저 웹 SSO에 강함</li><li>사내 SaaS 통합 로그인에 흔함</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">OAuth2 · OIDC</h4><ul><li>JSON·토큰 기반, 현대적</li><li>모바일·API·SPA에 적합</li><li>인가(OAuth)+인증(OIDC) 조합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>사내 계정 하나로 여러 SaaS(Okta·Azure AD·Google Workspace 등)에 자동 로그인을 붙이거나, "이 서비스 연동을 SAML로 할지 OIDC로 할지" 인증 방식을 정할 때 마주친다. <span style="color:var(--amber)">[보안·인증]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="managed-service">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="managed-service-h">관리형 vs 자체 운영 서비스 <span class="sub">Managed vs Self-managed</span></h2>
+    <div class="links"><a class="link-tag" href="#shared-responsibility">공유 책임 모델</a><a class="link-tag" href="#serverless">서버리스</a><a class="link-tag" href="#iac">IaC</a></div>
+  </div>
+</div>
+<p><strong>DB·캐시·큐 같은 미들웨어를 "내가 직접 운영하느냐, 클라우드에 맡기느냐"의 차이</strong>. <strong>관리형(Managed)</strong>은 설치·패치·백업·이중화·모니터링·스케일링 같은 운영 부담을 클라우드 제공자가 대신 지는 서비스로, AWS의 RDS(관리형 DB)·ElastiCache(관리형 Redis)·MSK(관리형 Kafka) 등이 예다. <strong>자체 운영(Self-managed)</strong>은 EC2 같은 가상 서버에 같은 소프트웨어를 직접 깔아 그 모든 운영을 팀이 책임진다. 관리형은 운영 인력·실수 위험을 줄이고 도입이 빠른 대신, 세밀한 버전·설정 제어나 특수 튜닝이 제한되고 규모가 커지면 비용이 높아질 수 있다. 공유 책임 모델에서 관리형일수록 제공자가 지는 책임 범위가 넓어진다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">관리형 (Managed)</h4><ul><li>운영·패치·백업을 제공자가 대행</li><li>도입 빠름·운영 실수 위험↓</li><li>제어권·특수 튜닝 제약, 비용 부담 가능</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">자체 운영 (Self-managed)</h4><ul><li>버전·설정을 완전히 통제</li><li>비용 최적화·특수 요구 대응 유연</li><li>운영 부담·전문성 전부 팀 몫</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"DB를 RDS로 쓸지 EC2에 직접 깔지", 운영 인력·비용·커스터마이징 요구를 저울질하거나, MSP에서 고객사 아키텍처 표준을 정할 때 자주 마주친다. <span style="color:var(--teal)">[클라우드·운영]</span></div>
 </section><hr class="divider">
 
 
