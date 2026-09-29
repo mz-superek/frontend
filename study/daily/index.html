@@ -210,6 +210,62 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-29">
+        <h2>2026-09-29 (화) · 리스트 가상화(Virtualization) — 1만 줄짜리 목록, 화면에 보이는 것만 그린다</h2>
+        <span class="topic-tag">프론트 심화 (성능)</span>
+
+        <h3>핵심 개념</h3>
+        <p>게시글 1만 개를 <code>map</code>으로 전부 렌더하면 DOM 노드가 수만 개가 되어 첫 렌더도, 스크롤도 버벅입니다. 가상화(windowing)는 "화면에 보이는 행 + 위아래 여유분(overscan)"만 실제 DOM으로 만들고, 나머지는 <strong>전체 높이만큼의 빈 공간</strong>으로 자리만 잡아두는 기법이에요.</p>
+        <p>퍼블리싱으로 치면 1만 장짜리 이미지 갤러리에서 <code>loading="lazy"</code>를 쓰는 것과 비슷한데, 한 발 더 나가 <em>화면 밖으로 나간 건 DOM에서 아예 지워버리는</em> 방식입니다. 스크롤 위치(scrollTop)에 맞춰 "지금 몇 번째 행부터 보이지?"를 계산하고, 각 행을 <code>translateY</code>로 제자리에 놓아줍니다.</p>
+
+        <pre><code>'use client';
+import { useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+
+function BigList({ items }: { items: string[] }) {
+  const parentRef = useRef&lt;HTMLDivElement&gt;(null);
+  const virtualizer = useVirtualizer({
+    count: items.length,          // 전체 행 수
+    getScrollElement: () =&gt; parentRef.current, // 스크롤되는 박스
+    estimateSize: () =&gt; 40,       // 행 높이 예상값(px)
+    overscan: 5,                  // 위아래로 5개씩 미리 그림
+  });
+
+  return (
+    &lt;div ref={parentRef} style={{ overflow: 'auto' }}&gt;
+      {/* 전체 높이만큼 빈 공간 확보 → 스크롤바가 1만 줄처럼 동작 */}
+      &lt;div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}&gt;
+        {virtualizer.getVirtualItems().map((v) =&gt; (
+          &lt;div
+            key={v.key}
+            style={{
+              position: 'absolute', top: 0, left: 0, width: '100%',
+              height: v.size, transform: `translateY(${v.start}px)`,
+            }}
+          &gt;
+            {items[v.index]}
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>관리자 화면의 대형 테이블, 로그 뷰어, 채팅 히스토리처럼 "행이 수천 개 넘는" 화면은 클라우드 콘솔 계열에서 흔하고, 이때 가상화가 INP(8/5)·메모리 문제를 가장 싸게 해결합니다. 단, 브라우저 Ctrl+F 검색이 화면 밖 행을 못 찾는 등 트레이드오프가 있어서 "수백 행 이하면 굳이"가 기본 원칙이에요.</p>
+        <p class="refs">더 보기: <a href="https://tanstack.com/virtual/latest">TanStack Virtual 공식 문서</a> · <a href="https://web.dev/articles/virtualize-long-lists-react-window">web.dev — Virtualize large lists with react-window</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> 10,000개 항목을 가상화한 리스트를 맨 위에서 열었을 때, 개발자도구 Elements에 실제로 존재하는 행(DOM)의 수는 대략 얼마일까요? ① 10,000개 ② 화면에 보이는 개수 + overscan 정도 ③ 딱 1개 ④ 0개</p>
+          <p><strong>Q2. (문제점 찾기)</strong> 위 코드를 돌렸더니 "가상화했는데 1만 개가 전부 렌더링된다"는 제보가 왔습니다. 코드에서 어디가 원인일까요? (힌트: 가상화는 "보이는 영역이 얼마나 되는지"를 스크롤 박스의 크기로 계산해요.)</p>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1: ②</strong> — 가상화는 보이는 행 + overscan만 DOM으로 만들고 나머지는 전체 높이용 빈 공간으로 대체하기 때문에, DOM에는 보통 십수 개만 존재합니다.</p>
+            <p><strong>Q2:</strong> 스크롤 박스(<code>parentRef</code>)에 고정 <code>height</code>(또는 <code>maxHeight</code>)가 없다는 점입니다. 박스가 안쪽 콘텐츠(<code>getTotalSize()</code> = 40px×1만) 높이만큼 늘어나 "보이는 영역 = 전체"가 되므로 1만 개가 다 그려져요. <code>style={{ height: 400, overflow: 'auto' }}</code>처럼 높이를 고정해야 합니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-28">
         <h2>2026-09-28 (월) · 낙관적 업데이트(Optimistic Update) — 서버 응답 전에 먼저 바꿔 보여주고, 실패하면 되돌린다</h2>
         <span class="topic-tag">프론트 심화 (React 19)</span>
