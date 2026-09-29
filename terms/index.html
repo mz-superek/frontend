@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#daemonset">데몬셋 (DaemonSet)</a>
+    <a class="nav-item" href="#well-architected-framework">Well-Architected 프레임워크</a>
+    <a class="nav-item" href="#cache-write-strategy">캐시 쓰기 전략 (Write-Through·Back)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,50 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="daemonset">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="daemonset-h">데몬셋 <span class="sub">DaemonSet</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#sidecar-pattern">Sidecar</a><a class="link-tag" href="#observability">Observability</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스에서 클러스터의 모든(또는 라벨로 지정한 일부) 노드마다 파드를 정확히 하나씩 항상 띄워주는 워크로드 오브젝트</strong>. 클러스터에 <strong>노드가 새로 추가되면 그 노드에도 자동으로 파드가 따라 뜨고</strong>, 노드가 빠지면 그 위의 파드도 함께 정리된다. 그래서 "요청 처리량만큼 N개"가 아니라 <strong>"노드 수만큼"</strong> 개수가 결정된다는 점이 핵심이다. 주 용도는 <strong>로그 수집기(Fluent Bit·Fluentd), 모니터링 에이전트(node-exporter·Datadog Agent), 네트워크 플러그인(CNI), 스토리지 데몬</strong>처럼 <strong>모든 노드에서 하나씩 돌아야 하는 인프라성 작업</strong>이다. 일반 애플리케이션은 원하는 개수를 아무 노드에나 배치하는 <strong>Deployment</strong>로, 고정된 신원·순서·전용 볼륨이 필요한 것은 <strong>StatefulSet</strong>으로 배치하는 것과 구분된다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">Deployment</h4><ul><li>원하는 개수(N)를 아무 노드에 분산</li><li>일반 앱 서버·API에 사용</li><li>노드 수와 파드 수는 무관</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">DaemonSet</h4><ul><li>노드마다 정확히 1개</li><li>로그·모니터링·네트워크 에이전트</li><li>노드가 늘면 파드도 자동 증가</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>클러스터에 로그·모니터링 에이전트나 CNI 플러그인을 깔 때, 또는 "이 파드는 왜 노드 수만큼 떠 있지?"를 확인할 때 마주친다. <span style="color:var(--blue)">[쿠버네티스·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="well-architected-framework">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="well-architected-framework-h">Well-Architected 프레임워크 <span class="sub">Well-Architected Framework · WAF(주의: 웹방화벽 WAF와 다름)</span></h2>
+    <div class="links"><a class="link-tag" href="#shared-responsibility">공유 책임 모델</a><a class="link-tag" href="#finops">FinOps</a><a class="link-tag" href="#landing-zone">Landing Zone</a></div>
+  </div>
+</div>
+<p><strong>클라우드 워크로드를 어떻게 설계·운영해야 좋은지 클라우드 제공사가 정리해 둔 모범사례(best practice) 지침 체계</strong>. AWS가 대표적으로 정립했고 Azure·GCP도 유사한 프레임워크를 제공한다. AWS는 좋은 아키텍처를 <strong>6개 기둥(pillar)</strong> &mdash; <strong>운영 우수성 · 보안 · 안정성 · 성능 효율성 · 비용 최적화 · 지속가능성</strong> &mdash; 으로 나누고, 각 기둥의 질문 목록에 현재 아키텍처를 비춰보는 <strong>Well-Architected Review</strong>로 약점을 찾아 개선한다(지속가능성 기둥은 2021년에 추가돼 5→6개가 됐다). 특정 서비스 설정 매뉴얼이 아니라 "무엇을 왜 점검해야 하는가"에 대한 <strong>공통 사고 틀</strong>이라, 벤더·서비스가 달라도 설계 리뷰의 체크리스트로 통용된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>고객사·자사 아키텍처를 진단하거나 제안서에서 "이 설계가 모범사례에 맞는가"를 6개 기둥 기준으로 점검할 때 마주친다(MSP 아키텍처 리뷰 실무에서 특히 자주). <span style="color:var(--amber)">[클라우드·아키텍처]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cache-write-strategy">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="cache-write-strategy-h">캐시 쓰기 전략 <span class="sub">Write-Through · Write-Back(Write-Behind)</span></h2>
+    <div class="links"><a class="link-tag" href="#cache-invalidation">Cache Invalidation</a><a class="link-tag" href="#eventual-consistency">결과적 일관성</a><a class="link-tag" href="#materialized-view">구체화 뷰</a></div>
+  </div>
+</div>
+<p><strong>캐시(예: Redis)를 원본 저장소(DB) 앞단에 두었을 때, <em>쓰기</em>가 들어오면 캐시와 DB에 각각 언제 반영하느냐를 정하는 전략</strong>. <strong>Write-Through(연속 기입)</strong>는 캐시와 DB에 <strong>동시에(동기)</strong> 쓰고 나서 완료를 응답한다 &mdash; 캐시와 DB가 항상 일치해 정합성이 높고 캐시가 죽어도 데이터 유실이 없지만, 매 쓰기가 DB까지 기다려 <strong>쓰기 지연이 크다</strong>. <strong>Write-Back(후기입·Write-Behind)</strong>은 <strong>캐시에만 먼저 쓰고 즉시 응답</strong>한 뒤 DB에는 <strong>나중에 비동기로 몰아서</strong> 반영한다 &mdash; 쓰기가 매우 빠르고 처리량이 높지만, 아직 DB로 안 내려간 상태에서 <strong>캐시가 죽으면 그 데이터를 잃을 위험</strong>이 있다. (원본에만 쓰고 캐시는 건드리지 않는 <strong>Write-Around</strong>도 있어, 읽히지 않을 데이터가 캐시를 오염시키는 걸 막는다.)</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Write-Through</h4><ul><li>캐시+DB 동시(동기) 기록</li><li>정합성 높음·유실 없음</li><li>쓰기 지연이 큼</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">Write-Back</h4><ul><li>캐시 먼저, DB는 나중(비동기)</li><li>쓰기 빠름·처리량 높음</li><li>캐시 장애 시 미반영분 유실 위험</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>Redis 등 캐시를 앞단에 둘 때 "쓰기를 DB와 어떻게 맞출지", "속도를 택할지 유실 위험을 줄일지"를 정할 때 마주친다. <span style="color:var(--coral)">[백엔드·캐시]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
