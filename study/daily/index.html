@@ -210,6 +210,52 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-09-30">
+        <h2>2026-09-30 (수) · 판별 유니온(Discriminated Union) — 상태마다 "있는 필드"가 다른 타입을 안전하게 좁히기</h2>
+        <span class="topic-tag">프론트 심화 (TypeScript)</span>
+
+        <h3>핵심 개념</h3>
+        <p>API 응답은 로딩 / 성공 / 실패처럼 상태마다 들고 있는 값이 다릅니다. 이걸 <code>{ status; data?; message? }</code>처럼 옵셔널로 뭉쳐 두면 "success인데 data가 없는" 불가능한 조합도 타입이 허용해 버려요. 판별 유니온은 공통 필드(<code>status</code>) 값을 "이름표"로 삼아 상태별로 타입을 따로 정의하고, <code>switch</code>/<code>if</code>로 이름표를 확인하는 순간 TS가 그 분기 안의 타입을 자동으로 좁혀 줍니다(narrowing).</p>
+        <p>퍼블리싱으로 치면 <code>is-loading</code>, <code>is-error</code> 같은 상태 클래스마다 화면에 들어갈 마크업이 정해져 있는 것과 같은데, 이걸 타입 레벨에서 강제하는 셈이에요.</p>
+
+        <pre><code>type Result =
+  | { status: 'loading' }
+  | { status: 'success'; data: User[] }
+  | { status: 'error'; message: string };
+
+function render(r: Result) {
+  switch (r.status) {
+    case 'loading': return &lt;Spinner /&gt;;
+    case 'success': return &lt;List items={r.data} /&gt;;   // data가 확실히 존재
+    case 'error':   return &lt;p&gt;{r.message}&lt;/p&gt;;       // message가 확실히 존재
+    default: {
+      const _exhaustive: never = r; // 빠진 상태가 있으면 컴파일 에러
+      return _exhaustive;
+    }
+  }
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>TanStack Query, 폼 상태, 모달/토스트 상태 등 "상태 머신" 성격의 UI가 많아서 <code>?.</code>와 <code>!</code>로 때우던 코드를 타입으로 정리할 수 있고, 상태가 추가될 때 수정이 필요한 곳을 컴파일러가 찾아줍니다.</p>
+        <p class="refs">더 보기: <a href="https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions">TS Handbook — Discriminated Unions</a> · <a href="https://www.typescriptlang.org/docs/handbook/2/narrowing.html#exhaustiveness-checking">TS Handbook — Exhaustiveness checking</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> 위 <code>Result</code>에 <code>| { status: 'empty' }</code>를 추가하고 <code>render</code> 함수는 수정하지 않았습니다. 어떤 일이 생길까요? ① 아무 일도 없다 ② <code>default</code>의 <code>never</code> 대입 줄에서 컴파일 에러 ③ 런타임에서만 에러 ④ <code>empty</code>가 자동으로 <code>loading</code>으로 처리된다</p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래 코드는 <code>p.data.map</code> 줄에서 "Object is possibly undefined" 에러가 납니다. 왜일까요? 어떻게 고칠까요?</p>
+          <pre><code>type Props = { status: 'success' | 'error'; data?: User[]; message?: string };
+function View(p: Props) {
+  if (p.status === 'success') return p.data.map((u) =&gt; u.name);
+  return p.message;
+}</code></pre>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1. ②</strong> — <code>empty</code>가 <code>default</code>까지 내려오면 타입이 <code>never</code>가 아니게 되어 대입 줄에서 컴파일 에러가 나므로, 처리 안 한 상태를 배포 전에 잡을 수 있습니다.</p>
+            <p><strong>Q2.</strong> <code>status</code>와 <code>data</code>가 서로 묶여 있지 않아, <code>success</code>여도 TS는 <code>data</code> 존재를 보장하지 못합니다. <code>{ status: 'success'; data: User[] } | { status: 'error'; message: string }</code> 판별 유니온으로 바꾸면 <code>if</code> 안에서 <code>data</code>가 좁혀집니다.</p>
+          </details>
+        </div>
+      </section>
+
+
       <section class="study-day" data-date="2026-09-29">
         <h2>2026-09-29 (화) · 리스트 가상화(Virtualization) — 1만 줄짜리 목록, 화면에 보이는 것만 그린다</h2>
         <span class="topic-tag">프론트 심화 (성능)</span>
