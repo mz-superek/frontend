@@ -83,6 +83,38 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-01">
+        <h2>📰 2026-10-01 (목)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI·프론트엔드·백엔드 각 1건 통과. HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 편입이 없어 헤더째 생략(Chrome 155 안정판 미출시 — 154가 9/22 최신으로 이미 발송, web.dev·Chrome 블로그 피드가 창 내 신규 항목을 1차 소스로 제공 못 함, Safari 26.2는 2025-12로 시의성 미달). 드롭: OpenAI GPT-6.1 Sol은 openai.com 403으로 1차 소스 확인 불가([접근 실패]), Claude Sonnet 5.5(9/28)는 기발송분과 [중복], React 19.3.0(9/9)·Bun 1.4.2(9/5)·TypeScript 7.0.2(8/20)는 [시의성] 미달.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Google DeepMind, 새 프론티어 모델 &apos;Gemini 4 Argon&apos; 공개</p>
+            <p class="item-meta">2026-09-30 · <a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/">blog.google</a></p>
+            <p class="item-summary">Google DeepMind가 새 프론티어 모델 Gemini 4 Argon을 공식 블로그로 공개했다. 공식 발표 기준 실제 소프트웨어 엔지니어링, 법률·금융 등 기업 지식노동, 사이버보안 방어 전반의 복잡한 워크플로에서 프론티어 성능을 낸다고 밝혔으며, 출력 토큰 한도를 기존 64K에서 &quot;업계 최고 수준&quot;인 100만 토큰으로 확대했다. 특히 소프트웨어 취약점을 자율적으로 찾아 검증하고 패치하는 능력을 내세워, 초기 시연에서 전 세계 병원이 쓰는 의료 SW에서 기존 프론티어 모델이 놓친 민감정보 노출 취약점을 발견했다고 소개했다. 우선 Fairwind Program을 통해 신뢰할 수 있는 사이버 방어자에게 먼저 롤아웃하고, 이후 개발자·기업·소비자로 확대할 예정이다. 도입가는 입력 100만 토큰당 $2, 출력 $10(캐시 입력은 입력가의 95% 할인)이며 도입기 이후 $4/$20로 책정됐다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 정기 보안 릴리스 정식 출시 — 16.3.8 / 15.5.27</p>
+            <p class="item-meta">2026-09-30 · <a href="https://github.com/vercel/next.js/releases/tag/v16.3.8">github.com/vercel/next.js</a></p>
+            <p class="item-summary">9/23 예고됐던 9월 정기 보안 릴리스가 정식 출시됐다(16.x는 16.3.8, 15.x LTS는 15.5.27로 백포트). 릴리스 노트 기준 총 7건의 취약점을 수정한다 — <strong>높음 1건</strong>: 이미지 최적화(Image Optimization)의 서버측 요청 위조(SSRF). <strong>중간 5건</strong>: App Router 메타데이터 이미지 라우트의 dynamicParams 우회를 통한 정보 노출, self-hosted 환경 SSG·ISR 페이지 캐시 포이즈닝, 크로스유저 콘텐츠 치환과 지속적 DoS를 부르는 캐시 포이즈닝, 대기 중 <code>use cache</code> 채움을 통한 Draft Mode 콘텐츠 누출, 중첩 <code>use cache</code>의 루트 파라미터 간 캐시 누출. <strong>낮음 1건</strong>: 개발 서버 MCP 엔드포인트의 정보 노출. 프로덕션 배포에 영향을 주는 캐시 포이즈닝·SSRF 수정이 포함돼 조속한 업그레이드가 권장된다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js 26.10.0 (Current) — <code>util.throttle</code>·<code>util.debounce</code> 내장 등 신규 API</p>
+            <p class="item-meta">2026-09-22 · <a href="https://github.com/nodejs/node/releases/tag/v26.10.0">github.com/nodejs/node</a></p>
+            <p class="item-summary">Current 라인(26.x)의 기능 릴리스. 릴리스 노트의 semver-minor 변경 기준, 그동안 라이브러리에 의존하던 레이트리밋·지연 실행 유틸을 표준에 넣은 <code>util.throttle</code>·<code>util.debounce</code>가 추가됐고, PKCS#12 인증서 포맷을 파싱하는 <code>crypto.parsePKCS12()</code>, 파일을 동기로 Blob 변환하는 <code>fs.openAsBlobSync</code>, <code>net.BoundSocket</code>을 스레드·자식 프로세스로 전송하는 기능, 마운트된 VFS에서 라이브러리를 로드하는 FFI 지원, perf_hooks의 <code>SlidingWindowHistogram</code>, SQLite의 <code>undefined</code>→NULL 바인딩, 처리되지 않은 프로미스 거부 추적을 돕는 <code>util.markPromiseAsHandled</code> 등이 담겼다. LTS는 아니지만 향후 22/24 LTS로 흘러들 신규 기능을 미리 볼 수 있는 릴리스.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
