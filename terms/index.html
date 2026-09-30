@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#schema-migration">스키마 마이그레이션</a>
+    <a class="nav-item" href="#service-quota">서비스 쿼터·한도</a>
+    <a class="nav-item" href="#connection-draining">커넥션 드레이닝</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="schema-migration">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="schema-migration-h">스키마 마이그레이션 <span class="sub">Schema Migration</span></h2>
+    <div class="links"><a class="link-tag" href="#orm">ORM</a><a class="link-tag" href="#rolling-deployment">롤링 배포</a></div>
+  </div>
+</div>
+<p><strong>데이터베이스의 구조(테이블·컬럼·인덱스 같은 스키마) 변경을 코드처럼 버전으로 관리하며 순서대로 차곡차곡 적용하는 방식</strong>. 변경 하나하나를 "마이그레이션 파일"로 남기고, 도구(Flyway·Liquibase·Prisma Migrate·Django/Rails 마이그레이션 등)가 <strong>어디까지 적용됐는지 추적해 아직 안 돌린 것만 순서대로 실행</strong>한다. 덕분에 개발·스테이징·운영 DB가 똑같은 구조로 재현되고, 팀원 누구나 코드만 받으면 DB 구조를 맞출 수 있다(흔히 "DB의 git"이라 부른다). 손으로 <code>ALTER TABLE</code>을 직접 치는 방식은 어디에 무엇을 적용했는지 기록이 안 남아 환경마다 구조가 어긋나기 쉽다. 되돌리는 <strong>롤백(down) 마이그레이션</strong>, 그리고 애플리케이션 코드와의 <strong>배포 순서(하위 호환)</strong>도 함께 고민해야 한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">마이그레이션 도구</h4><ul><li>변경을 파일로 버전 관리</li><li>적용 이력 추적 → 재현 가능</li><li>롤백·협업이 수월</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">손으로 직접 ALTER</h4><ul><li>기록이 안 남음</li><li>환경마다 구조가 어긋남</li><li>되돌리기·추적 어려움</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>백엔드·ORM과 함께 일할 때 "컬럼 추가했으니 마이그레이션 돌려라", 배포 때 "마이그레이션 먼저? 코드 먼저?", 롤백 이슈를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="service-quota">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="service-quota-h">서비스 쿼터·한도 <span class="sub">Service Quota · Limit</span></h2>
+    <div class="links"><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a></div>
+  </div>
+</div>
+<p><strong>클라우드 계정에서 만들 수 있는 리소스 개수나 API 호출 속도 등에 걸려 있는 상한선</strong>. 폭주·오용·비용 사고를 막으려고 제공사가 <strong>계정·리전 단위로 기본값</strong>을 걸어 둔다(AWS는 Service Quotas, 예전엔 "service limits"라 불렀다). 조정 가능한(soft) 한도는 콘솔에서 <strong>상향을 요청하면 늘려 주고</strong>, 구조상 조정 불가능한(hard) 한도는 그 위로 못 넘는다. 구체적 수치는 <strong>서비스·리전마다 다르고 수시로 바뀌므로</strong> 값을 외우기보다 "한도에 걸릴 수 있다"는 사실과 증설 신청 절차를 아는 게 중요하다. 참고로 이 "계정 리소스 한도"는 요청을 초당 몇 건까지 받느냐인 <code>Rate Limiting</code>과는 다른 개념이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">조정 가능 (soft)</h4><ul><li>기본값이 낮게 걸려 있음</li><li>상향 요청으로 증설 가능</li><li>대규모 배포 전 미리 신청</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">조정 불가 (hard)</h4><ul><li>구조상 정해진 상한</li><li>요청해도 못 넘음</li><li>아키텍처로 우회 설계</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>리소스를 늘리다 "LimitExceeded"·"quota exceeded" 에러가 나거나, 대규모 배포·이벤트 전에 미리 한도 상향을 신청할 때 마주친다(MSP 실무에서 특히 자주). <span style="color:var(--amber)">[클라우드·운영]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="connection-draining">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="connection-draining-h">커넥션 드레이닝 <span class="sub">Connection Draining · Deregistration Delay</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#graceful-shutdown">Graceful Shutdown</a><a class="link-tag" href="#rolling-deployment">롤링 배포</a></div>
+  </div>
+</div>
+<p><strong>로드밸런서가 인스턴스를 빼낼 때(배포·스케일 인·헬스체크 실패) 새 요청은 더 보내지 않되, 이미 처리 중이던 요청(in-flight)은 끝날 때까지 기다렸다가 연결을 끊는 것</strong>. 덕분에 배포·축소 도중 진행 중이던 요청이 한복판에서 잘려 사용자가 에러(예: 5xx)를 보는 일을 막는다. AWS에선 ALB/NLB의 <strong>"등록 취소 지연(deregistration delay)"</strong>, 옛 Classic LB에선 <strong>"connection draining"</strong>이라 부르며, 얼마나 기다릴지는 <strong>설정값(기본 300초)</strong>이다. 처리 중인 요청이 하나도 없으면 그 시간을 다 기다리지 않고 바로 연결을 정리한다. 쿠버네티스에선 파드의 <code>graceful shutdown</code>·<code>preStop</code> 훅이 같은 역할을 한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">드레이닝 있음</h4><ul><li>새 요청만 차단</li><li>처리 중 요청은 완료 대기</li><li>배포·축소 중에도 무중단</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">드레이닝 없음</h4><ul><li>연결을 즉시 끊음</li><li>진행 중 요청이 잘림</li><li>사용자가 에러를 봄</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>무중단 배포·오토스케일 인을 설정하다 "배포할 때마다 요청 몇 개가 끊긴다"는 이슈를 잡거나, LB 대상 그룹의 등록 취소 지연·헬스체크를 튜닝할 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
 </section><hr class="divider">
 
 
