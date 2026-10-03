@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#infrastructure-drift">인프라 드리프트</a>
+    <a class="nav-item" href="#split-brain">스플릿 브레인</a>
+    <a class="nav-item" href="#container-queries">컨테이너 쿼리</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="infrastructure-drift">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="infrastructure-drift-h">인프라 드리프트 <span class="sub">Infrastructure Drift</span></h2>
+    <div class="links"><a class="link-tag" href="#iac">IaC</a><a class="link-tag" href="#immutable-infrastructure">불변 인프라</a><a class="link-tag" href="#gitops">GitOps</a></div>
+  </div>
+</div>
+<p><strong>IaC 코드(테라폼 등)로 선언한 "원하는 상태(desired state)"와 실제 클라우드에 떠 있는 "실제 상태(actual state)"가 어긋나 버린 현상</strong>. 보통 급한 장애 대응으로 누군가 콘솔에서 직접 설정을 바꾸거나, 다른 자동화·외부 프로세스가 리소스를 건드렸을 때 생긴다. 코드가 더 이상 인프라의 정확한 사실이 아니게 되므로, 다음 배포 때 수동 변경분이 말없이 되돌려지거나 반대로 <code>apply</code>가 예상 밖으로 실패한다. 그래서 <strong>drift detection</strong>(<code>terraform plan</code>·refresh로 차이 탐지)으로 주기적으로 코드와 실물의 간극을 확인하고, 변경은 콘솔이 아니라 코드로만 하도록 규율을 세우는 게 핵심이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>MSP로 고객 인프라를 테라폼으로 관리하다 "바꾼 적 없는 리소스가 plan에 변경으로 잡힌다", "긴급히 콘솔에서 손본 설정이 다음 배포에 사라졌다"를 추적하거나, 정기 drift 점검을 구성할 때 마주친다. <span style="color:var(--teal)">[클라우드·IaC]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="split-brain">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="split-brain-h">스플릿 브레인 <span class="sub">Split Brain</span></h2>
+    <div class="links"><a class="link-tag" href="#quorum">정족수 (Quorum)</a><a class="link-tag" href="#consensus">합의 알고리즘</a><a class="link-tag" href="#distributed-lock">분산 락</a></div>
+  </div>
+</div>
+<p><strong>이중화된 클러스터가 네트워크 단절로 두 조각으로 쪼개졌을 때, 양쪽이 서로 상대가 죽은 줄 알고 각자 "내가 주(primary)다"라고 믿어 둘 다 쓰기를 받아 버리는 장애</strong>. 그 결과 양쪽 데이터가 서로 다르게 갈라지고(divergence), 나중에 네트워크가 복구돼도 어느 쪽이 맞는지 합칠 수 없는 충돌이 남는다. 그래서 분산 시스템은 <strong>과반수(정족수·Quorum)를 확보한 쪽만 주 노릇을 하게</strong> 하거나, 밀려난 노드가 더는 쓰기를 못 하도록 <strong>펜싱(fencing)·STONITH</strong>로 강제 차단해 이를 예방한다. "노드를 셋 이상 홀수로 둬라"는 권고도 과반 판정을 깔끔히 하기 위해서다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>DB·캐시 HA 클러스터, 쿠버네티스 etcd, 이중화 장비의 장애 조치(failover)를 설계·운영하며 "네트워크가 잠깐 끊긴 뒤 양쪽 다 마스터가 됐다", "데이터가 둘로 갈라졌다"를 디버깅할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="container-queries">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="container-queries-h">컨테이너 쿼리 <span class="sub">Container Queries</span></h2>
+    <div class="links"><a class="link-tag" href="#design-token">디자인 토큰</a><a class="link-tag" href="#web-vitals">Web Vitals</a></div>
+  </div>
+</div>
+<p><strong>미디어 쿼리가 "화면(뷰포트) 크기"에 반응한다면, 컨테이너 쿼리는 요소가 담긴 "부모(컨테이너)의 크기"에 반응해 스타일을 바꾸는 CSS 기능</strong>. 부모에 <code>container-type: inline-size</code>를 주고 자식에서 <code>@container (min-width: 400px) { ... }</code>로 조건을 건다. 덕분에 똑같은 카드 컴포넌트가 <strong>좁은 사이드바에 들어가면 세로로, 넓은 본문 영역에 들어가면 가로로</strong> 스스로 대응한다 — 페이지 전체 화면폭이 아니라 "지금 놓인 자리"가 기준이라, 어디에 재사용해도 깨지지 않는다. 지금은 주요 최신 브라우저에 모두 지원되어 <strong>Baseline(널리 사용 가능)</strong>에 올라 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">미디어 쿼리 (@media)</h4><ul><li>화면(뷰포트) 크기 기준</li><li>페이지 전역 레이아웃에 적합</li><li>컴포넌트가 놓인 위치는 모름</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">컨테이너 쿼리 (@container)</h4><ul><li>부모 컨테이너 크기 기준</li><li>재사용 컴포넌트에 적합</li><li>어디에 넣어도 알아서 반응</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>카드·위젯 같은 재사용 컴포넌트를 사이드바·본문·그리드 어디에 놓아도 반응형으로 만들 때, "뷰포트는 넓은데 좁은 칼럼 안에서 레이아웃이 깨진다"를 미디어 쿼리로 못 풀고 컨테이너 쿼리로 바꿀 때 마주친다. <span style="color:var(--blue)">[프론트엔드·CSS]</span></div>
 </section><hr class="divider">
 
 
