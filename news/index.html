@@ -83,6 +83,29 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-05">
+        <h2>📰 2026-10-05 (월)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI·백엔드 각 1건 통과(둘 다 Cloudflare의 10/2 발표를 공식 블로그 원문으로 확인). 프론트엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 소식이 없어 헤더째 생략 — Next.js 16.3.8/15.5.27(9/30 보안 릴리스)·Node.js 26.10.0/22.23.3(9/22~23)은 직전 발송분과 중복, React 19.3.0(9/9)·Bun 1.4.2(9/5)·Deno 2.9.7(9/16)·TypeScript 7.0.2(8/20)는 시의성 미달, Chrome 155 안정판은 release-notes 미공개(접근 실패). AI 후보 중 OpenAI(GPT-6.1 등)는 openai.com 403으로 1차 소스 접근 실패, Upstage &apos;Solar Mini 4&apos;는 HF 조직 페이지에서 모델 카드 미확인, 미국의 Anthropic 사이버 모델 수출통제 관련 소식과 Hawley·Murphy AI 책임법안은 공식·정부 1차 소스로 확정하지 못해 모두 드롭.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Cloudflare, AI Gateway에 &apos;Web Search API&apos; 추가 — 에이전트 응답 실시간 웹 그라운딩</p>
+            <p class="item-meta">2026-10-02 · <a href="https://blog.cloudflare.com/introducing-web-search-api/">blog.cloudflare.com</a></p>
+            <p class="item-summary">Cloudflare가 모델 추론 호출에 실시간 웹 검색 결과를 끼워 넣어 에이전트 응답을 최신 정보로 그라운딩하는 Web Search API를 공개했다. 공식 블로그 기준 Exa·Linkup·Ceramic.ai를 검색 파트너로 삼아 REST API·Workers 바인딩으로 호출하며, 웹 검색 호출의 로깅·통합 과금·접근제어는 AI Gateway를 관제 평면으로 삼아 일괄 관리한다. 검색 응답에는 크롤링한 콘텐츠 위치 링크를 포함하고 크롤러는 Cloudflare의 &apos;Verified bots&apos; 요건을 준수해야 한다. 별도 RAG 구축 없이 에이전트에 &apos;살아 있는&apos; 컨텍스트 레이어를 붙이는 사례.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Cloudflare, &apos;OHTTP Gateway&apos; 클로즈드 베타 공개 — 사용자 IP를 숨기는 관리형 프라이버시 인프라</p>
+            <p class="item-meta">2026-10-02 · <a href="https://blog.cloudflare.com/announcing-cloudflare-ohttp-gateway/">blog.cloudflare.com</a></p>
+            <p class="item-summary">Cloudflare가 앱 백엔드가 사용자 IP 주소를 보지 않고 HTTP 요청을 받게 하는 IETF 표준 Oblivious HTTP(OHTTP)를 관리형 게이트웨이로 공개했다(클로즈드 베타). 공식 블로그 기준 릴레이와 게이트웨이의 신뢰를 분리해 어느 쪽도 &apos;누가 무엇을 요청했는지&apos;를 모두 알 수 없게 설계했고, zone의 유료 애드온으로 몇 번의 클릭만으로 OHTTP 트래픽 수신을 켤 수 있다. 애니캐스트 기반으로 전 엣지 서버에서 돌아가 릴레이↔게이트웨이 홉의 지연을 최소화하며, 기존 Privacy Gateway는 &apos;Cloudflare OHTTP Relay&apos;로 개명했다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
