@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#pod-disruption-budget">파드 중단 예산</a>
+    <a class="nav-item" href="#token-bucket-leaky-bucket">토큰·리키 버킷</a>
+    <a class="nav-item" href="#toil">토일</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="pod-disruption-budget">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="pod-disruption-budget-h">파드 중단 예산 <span class="sub">Pod Disruption Budget · PDB</span></h2>
+    <div class="links"><a class="link-tag" href="#liveness-readiness-probe">Readiness Probe</a><a class="link-tag" href="#rolling-deployment">롤링 배포</a><a class="link-tag" href="#auto-scaling">오토스케일링</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스에서 운영자가 의도적으로 파드를 내리는 "자발적 중단(voluntary disruption)" 때, 동시에 내려가도 되는 파드 수를 제한해 최소 가용량을 지켜 주는 정책</strong>. 노드 점검을 위한 드레인(kubectl drain), 클러스터 업그레이드, 스케일다운처럼 사람이 의도한 중단에 대해 <strong>&quot;최소 몇 개는 떠 있어야 한다(minAvailable)&quot;</strong> 또는 <strong>&quot;최대 몇 개까지만 동시에 내려도 된다(maxUnavailable)&quot;</strong>를 선언한다. 이를 어기는 축출(eviction)은 API가 막아 주기 때문에, 노드를 정리하는 중에도 서비스 파드가 한꺼번에 사라지지 않는다. 단, <strong>하드웨어 장애·노드 크래시 같은 비자발적 중단(involuntary)은 PDB로 막지 못한다</strong> — 예산에 카운트만 될 뿐이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>쿠버네티스 노드를 업그레이드·점검하려 드레인할 때 &quot;PDB 때문에 drain이 멈췄다&quot;, 또는 replica가 1개뿐인 워크로드에 minAvailable을 잘못 걸어 드레인이 영영 끝나지 않을 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="token-bucket-leaky-bucket">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="token-bucket-leaky-bucket-h">토큰 버킷 · 리키 버킷 <span class="sub">Token Bucket · Leaky Bucket</span></h2>
+    <div class="links"><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#api-gateway">API Gateway</a><a class="link-tag" href="#backpressure">백프레셔</a></div>
+  </div>
+</div>
+<p><strong>API 요청 속도를 제한(rate limiting)하거나 트래픽을 평탄화(traffic shaping)할 때 쓰는 두 가지 대표 알고리즘</strong>. <strong>토큰 버킷</strong>은 일정 속도로 토큰이 차오르는 양동이를 두고 요청마다 토큰 하나를 소비한다 — 토큰이 쌓여 있으면 짧은 순간의 폭주(burst)를 버킷 용량만큼 허용하되, 평균 속도는 토큰 충전 속도로 묶인다. <strong>리키 버킷</strong>은 요청을 큐에 담아 바닥 구멍으로 <strong>일정 속도로만 흘려보내</strong>, 들어오는 양이 들쭉날쭉해도 출력 속도를 항상 매끄럽게 고정한다. 한마디로 토큰 버킷은 &quot;평균 속도 + 순간 폭주 허용&quot;, 리키 버킷은 &quot;출력 속도 고정&quot;이 핵심이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">토큰 버킷 (Token Bucket)</h4><ul><li>토큰이 차는 만큼 버스트 허용</li><li>평균 속도는 충전 속도로 제한</li><li>API 레이트 리밋에 흔히 사용</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">리키 버킷 (Leaky Bucket)</h4><ul><li>큐에서 일정 속도로만 배출</li><li>출력이 항상 매끄러움(평탄화)</li><li>버스트는 큐에 쌓였다 처리</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>API 게이트웨이·레이트 리미터를 &quot;초당 N건, 버스트 M건 허용&quot;으로 설정하거나, &quot;트래픽 스파이크를 그대로 흡수할지 깎아 낼지&quot;를 논할 때 두 방식의 차이를 마주친다. <span style="color:var(--coral)">[백엔드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="toil">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="toil-h">토일 <span class="sub">Toil · 운영 노역</span></h2>
+    <div class="links"><a class="link-tag" href="#on-call">온콜</a><a class="link-tag" href="#runbook">런북</a><a class="link-tag" href="#observability">관측성</a></div>
+  </div>
+</div>
+<p><strong>구글 SRE가 정의한 개념으로, 프로덕션 서비스를 운영하는 데 따르는 &quot;수작업·반복적·자동화 가능·전술적(임시 대응)·지속 가치가 없고·서비스 규모에 비례해 선형으로 늘어나는&quot; 종류의 일</strong>. 장애가 날 때마다 손으로 재시작하거나 똑같은 티켓을 반복 처리하는 것이 전형이다. 한 번 만들어 두면 가치가 계속 남는 <strong>엔지니어링 작업</strong>과 대비되며, 토일은 아무리 해도 쌓이는 자산 없이 사람의 시간만 갉아먹는다. 그래서 SRE는 토일 비중을 일정 상한(SRE 책에서 권고하는 기준은 <strong>통상 50% 이하</strong>) 안으로 관리하고, 자동화로 줄여 나가는 것을 목표로 삼는다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>온콜·운영 업무를 회고하며 &quot;이건 매번 손으로 하는 토일이니 자동화하자&quot;, &quot;토일 비중이 너무 높아 개선 작업을 못 한다&quot;처럼 업무 분배와 자동화 우선순위를 논할 때 마주친다. <span style="color:var(--purple)">[운영·SRE]</span></div>
 </section><hr class="divider">
 
 
