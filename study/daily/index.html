@@ -210,6 +210,38 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-05">
+        <h2>2026-10-05 (월) · useEffect 클린업 — "켠 건 끄고 나가라" (Strict Mode에서 effect가 두 번 도는 이유)</h2>
+        <span class="topic-tag">프론트 심화 (React)</span>
+
+        <h3>핵심 개념</h3>
+        <p>useEffect는 렌더 후에 "바깥 세계와 연결"하는 코드(이벤트 리스너, 타이머, 웹소켓 구독 등)를 넣는 곳이에요. 연결했으면 끊는 것도 책임인데, effect가 반환하는 함수(클린업)가 그 역할을 합니다. 클린업은 ① 의존성이 바뀌어 effect가 다시 실행되기 직전, ② 컴포넌트가 사라질 때 호출돼요.</p>
+        <p>퍼블리싱으로 치면 <code>addEventListener</code> 해놓고 요소를 지우면서 <code>removeEventListener</code>를 안 해서 유령 핸들러가 남는 것과 같습니다. 개발 모드의 Strict Mode는 일부러 "마운트 → 클린업 → 마운트"를 한 번 더 돌려서, 클린업이 빠진 effect를 바로 드러내 줘요.</p>
+
+        <pre><code>useEffect(() =&gt; {
+  const onResize = () =&gt; setWidth(window.innerWidth);
+  window.addEventListener('resize', onResize);   // 연결
+  return () =&gt; window.removeEventListener('resize', onResize); // 정리
+}, []);</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>라우트를 오갈 때마다 리스너·타이머·소켓이 쌓이면 메모리 누수와 "화면 나갔는데 setState 호출" 버그로 이어지고, 개발 모드에서 로그가 두 번 찍힌다고 당황하는 일도 줄어요.</p>
+        <p class="refs">더 보기: <a href="https://react.dev/learn/synchronizing-with-effects">React Docs — Synchronizing with Effects</a> · <a href="https://react.dev/learn/you-might-not-need-an-effect">React Docs — You Might Not Need an Effect</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> 개발 모드(Strict Mode)에서 <code>useEffect(() =&gt; { console.log('연결'); return () =&gt; console.log('해제'); }, [])</code> 가 있는 컴포넌트를 처음 열면 콘솔에 어떤 순서로 찍힐까요? ① 연결 ② 연결 → 해제 → 연결 ③ 연결 → 연결 ④ 해제 → 연결</p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래 코드는 이 컴포넌트가 열려 있는 동안 1초마다 count를 올리려는 코드입니다. 컴포넌트가 사라진 뒤에도 일어나는 문제는 무엇이고, 어떻게 고칠까요?</p>
+          <pre><code>useEffect(() =&gt; {
+  setInterval(() =&gt; setCount((c) =&gt; c + 1), 1000);
+}, []);</code></pre>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1. ②</strong> — Strict Mode는 개발 모드에서 마운트 → 클린업 → 마운트를 한 번 더 시뮬레이션해서 클린업이 제대로 짝을 이루는지 검증합니다(프로덕션에서는 한 번만 실행).</p>
+            <p><strong>Q2.</strong> <code>setInterval</code>을 정리하지 않아 컴포넌트가 사라져도 타이머가 계속 돌며 setState를 호출(메모리 누수)하고, Strict Mode에서는 타이머가 2개 생겨 count가 2씩 올라갑니다. <code>const id = setInterval(...); return () =&gt; clearInterval(id);</code> 로 클린업을 추가하면 해결돼요.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-09-30">
         <h2>2026-09-30 (수) · 판별 유니온(Discriminated Union) — 상태마다 "있는 필드"가 다른 타입을 안전하게 좁히기</h2>
         <span class="topic-tag">프론트 심화 (TypeScript)</span>
