@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#direct-connect">Direct Connect</a>
+    <a class="nav-item" href="#replication-lag">복제 지연</a>
+    <a class="nav-item" href="#shift-left">시프트 레프트</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,49 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<!-- ===== Direct Connect ===== -->
+<section class="term" id="direct-connect">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="direct-connect-h">전용 연결 <span class="sub">AWS Direct Connect · DX</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#vpc-endpoint">VPC 엔드포인트</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a></div>
+  </div>
+</div>
+<p><strong>사내(온프레미스) 네트워크와 AWS를 공용 인터넷을 거치지 않고 전용 회선(이더넷 광케이블)으로 직접 연결하는 서비스</strong>. 통신사(ISP)를 우회하는 전용 경로라 인터넷 구간의 혼잡에 영향을 덜 받아 <strong>지연시간이 일정하고</strong>, 더 큰 <strong>대역폭</strong>을 안정적으로 쓸 수 있으며, 인터넷 경유보다 <strong>데이터 전송 비용이 저렴</strong>하다. "가상 인터페이스(VIF)"를 만들어 S3 같은 퍼블릭 AWS 서비스(public VIF)나 VPC 내부 자원(사설 IP, private VIF)에 접근한다. 단, 전용 회선을 까는 것이라 <strong>구축에 시간·비용이 들고</strong> 회선 자체는 암호화가 아니므로, 흔히 인터넷 VPN을 백업 경로로 함께 둔다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">사이트 간 VPN</h4><ul><li>공용 인터넷 위 암호화 터널</li><li>즉시 구성·저렴</li><li>지연·대역폭이 인터넷 상태에 좌우</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">Direct Connect</h4><ul><li>전용 회선으로 인터넷 우회</li><li>일관된 지연·큰 대역폭</li><li>구축에 시간·비용, 회선 자체는 비암호화</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>MSP로 고객의 온프레미스↔클라우드 하이브리드 연결을 설계하거나 "인터넷 VPN이 느리고 불안정하다/대량 데이터 전송 비용이 크다"를 해결할 때 마주친다. <span style="color:var(--teal)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Replication Lag ===== -->
+<section class="term" id="replication-lag">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="replication-lag-h">복제 지연 <span class="sub">Replication Lag</span></h2>
+    <div class="links"><a class="link-tag" href="#read-replica">읽기 복제본</a><a class="link-tag" href="#eventual-consistency">결과적 일관성</a><a class="link-tag" href="#connection-pool">커넥션 풀</a></div>
+  </div>
+</div>
+<p><strong>쓰기를 받는 주 노드(primary)의 변경이 복제본(replica)에 반영되기까지 생기는 시간 차이</strong>. 많은 DB는 성능을 위해 <strong>비동기 복제</strong>를 쓰는데, 이때 primary에 저장한 직후 replica를 읽으면 아직 복제가 안 돼 <strong>옛 데이터가 보일 수 있다</strong>(read-after-write 불일치·stale read). 쓰기 폭주·대량 배치·네트워크 지연·replica의 느린 반영으로 lag이 커지며, 심하면 수 초~수 분까지 벌어진다. 대책은 "방금 쓴 걸 바로 읽어야 하는" 요청은 primary로 보내거나(read-your-writes), 복제 지연 지표를 모니터링해 임계치를 넘으면 해당 replica를 읽기 대상에서 빼는 것이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>읽기 부하를 분산하려 read replica를 붙였는데 "방금 저장한 값이 조회 화면엔 안 보인다"거나 "복제 지연(replica lag)이 몇 초씩 튄다"를 디버깅·모니터링할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<!-- ===== Shift Left ===== -->
+<section class="term" id="shift-left">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="shift-left-h">시프트 레프트 <span class="sub">Shift Left</span></h2>
+    <div class="links"><a class="link-tag" href="#trunk-based-development">트렁크 기반 개발</a><a class="link-tag" href="#feature-flag">Feature Flag</a><a class="link-tag" href="#observability">관측성</a></div>
+  </div>
+</div>
+<p><strong>테스트·보안·품질 점검을 개발 수명주기의 "왼쪽(앞단)"으로 당겨, 코드 작성·커밋·PR 단계부터 자동으로 검증하는 접근</strong>. 수명주기를 왼쪽(기획·개발)에서 오른쪽(배포·운영)으로 그렸을 때, 결함을 오른쪽(운영)에서 늦게 발견할수록 <strong>수정 비용이 기하급수로 커지므로</strong> 최대한 일찍 잡자는 발상이다. CI에서 PR마다 린트·단위테스트·타입 체크·보안 스캔(SAST)·의존성 취약점 검사를 돌리는 것이 대표 사례이며, 보안 점검을 앞당기는 흐름을 특히 <strong>DevSecOps</strong>라 부른다. "일찍·자주 검증"이 핵심이라 트렁크 기반 개발·작은 PR과 잘 어울린다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>CI 파이프라인에 테스트·보안 스캔을 PR 단계로 당기거나, "버그·취약점을 배포 후가 아니라 PR에서 잡자"는 품질·보안 개선을 논할 때 마주친다. <span style="color:var(--purple)">[협업·DevOps]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
