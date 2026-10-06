@@ -210,6 +210,56 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-06">
+        <h2>2026-10-06 (화) · 멱등성(Idempotency) — 같은 요청을 두 번 보내도 결과는 한 번만</h2>
+        <span class="topic-tag">클라우드·백엔드 기초</span>
+
+        <h3>핵심 개념</h3>
+        <p>멱등성이란 "같은 요청을 몇 번 보내도 서버 상태가 한 번 보낸 것과 똑같다"는 성질이에요. <code>GET</code>, <code>PUT</code>, <code>DELETE</code>는 원래 멱등하게 설계돼 있지만(같은 값으로 덮어쓰기, 이미 지운 걸 또 지우기), <code>POST</code>(주문 생성·결제)는 두 번 보내면 두 건이 생겨요. 네트워크는 느리거나 끊기면 클라이언트가 자동 재시도하고, 사용자는 답답해서 버튼을 두 번 누르기 때문에 "요청이 중복 도착"하는 건 예외가 아니라 일상이에요.</p>
+        <p>퍼블리싱으로 치면 엘리베이터 호출 버튼 같은 거예요 — 10번 눌러도 엘리베이터는 한 대만 오죠(멱등). 반대로 "층 추가" 버튼이라면 누른 횟수만큼 층이 늘어나요(비멱등). 그래서 중복되면 곤란한 POST에는 클라이언트가 요청마다 고유한 <code>Idempotency-Key</code>를 붙이고, 서버는 "이 키 이미 처리했네?" 하면 새로 처리하지 않고 저장해 둔 이전 결과를 그대로 돌려줍니다.</p>
+
+        <pre><code>// 클라이언트: 결제 "시도 1회"당 키를 한 번만 만들고, 재시도 때도 같은 키를 재사용
+const key = crypto.randomUUID();
+
+await fetch('/api/payments', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'Idempotency-Key': key },
+  body: JSON.stringify({ orderId, amount }),
+});
+
+// 서버(개념 의사코드)
+// const saved = await store.get(key);
+// if (saved) return saved.response;        // 이미 처리됨 → 이전 응답 재전송
+// const result = await charge(orderId, amount);
+// await store.set(key, { response: result }); // 키와 결과를 저장
+// return result;</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>결제·주문·쿠폰 발급처럼 "두 번 되면 사고"인 API는 프론트의 버튼 비활성화(disabled)만으로는 못 막아요(새로고침, 재시도, 탭 두 개). 서버가 멱등하게 받아 주도록 키를 붙이는 건 프론트 개발자가 먼저 제안할 수 있는 실무 포인트예요.</p>
+        <p class="refs">더 보기: <a href="https://developer.mozilla.org/en-US/docs/Glossary/Idempotent">MDN — Idempotent</a> · <a href="https://docs.stripe.com/api/idempotent_requests">Stripe Docs — Idempotent requests</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> 다음 중 일반적으로 "멱등하지 않은" 요청은? ① <code>PUT /users/1</code> (이름을 "민수"로 덮어쓰기) ② <code>DELETE /posts/5</code> ③ <code>POST /orders</code> (새 주문 생성) ④ <code>GET /products</code></p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래 코드는 재시도(retry) 로직입니다. 결제가 서버에서는 성공했는데 응답만 타임아웃으로 유실됐다면 어떤 문제가 생기고, 어떻게 고칠까요?</p>
+          <pre><code>async function pay() {
+  for (let i = 0; i &lt; 3; i++) {
+    try {
+      return await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': crypto.randomUUID() },
+        body: JSON.stringify({ orderId, amount }),
+      });
+    } catch {}
+  }
+}</code></pre>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1. ③</strong> — POST로 새 리소스를 만드는 요청은 보낼 때마다 새 주문이 생겨 비멱등이에요. PUT(덮어쓰기)·DELETE·GET은 몇 번을 보내도 결과 상태가 같습니다.</p>
+            <p><strong>Q2.</strong> 재시도마다 <code>crypto.randomUUID()</code>로 키를 새로 만들어서, 서버는 매번 "처음 보는 요청"으로 보고 결제를 중복 처리해요. 키를 루프 바깥에서 한 번만 만들어 모든 재시도에 같은 값을 쓰면(<code>const key = crypto.randomUUID();</code>) 서버가 이전 결과를 돌려줘 한 번만 결제됩니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-10-05">
         <h2>2026-10-05 (월) · useEffect 클린업 — "켠 건 끄고 나가라" (Strict Mode에서 effect가 두 번 도는 이유)</h2>
         <span class="topic-tag">프론트 심화 (React)</span>
