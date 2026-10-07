@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#technical-debt">기술 부채 (Technical Debt)</a>
+    <a class="nav-item" href="#soft-delete">소프트 삭제 (Soft Delete)</a>
+    <a class="nav-item" href="#leader-election">리더 선출 (Leader Election)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,46 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="technical-debt">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="technical-debt-h">기술 부채 <span class="sub">Technical Debt · 기술 빚</span></h2>
+    <div class="links"><a class="link-tag" href="#adr">ADR</a><a class="link-tag" href="#error-budget">에러 버짓</a><a class="link-tag" href="#dora-metrics">DORA 메트릭</a></div>
+  </div>
+</div>
+<p><strong>지금 빠르게 가려고 "제대로 된 방식" 대신 임시방편·지름길을 택했을 때 나중에 갚아야 할 추가 비용을 빚에 빗댄 말</strong>. 1992년 워드 커닝엄이 만든 비유로, 돈을 빌리면 당장은 일이 되지만 갚지 않고 두면 <strong>이자가 붙듯</strong>, 급하게 짠 코드·미룬 리팩터링·빠진 테스트·낡은 라이브러리는 그대로 두면 유지보수와 신규 개발을 점점 느리고 위험하게 만든다. 부채가 항상 나쁜 건 아니며, 마감을 맞추려 <strong>의도적으로</strong> 지는 전략적 부채도 있다. 핵심은 "언제 어떤 부채를 졌고 언제 갚을지"를 <strong>보이게 관리</strong>하는 것 — 방치해 이자가 불어나면(아무도 못 건드리는 코드) 결국 전면 재작성으로 이어진다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이건 일단 이렇게 막고 나중에 리팩터링하자", "이 모듈은 기술부채가 너무 쌓여서 손대기 무섭다", 스프린트에 '부채 상환' 작업을 끼워 넣을지 논의할 때 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="soft-delete">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="soft-delete-h">소프트 삭제 <span class="sub">Soft Delete · 논리 삭제</span></h2>
+    <div class="links"><a class="link-tag" href="#orm">ORM</a><a class="link-tag" href="#cdc">CDC</a><a class="link-tag" href="#cursor-pagination">커서 페이지네이션</a></div>
+  </div>
+</div>
+<p><strong>데이터를 테이블에서 실제로 지우지 않고, "삭제됨" 표시(보통 <code>deleted_at</code> 타임스탬프나 <code>is_deleted</code> 플래그)만 찍어 숨기는 방식</strong>. 행은 그대로 남아 있고, 평소 조회는 <code>WHERE deleted_at IS NULL</code>처럼 삭제 안 된 것만 걸러서 보여준다. 물리 삭제(하드 삭제)와 달리 <strong>실수로 지운 데이터를 복구</strong>할 수 있고, 주문·결제 기록처럼 <strong>이력·감사(audit)가 필요한 데이터</strong>를 보존하며, 다른 테이블이 참조 중인 행을 지워 생기는 깨짐을 피한다. 대신 데이터가 계속 쌓여 테이블이 커지고, 모든 쿼리에 삭제 필터를 빠짐없이 걸어야 하며(빠뜨리면 지운 게 다시 보인다), 고유 제약(이메일 중복 등)·개인정보 완전 삭제 요구와 충돌할 수 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">소프트 삭제 (Soft)</h4><ul><li>표시만 하고 행은 남김</li><li>복구·이력 보존 쉬움</li><li>데이터 누적·쿼리마다 필터 필요</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">하드 삭제 (Hard)</h4><ul><li>행을 실제로 제거</li><li>용량·단순함·완전 삭제에 유리</li><li>복구 불가, 참조 깨짐 위험</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"유저가 탈퇴하면 데이터를 진짜 지울까 표시만 할까", "지운 줄 알았는데 목록에 또 보인다"(삭제 필터 누락), 휴지통·복구 기능이나 감사 로그를 설계할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="leader-election">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="leader-election-h">리더 선출 <span class="sub">Leader Election</span></h2>
+    <div class="links"><a class="link-tag" href="#consensus">합의 알고리즘</a><a class="link-tag" href="#quorum">정족수</a><a class="link-tag" href="#service-discovery">서비스 디스커버리</a></div>
+  </div>
+</div>
+<p><strong>똑같은 역할을 하는 여러 노드(서버) 중에서 "대표(리더)" 하나를 자동으로 뽑아, 한 번에 한 노드만 특정 작업을 맡게 하는 절차</strong>. 모든 노드가 동시에 같은 일(스케줄링·쓰기·조정)을 하면 충돌·중복이 생기므로, 클러스터는 리더 하나를 정해 그 노드가 결정을 내리고 나머지는 따르는 팔로워가 된다. 리더가 죽거나 응답이 끊기면 <strong>남은 노드들이 투표해 새 리더를 다시 뽑는다(재선출)</strong>. 이때 네트워크가 쪼개져 양쪽이 각자 리더를 뽑는 <strong>스플릿 브레인</strong>을 막으려고 보통 과반수(정족수) 동의를 요구하며, Raft 같은 합의 알고리즘이 선출과 데이터 일관성을 함께 보장한다. ZooKeeper·etcd·Kubernetes 컨트롤 플레인 등이 이 방식으로 단일 조정자를 유지한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>여러 인스턴스로 띄운 배치·크론 작업이 "한 번만 실행"되게 하거나, etcd·ZooKeeper 기반 클러스터에서 "리더가 바뀌었다(leader changed)"는 로그·장애를 들여다볼 때 마주친다. <span style="color:var(--teal)">[인프라·분산]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
