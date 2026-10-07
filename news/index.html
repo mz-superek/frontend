@@ -83,6 +83,29 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-08">
+        <h2>📰 2026-10-08 (목)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건·프론트엔드 1건 통과. 백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 소식이 없어 헤더째 생략. 드롭: Claude Opus 5.5(9/22)·Sonnet 5.5(9/28)·React 19.3(9/9)은 시의성 창 밖으로 제외, OpenAI GPT-6.1 Sol·Google Gemini 4 Argon/Nano Banana는 공식 도메인 접근 불가 또는 1차 소스 미확인(접근 실패), web.dev 9월 웹 플랫폼 요약은 10/7 발송분과 중복, Chrome 152(8/25 안정판)·Node.js/Deno/Bun·Safari Technology Preview는 시의성 미달 또는 공식 날짜 미확정으로 제외.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, &apos;Claude Haiku 5.5&apos; 공개 — 소형 모델 세대 교체, 운영 비용 약 75% 절감</p>
+            <p class="item-meta">2026-10-07 · <a href="https://www.anthropic.com/claude-haiku-5-5">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 소형 모델 라인의 최신판 Claude Haiku 5.5를 공개했다(API 모델명 <code>claude-haiku-5-5</code>, 전 플랫폼 즉시 사용 가능). 공식 발표 기준 &quot;지금까지 가장 저렴하고 빠르면서도 가장 유능한 소형 모델&quot;로, 이전 세대 Haiku 4.5 대비 평균 운영 비용이 약 75% 낮다(새 토크나이저로 작업당 토큰이 다소 늘어난 점까지 반영한 수치). 요약·서브에이전트·분류 같은 대량·반복 작업을 겨냥했고, Haiku 계열 최초로 effort(노력) 설정을 조절할 수 있다. 소형 모델에서도 성능·비용 효율을 끌어올리는 프론티어 랩의 흐름을 보여준다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.4 안정판 — 개발 속도·번들 축소 + React 19.3 지원</p>
+            <p class="item-meta">2026-10-06 · <a href="https://nextjs.org/blog/next-16-4">nextjs.org</a></p>
+            <p class="item-summary">Vercel이 Next.js 16.4 안정판을 공개했다. 클라이언트 dynamic import와 서버 모듈을 지연(lazy) 컴파일해 개발 속도를 높이고, Turbopack 개발 캐시의 디스크 사용량과 프로덕션 번들 크기(export mangling, 짧은 CSS Module 클래스명)를 함께 줄였다. React 19.3(안정화된 View Transitions·Fragment Refs, <code>browser()</code>, Trusted Types)를 지원하며, <code>create-next-app</code>으로 만드는 신규 프로젝트는 Cache Components가 기본 활성화된다. 체감 성능과 번들 다이어트를 함께 챙긴 실무용 마이너 릴리스.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
