@@ -210,6 +210,49 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-07">
+        <h2>2026-10-07 (수) · cn() = clsx + tailwind-merge — Tailwind 클래스가 충돌할 때 "나중에 쓴 게 이긴다"를 보장하는 법</h2>
+        <span class="topic-tag">프론트 심화 (Tailwind · ShadCN)</span>
+
+        <h3>핵심 개념</h3>
+        <p>Tailwind에서 <code>px-2 px-4</code>처럼 충돌하는 클래스를 같이 쓰면, 어느 쪽이 적용될지는 클래스를 쓴 순서가 아니라 <em>생성된 CSS 파일 안의 선언 순서</em>로 정해져요. 그래서 컴포넌트가 <code>className</code>을 props로 받아 덧붙이면 결과가 예측 불가가 됩니다. ShadCN의 <code>cn()</code> 유틸은 이걸 두 단계로 해결해요. ① <code>clsx</code>가 조건부 클래스(<code>cond &amp;&amp; 'a'</code>, 객체, 배열)를 하나의 문자열로 합치고, ② <code>tailwind-merge</code>(<code>twMerge</code>)가 "같은 속성을 건드리는 클래스"를 찾아 <em>앞의 것을 지우고 뒤의 것만</em> 남겨요.</p>
+        <p>퍼블리싱으로 치면 CSS 우선순위(specificity) 싸움을 <code>!important</code> 없이 "나중 선언이 이긴다"로 정리해 주는 도구예요.</p>
+
+        <pre><code>// lib/utils.ts (ShadCN 기본 생성 코드)
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// 사용
+cn('px-2 py-1', 'px-4');                    // 'py-1 px-4'  (px-2 제거)
+cn('bg-blue-500', isError &amp;&amp; 'bg-red-500'); // isError면 'bg-red-500'만 남음
+
+function Button({ className, ...props }: React.ComponentProps&lt;'button'&gt;) {
+  return &lt;button className={cn('rounded px-4 py-2 bg-primary', className)} {...props} /&gt;;
+}
+// &lt;Button className="bg-red-500" /&gt; → bg-primary는 지워지고 bg-red-500 적용</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>ShadCN 컴포넌트는 거의 전부 <code>cn(기본스타일, className)</code> 구조라서, 이걸 이해해야 "왜 내가 넘긴 className이 먹히는지/안 먹히는지"를 디버깅할 수 있어요. 직접 만드는 공통 컴포넌트(FSD의 <code>shared/ui</code>)에서도 같은 패턴을 써야 덮어쓰기가 안전합니다.</p>
+        <p class="refs">더 보기: <a href="https://github.com/dcastil/tailwind-merge">tailwind-merge README</a> · <a href="https://ui.shadcn.com/docs/installation/manual">ShadCN — Manual Installation (cn 유틸)</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> <code>cn('px-2 py-1', 'px-4')</code>의 결과는? ① <code>'px-2 py-1 px-4'</code> ② <code>'py-1 px-4'</code> ③ <code>'px-2 py-1'</code> ④ <code>'px-4'</code></p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래 <code>Button</code>에 <code>className="bg-red-500"</code>을 넘겼는데 가끔 파란색으로 보입니다. 왜 그럴까요? 어떻게 고칠까요?</p>
+          <pre><code>function Button({ className }: { className?: string }) {
+  return &lt;button className={`px-4 bg-blue-500 ${className}`}&gt;확인&lt;/button&gt;;
+}</code></pre>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1. ②</strong> — <code>px-2</code>와 <code>px-4</code>는 같은 속성(가로 패딩)이라 twMerge가 앞의 <code>px-2</code>를 지우고 뒤의 <code>px-4</code>만 남겨요.</p>
+            <p><strong>Q2.</strong> 템플릿 문자열로 이어 붙이면 <code>bg-blue-500</code>과 <code>bg-red-500</code>이 둘 다 남고, 승자는 클래스 순서가 아니라 CSS 파일 내 선언 순서로 정해져 결과가 불안정해요. <code>cn('px-4 bg-blue-500', className)</code>로 바꾸면 충돌하는 앞쪽 클래스가 제거돼 항상 넘긴 값이 이겨요.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-10-06">
         <h2>2026-10-06 (화) · 멱등성(Idempotency) — 같은 요청을 두 번 보내도 결과는 한 번만</h2>
         <span class="topic-tag">클라우드·백엔드 기초</span>
