@@ -83,6 +83,39 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-09">
+        <h2>📰 2026-10-09 (금)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 3건·백엔드 1건 통과. 프론트엔드는 1차 소스로 확인되는 신규 안정 릴리스가 시의성 창(최근 1~2주) 안에 없어 생략(Next.js 16.4 안정판은 10/8 발송분과 중복, React 19.3은 9/9로 시의성 미달, TypeScript 7.0.2는 8/20로 미달). HTML &amp; CSS도 생략(web.dev 9월 웹 플랫폼 다이제스트는 10/7 발송분과 중복, Safari 27.0 기능 안내는 9/17 발행으로 시의성 미달).</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, &apos;사이버 미션(Cyber Mission)&apos; 출범 — 방어자 지원 + 오픈소스 무료 취약점 스캐너</p>
+            <p class="item-meta">2026-10-08 · <a href="https://www.anthropic.com/news/anthropic-cyber-mission">anthropic.com</a></p>
+            <p class="item-summary">핵심 인프라와 오픈소스 소프트웨어의 보안을 돕기 위한 장기 프로그램 &apos;Cyber Mission&apos;을 공개했다. 보안 파트너(Accenture·CrowdStrike 등)에게 프론티어 Claude 모델 접근을 제공하는 &apos;핵심 인프라 방어 프로그램(Critical Infrastructure Defense Program)&apos;과, 오픈소스 프로젝트의 취약점을 무료로 스캔해 주는 옵트인 서비스 &apos;OSS Scanner&apos;를 함께 내놨다. AI 모델을 공격이 아닌 방어 역량 강화에 쓰는 프론티어 랩의 흐름을 보여주는 움직임.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Anthropic, &apos;2026 이용정책(Usage Policy)&apos; 개정 — 11/12 발효</p>
+            <p class="item-meta">2026-10-08 · <a href="https://www.anthropic.com/news/2026-usage-policy-update">anthropic.com</a></p>
+            <p class="item-summary">11월 12일 발효되는 이용정책 개정안을 공개했다. 기만적 캠페인·가짜 계정에 대한 규정을 통합하고, 선거 관련 조항을 유권자 기만·선거 방해로 범위를 좁혔으며, 무기·감시 용도 금지를 강화했다. 또한 고위험 용도에 대해 인간 감독·물리적 안전 요건을 추가했다. AI 거버넌스·안전 정책이 구체화되는 사례.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Anthropic, 美 &apos;Genesis Mission&apos;에 3년간 1억 5천만 달러 투입</p>
+            <p class="item-meta">2026-10-08 · <a href="https://www.anthropic.com/news/genesis-mission-commitment">anthropic.com</a></p>
+            <p class="item-summary">과학 발견을 가속하기 위한 미국 연방 AI 이니셔티브 &apos;Genesis Mission&apos;에 3년간 1억 5천만 달러를 투입한다고 발표했다. 이를 통해 NASA·NIH·NSF 등 15개 이상의 참여 기관이 Claude를 활용할 수 있게 된다. 정부 주도 과학 연구에 프론티어 AI가 본격 투입되는 신호.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js 26.11.0 (Current) 출시 — Buffer.stringLength()·HTTP 헤더 검증 API·process.ref/unref 안정화</p>
+            <p class="item-meta">2026-10-07 · <a href="https://github.com/nodejs/node/releases/tag/v26.11.0">github.com</a></p>
+            <p class="item-summary">Current 라인의 신규 마이너 릴리스. Buffer에 <code>isLatin1</code>과 <code>Buffer.stringLength()</code>가 추가됐고, HTTP에 <code>isValidHeaderName()</code>·<code>isValidHeaderValue()</code>가 도입됐다. HTTP/2에 <code>connectionWindowSize</code> 옵션이 생겼고, <code>process.ref</code>/<code>unref</code>가 안정(stable)으로 승격됐으며 <code>perf_hooks</code> 히스토그램에 <code>diff()</code>·<code>snapshot()</code>가 추가됐다. Alpine Linux도 tier 2 지원으로 승격됐다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
