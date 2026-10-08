@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#network-acl">네트워크 ACL (NACL)</a>
+    <a class="nav-item" href="#backfill">백필 (Backfill)</a>
+    <a class="nav-item" href="#golden-signals">4대 황금 지표</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,46 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="network-acl">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="network-acl-h">네트워크 ACL <span class="sub">Network ACL · NACL</span></h2>
+    <div class="links"><a class="link-tag" href="#security-group">Security Group</a><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#zero-trust">Zero Trust</a></div>
+  </div>
+</div>
+<p><strong>VPC의 서브넷(subnet) 경계에 적용되는 "상태 비저장(stateless)" 방화벽</strong>. 보안 그룹(Security Group)이 인스턴스(정확히는 ENI)마다 붙는 안쪽 방어선이라면, NACL은 그보다 <strong>한 단계 바깥인 서브넷 전체에 걸리는 방어선</strong>이다. 두 가지가 핵심적으로 다르다. 첫째, NACL은 <strong>허용(allow)뿐 아니라 명시적 차단(deny) 규칙</strong>도 쓸 수 있어 "이 IP만 서브넷째로 막기"가 가능하다(보안 그룹은 허용 규칙만 있고 나머지는 암묵적 차단). 둘째, NACL은 <strong>상태를 기억하지 않아(stateless)</strong> 나가는 요청과 그에 대한 응답(돌아오는 트래픽)을 각각 따로 허용해야 한다 — 그래서 아웃바운드 응답이 쓰는 <strong>임시 포트(ephemeral port, 보통 1024~65535) 범위를 인바운드로도 열어줘야</strong> 통신이 된다. 규칙은 <strong>번호가 낮은 것부터 순서대로 평가하다 처음 맞는 규칙에서 멈춘다</strong>.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">네트워크 ACL (서브넷)</h4><ul><li>서브넷 경계에 적용</li><li>상태 비저장 → 응답 트래픽도 따로 허용</li><li>허용 + 차단(deny) 규칙 모두 가능</li><li>번호 순서대로 평가, 첫 일치에서 멈춤</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">보안 그룹 (인스턴스)</h4><ul><li>인스턴스·ENI에 적용</li><li>상태 저장 → 허용한 요청의 응답은 자동 허용</li><li>허용 규칙만, 나머지는 암묵적 차단</li><li>모든 규칙을 함께 평가</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"보안 그룹은 다 열어줬는데 왜 통신이 막히지?"의 범인이 서브넷 NACL인 경우, 또는 특정 IP·대역을 서브넷 통째로 차단할 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="backfill">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="backfill-h">백필 <span class="sub">Backfill</span></h2>
+    <div class="links"><a class="link-tag" href="#etl">ETL</a><a class="link-tag" href="#cdc">CDC</a><a class="link-tag" href="#idempotency">멱등성</a></div>
+  </div>
+</div>
+<p><strong>새로 만든 컬럼·테이블·집계나 새 파이프라인에 대해, 지금 시점부터가 아니라 "과거 기간 데이터까지 소급해서 채워 넣는" 작업</strong>. 보통 코드·스키마를 바꾸면 그 이후 데이터는 자연히 쌓이지만, <strong>바뀌기 전에 이미 있던 과거 데이터는 비어 있거나 옛 형식 그대로</strong>라서 따로 메워 줘야 한다. 예를 들어 집계 테이블에 새 지표를 추가하면 과거치를 다시 계산해 넣어야 하고, 새 컬럼을 추가하면 기존 레코드의 그 칸을 과거까지 채워야 한다. 대상이 수억 건이면 한 번에 돌리지 않고 <strong>기간·배치 단위로 나눠(예: 하루치씩) 운영 DB 부하를 피하며 점진적으로</strong> 돌리고, 중간에 끊겨 다시 돌려도 결과가 어긋나지 않도록 <strong>멱등성(idempotency)</strong>을 지키게 설계하는 것이 중요하다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>대시보드에 새 지표를 추가하며 "예전 데이터도 다시 계산해 채우자(backfill)"를 논하거나, 마이그레이션으로 새로 추가한 빈 컬럼을 과거 레코드까지 메우는 일정을 잡을 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="golden-signals">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="golden-signals-h">4대 황금 지표 <span class="sub">Four Golden Signals</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#percentile-latency">백분위 지연시간</a><a class="link-tag" href="#dora-metrics">DORA 메트릭</a></div>
+  </div>
+</div>
+<p><strong>구글 SRE가 제시한, 서비스 상태를 모니터링할 때 "최소한 이 네 가지는 보라"는 핵심 지표 묶음</strong>. 수많은 지표 중 무엇을 봐야 할지 막막할 때 출발점이 되어 준다. 넷은 이렇다. <strong>① 지연(Latency)</strong> — 요청 처리에 걸리는 시간. 이때 <strong>성공한 요청과 실패한 요청의 지연을 꼭 나눠서</strong> 봐야 한다(빠른 에러가 평균을 좋게 왜곡하므로). <strong>② 트래픽(Traffic)</strong> — 시스템에 걸리는 수요량(초당 요청 수 등). <strong>③ 오류(Errors)</strong> — 실패한 요청의 비율. <strong>④ 포화도(Saturation)</strong> — 시스템이 얼마나 꽉 찼는지로, CPU·메모리·I/O 등 <strong>가장 먼저 한계에 닿는 자원</strong>을 기준으로 본다. 지연은 평균보다 <strong>p95·p99 같은 백분위</strong>로 보는 것이 꼬리 지연(tail latency)을 잡아내는 데 좋다. 자원 중심의 USE, 요청 중심의 RED 같은 다른 방법론과 함께 거론된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>모니터링 대시보드·알람을 설계하며 "무슨 지표부터 봐야 하지"를 정하거나, 장애가 났을 때 지연·트래픽·오류·포화도 네 축으로 어디가 터졌는지 좁혀갈 때 마주친다. <span style="color:var(--purple)">[운영·SRE]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
