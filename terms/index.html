@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#pubsub">발행-구독 (Pub/Sub)</a>
+    <a class="nav-item" href="#elastic-ip">탄력적 IP (EIP)</a>
+    <a class="nav-item" href="#graceful-degradation">우아한 성능 저하</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,46 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="pubsub">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="pubsub-h">발행-구독 <span class="sub">Pub/Sub · Publish/Subscribe</span></h2>
+    <div class="links"><a class="link-tag" href="#message-queue">Message Queue</a><a class="link-tag" href="#webhook">Webhook</a><a class="link-tag" href="#realtime">실시간 통신</a></div>
+  </div>
+</div>
+<p><strong>메시지를 보내는 쪽(발행자, Publisher)과 받는 쪽(구독자, Subscriber)이 서로를 직접 알지 못한 채, 중간의 "토픽(topic)/채널"을 거쳐 메시지를 주고받는 비동기 메시징 패턴</strong>. 발행자는 토픽에 메시지를 던지기만 하고, 그 토픽을 구독한 <strong>모든 구독자가 각자 사본을 받는 1:N 브로드캐스트</strong>다. 작업 큐(Message Queue)가 보통 하나의 메시지를 <strong>한 소비자만 집어가는 1:1 작업 분배</strong>인 것과 달리, Pub/Sub은 같은 이벤트를 여러 서비스가 동시에 받아 처리할 수 있다. 발행자·구독자가 서로의 존재·수·위치를 몰라도 되므로 <strong>느슨한 결합(loose coupling)</strong>과 확장에 유리하다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">메시지 큐 (작업 큐)</h4><ul><li>한 메시지 → 소비자 1명이 가져감</li><li>일을 나눠 처리(작업 분배)</li><li>예: 이미지 변환 작업 큐</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">Pub/Sub (발행-구독)</h4><ul><li>한 메시지 → 구독자 전원이 받음</li><li>이벤트 알림(1:N 방송)</li><li>예: Kafka 토픽 · AWS SNS</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>주문 생성 같은 이벤트 하나를 결제·알림·재고 서비스가 동시에 받아 처리하게 하거나, Kafka 토픽·AWS SNS·Redis Pub/Sub·웹소켓 브로드캐스트를 설계할 때 마주친다. <span style="color:var(--coral)">[백엔드·메시징]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="elastic-ip">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="elastic-ip-h">탄력적 IP <span class="sub">Elastic IP · EIP</span></h2>
+    <div class="links"><a class="link-tag" href="#dns">DNS</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a><a class="link-tag" href="#vpc">VPC</a></div>
+  </div>
+</div>
+<p><strong>AWS 계정에 할당받아 내가 반납(release)하기 전까지 고정으로 소유하는 정적 공인 IPv4 주소</strong>. EC2 인스턴스에 자동으로 붙는 기본 공인 IP는 인스턴스를 중지·교체하면 바뀌어 버리지만, EIP는 <strong>값이 변하지 않는다</strong>. 덕분에 장애가 난 인스턴스에서 정상 인스턴스로 주소를 빠르게 <strong>재연결(remap)</strong>해 장애를 사용자에게 보이지 않게 가릴 수 있다 — 이것이 EIP의 핵심 용도다. <strong>리전 단위 자원</strong>이라 다른 리전으로 옮길 수 없고, 계정당 기본 할당량은 리전당 5개다. 주의: AWS는 <strong>사용 중이든 놀고 있든 모든 공인 IPv4 주소(EIP 포함)에 과금</strong>하므로, 아무 데도 연결 안 된 채 방치된 EIP에도 요금이 나간다 — 안 쓰면 반납해야 한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>고정 IP가 필요한 서버(상대 시스템 화이트리스트 등록·DNS A레코드·메일 발송)에 EIP를 붙이거나, "인스턴스를 교체했더니 IP가 바뀌어 접속이 끊겼다"를 해결할 때, 또는 비용 점검에서 아무 데도 연결 안 된 EIP가 과금되는 걸 발견할 때 마주친다. <span style="color:var(--teal)">[인프라·클라우드]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="graceful-degradation">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="graceful-degradation-h">우아한 성능 저하 <span class="sub">Graceful Degradation</span></h2>
+    <div class="links"><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a><a class="link-tag" href="#error-boundary">Error Boundary</a><a class="link-tag" href="#retry-backoff">Retry·Backoff</a></div>
+  </div>
+</div>
+<p><strong>시스템의 일부 구성요소가 실패하거나 과부하에 빠졌을 때, 전체를 한꺼번에 멈추는 대신 핵심 기능은 살리고 부가 기능만 줄여 "조금 불편하더라도 계속 동작"하게 만드는 설계 원칙</strong>. 예를 들어 추천 서비스가 죽으면 추천 영역만 비워 두고 상품 페이지 자체는 정상으로 보여 주거나, 외부 API가 장애일 때 캐시된 과거 값으로 대체해 응답한다. "장애가 나도 서비스가 완전히 멈추지는 않게" 만드는 복원력(resilience) 전략으로, 흔히 <strong>폴백(fallback)·기본값·캐시</strong>와 함께 구현한다. 처음부터 낮은 환경을 가정하고 기능을 쌓아 올리는 <strong>점진적 향상(Progressive Enhancement)과는 방향이 반대</strong>인 개념이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>의존 서비스 장애에 대비한 폴백·기본값·캐시 전략을 설계하거나, "서킷 브레이커가 열렸을 때 사용자에게 무엇을 보여줄까"를 논할 때 마주친다. 서킷 브레이커·에러 바운더리·리트라이와 짝을 이루는 복원력 기법이다. <span style="color:var(--green)">[백엔드·복원력]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
