@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#vpc-flow-logs">VPC 플로우 로그</a>
+    <a class="nav-item" href="#columnar-storage">컬럼형 저장</a>
+    <a class="nav-item" href="#okr">목표·핵심결과 (OKR)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,46 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="vpc-flow-logs">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="vpc-flow-logs-h">VPC 플로우 로그 <span class="sub">VPC Flow Logs</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#security-group">보안 그룹</a><a class="link-tag" href="#cidr">CIDR</a></div>
+  </div>
+</div>
+<p><strong>VPC 안의 네트워크 인터페이스(ENI)를 드나드는 IP 트래픽의 "메타데이터"를 기록해 주는 AWS 기능</strong>. 출발지·목적지 IP와 포트, 프로토콜, 주고받은 바이트·패킷 수, 그리고 그 트래픽이 보안 그룹·NACL 규칙에 의해 <strong>허용(ACCEPT)됐는지 차단(REJECT)됐는지</strong>를 남긴다. 단, 패킷의 <strong>실제 내용(페이로드)은 담지 않는다</strong> — "누가 어디로 얼마나" 통신했는지만 보는 로그다. CloudWatch Logs·S3·Kinesis Data Firehose로 내보내 분석하며, 켜고 끄는 건 네트워크 인터페이스·서브넷·VPC 단위로 설정한다. "분명 열어 둔 것 같은데 통신이 안 되는" 상황에서 REJECT 기록을 보면 어느 단계에서 막혔는지 바로 드러난다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"보안 그룹·NACL 다 열었는데 왜 연결이 안 되지?"의 원인을 플로우 로그의 REJECT로 추적하거나, 특정 IP가 어디로 통신하는지 보안 감사·포렌식·트래픽 분석을 할 때 마주친다. <span style="color:var(--teal)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="columnar-storage">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="columnar-storage-h">컬럼형 저장 <span class="sub">Columnar Storage · 열 기반 저장</span></h2>
+    <div class="links"><a class="link-tag" href="#oltp-olap">OLTP vs OLAP</a><a class="link-tag" href="#data-lake">데이터 레이크</a><a class="link-tag" href="#materialized-view">구체화 뷰</a></div>
+  </div>
+</div>
+<p><strong>테이블 데이터를 "행 단위"가 아니라 "열(컬럼) 단위"로 묶어 디스크에 저장하는 방식</strong>. 집계 쿼리(수백만 행에서 특정 컬럼 몇 개만 SUM·AVG·COUNT)를 돌릴 때 <strong>필요한 컬럼 파일만 읽으면 되므로 I/O가 확 줄고</strong>, 같은 컬럼엔 같은 타입·비슷한 값이 모여 있어 <strong>압축률도 훨씬 높다</strong>. 그래서 분석·OLAP 용도의 데이터 웨어하우스·레이크에서 표준으로 쓰인다(Parquet·ORC 파일, Redshift·BigQuery·ClickHouse 등). 반대로 "한 행 전체를 읽거나 자주 수정"하는 단건·트랜잭션(OLTP) 작업엔 여러 컬럼 파일을 다 건드려야 해 불리하다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">행 기반 (Row)</h4><ul><li>한 행 전체 읽기·쓰기 빠름</li><li>트랜잭션·OLTP에 적합</li><li>집계 시 불필요한 컬럼까지 스캔</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">열 기반 (Columnar)</h4><ul><li>필요한 컬럼만 읽어 집계 빠름</li><li>압축률 높아 저장·스캔 비용 ↓</li><li>단건 행 수정엔 불리, 분석·OLAP용</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>분석용 DW·데이터 레이크에 Parquet·Redshift로 데이터를 쌓거나, "집계 대시보드 쿼리가 느린데 컬럼형으로 바꾸면 빨라질까"를 논할 때 마주친다. <span style="color:var(--amber)">[데이터·분석]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="okr">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="okr-h">목표·핵심결과 <span class="sub">OKR · Objectives and Key Results</span></h2>
+    <div class="links"><a class="link-tag" href="#dora-metrics">DORA 메트릭</a><a class="link-tag" href="#raci">RACI</a><a class="link-tag" href="#adr">ADR</a></div>
+  </div>
+</div>
+<p><strong>"무엇을 이룰 것인가(목표)"와 "그것을 이뤘다고 어떻게 증명할 것인가(핵심결과)"를 짝지어 세우는 목표 설정 프레임워크</strong>. <strong>Objective</strong>는 방향을 주는 정성적·도전적인 한 문장 목표이고, <strong>Key Results</strong>는 그 목표 달성을 측정 가능한 숫자로 증명하는 2~5개의 결과 지표다(예: 목표 "온보딩 경험을 확 개선한다" → KR "가입 이탈률 30%→15%", "첫 주 재방문율 40%→60%"). 보통 분기 단위로 세우고 끝에 달성도를 채점한다. 인텔에서 시작해 구글을 거쳐 널리 퍼졌다. 상시 건강 상태를 재는 <strong>KPI</strong>와 달리, OKR은 "이번 기간에 무엇을 바꿔 성장시킬지"에 초점이 있고, 인사 평가 도구로 직접 쓰는 것은 권장되지 않는다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>분기 계획·목표 설정 회의에서 "이번 분기 OKR 뭐로 잡을까", "그 작업이 어떤 KR에 기여하지"를 논하거나 팀·개인 목표를 회사 방향에 정렬할 때 마주친다. <span style="color:var(--purple)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 
