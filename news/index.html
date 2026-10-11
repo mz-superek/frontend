@@ -83,6 +83,38 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-12">
+        <h2>📰 2026-10-12 (월)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI·프론트엔드·백엔드 각 1건 통과. HTML &amp; CSS는 시의성 창(최근 1~2주) 안에 1차 소스로 확인되는 신규 소식이 없어 헤더째 생략(web.dev 10월 다이제스트 미발행, Chrome 154 안정판은 9/22로 1~2주 초과, Chrome 155는 11월 예정). 검색 요약에 돈 &quot;Mistral Large 4&quot;는 Hugging Face 공식 조직 페이지에 존재하지 않는 버전(현행 Large 3)이라 드롭, Anthropic·OpenAI·Google의 신규 모델/규제 소식은 10/9 발송 이후 1차 소스로 확정 가능한 신규 건이 없거나(openai.com 접근 차단) 이미 발송분과 중복이라 제외.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Qwen, &apos;Qwen-Image-2.1-Turbo&apos; 공개 — 8스텝 가속 오픈웨이트 이미지 생성 체크포인트</p>
+            <p class="item-meta">2026-10-10 · <a href="https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo">huggingface.co</a></p>
+            <p class="item-summary">Qwen이 텍스트→이미지 생성·편집 모델 Qwen-Image-2.1을 증류(distill)한 가속 체크포인트를 Hugging Face에 공개했다. 모델 카드 원문 기준 &quot;an accelerated checkpoint of Qwen-Image-2.1 for text-to-image generation and image editing with 8 denoising steps&quot;로, 8번의 디노이징 스텝만으로 결과를 뽑아 생성 속도를 끌어올린다. 7B 파라미터 아키텍처는 그대로 두고 기본 CFG=1·프리픽스 KV 캐싱(텍스트·참조 이미지 컨텍스트 재사용)으로 가속했으며, 가중치는 BF16 Safetensors로 공개되고 Diffusers의 <code>QwenImage21Pipeline</code>으로 로드된다. 라이선스는 Qwen Research License Agreement(연구용). 무거운 이미지 생성 모델의 추론 단계를 대폭 줄인 오픈웨이트 가속판으로, 로컬·온프레미스 이미지 파이프라인의 지연·비용을 낮추는 선택지.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js, 상류 의존성 취약점 긴급 보안 업데이트 예고 — 10/14(수) 대역외 패치</p>
+            <p class="item-meta">2026-10-08 · <a href="https://nextjs.org/blog/upcoming-nextjs-security-update-october-2026">nextjs.org</a></p>
+            <p class="item-summary">Next.js 팀이 업스트림(상류) 의존성에서 발견된 취약점 3건을 다루는 대역외(out-of-band) 보안 업데이트를 10월 14일(수) 배포할 예정이라고 사전 공지했다. 공식 블로그 기준 심각도는 Critical 2건 + High 1건이며, 이 중 2건은 상류 조율 문제로 9월 보안 릴리스에서 미뤄졌던 건이다. 영향·해당 버전·업그레이드 지침을 담은 전체 권고문(advisory)은 패치와 함께 공개되며, 운영 중인 앱은 패치가 나오는 즉시 업그레이드할 것을 권고했다. 실제 패치 버전·CVE 세부는 10/14 공개 예정이라, 지금은 &apos;업그레이드 대비&apos; 신호로 보면 된다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js 26.11.0 (Current) 릴리스 — buffer·http 유틸 추가, process.ref/unref 정식 승격</p>
+            <p class="item-meta">2026-10-07 · <a href="https://github.com/nodejs/node/releases/tag/v26.11.0">github.com/nodejs/node</a></p>
+            <p class="item-summary">Node.js 26.11.0(Current)이 공개됐다. GitHub 릴리스 노트 기준 SEMVER-MINOR로 <code>buffer.isLatin1</code>·<code>Buffer.stringLength()</code>, HTTP 헤더 검증기 <code>isValidHeaderName()</code>·<code>isValidHeaderValue()</code>, http2 <code>connectionWindowSize</code> 옵션이 추가됐고, <code>process.ref</code>/<code>unref</code>가 stable로 승격, 프로세스 전체 타임아웃을 거는 <code>--process-timeout=N</code> 플래그와 <code>perf_hooks</code> 히스토그램 개선(<code>diff()</code>·<code>snapshot()</code>)도 들어갔다. Alpine Linux는 tier 2 지원으로 승격. 직전 26.10.0(9/22)에 이은 Current 라인 신규 릴리스이며, 같은 날 26.11.1에서 문서 관련 커밋 3건을 revert했다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
