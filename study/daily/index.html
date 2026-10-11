@@ -210,6 +210,122 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-11">
+        <h2>2026-10-11 (일) · Context 리렌더링 함정 — value가 바뀌면 구독자는 전부 다시 그려진다</h2>
+        <span class="topic-tag">프론트 심화 (React)</span>
+
+        <h3>핵심 개념</h3>
+        <p>Context는 props를 여러 단계 내려보내는 "props 드릴링"을 없애 주는 방송 채널이에요. 그런데 Provider의 <code>value</code>가 바뀌면 <code>useContext</code>로 구독한 컴포넌트는 <code>React.memo</code>를 씌워도 전부 리렌더됩니다. 더 흔한 함정은 <code>value={{ user, count }}</code>처럼 객체를 인라인으로 넘기는 것 — Provider가 렌더될 때마다 새 객체가 만들어져서 값이 안 변했어도 "바뀐 것"으로 취급돼요. 또 객체 안의 한 필드(<code>count</code>)만 바뀌어도 <code>user</code>만 쓰던 컴포넌트까지 같이 다시 그려집니다.</p>
+        <p>퍼블리싱으로 치면 <code>&lt;body&gt;</code>의 클래스 하나를 바꿨더니 그 클래스를 참조하는 모든 CSS 규칙이 재계산되는 것과 비슷해요. 해결은 ① 자주 바뀌는 값과 안 바뀌는 값을 Context로 분리, ② value를 <code>useMemo</code>로 고정하는 것입니다.</p>
+
+        <pre><code>// ❌ count가 바뀌면 user만 쓰는 컴포넌트도 리렌더
+function AppProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+  const [count, setCount] = useState(0);
+  return (
+    &lt;AppCtx.Provider value={{ user, setUser, count, setCount }}&gt;
+      {children}
+    &lt;/AppCtx.Provider&gt;
+  );
+}
+
+// ✅ 분리 + useMemo
+const UserCtx = createContext&lt;UserValue | null&gt;(null);
+const CountCtx = createContext&lt;CountValue | null&gt;(null);
+
+function AppProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState&lt;User | null&gt;(null);
+  const [count, setCount] = useState(0);
+  const userValue = useMemo(() =&gt; ({ user, setUser }), [user]);
+  const countValue = useMemo(() =&gt; ({ count, setCount }), [count]);
+  return (
+    &lt;UserCtx.Provider value={userValue}&gt;
+      &lt;CountCtx.Provider value={countValue}&gt;{children}&lt;/CountCtx.Provider&gt;
+    &lt;/UserCtx.Provider&gt;
+  );
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>테마·로그인 유저·토스트처럼 앱 전체에 뿌리는 Context에 자주 바뀌는 값을 섞어 두면, 입력 한 글자마다 화면 절반이 리렌더돼 INP가 나빠져요. 값이 자주 바뀌면 Context 대신 Zustand 같은 셀렉터 기반 스토어를 쓰는 판단 기준이 되기도 합니다.</p>
+        <p class="refs">더 보기: <a href="https://react.dev/learn/passing-data-deeply-with-context">React Docs — Passing Data Deeply with Context</a> · <a href="https://react.dev/reference/react/useContext#optimizing-re-renders-when-passing-objects-and-functions">React Docs — useContext: 리렌더 최적화</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> Provider의 <code>value</code>가 바뀌었을 때 리렌더되는 컴포넌트는? ① Provider의 직계 자식만 ② <code>useContext</code>로 그 Context를 구독한 컴포넌트 전부 (memo를 씌워도) ③ 앱 전체 컴포넌트 ④ 바뀐 필드를 실제로 쓰는 컴포넌트만</p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래 Provider에서 <code>count</code>만 올라가는데 <code>user</code>만 쓰는 <code>&lt;Avatar /&gt;</code>가 계속 리렌더됩니다. 왜 그럴까요? 어떻게 고칠까요?</p>
+          <pre><code>function AppProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [count, setCount] = useState(0);
+  return (
+    &lt;AppCtx.Provider value={{ user, setUser, count, setCount }}&gt;
+      {children}
+    &lt;/AppCtx.Provider&gt;
+  );
+}</code></pre>
+          <details><summary>정답·해설 보기</summary><p><strong>Q1. ②</strong> — Context 구독자는 value가 바뀌면 memo를 씌워도 무조건 리렌더되고, 필드 단위 구독 기능은 Context에 없습니다. <strong>Q2.</strong> value 객체에 user와 count가 같이 들어 있어 count가 바뀌면 객체 전체가 새로 만들어져 모든 구독자가 리렌더돼요. UserCtx/CountCtx로 Context를 분리하고 각 value를 useMemo로 감싸면 해결됩니다.</p></details>
+        </div>
+      </section>
+
+
+      <section class="study-day" data-date="2026-10-08">
+        <h2>2026-10-08 (목) · URL도 상태다 — searchParams로 필터·페이지를 "공유 가능한 상태"로 만들기</h2>
+        <span class="topic-tag">프론트 심화 (Next.js)</span>
+
+        <h3>핵심 개념</h3>
+        <p>목록 화면의 필터·정렬·페이지 번호를 <code>useState</code>에 넣으면, 새로고침하거나 링크를 복사해서 보내는 순간 전부 초기화돼요. 이 값들을 URL 쿼리스트링(<code>?status=open&amp;page=2</code>)에 두면 새로고침·뒤로가기·링크 공유가 공짜로 해결됩니다. Next.js App Router에서는 서버 컴포넌트가 <code>searchParams</code>를 props로 받고, 클라이언트에서는 <code>useSearchParams()</code>로 읽고 <code>router.push()</code>로 바꿔요.</p>
+        <p>퍼블리싱으로 치면 <code>#section</code> 앵커처럼 "주소 자체가 화면 상태를 기억"하게 만드는 거예요.</p>
+
+        <pre><code>// app/orders/page.tsx (서버 컴포넌트)
+// Next 15+ 에서 searchParams는 Promise → await 필요
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise&lt;{ status?: string; page?: string }&gt;;
+}) {
+  const { status = 'all', page = '1' } = await searchParams;
+  const orders = await getOrders({ status, page: Number(page) });
+  return &lt;OrderList orders={orders} /&gt;;
+}
+
+// features/order-filter/ui/StatusFilter.tsx (클라이언트)
+'use client';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+
+export function StatusFilter() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+
+  const onChange = (status: string) =&gt; {
+    const next = new URLSearchParams(params.toString());
+    next.set('status', status);
+    next.set('page', '1'); // 필터가 바뀌면 1페이지로
+    router.push(`${pathname}?${next.toString()}`);
+  };
+  // ...
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>관리자 화면·목록 화면은 "이 필터 걸린 화면 링크 줘"라는 요청이 거의 반드시 나와요. URL을 상태의 단일 출처(source of truth)로 두면 서버에서 바로 데이터를 가져와 렌더링할 수 있어서 클라이언트 상태 코드도 줄어듭니다.</p>
+        <p class="refs">더 보기: <a href="https://nextjs.org/docs/app/api-reference/file-conventions/page">Next.js — page.js (searchParams)</a> · <a href="https://nextjs.org/docs/app/api-reference/functions/use-search-params">Next.js — useSearchParams</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> 다음 중 "URL 쿼리스트링에 두는 게 가장 적합한" 상태는? ① 모달 열림/닫힘 애니메이션 진행 중 여부 ② 목록의 필터·정렬·페이지 번호 ③ 입력창에서 방금 타이핑한 글자(제출 전) ④ 마우스 hover 중인 행</p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래 코드에서 필터를 바꾼 뒤 사용자가 겪을 문제는 무엇이고, 어떻게 고칠까요?</p>
+          <pre><code>const onChange = (status: string) =&gt; {
+  const next = new URLSearchParams(params.toString());
+  next.set('status', status);
+  router.push(`${pathname}?${next.toString()}`);
+};
+// (page 파라미터는 건드리지 않음)</code></pre>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1. ②</strong> — 필터·정렬·페이지는 "새로고침/링크 공유 후에도 같아야 하는" 상태라 URL에 두는 게 맞아요. 나머지는 일시적인 UI 상태라 <code>useState</code>로 충분합니다.</p>
+            <p><strong>Q2.</strong> 필터를 바꿔도 <code>page</code>가 그대로 남아서, 3페이지를 보다가 결과가 적은 필터로 바꾸면 "없는 페이지"가 열려 빈 화면이 나와요. <code>next.set('page', '1')</code>로 페이지를 1로 리셋하면 해결됩니다.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-10-07">
         <h2>2026-10-07 (수) · cn() = clsx + tailwind-merge — Tailwind 클래스가 충돌할 때 "나중에 쓴 게 이긴다"를 보장하는 법</h2>
         <span class="topic-tag">프론트 심화 (Tailwind · ShadCN)</span>
