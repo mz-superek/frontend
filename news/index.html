@@ -83,6 +83,33 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-13">
+        <h2>📰 2026-10-13 (화)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 2건·백엔드 1건 통과. 프론트엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 항목이 없어 헤더째 생략(Next.js 16.4·10/14 보안 패치 예고·Node.js 26.11.0·web.dev 9월 기능은 이미 발송분과 중복). Mistral Large 4(10/6)는 AI 시의성 창(수일)을 벗어난 데다 오픈웨이트가 &quot;10월 말 예정, 아직 미공개&quot;(llm-releases 확인)라 드롭. GLM-5.3은 Hugging Face에서 BF16 원본이 9/4자라 신규 모델이 아니어서 제외(오늘 리포 갱신은 재업로드). Meta &apos;Claude 라우팅·멀티데이 메모리&apos; 같은 세부 주장은 1차 소스(공식 뉴스룸·블로그)에서 확인되지 않아 제외하고 확인된 사실만 실었다.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Meta, &apos;Muse Wonder&apos;·&apos;Muse Wonder Full&apos; 공개 — 에이전트용 프론티어 모델</p>
+            <p class="item-meta">2026-10-12 · <a href="https://about.fb.com/news/">about.fb.com</a></p>
+            <p class="item-summary">Meta가 공식 뉴스룸을 통해 에이전트 작업에 특화된 프론티어 모델 <code>Muse Wonder</code>와 <code>Muse Wonder Full</code>을 공개했다. Meta는 이들을 &quot;지금까지 가장 강력한 모델(our most capable models to date)&quot;로 소개하며 개인·업무용 에이전틱 작업을 겨냥한다고 밝혔다. OpenAI·Anthropic·Google이 주도하는 프론티어 모델 경쟁에 Meta가 Muse 계열로 다시 정면 진입한 신호다. 세부 사양·공개 범위는 뉴스룸 공지 기준이며, 벤치마크 수치 등은 공식 확정 전이라 제외했다.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Google Cloud, &apos;제미나이 에이전트(Gemini agent)&apos; 공개 — 업무용 범용 에이전트</p>
+            <p class="item-meta">2026-10-08 · <a href="https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work/">blog.google</a></p>
+            <p class="item-summary">Google Cloud가 Gemini at Work 2026 행사에서 업무용 범용 에이전트 &apos;Gemini agent&apos;를 공개했다. 공식 발표 기준, 하나의 프롬프트 창에서 지식 업무·질의응답·콘텐츠 생성·코딩을 수행하고 작업을 계획하며 스킬·도구와 사내 업무 시스템에 연결해 문서·메일함·개발 환경 안에서 결과를 돌려준다. &quot;작업별로 최적의 모델을 선택(chooses the best model for the job)&quot;한다고 명시했다. 엔터프라이즈 AI를 단일 에이전트로 묶으려는 대형 플랫폼 움직임이다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Bun v1.4.3 공개 — 내장 TypeScript 타입체커 &apos;bun check&apos;</p>
+            <p class="item-meta">2026-10-10 · <a href="https://bun.sh/blog/bun-v1.4.3">bun.sh</a></p>
+            <p class="item-summary">Bun이 v1.4.3을 공개하며 런타임에 TypeScript 타입체커 <code>bun check</code>를 내장했다. 공식 블로그 기준 typescript-go를 포팅한 것으로, <code>tsconfig.json</code>을 읽어 <code>tsc</code>와 동일한 오류를 리포트하고 전 CPU 코어를 사용하며 <code>typescript</code> 패키지 설치가 필요 없다(JS·d.ts 방출과 LSP는 없는 타입체크 전용). 성능은 16코어 애플 실리콘 맥에서 <code>tsc</code> 7.0.2 대비 3~6.4배 빠르고, TS 7.0.2 적합성 테스트 51,210개를 100% 통과한다고 밝혔다. 이 밖에 유휴 CPU 67~89% 감소, 16KB 초과 응답의 <code>node:http</code> 처리량 최대 2.7배 개선 등이 포함됐다.</p>
+          </div>
+        </div>
+      </section>
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
