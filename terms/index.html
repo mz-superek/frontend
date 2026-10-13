@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#hpa">수평 파드 오토스케일러 (HPA)</a>
+    <a class="nav-item" href="#mvcc">다중 버전 동시성 제어 (MVCC)</a>
+    <a class="nav-item" href="#sri">하위 리소스 무결성 (SRI)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="hpa">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="hpa-h">수평 파드 오토스케일러 <span class="sub">Horizontal Pod Autoscaler · HPA</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a><a class="link-tag" href="#liveness-readiness-probe">Readiness Probe</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스에서 부하(CPU·메모리·커스텀 지표)에 맞춰 Deployment·StatefulSet의 Pod 개수(복제본 수)를 자동으로 늘리고 줄이는 컨트롤러</strong>. 목표 지표(예: 평균 CPU 50%)를 정해두면, HPA 컨트롤러가 주기적으로 현재값을 읽어 <code>필요 복제본 = 현재 복제본 &times; (현재값 &divide; 목표값)</code>으로 계산해 복제본 수를 조정한다. 중요한 건 HPA가 <strong>"복제본 수"만</strong> 조절한다는 점이다 &mdash; 돌아가는 Pod 하나에 CPU·메모리를 더 얹어 주는 <strong>수직 확장(VPA)</strong>도 아니고, 클러스터의 <strong>노드 수를 늘리는 것(Cluster Autoscaler)</strong>도 아니다. 그래서 Pod는 더 뜨라고 했는데 받아 줄 노드가 모자라면 Pod가 <code>Pending</code>에 걸리므로, 보통 HPA와 Cluster Autoscaler를 함께 쓴다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">HPA (수평)</h4><ul><li>Pod 복제본 <strong>개수</strong>를 조절</li><li>부하 지표 기준 자동 증감</li><li>무상태 워크로드에 잘 맞음</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">VPA · Cluster Autoscaler</h4><ul><li>VPA: Pod 하나의 <strong>자원 크기</strong>(CPU·메모리)를 조절</li><li>Cluster Autoscaler: <strong>노드 수</strong>를 조절</li><li>HPA와 역할이 겹치지 않음</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>트래픽이 출렁이는 서비스에 "CPU 오르면 Pod 자동으로 늘려줘"를 설정하거나, "HPA·VPA·Cluster Autoscaler가 뭐가 다르냐 / Pod는 늘었는데 노드가 모자라 Pending이다"를 다룰 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="mvcc">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="mvcc-h">다중 버전 동시성 제어 <span class="sub">MVCC · Multi-Version Concurrency Control</span></h2>
+    <div class="links"><a class="link-tag" href="#isolation-level">트랜잭션 격리 수준</a><a class="link-tag" href="#read-replica">Read Replica</a><a class="link-tag" href="#connection-pool">Connection Pool</a></div>
+  </div>
+</div>
+<p><strong>여러 트랜잭션이 같은 데이터에 동시에 접근할 때, 값을 제자리에서 덮어쓰는 대신 행의 여러 버전(스냅샷)을 유지해 각 트랜잭션이 "자기가 시작한 시점의 일관된 스냅샷"을 읽게 하는 동시성 제어 방식</strong>. 핵심 이점은 <strong>읽기가 쓰기를 막지 않고 쓰기가 읽기를 막지 않는다</strong>는 것이다 &mdash; 조회 때문에 쓰기가 대기하거나 그 반대가 생기지 않아 <strong>락 경합이 줄고</strong> 다중 사용자 환경에서 성능이 좋아진다. 그래서 조회 락으로 서로 밀어내던 전통적 잠금 방식보다 대체로 빠르다. PostgreSQL·MySQL(InnoDB)·Oracle 등 현대 RDB 대부분이 채택한다. 대가로 <strong>옛 버전(dead tuple)이 쌓이므로</strong> 주기적으로 정리해야 하며, PostgreSQL에선 이 청소를 <code>VACUUM</code>이 담당한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"분명 누가 수정 중인데 왜 내 조회는 안 막히지 / 왜 조금 옛날 값이 보이지"를 이해하거나, 트랜잭션 격리 수준(Repeatable Read 등)을 고르고 PostgreSQL 테이블이 부풀어(bloat) VACUUM·오토배큠을 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="sri">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="sri-h">하위 리소스 무결성 <span class="sub">Subresource Integrity · SRI</span></h2>
+    <div class="links"><a class="link-tag" href="#csp">CSP</a><a class="link-tag" href="#cors">CORS</a></div>
+  </div>
+</div>
+<p><strong>CDN처럼 외부에서 불러오는 <code>&lt;script&gt;</code>·<code>&lt;link rel="stylesheet"&gt;</code> 파일이 "내가 기대한 바로 그 파일이 맞는지"를 암호화 해시로 검증하는 브라우저 보안 기능</strong>. 태그에 <code>integrity="sha384-&lt;해시&gt;"</code> 속성을 달아 두면, 브라우저가 내려받은 파일의 해시를 직접 계산해 그 값과 비교하고 <strong>일치하지 않으면 로드를 거부</strong>한다(스크립트는 실행되지 않고, 스타일시트는 적용되지 않는다). 쓸 수 있는 알고리즘은 <code>sha256</code>·<code>sha384</code>·<code>sha512</code>다. 목적은 <strong>CDN이 해킹돼 파일이 바꿔치기되는 공급망 공격</strong>을 막는 것. 단 교차 출처 리소스엔 <code>crossorigin="anonymous"</code>와 서버의 CORS 허용(<code>Access-Control-Allow-Origin</code>)이 함께 있어야 검증이 동작한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>CDN으로 불러오는 jQuery·웹폰트·외부 스크립트에 <code>integrity</code>를 붙이거나, "CDN 파일이 바뀌면 우리 사이트가 통째로 털릴 수 있다"는 공급망 보안을 점검할 때, integrity 불일치로 외부 스크립트가 로드되지 않는 이슈를 추적할 때 마주친다. <span style="color:var(--blue)">[프론트엔드·보안]</span></div>
 </section><hr class="divider">
 
 
