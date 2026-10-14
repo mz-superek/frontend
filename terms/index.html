@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#load-shedding">부하 셰딩 (Load Shedding)</a>
+    <a class="nav-item" href="#anti-corruption-layer">부패 방지 계층 (ACL)</a>
+    <a class="nav-item" href="#view-transitions-api">뷰 트랜지션 API</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="load-shedding">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="load-shedding-h">부하 셰딩 <span class="sub">Load Shedding</span></h2>
+    <div class="links"><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#backpressure">Backpressure</a><a class="link-tag" href="#circuit-breaker">Circuit Breaker</a></div>
+  </div>
+</div>
+<p><strong>서버가 감당할 수 없을 만큼 요청이 몰릴 때, 일부 요청을 "의도적으로" 빠르게 거절(예: HTTP 503)해 시스템 전체가 함께 느려지다 무너지는 것을 막는 과부하 방어 기법</strong>. 들어오는 요청을 전부 받아 처리하다 리소스가 고갈돼 <strong>다 같이 공멸</strong>하느니, 처리할 수 있는 만큼만 받고 나머지는 빨리 포기해 <strong>핵심 요청의 응답성은 지켜낸다</strong>. 클라이언트별 할당량을 거는 Rate Limiting이 "누가 얼마나 쓰느냐"를 상시 통제한다면, 부하 셰딩은 <strong>"지금 시스템이 위험하니 전체 유입량 자체를 줄인다"</strong>는 시스템 자기보호 관점이다. 보통 서버의 큐 길이·CPU·지연시간이 임계치를 넘으면 자동으로 발동하고, 건강검진(헬스체크)처럼 중요도 낮은 요청부터 버리는 <strong>우선순위 기반</strong>으로 설계한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">Rate Limiting</h4><ul><li>클라이언트별 "할당량" 통제</li><li>시스템이 건강해도 상시 적용</li><li>공정성·남용 방지가 목적</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">Load Shedding</h4><ul><li>시스템 과부하 시에만 발동</li><li>전체 유입량을 줄여 자기 보호</li><li>낮은 우선순위 요청부터 버림</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>트래픽 폭주·장애 전파 상황에서 "왜 일부러 503을 뱉나 / Rate Limiting과 뭐가 다르냐", 우선순위 낮은 요청부터 버리는 과부하 설계를 논할 때 마주친다. <span style="color:var(--green)">[백엔드·복원력]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="anti-corruption-layer">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="anti-corruption-layer-h">부패 방지 계층 <span class="sub">ACL · Anti-Corruption Layer</span></h2>
+    <div class="links"><a class="link-tag" href="#bff">BFF</a><a class="link-tag" href="#api-gateway">API Gateway</a><a class="link-tag" href="#cqrs">CQRS</a></div>
+  </div>
+</div>
+<p><strong>새로 깨끗하게 설계한 우리 시스템과 레거시·외부 시스템 사이에 "번역기" 역할의 계층을 두어, 외부의 지저분하거나 낡은 데이터 모델·용어가 우리 도메인 모델을 오염(corruption)시키지 못하게 막는 설계 패턴</strong>(도메인 주도 설계, DDD에서 유래). 외부 API 응답이나 레거시 DB 구조를 우리 모델로 변환·매핑하는 책임을 <strong>이 계층 한 곳에 몰아두어</strong>, 외부 포맷이 우리 코드 전반에 스며드는 것을 막는다. 덕분에 <strong>외부 시스템이 바뀌어도 변경 범위가 이 계층 안으로 격리</strong>되고, 우리 도메인 로직은 외부 사정과 무관하게 깔끔하게 유지된다. 레거시를 조금씩 걷어내는 스트랭글러 피그(Strangler Fig) 전환에서 특히 자주 함께 쓰인다. <strong>※ 네트워크의 Access Control List(NACL)나 권한 목록 ACL과는 이름(약어)만 같을 뿐 전혀 다른 개념이다.</strong></p>
+<div class="tip"><div class="tip-l">실무에서</div>레거시 시스템·써드파티 API·다른 팀 서비스와 연동하면서 "그쪽 포맷을 우리 코드 전체에 퍼뜨리지 말고 한 군데에서 변환하자"는 경계 설계·리팩터링을 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·아키텍처]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="view-transitions-api">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="view-transitions-api-h">뷰 트랜지션 API <span class="sub">View Transitions API</span></h2>
+    <div class="links"><a class="link-tag" href="#render-pipeline">렌더링 파이프라인</a><a class="link-tag" href="#raf">requestAnimationFrame</a><a class="link-tag" href="#reflow">Reflow</a></div>
+  </div>
+</div>
+<p><strong>화면이 한 상태에서 다른 상태로 바뀔 때(목록→상세, 페이지 이동 등) 그 사이를 브라우저가 알아서 부드러운 애니메이션으로 전환해 주는 웹 표준 API</strong>. 예전에는 바뀌기 전·후 화면을 개발자가 직접 복제해두고 크로스페이드·슬라이드를 수동 구현해야 했지만, 이 API는 <code>document.startViewTransition()</code> 호출 한 번으로 브라우저가 <strong>전환 전 스냅샷과 전환 후 상태를 자동으로 캡처해 애니메이션</strong>하고, 전환 중 옛 화면에 대한 클릭을 막았다가 끝나면 치워준다. 전환 효과 자체는 <code>::view-transition</code> 계열 CSS 가상 요소로 커스터마이즈한다. 크게 두 종류가 있다 — <strong>같은 문서 안(SPA)</strong> 전환(<code>startViewTransition()</code>)과, 서로 다른 페이지를 오가는 <strong>MPA(멀티 페이지) 간 전환</strong>(CSS <code>@view-transition</code> 규칙으로 두 문서를 옵트인)이다. 같은 문서 방식은 주요 브라우저 지원이 넓어졌고, 문서 간(MPA) 방식은 비교적 최신이라 쓰기 전 브라우저별 지원을 확인하는 게 좋다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>SPA 라우팅이나 일반 링크 이동에 "네이티브 앱 같은 화면 전환 효과"를 JS 범벅 없이 CSS 중심으로 입히려 하거나, 기존 전환 라이브러리를 표준 API로 대체할지 논할 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
 </section><hr class="divider">
 
 
