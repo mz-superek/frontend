@@ -210,6 +210,46 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-14">
+        <h2>2026-10-14 (수) · as const와 satisfies — 타입을 "넓히지 않고" 검사만 받는 법</h2>
+        <span class="topic-tag">프론트 심화 (TypeScript)</span>
+
+        <h3>핵심 개념</h3>
+        <p>객체를 <code>const routes = { home: '/', cart: '/cart' }</code>로 만들면 TS는 값을 <code>string</code>으로 넓혀서(widening) 기억해요. 그래서 <code>'/'</code> 같은 정확한 값은 타입에서 사라집니다. <code>as const</code>는 "이 객체는 안 바뀐다"고 선언해서 <code>readonly</code>에 리터럴(<code>'/'</code>)로 고정하고, <code>satisfies</code>는 "이 모양 규칙은 지켰는지 검사만 해줘, 타입 자체는 내가 쓴 그대로 둬"라는 뜻이에요.</p>
+        <p>퍼블리싱으로 치면 <code>as const</code>는 디자인 토큰을 잠가 두는 것이고, <code>satisfies</code>는 잠근 토큰이 가이드 규격에 맞는지 린트만 돌리는 것과 비슷해요. 둘을 같이 쓰면 오타는 잡고(검사) 자동완성은 정확하게(좁은 타입) 얻을 수 있습니다.</p>
+
+        <pre><code>// ❌ 타입 주석(: Record&lt;string, string&gt;)은 키·값을 전부 넓혀 버림
+const routes1: Record&lt;string, string&gt; = { home: '/', cart: '/cart' };
+routes1.hmoe; // 오타인데 에러 없음 (키가 string이라서)
+
+// ✅ as const + satisfies
+const routes = {
+  home: '/',
+  cart: '/cart',
+} as const satisfies Record&lt;string, `/${string}`&gt;;
+//   ↑ 값 고정(readonly)   ↑ "모든 값은 /로 시작" 검사만
+
+routes.hmoe;  // ❌ 에러: 오타를 잡아줌
+type RouteKey = keyof typeof routes;          // 'home' | 'cart'
+type RoutePath = (typeof routes)[RouteKey];   // '/' | '/cart'
+
+// 'cart2' 같은 값이면? → satisfies 검사에서 에러 (/ 로 시작 안 함)</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>라우트 경로, 버튼 variant 목록, 쿼리 키처럼 "정해진 값 목록"을 상수로 두고 <code>keyof typeof</code>로 유니온 타입을 뽑아 쓰는 패턴은 ShadCN·FSD 프로젝트에서 매일 나옵니다. 타입을 따로 또 적지 않아도 상수 하나가 "단일 출처"가 되어 오타와 불일치를 줄여줘요.</p>
+        <p class="refs">더 보기: <a href="https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-9.html#the-satisfies-operator">TS 4.9 — satisfies 연산자</a> · <a href="https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions">TS — const assertions</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> <code>const a = { size: 'sm' } as const;</code> 일 때 <code>a.size</code>의 타입은? ① <code>string</code> ② <code>'sm'</code> ③ <code>string | undefined</code> ④ <code>any</code></p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래에서 <code>Button</code> variant 목록을 만들었는데, <code>'ghost'</code>가 <code>Variant</code> 타입에 포함되지 않아 자동완성에서 안 보입니다. 왜 그럴까요? 어떻게 고칠까요?</p>
+          <pre><code>const variants: string[] = ['primary', 'ghost'];
+type Variant = (typeof variants)[number]; // 기대: 'primary' | 'ghost'</code></pre>
+          <details><summary>정답·해설 보기</summary><p><strong>Q1. ②</strong> — <code>as const</code>가 값을 <code>readonly</code>에 리터럴 타입으로 고정해서 <code>string</code>으로 넓어지지 않아요. <strong>Q2.</strong> <code>: string[]</code>라고 타입을 직접 적어서 <code>'primary'</code>, <code>'ghost'</code>가 모두 <code>string</code>으로 넓어졌기 때문에 <code>Variant</code>가 그냥 <code>string</code>이 돼요. <code>const variants = ['primary', 'ghost'] as const;</code>로 바꾸면 <code>Variant</code>가 <code>'primary' | 'ghost'</code>가 됩니다.</p></details>
+        </div>
+      </section>
+
+
       <section class="study-day" data-date="2026-10-13">
         <h2>2026-10-13 (화) · 레이트 리밋(Rate Limit) — 서버가 "너무 자주 두드리지 마"라고 할 때: 429와 Retry-After</h2>
         <span class="topic-tag">클라우드·백엔드 기초</span>
