@@ -210,6 +210,47 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-15">
+        <h2>2026-10-15 (목) · next/image — width·height·sizes·priority 네 가지로 LCP와 CLS를 한 번에 잡기</h2>
+        <span class="topic-tag">프론트 심화 (Next.js)</span>
+
+        <h3>핵심 개념</h3>
+        <p>일반 <code>&lt;img&gt;</code>는 크기를 모르면 로딩이 끝나는 순간 본문을 밀어내고(CLS), 4000px짜리 원본을 모바일에도 그대로 내려받아요(느린 LCP). <code>next/image</code>는 ① <code>width</code>·<code>height</code>(또는 <code>fill</code>)로 자리를 미리 잡고, ② <code>sizes</code>로 "이 이미지가 화면에서 실제로 차지하는 폭"을 알려줘서 브라우저가 알맞은 크기의 파일만 받게 하고, ③ 첫 화면의 큰 이미지(LCP 후보)는 <code>priority</code>로 먼저 받게 하고, ④ 나머지는 기본값인 lazy loading으로 스크롤할 때 받아요.</p>
+        <p>퍼블리싱으로 치면 <code>aspect-ratio</code>로 영역 확보 + <code>srcset/sizes</code> + <code>loading="lazy"</code>를 한 컴포넌트로 묶어 준 거예요.</p>
+
+        <pre><code>import Image from 'next/image';
+
+// ❌ 크기 미지정, 원본 그대로
+&lt;img src="/hero.jpg" /&gt;
+
+// ✅ 첫 화면 히어로 (LCP 후보) → priority로 먼저 받기
+&lt;Image src="/hero.jpg" alt="메인 배너" width={1200} height={600}
+  priority sizes="100vw" /&gt;
+
+// ✅ 카드 썸네일: 데스크톱 3열(33vw), 모바일 1열(100vw)
+&lt;Image src={p.thumb} alt={p.name} width={400} height={300}
+  sizes="(min-width: 768px) 33vw, 100vw" /&gt;
+
+// ✅ 부모 크기에 맞출 때: fill + 부모에 relative
+&lt;div className="relative aspect-video"&gt;
+  &lt;Image src={p.cover} alt="" fill className="object-cover" sizes="50vw" /&gt;
+&lt;/div&gt;
+// (사용 중인 Next 버전에 따라 priority 대신 preload를 쓰는 경우가 있어요 — 공식 문서 확인)</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>"페이지가 느려요"의 상당수는 이미지 때문이고, LCP 요소가 이미지인 페이지가 많아서 <code>priority</code>·<code>sizes</code> 두 줄이 점수를 크게 바꿔요. ShadCN 카드·히어로 섹션을 만들 때 <code>&lt;img&gt;</code> 대신 <code>Image</code>를 쓰고 <code>sizes</code>를 레이아웃에 맞게 적는 게 기본 습관이 돼야 합니다.</p>
+        <p class="refs">더 보기: <a href="https://nextjs.org/docs/app/api-reference/components/image">Next.js — Image 컴포넌트</a> · <a href="https://web.dev/articles/optimize-lcp">web.dev — LCP 최적화</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> <code>Image</code>에 <code>width</code>/<code>height</code>를 넣는 가장 직접적인 이유는? ① 이미지 화질을 올리려고 ② 로딩 전에 자리를 미리 잡아 레이아웃이 밀리는 것(CLS)을 막으려고 ③ 이미지를 서버에 저장하려고 ④ 브라우저 캐시를 지우려고</p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래 첫 화면 최상단 배너에서 LCP 점수가 나쁘게 나옵니다. 왜일까요? 어떻게 고칠까요?</p>
+          <pre><code>&lt;Image src="/hero.jpg" alt="메인 배너" width={1200} height={600} loading="lazy" /&gt;</code></pre>
+          <details><summary>정답·해설 보기</summary><p><strong>Q1. ②</strong> — <code>width</code>/<code>height</code>로 비율을 알려주면 이미지가 오기 전에도 그 자리를 비워 둬서 본문이 밀리지 않아요(CLS 방지). 화질·저장·캐시와는 관계가 없어요. <strong>Q2.</strong> 화면 맨 위 큰 이미지에 <code>loading="lazy"</code>를 줘서 브라우저가 이미지를 일부러 늦게 받기 때문이에요. LCP 후보는 <code>priority</code>(버전에 따라 <code>preload</code>)를 주고 lazy는 제거해 먼저 받게 해야 합니다.</p></details>
+        </div>
+      </section>
+
+
       <section class="study-day" data-date="2026-10-14">
         <h2>2026-10-14 (수) · as const와 satisfies — 타입을 "넓히지 않고" 검사만 받는 법</h2>
         <span class="topic-tag">프론트 심화 (TypeScript)</span>
