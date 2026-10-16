@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#hot-partition">핫 파티션·핫 키</a>
+    <a class="nav-item" href="#gossip-protocol">가십 프로토콜</a>
+    <a class="nav-item" href="#resource-tagging">리소스 태깅</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,43 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="hot-partition">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="hot-partition-h">핫 파티션·핫 키 <span class="sub">Hot Partition · Hot Key</span></h2>
+    <div class="links"><a class="link-tag" href="#sharding">샤딩</a><a class="link-tag" href="#consistent-hashing">일관된 해싱</a><a class="link-tag" href="#read-replica">Read Replica</a></div>
+  </div>
+</div>
+<p><strong>데이터를 여러 파티션(샤드)에 나눠 분산 저장·처리하는데, 특정 키에 요청·데이터가 쏠려 그 키가 속한 파티션 하나만 과부하가 걸리는 현상</strong>. 전체 용량과 노드 수는 넉넉한데 유독 "뜨거운" 한 조각이 병목이 돼 <strong>스케일아웃(노드 추가)의 효과가 사라진다</strong>. 보통 파티션 키 설계가 치우쳐서 생긴다 — 예컨대 키를 "날짜"로 잡으면 오늘 날짜 파티션에만 쓰기가 몰리고, "인기 상품 ID"로 잡으면 베스트셀러 하나에 조회가 집중된다. 해결은 키에 임의 접두사·해시를 섞어 고르게 흩뿌리거나(샤드 키 재설계), 뜨거운 키만 별도 캐시·복제로 빼는 식이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>DynamoDB·Kafka·Redis 등을 쓰며 "노드를 늘렸는데 특정 샤드만 CPU·지연이 튄다", "파티션 키를 뭘로 잡아야 부하가 고르게 퍼지냐"를 따질 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="gossip-protocol">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="gossip-protocol-h">가십 프로토콜 <span class="sub">Gossip Protocol · Epidemic Protocol</span></h2>
+    <div class="links"><a class="link-tag" href="#consensus">합의 알고리즘</a><a class="link-tag" href="#service-discovery">서비스 디스커버리</a><a class="link-tag" href="#eventual-consistency">결과적 일관성</a></div>
+  </div>
+</div>
+<p><strong>클러스터의 각 노드가 주기적으로 무작위 이웃 몇몇에게만 자기 상태를 전하고, 그 정보가 전염병처럼 번져 결국 전체 노드가 같은 상태를 공유하게 되는 분산 통신 방식</strong>. 모두에게 일일이 알리는 대신 "한두 명에게만 소문내기"를 반복하므로 메시지 양이 노드 수에 비례해 폭증하지 않고, <strong>중앙 관리자(마스터) 없이도 노드 추가·장애를 스스로 감지·전파</strong>해 수천 대 규모에서도 잘 확장되고 일부 노드가 죽어도 견딘다. 대신 전파가 한 번에 끝나지 않아 <strong>잠깐의 시간차 = 결과적 일관성</strong>을 감수해야 한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>Cassandra·Consul·Serf나 쿠버네티스 계열 클러스터의 멤버십·장애 감지가 어떻게 중앙 서버 없이 돌아가는지 이해하거나, "노드가 빠졌는데 클러스터 반영이 몇 초 늦다"는 현상을 설명할 때 마주친다. <span style="color:var(--teal)">[인프라·분산시스템]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="resource-tagging">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="resource-tagging-h">리소스 태깅 <span class="sub">Resource Tagging · Tag</span></h2>
+    <div class="links"><a class="link-tag" href="#finops">FinOps</a><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#iac">IaC</a></div>
+  </div>
+</div>
+<p><strong>클라우드 자원(서버·버킷·DB 등)에 <code>Key=Value</code> 형태의 꼬리표(메타데이터)를 붙여 비용 분류·접근 제어·자동화·정리에 활용하는 거버넌스 기법</strong>. 예: <code>Project=pbu</code>, <code>Env=prod</code>, <code>Owner=fe-team</code>. 태그는 자원의 동작 자체는 전혀 바꾸지 않지만, <strong>태그가 없으면 "이 비용이 누구·어느 프로젝트 건지"를 추적할 수 없어</strong> 청구서가 뒤섞이고 쓰지 않는 자원이 방치된다. 그래서 MSP·대규모 조직은 "필수 태그가 없으면 생성 거부" 같은 태그 정책을 IaC·거버넌스 단계에서 강제한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>프로젝트·팀별 비용 배분(cost allocation)이나 태그 기반 IAM·자동 삭제 정책을 설계하거나, "태그 전략 없이 자원이 쌓여 비용 주인을 못 찾는" 상황을 정리할 때 마주친다. <span style="color:var(--amber)">[클라우드·거버넌스]</span></div>
 </section><hr class="divider">
 
 
