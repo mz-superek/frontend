@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#throughput-latency">처리량·지연시간</a>
+    <a class="nav-item" href="#cardinality">카디널리티 (Cardinality)</a>
+    <a class="nav-item" href="#smoke-test">스모크 테스트 (Smoke Test)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="throughput-latency">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="throughput-latency-h">처리량·지연시간 <span class="sub">Throughput · Latency</span></h2>
+    <div class="links"><a class="link-tag" href="#percentile-latency">백분위 지연시간 (p95·p99)</a><a class="link-tag" href="#rate-limiting">Rate Limiting</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a></div>
+  </div>
+</div>
+<p><strong>지연시간(latency)은 요청 하나가 응답까지 걸리는 "시간", 처리량(throughput)은 단위 시간당 처리하는 요청·작업의 "개수"</strong>(예: 초당 요청 수 RPS, 초당 트랜잭션 수 TPS)다. 둘은 서로 다른 축이라 <strong>"응답은 빠른데(저지연) 전체 처리량은 낮은" 경우</strong>도, <strong>"처리량은 높은데 개별 응답은 느린" 경우</strong>도 생긴다. 예를 들어 요청을 모아 한 번에 처리(배치)하면 처리량은 오르지만 각 요청의 지연은 늘어난다. 여기에 <strong>대역폭(bandwidth, 단위 시간당 전송 가능한 최대 데이터량)</strong>까지 묶어 성능을 입체적으로 본다. 한 축만 보고 "빠르다/느리다"를 판단하면 진짜 병목을 놓치기 쉽다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">지연시간 (Latency)</h4><ul><li>요청→응답까지 걸린 "시간"</li><li>사용자 체감 속도에 직결</li><li>보통 평균이 아니라 p95·p99로 본다</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">처리량 (Throughput)</h4><ul><li>단위 시간당 처리한 "개수"(RPS·TPS)</li><li>서버가 감당하는 총량·수용력</li><li>증설·병렬화로 끌어올림</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>부하 테스트 결과를 읽거나("p95 지연은 괜찮은데 RPS가 더 안 올라요"), 서버 증설·튜닝의 효과를 논하고 "응답 속도를 볼지 총 처리량을 볼지"를 구분할 때 마주친다. <span style="color:var(--coral)">[백엔드·성능]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cardinality">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="cardinality-h">카디널리티 <span class="sub">Cardinality · 고유값 개수</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#open-tracing">Open Tracing</a><a class="link-tag" href="#read-replica">Read Replica</a></div>
+  </div>
+</div>
+<p><strong>어떤 집합 안에 들어 있는 "고유값(서로 다른 값)의 개수"</strong>를 뜻하는 말이다. 쓰이는 맥락에 따라 의미가 조금 달라진다. <strong>데이터베이스 인덱스</strong>에서는 컬럼의 고유값이 많을수록(고카디널리티, 예: 이메일·주문번호) 인덱스가 후보를 잘 걸러 내 효율적이고, 고유값이 적으면(저카디널리티, 예: 성별·불리언) 인덱스를 걸어도 효과가 작다. <strong>모니터링·메트릭</strong>에서는 한 지표에 붙는 라벨(태그) 조합의 고유 개수를 가리키는데, <code>user_id</code>·요청 URL처럼 값이 거의 무한한 라벨을 붙이면 시계열(time series) 개수가 수백만으로 폭증해 <strong>저장량과 비용이 급증</strong>한다. 이를 "카디널리티 폭발(cardinality explosion)"이라 부른다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">고카디널리티 (High)</h4><ul><li>고유값 많음 (이메일·ID)</li><li>DB 인덱스엔 유리</li><li>모니터링 라벨엔 비용 폭탄</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">저카디널리티 (Low)</h4><ul><li>고유값 적음 (성별·상태값)</li><li>DB 인덱스 효과 작음</li><li>모니터링 라벨로는 안전</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>DB 인덱스 설계를 검토하거나("이 컬럼은 카디널리티가 낮아 인덱스 효과가 없어요"), Datadog·Prometheus 모니터링 비용이 치솟아 "고카디널리티 라벨 좀 빼자"는 논의를 할 때 마주친다. <span style="color:var(--green)">[관측성·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="smoke-test">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="smoke-test-h">스모크 테스트 <span class="sub">Smoke Test</span></h2>
+    <div class="links"><a class="link-tag" href="#canary-deployment">Canary</a><a class="link-tag" href="#rolling-deployment">롤링 배포</a><a class="link-tag" href="#liveness-readiness-probe">Readiness Probe</a></div>
+  </div>
+</div>
+<p><strong>배포·빌드 직후 "핵심 기능이 아예 깨지진 않았는지"만 빠르게 확인하는, 얕고 넓은 1차 점검</strong>이다. 하드웨어에 처음 전원을 넣었을 때 연기(smoke)가 나는지 보던 데서 유래한 이름이다. 모든 입력·경우를 꼼꼼히 검증하는 <strong>회귀 테스트(regression test)와 달리</strong>, 로그인·메인 화면 로딩·핵심 API 응답처럼 <strong>"서비스가 숨은 쉬는지"</strong>를 몇 분 안에 확인해 치명적인 배포를 조기에 걸러 낸다. 통과했다고 "버그가 없다"는 뜻은 아니고, "더 자세히 테스트할 가치가 있을 만큼은 멀쩡하다"는 1차 관문에 가깝다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--purple)">스모크 테스트</h4><ul><li>핵심 기능만 얕고 빠르게</li><li>배포·빌드 직후 1차 관문</li><li>"아예 깨졌나"를 거름</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">회귀 테스트</h4><ul><li>기능 전반을 꼼꼼히·넓게</li><li>변경이 기존 동작을 깼는지 확인</li><li>시간이 오래 걸림</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>배포 파이프라인에 "배포 후 스모크 테스트 통과 시 트래픽 전환" 단계를 넣거나, "일단 스모크만 돌려 보고 문제없으면 상세 테스트로 가자"는 QA·배포 논의에서 마주친다. <span style="color:var(--purple)">[협업·QA]</span></div>
 </section><hr class="divider">
 
 
