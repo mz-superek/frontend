@@ -210,6 +210,52 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-19">
+        <h2>2026-10-19 (월) · React Portal(createPortal) — 모달이 부모 안에서 잘리고 깔리는 문제, "DOM 위치"만 바깥으로 빼서 해결하기</h2>
+        <span class="topic-tag">프론트 심화 (React · CSS 스태킹)</span>
+
+        <h3>핵심 개념</h3>
+        <p>퍼블리싱 때 <code>position: fixed</code> 모달을 카드 안에 넣었다가 <code>overflow: hidden</code>에 잘리거나, 부모에 <code>transform</code>이 있어서 화면 전체가 아니라 카드 기준으로 깔려 본 적 있죠? 모달·툴팁·드롭다운 같은 "겹쳐 뜨는 UI"는 부모의 overflow/transform/z-index(스태킹 컨텍스트) 영향을 받기 때문에 생기는 문제예요.</p>
+        <p><code>createPortal(자식, 목적지DOM)</code>은 React 컴포넌트 트리상 위치는 그대로 두고, 실제 DOM만 <code>document.body</code> 같은 바깥으로 옮겨 그려주는 기능이에요. 그래서 CSS 부모 사슬에서 벗어나 잘림·z-index 전쟁이 사라집니다. 재밌는 점은 DOM은 body 밑인데도 이벤트는 React 트리를 따라 부모 컴포넌트로 버블링된다는 거예요. (ShadCN의 Dialog·Popover·Tooltip도 내부적으로 Radix의 Portal을 써요.)</p>
+
+        <pre><code>import { createPortal } from 'react-dom';
+
+function Modal({ open, onClose, children }: ModalProps) {
+  if (!open) return null;
+  return createPortal(
+    &lt;div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 grid place-items-center bg-black/50"
+      onClick={onClose}
+    &gt;
+      &lt;div onClick={(e) =&gt; e.stopPropagation()}&gt;{children}&lt;/div&gt;
+    &lt;/div&gt;,
+    document.body            // 실제 DOM이 붙을 목적지
+  );
+}</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>카드·테이블 셀·사이드바 안에서 모달/드롭다운이 잘린다는 버그는 실무에서 단골이고, "z-index 9999 올리기"로 땜질하기 전에 스태킹 컨텍스트와 Portal 개념을 알면 원인부터 잡을 수 있어요. ShadCN 컴포넌트를 커스텀할 때도 Portal 위치(<code>container</code>)를 이해해야 스타일·테마가 안 깨져요.</p>
+        <p class="refs">더 보기: <a href="https://react.dev/reference/react-dom/createPortal">React Docs — createPortal</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Understanding_z-index/Stacking_context">MDN — 스태킹 컨텍스트</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> 부모 카드에 <code>transform: translateY(0)</code>가 걸려 있는데, 그 안에 넣은 <code>position: fixed; inset: 0</code> 모달이 화면 전체가 아니라 카드 크기만큼만 깔립니다. 가장 근본적인 해결은? ① 모달에 <code>z-index: 9999</code> ② <code>createPortal</code>로 <code>document.body</code>에 렌더 ③ <code>!important</code> 추가 ④ <code>position: absolute</code>로 변경</p>
+          <p><strong>Q2. (출력 예측)</strong> 아래에서 모달 안 버튼을 클릭하면 콘솔에 무엇이 어떤 순서로 찍힐까요? (Modal은 위 코드처럼 Portal 사용)</p>
+          <pre><code>&lt;div onClick={() =&gt; console.log('card')}&gt;
+  &lt;Modal open onClose={() =&gt; {}}&gt;
+    &lt;button onClick={() =&gt; console.log('btn')}&gt;확인&lt;/button&gt;
+  &lt;/Modal&gt;
+&lt;/div&gt;</code></pre>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1. ②</strong> — <code>transform</code>이 걸린 조상은 <code>position: fixed</code>의 기준(containing block)이 되어버려서 화면 전체가 아닌 카드 기준으로 깔려요. z-index나 !important로는 기준이 안 바뀌고, Portal로 DOM을 body로 빼야 부모 사슬에서 벗어납니다.</p>
+            <p><strong>Q2.</strong> <code>btn</code> → <code>card</code> 순서로 찍혀요. Portal로 DOM은 body 밑에 있어도 React 이벤트는 "컴포넌트 트리" 기준으로 버블링돼서 부모 <code>div</code>의 onClick까지 올라갑니다. (원치 않으면 Modal 쪽에서 <code>stopPropagation</code>)</p>
+          </details>
+        </div>
+      </section>
+
+
       <section class="study-day" data-date="2026-10-18">
         <h2>2026-10-18 (일) · IntersectionObserver — scroll 이벤트 대신 "화면에 들어왔을 때만" 알려달라고 브라우저에 맡기기</h2>
         <span class="topic-tag">프론트 심화 (React · Web API)</span>
