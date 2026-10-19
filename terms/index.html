@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#init-container">초기화 컨테이너 (Init Container)</a>
+    <a class="nav-item" href="#scp">서비스 제어 정책 (SCP)</a>
+    <a class="nav-item" href="#import-maps">임포트 맵 (Import Maps)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="init-container">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="init-container-h">초기화 컨테이너 <span class="sub">Init Container</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#liveness-readiness-probe">헬스체크 프로브</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스 파드에서 앱(메인) 컨테이너가 뜨기 <em>전에</em> 먼저 실행돼 "끝까지 완료"돼야 하는 준비용 컨테이너</strong>. 여러 개를 두면 정의한 <strong>순서대로 하나씩</strong> 실행되고, 각각 성공(정상 종료)해야 다음으로 넘어가며, 전부 끝나야 비로소 앱 컨테이너가 시작된다. 설정 파일·시크릿 내려받기, DB 스키마 마이그레이션, 의존 서비스가 뜰 때까지 대기 같은 <strong>"본체 시작 전 사전작업"을 앱 이미지에 욱여넣지 않고 분리</strong>하는 용도다. 앱 컨테이너와 달리 상시 떠 있지 않고 <strong>작업만 하고 종료</strong>한다. 초기화 컨테이너가 실패하면 파드는 Init 단계에서 멈춘 채 재시도되므로, 앱이 영영 안 뜨고 재시작만 반복하는 것처럼 보일 수 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>파드 매니페스트에 <code>initContainers</code>를 추가하거나, <code>kubectl get pod</code>에서 STATUS가 <code>Init:0/1</code>로 멈춰 있을 때(=초기화 컨테이너가 아직 안 끝남) 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="scp">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="scp-h">서비스 제어 정책 <span class="sub">SCP · Service Control Policy</span></h2>
+    <div class="links"><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#least-privilege">최소 권한 원칙</a><a class="link-tag" href="#landing-zone">Landing Zone</a></div>
+  </div>
+</div>
+<p><strong>AWS Organizations에서 계정(또는 OU)이 쓸 수 있는 권한의 "상한선"을 정하는 조직 차원의 정책</strong>. 가장 중요한 점은 <strong>SCP는 권한을 <em>부여</em>하지 않는다 — 오직 허용 범위를 제한(가드레일)만 한다</strong>는 것이다. 즉 어떤 계정의 실제 가능 권한은 <code>IAM이 허용한 것 ∩ SCP가 허용한 것</code>(교집합)이다. 그래서 계정 관리자가 IAM으로 어드민 권한을 줘도, SCP가 특정 리전 밖 리소스 생성이나 루트 계정 사용 같은 걸 막아놨으면 그 행동은 거부된다. 여러 계정을 운영하는 조직에서 <strong>"누구도 이 가드레일은 못 넘는다"를 강제</strong>하는 핵심 수단이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">IAM 정책</h4><ul><li>권한을 <strong>부여</strong>한다 (누가 무엇을 할 수 있나)</li><li>계정 <strong>안에서</strong> 적용</li><li>이것만으로 실제 허용이 결정</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">SCP</h4><ul><li>권한의 <strong>상한을 제한</strong>한다 (조직이 어디까지 허용하나)</li><li>조직(OU·계정) <strong>차원</strong>에서 적용</li><li>IAM 허용과의 <strong>교집합</strong>만 실제 허용</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>MSP가 고객사 멀티 계정 환경(랜딩 존)을 설계하며 OU별로 허용 리전·금지 서비스·루트 사용 차단 같은 가드레일을 걸거나, "IAM으론 분명 권한을 줬는데 왜 거부되지?"를 디버깅할 때 마주친다. <span style="color:var(--amber)">[클라우드·거버넌스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="import-maps">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="import-maps-h">임포트 맵 <span class="sub">Import Maps</span></h2>
+    <div class="links"><a class="link-tag" href="#bundler">Vite · Turbopack</a><a class="link-tag" href="#module-federation">Module Federation</a><a class="link-tag" href="#tree-shaking">Tree Shaking</a></div>
+  </div>
+</div>
+<p><strong>브라우저 ES 모듈에서 <code>import x from "lodash"</code>처럼 "맨 이름(bare specifier)"으로 쓴 모듈을 실제 어느 URL에서 불러올지 매핑해 주는 웹 표준</strong>. <code>&lt;script type="importmap"&gt;</code> 안에 JSON으로 <code>"imports": { "lodash": "https://.../lodash.js" }</code> 식으로 선언한다. 원래 브라우저는 상대·절대 경로만 해석할 수 있어 이 맨 이름은 <strong>번들러(Webpack·Vite)가 대신 해결</strong>해 줬는데, 임포트 맵은 그 매핑을 <strong>브라우저가 직접 하게</strong> 해 번들러 없이 CDN ESM을 쓰거나 의존성 버전을 한곳에서 바꿀 수 있다. 모듈을 쓰는 <code>&lt;script&gt;</code>보다 <strong>먼저 선언</strong>돼야 한다. 2023년 3월부터 주요 브라우저에서 모두 지원돼 Baseline '널리 사용 가능' 상태다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>번들러 없이 CDN ESM으로 빠르게 프로토타입을 만들거나, 의존성 버전을 코드 수정 없이 중앙에서 교체하고 싶을 때, 또는 최신 브라우저 전용 페이지에서 import 경로를 관리할 때 마주친다. <span style="color:var(--purple)">[프론트엔드·빌드]</span></div>
 </section><hr class="divider">
 
 
