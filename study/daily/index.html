@@ -210,6 +210,54 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-20">
+        <h2>2026-10-20 (화) · useReducer — 상태가 여러 개 얽힐 땐 "무슨 일이 일어났는지"를 액션으로 이름 붙여 한곳에서 처리하기</h2>
+        <span class="topic-tag">프론트 심화 (React · 상태 관리)</span>
+
+        <h3>핵심 개념</h3>
+        <p>폼 하나에 <code>loading</code>, <code>error</code>, <code>data</code> 세 개의 <code>useState</code>를 두면 "로딩 중인데 에러도 있음" 같은 말 안 되는 조합이 슬쩍 생기고, 여기저기서 <code>setX</code>를 따로 부르다 보니 빼먹기 쉬워요. <code>useReducer</code>는 상태 바꾸는 규칙을 <code>reducer(현재상태, 액션) → 새상태</code>라는 함수 한곳에 모아두고, 컴포넌트는 <code>dispatch({ type: 'submit' })</code>처럼 "무슨 일이 일어났는지"만 알려주는 방식이에요.</p>
+        <p>퍼블리싱으로 치면 개별 클래스를 JS로 여기저기 토글하는 대신 <code>data-state="loading|error|done"</code> 하나만 바꾸고 CSS가 나머지를 정하는 것과 비슷해요. reducer는 같은 입력이면 같은 결과를 내는 순수 함수라서 테스트하기도 쉬워요.</p>
+
+        <pre><code>type State =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'error'; message: string };
+
+type Action =
+  | { type: 'submit' }
+  | { type: 'fail'; message: string }
+  | { type: 'reset' };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'submit': return { status: 'loading' };
+    case 'fail':   return { status: 'error', message: action.message };
+    case 'reset':  return { status: 'idle' };
+  }
+}
+
+const [state, dispatch] = useReducer(reducer, { status: 'idle' });
+// 호출: dispatch({ type: 'submit' })</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>"이 상태에서 이 이벤트가 오면 다음 상태는 뭐다"를 한 파일에서 읽을 수 있어, 상태가 3~4개 이상 얽힌 폼·위저드·결제 흐름에서 버그 추적이 훨씬 쉬워져요. Redux·Zustand 같은 상태 라이브러리도 같은 발상이라 기초로 알아두면 좋아요.</p>
+        <p class="refs">더 보기: <a href="https://react.dev/reference/react/useReducer">React Docs — useReducer</a> · <a href="https://react.dev/learn/extracting-state-logic-into-a-reducer">React Docs — Extracting State Logic into a Reducer</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p><strong>Q1. (객관식)</strong> 다음 중 <code>useState</code> 여러 개보다 <code>useReducer</code>가 특히 유리한 상황은? ① 모달 열림/닫힘 boolean 하나 ② 입력창 문자열 하나 ③ 로딩·에러·성공이 서로 영향을 주는 다단계 폼 ④ 숫자 카운터 하나</p>
+          <p><strong>Q2. (문제점 찾기)</strong> 아래 reducer의 문제는?</p>
+          <pre><code>function reducer(state: { items: string[] }, action: { type: 'add'; item: string }) {
+  state.items.push(action.item);
+  return state;
+}</code></pre>
+          <details><summary>정답·해설 보기</summary>
+            <p><strong>Q1. ③</strong> — 로딩·에러·성공처럼 서로 영향을 주는 상태는 reducer 한곳에서 "다음 상태"를 정해야 모순된 조합이 안 생겨요. 나머지는 값 하나라 <code>useState</code>로 충분해요.</p>
+            <p><strong>Q2.</strong> 기존 state를 직접 <code>push</code>로 바꾸고 같은 객체를 반환해요. React는 참조가 같으면 "안 바뀌었다"고 보고 리렌더링을 건너뛰어 화면이 안 갱신돼요. <code>return { items: [...state.items, action.item] }</code>처럼 새 객체를 반환해야 해요.</p>
+          </details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-10-19">
         <h2>2026-10-19 (월) · React Portal(createPortal) — 모달이 부모 안에서 잘리고 깔리는 문제, "DOM 위치"만 바깥으로 빼서 해결하기</h2>
         <span class="topic-tag">프론트 심화 (React · CSS 스태킹)</span>
