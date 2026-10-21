@@ -83,6 +83,43 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-22">
+        <h2>📰 2026-10-22 (목)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 2건·프론트엔드 1건·백엔드 1건 통과. HTML &amp; CSS는 최근 1~2주 창 안에서 1차 소스로 확인되는 신규 기능·Baseline 편입·벤더 블로그 발표를 확정하지 못해 헤더째 생략. 드롭: Gemini 4 Carbon·GPT Terra·Claude Duet 등은 루머/집계 매체 단계로 1차 소스 미확인(접근 실패), Muse Spark Open(10/15)은 기존 발송분과 중복이자 AI 시의성 창 밖.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">DeepSeek, 자체 프로덕션 추론 프레임워크 &apos;DeepInfer&apos; 오픈소스 공개 (Apache 2.0)</p>
+            <p class="item-meta">2026-10-20 · <a href="https://github.com/deepseek-ai/DeepInfer">github.com/deepseek-ai/DeepInfer</a></p>
+            <p class="item-summary">DeepSeek가 자사 대규모 프로덕션 서비스를 구동하는 고성능 추론 프레임워크 DeepInfer를 Apache 2.0으로 공개했다(공식 저장소 기준 최초 커밋 2026-10-20). README에 따르면 이번 공개본은 오프라인 추론에 초점을 맞춘 코어로, 어텐션·MoE 레이어용 최적화 커널과 병렬화 기법, 드래프트 토큰·신뢰도 추정을 활용한 디코딩 스케줄링을 담았다. 대상 모델은 DeepSeek-V4.1-Flash, 지원 하드웨어는 엔비디아 SM100 GPU와 화웨이 Ascend 950 NPU다(KV 캐시·프리필/디코드 분리·로드밸런싱은 사용자가 직접 구성). 프론티어 랩이 추론 스택 자체를 공개한 사례로, 중국계 오픈 생태계가 모델뿐 아니라 서빙 인프라까지 밀어 올리는 흐름을 보여준다.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Anthropic, 장기이익신탁(LTBT)에 물리학자 Christopher Stubbs 합류</p>
+            <p class="item-meta">2026-10-21 · <a href="https://www.anthropic.com/news/christopher-stubbs-joins-long-term-benefit-trust">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 하버드 前 이과대학장이자 우주 가속팽창을 입증한 High-Z 초신성 탐사팀 일원인 물리학자 Christopher Stubbs를 장기이익신탁(Long-Term Benefit Trust) 신탁위원으로 선임했다고 공식 발표했다. LTBT는 Anthropic 이사회 과반을 임명할 권한을 가진 거버넌스 기구로, AI의 위험·사회적 영향 등 중대 결정에서 이사회·경영진에 조언한다. Stubbs는 Neil Buddy Shah(의장)·Richard Fontaine·Ben Bernanke에 이어 합류하며, 신탁위원은 지분·이익배분 없이 활동한다. 프론티어 랩의 공익 거버넌스 구조를 보강하는 움직임.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.4.2 공개 — Turbopack 안정화 백포트 패치 (LTS)</p>
+            <p class="item-meta">2026-10-15 · <a href="https://github.com/vercel/next.js/releases/tag/v16.4.2">github.com/vercel/next.js/…/v16.4.2</a></p>
+            <p class="item-summary">Next.js가 16.4 LTS 라인의 유지보수 릴리스 v16.4.2를 공개했다(GitHub 릴리스 기준 10/15, &apos;Latest&apos; 표기, 변경분 전체가 <code>[lts-active]</code> 백포트). Turbopack의 turbo-tasks 스냅샷 일관성 수정 3건, GC 경로에서 의존성 엣지가 절반만 제거되던 버그 수정, 페이지 라우터 개발 모듈 그래프 체이닝, realpath 오류를 Node 동작과 맞춘 모듈 해석 수정, lazy dynamic import의 청크 리스트 충돌 수정 등이 담겼다. 새 기능보다는 Turbopack 기반 빌드/개발 경험의 안정화에 초점을 둔 패치.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js 10월 보안 릴리스 — v26.12.1 / v24.22.1 / v22.23.4 (최고 HIGH, Brotli RCE 포함)</p>
+            <p class="item-meta">2026-10-21 · <a href="https://nodejs.org/en/blog/vulnerability/october-2026-security-releases">nodejs.org</a></p>
+            <p class="item-summary">Node.js가 예고했던 10/21 보안 릴리스를 실제 공개했다(공식 보안 블로그 기준 2026-10-21). 26.x·24.x LTS·22.x 세 라인에 걸쳐 총 10건의 취약점을 수정했고 최고 심각도는 HIGH다. 핵심은 Brotli 디코더의 out-of-bounds write로 인한 원격 코드 실행(CVE-2026-111497), fullwidth 숫자 IP·느슨한 호스트 해석을 악용한 TLS 인증서 호스트명 검증 우회 2건(CVE-2026-105483·106069), <code>dns.resolve</code>의 NUL 문자 이름 절단(CVE-2026-105482) 등이다. 그 밖에 keep-alive 소켓 응답 처리, 비정규 IPv4 호스트명 인증서 검증, 스타트업 스냅샷에 엔트로피 캐시가 저장되던 <code>randomUUID()</code>/<code>randomInt()</code> 문제 등 Medium·Low 다수 포함. 운영 중인 모든 지원 라인은 조속한 업그레이드가 권장된다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
