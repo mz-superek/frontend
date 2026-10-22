@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#imds">인스턴스 메타데이터 (IMDS)</a>
+    <a class="nav-item" href="#lsm-tree">LSM 트리</a>
+    <a class="nav-item" href="#css-cascade-layers">캐스케이드 레이어 (@layer)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="imds">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="imds-h">인스턴스 메타데이터 서비스 <span class="sub">Instance Metadata Service · IMDS/IMDSv2</span></h2>
+    <div class="links"><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#secrets-management">시크릿 관리</a><a class="link-tag" href="#cors">SSRF</a></div>
+  </div>
+</div>
+<p><strong>EC2 같은 가상 서버가 자기 자신에 대한 정보(인스턴스 ID·타입, 네트워크 설정, 그리고 결정적으로 <strong>IAM 역할의 임시 자격증명</strong>)를 조회하는 서버 내부 전용 API</strong>. 서버 안에서 <strong>링크로컬 주소 <code>169.254.169.254</code></strong>로만 접근되며, 이 주소는 그 서버 바깥으로 라우팅되지 않는다. 덕분에 애플리케이션은 액세스 키를 코드·환경변수에 하드코딩하지 않고도 이 API에서 자동 회전되는 자격증명을 받아 S3·DB 등에 접근할 수 있다. 문제는 애플리케이션에 <strong>SSRF(서버가 공격자가 준 URL을 대신 호출하게 만드는 취약점)</strong>가 있으면 공격자가 이 주소를 찔러 자격증명을 통째로 빼낼 수 있다는 것. 이를 막으려고 나온 것이 <strong>IMDSv2</strong>로, 먼저 <code>PUT</code> 요청으로 세션 토큰(TTL 최대 6시간)을 발급받아 이후 모든 조회 요청의 헤더에 담아야만 응답한다. 단순 <code>GET</code> 한 방으로 끝나던 <strong>IMDSv1</strong>과 달리, 토큰 교환이 필요하고 응답 홉 수(hop limit)가 1로 제한돼 리버스 프록시·열린 방화벽을 통한 우회 조회가 차단된다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">IMDSv1</h4><ul><li>토큰 없이 바로 <code>GET</code></li><li>SSRF·리버스 프록시에 취약</li><li>하위 호환용, 비권장</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">IMDSv2</h4><ul><li><code>PUT</code>로 세션 토큰 먼저 발급</li><li>토큰 없는 요청은 401 거부</li><li>SSRF 방어, <code>required</code> 강제 권장</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>EC2·컨테이너가 하드코딩 키 없이 IAM 역할 자격증명을 받아 쓰도록 구성하거나, 보안 점검에서 "IMDSv2를 <code>required</code>로 강제하라"·"SSRF로 자격증명이 새지 않게 하라"는 지적을 받을 때 마주친다. <span style="color:var(--teal)">[클라우드·보안]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="lsm-tree">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="lsm-tree-h">LSM 트리 <span class="sub">Log-Structured Merge-Tree</span></h2>
+    <div class="links"><a class="link-tag" href="#write-ahead-log">WAL</a><a class="link-tag" href="#bloom-filter">블룸 필터</a><a class="link-tag" href="#oltp-olap">OLTP vs OLAP</a></div>
+  </div>
+</div>
+<p><strong>쓰기가 많은 데이터베이스가 쓰기를 빠르게 처리하려고 쓰는 저장 구조</strong>. 들어온 쓰기를 먼저 <strong>메모리의 정렬된 버퍼(멤테이블·memtable)</strong>에 모으고, 가득 차면 디스크에 <strong>정렬된 불변 파일(SSTable)로 통째로 순차 기록</strong>한다. 이렇게 쌓인 파일이 많아지면 백그라운드에서 <strong>병합·정리하는 작업(compaction)</strong>으로 중복·삭제분을 걷어내며 합친다. 기존 <strong>B-트리</strong>가 디스크의 제자리를 찾아가 수정(random write)하는 것과 달리, LSM은 <strong>디스크에 쭉 이어 쓰는 순차 쓰기(sequential write)</strong>만 하므로 쓰기 처리량이 크게 높다. 대신 하나의 키를 읽으려면 멤테이블부터 여러 SSTable까지 뒤져야 할 수 있어 <strong>읽기는 상대적으로 불리</strong>하고, 이를 <strong>블룸 필터</strong>(이 파일에 그 키가 없음을 빠르게 걸러줌)로 보완한다. 쓰기 폭주를 견뎌야 하는 NoSQL·시계열 저장소의 엔진으로 널리 쓰인다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">B-트리 (RDB 계열)</h4><ul><li>제자리 수정 = 랜덤 쓰기</li><li>읽기에 유리, 범위 조회 강함</li><li>PostgreSQL·MySQL(InnoDB)</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">LSM 트리</h4><ul><li>순차 쓰기 + 백그라운드 병합</li><li>쓰기 폭주에 유리, 읽기는 보완 필요</li><li>Cassandra·RocksDB·HBase</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>Cassandra·ScyllaDB·RocksDB·HBase 같은 쓰기 많은 저장소를 고르거나, "컴팩션 때문에 디스크 I/O·CPU가 튄다"·"왜 이 DB가 RDB보다 쓰기가 빠른가"를 이해할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="css-cascade-layers">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="css-cascade-layers-h">캐스케이드 레이어 <span class="sub">CSS Cascade Layers · @layer</span></h2>
+    <div class="links"><a class="link-tag" href="#design-token">디자인 토큰</a><a class="link-tag" href="#storybook">Storybook</a></div>
+  </div>
+</div>
+<p><strong><code>@layer</code>로 CSS에 '우선순위 층(layer)'을 만들어, 어떤 스타일이 이길지를 선택자 명시도(specificity)나 작성 순서가 아니라 <strong>층을 선언한 순서</strong>로 정하게 하는 기능</strong>. 예컨대 <code>@layer reset, framework, utilities;</code>로 순서를 정해 두면, 뒤에 선언된 <code>utilities</code> 층의 규칙이 앞선 <code>framework</code> 층 규칙을 <strong>명시도가 더 낮아도 이긴다</strong>. 즉 층끼리는 명시도·소스 순서를 무시하고 층 순서가 먼저 결정하며, 명시도·순서는 <strong>같은 층 안에서만</strong> 평소처럼 작동한다. 이 덕분에 "리셋 → 외부 프레임워크 → 내 커스텀" 같은 우선순위를 명시적으로 설계할 수 있어, 그동안 override를 위해 <strong>선택자를 무겁게 쌓거나 <code>!important</code>를 남발하던 '명시도 전쟁'</strong>을 피할 수 있다(참고: 어떤 층에도 안 든 일반 스타일은 모든 층을 이긴다). 2022년 3월부터 주요 브라우저에서 널리 지원되는 <strong>Baseline(Widely available)</strong> 기능이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>외부 UI 라이브러리·디자인 시스템과 내 커스텀 스타일이 충돌할 때 층으로 우선순위를 정리하거나, "명시도 때문에 스타일 override가 안 돼서 <code>!important</code>를 붙였다"는 CSS 아키텍처 문제를 <code>@layer</code>로 푸는 논의에서 마주친다. <span style="color:var(--blue)">[프론트엔드·HTML & CSS]</span></div>
 </section><hr class="divider">
 
 
