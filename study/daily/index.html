@@ -210,6 +210,37 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-22">
+        <h2>2026-10-22 (목) · 컨테이너 쿼리(@container) — 뷰포트가 아니라 "부모 박스 폭" 기준으로 반응하는 컴포넌트</h2>
+        <span class="topic-tag">프론트 심화 (CSS · Tailwind)</span>
+
+        <h3>핵심 개념</h3>
+        <p>미디어쿼리(<code>md:</code>)는 "브라우저 창 폭"을 보고 스타일을 바꿔요. 그래서 같은 카드 컴포넌트를 넓은 메인 영역에 놓을 때와 좁은 사이드바에 놓을 때 모양을 다르게 하고 싶어도, 창 폭은 똑같으니 구분이 안 돼요. 컨테이너 쿼리는 "내가 들어 있는 부모 박스의 폭"을 기준으로 스타일을 바꿔요. 퍼블리싱으로 치면 페이지 전체가 아니라 "이 모듈 자리가 넓은지 좁은지"에 반응하는 모듈형 반응형이에요. 부모에 <code>@container</code>를 붙이고, 자식에서 <code>@md:</code> 같은 변형을 쓰면 돼요 (Tailwind v4는 기본 내장, v3는 플러그인).</p>
+
+        <pre><code>// 부모: "여기를 기준 박스로 삼아라"
+&lt;div className="@container"&gt;
+  {/* 자식: 부모 폭이 md(28rem) 이상이면 가로 배치, 아니면 세로 */}
+  &lt;article className="flex flex-col gap-2 @md:flex-row @md:gap-4"&gt;
+    &lt;img className="w-full @md:w-40" src="/thumb.png" alt="" /&gt;
+    &lt;div&gt;제목과 설명&lt;/div&gt;
+  &lt;/article&gt;
+&lt;/div&gt;</code></pre>
+
+        <h3>왜 알아야 하나</h3>
+        <p>FSD에서 widgets/features 컴포넌트는 여러 페이지·레이아웃에 재사용되는데, 뷰포트 기준 <code>md:</code>로 짜면 놓이는 자리마다 깨져요. 컨테이너 쿼리로 짜면 컴포넌트가 "자기 자리"만 보고 스스로 적응해서 재사용성이 확 올라가요.</p>
+        <p class="refs">더 보기: <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries">MDN — CSS container queries</a> · <a href="https://tailwindcss.com/docs/responsive-design#container-queries">Tailwind Docs — Container queries</a></p>
+
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. 같은 ProductCard를 넓은 메인(800px)과 좁은 사이드바(300px)에 놓았는데, 브라우저 창은 1200px 하나뿐이에요. 어느 쪽이 이 상황을 구분해서 스타일을 다르게 줄 수 있을까요? ① md: 미디어쿼리 ② @md: 컨테이너 쿼리 ③ 둘 다 가능 ④ 둘 다 불가능</p>
+          <p>Q2. 아래 코드에서 카드가 좁아져도 세로 배치로 바뀌지 않아요. 이유는?</p>
+          <pre><code>&lt;div&gt;
+  &lt;article className="flex flex-col @md:flex-row"&gt;...&lt;/article&gt;
+&lt;/div&gt;</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1. ② — 창 폭(1200px)은 두 카드가 같아서 md:로는 구분이 안 되고, 컨테이너 쿼리는 각 부모 폭(800px/300px)을 따로 보기 때문이에요.</p><p>Q2. 부모에 @container가 없어서예요. 기준 컨테이너가 선언돼야 @md:가 그 폭을 보고 동작해요. &lt;div className="@container"&gt;로 고치면 돼요.</p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-10-21">
         <h2>2026-10-21 (수) · N+1 쿼리 — 목록 1번 + 항목마다 1번씩, 조용히 쌓이는 DB 호출 폭탄</h2>
         <span class="topic-tag">클라우드·백엔드 기초 (DB · ORM)</span>
