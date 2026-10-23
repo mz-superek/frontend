@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#fencing-token">펜싱 토큰 (Fencing Token)</a>
+    <a class="nav-item" href="#point-in-time-recovery">특정 시점 복구 (PITR)</a>
+    <a class="nav-item" href="#bfcache">뒤로가기 캐시 (bfcache)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,43 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="fencing-token">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="fencing-token-h">펜싱 토큰 <span class="sub">Fencing Token</span></h2>
+    <div class="links"><a class="link-tag" href="#distributed-lock">분산 락</a><a class="link-tag" href="#quorum">정족수(Quorum)</a><a class="link-tag" href="#consensus">합의 알고리즘</a></div>
+  </div>
+</div>
+<p><strong>분산 락을 "안전하게" 만들기 위해, 락을 내줄 때마다 1씩 증가하는 번호(토큰)를 함께 발급하고, 실제 자원은 지금까지 본 것보다 낮은 번호의 요청을 거부하게 만드는 장치</strong>. 분산 락만으로는 정확성이 보장되지 않는다. 락을 쥔 클라이언트가 <strong>GC 멈춤(stop-the-world)·네트워크 지연</strong>으로 멈춘 사이 락이 만료돼 다른 클라이언트가 같은 락을 얻고, 그 뒤 늦게 깨어난 옛 클라이언트가 <strong>자기도 아직 락을 쥔 줄 알고 자원에 쓰기</strong>를 하면 데이터가 깨진다. 펜싱 토큰은 자원(스토리지·DB) 쪽에서 <strong>이미 처리한 토큰보다 낮은 번호의 쓰기를 거부</strong>하게 해, 이런 <strong>'좀비 쓰기'</strong>를 원천적으로 막는다. 즉 락 서비스가 아니라 <strong>자원 쪽이 최종 방어선</strong>이 된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>Redis·ZooKeeper 등으로 분산 락을 구현할 때 "락 만료 후 늦게 깨어난 프로세스가 데이터를 덮어쓰는" 안전성 문제를 논하거나, 왜 락만으로는 정확성이 보장되지 않아 펜싱이 필요한지 이야기할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="point-in-time-recovery">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="point-in-time-recovery-h">특정 시점 복구 <span class="sub">Point-in-Time Recovery · PITR</span></h2>
+    <div class="links"><a class="link-tag" href="#write-ahead-log">선행 기록 로그(WAL)</a><a class="link-tag" href="#rto-rpo">RTO·RPO</a><a class="link-tag" href="#cross-region-replication">교차 리전 복제</a></div>
+  </div>
+</div>
+<p><strong>전체 백업(스냅샷)에 그 이후의 트랜잭션 로그를 이어붙여, 데이터베이스를 과거 임의의 시점(예: 장애 직전)으로 되돌리는 복구 기능</strong>. 보통 원본 DB는 그대로 두고 복원 지점의 상태를 담은 <strong>새 인스턴스를 만든다</strong>. 하루 한 번 스냅샷만 있으면 장애 시 마지막 스냅샷 이후의 데이터를 통째로 잃어 <strong>복구 지점 목표(RPO)가 커지는데</strong>, PITR은 스냅샷 이후의 변경 로그를 계속 쌓아 두므로 <strong>"실수로 테이블을 지운 5분 전"처럼 세밀한 시점</strong>으로 되돌릴 수 있다. 예를 들어 <strong>AWS RDS는 트랜잭션 로그를 약 5분 간격으로 S3에 올려</strong>, 설정된 백업 보존 기간 안의 거의 모든 시점으로 복원할 수 있다(복원 가능한 '최신 시점'도 이 로그 반영 시점까지다).</p>
+<div class="tip"><div class="tip-l">실무에서</div>잘못된 쿼리·배포로 운영 DB 데이터가 손상됐을 때 복구 방법을 찾거나, 백업 전략의 RPO를 줄이려고 "스냅샷만으로 충분한가, PITR을 켤까"를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="bfcache">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="bfcache-h">뒤로가기 캐시 <span class="sub">Back/Forward Cache · bfcache</span></h2>
+    <div class="links"><a class="link-tag" href="#web-vitals">Web Vitals</a><a class="link-tag" href="#http-cache">HTTP Cache</a><a class="link-tag" href="#service-worker">Service Worker</a></div>
+  </div>
+</div>
+<p><strong>사용자가 페이지를 떠날 때 그 페이지를 파기하지 않고, JS 실행을 멈춘 채 메모리에 통째로 스냅샷으로 보관했다가, 뒤로/앞으로 가기를 누르면 네트워크 요청 없이 그 스냅샷을 즉시 복원하는 브라우저 최적화</strong>. 재방문 네비게이션이 거의 <strong>즉각적</strong>이 되어 체감 성능과 Core Web Vitals에 유리하다. 단, 페이지에 <strong><code>unload</code> 이벤트 리스너</strong>가 있거나, 응답에 <strong><code>Cache-Control: no-store</code></strong>가 걸려 있거나, 진행 중인 <code>fetch</code>·열린 IndexedDB·WebSocket 같은 <strong>열린 연결</strong>이 있으면 페이지가 bfcache 대상에서 <strong>제외</strong>된다. 그래서 <code>unload</code> 대신 <strong><code>pagehide</code></strong>를 쓰는 등으로 '적격(eligible)' 상태를 유지하는 것이 중요하다(캐시된 페이지는 메모리 확보를 위해 일정 시간 뒤 버려질 수도 있다).</p>
+<div class="tip"><div class="tip-l">실무에서</div>뒤로가기가 느리거나 뒤로 왔을 때 페이지 상태가 초기화되는 문제를 디버깅하거나, Lighthouse·DevTools의 bfcache 검사에서 '제외 사유'를 없애 재방문 성능을 올릴 때 마주친다. <span style="color:var(--blue)">[프론트엔드·브라우저]</span></div>
 </section><hr class="divider">
 
 
