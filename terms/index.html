@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#edge-location">엣지 로케이션·PoP</a>
+    <a class="nav-item" href="#sast-dast">SAST·DAST</a>
+    <a class="nav-item" href="#red-use-method">RED·USE 메서드</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,54 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="edge-location">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="edge-location-h">엣지 로케이션 <span class="sub">Edge Location · PoP</span></h2>
+    <div class="links"><a class="link-tag" href="#anycast">Anycast</a><a class="link-tag" href="#http-cache">HTTP 캐시</a><a class="link-tag" href="#tls-termination">TLS 종료</a></div>
+  </div>
+</div>
+<p><strong>CDN·클라우드 사업자가 사용자와 지리적으로 가까운 곳에 서버를 두는 지점</strong>. <strong>PoP(Point of Presence)</strong>는 그런 물리적 거점(데이터센터·통신 설비)을 가리키고, <strong>엣지 로케이션</strong>은 그중 CDN이 콘텐츠를 캐시하고 사용자 연결(TLS 종료 등)을 받아 주는 거점이다. 사용자의 요청이 멀리 있는 <strong>원본(오리진) 서버</strong>까지 왕복하지 않고 가까운 엣지에서 처리·응답되므로 <strong>지연(latency)이 줄고 오리진 부하도 낮아진다</strong>. 정적 파일 캐싱뿐 아니라, 가장 가까운 엣지로 트래픽을 보내는 <strong>Anycast 라우팅</strong>·엣지에서 코드를 실행하는 엣지 컴퓨팅의 토대이기도 하다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">오리진 (Origin)</h4><ul><li>콘텐츠의 원본이 있는 중앙 서버</li><li>보통 한 리전에 위치</li><li>먼 사용자일수록 왕복이 느림</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">엣지 (Edge · PoP)</h4><ul><li>사용자 근처의 캐시·접점 서버</li><li>전 세계 여러 거점에 분산</li><li>지연↓·오리진 부하↓</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>CDN(CloudFront 등)을 설정하거나, "왜 특정 지역 사용자만 느린가"·캐시 적중률·오리진 부하·TTFB를 점검하고 엣지 캐싱으로 성능을 올릴 때 마주친다. <span style="color:var(--teal)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="sast-dast">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="sast-dast-h">SAST · DAST <span class="sub">Static / Dynamic Application Security Testing</span></h2>
+    <div class="links"><a class="link-tag" href="#secrets-management">시크릿 관리</a><a class="link-tag" href="#csp">CSP</a><a class="link-tag" href="#zero-trust">제로 트러스트</a></div>
+  </div>
+</div>
+<p><strong>애플리케이션의 보안 취약점을 자동으로 찾는 두 가지 대표 검사 방식</strong>. <strong>SAST(정적)</strong>는 앱을 실행하지 않고 <strong>소스코드·바이트코드를 분석</strong>하는 화이트박스 방식으로, 개발 초기(커밋·CI)부터 코드 레벨 취약점(SQL 인젝션 패턴, 하드코딩된 비밀키 등)을 잡지만 실행·설정 단계의 문제는 못 보고 <strong>오탐(false positive)이 많은</strong> 편이다. <strong>DAST(동적)</strong>는 실제로 떠 있는 앱에 바깥에서 공격하듯 요청을 넣어 보는 <strong>블랙박스 방식</strong>으로, 런타임·환경설정 취약점을 잡고 소스가 없어도 되지만 <strong>어느 코드가 문제인지 짚기 어렵고</strong> 검사 시점이 늦다. 둘은 보는 지점이 달라 상호 보완적이라 함께 쓰며, 실행 중 내부를 계측해 둘을 절충한 <strong>IAST</strong>도 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">SAST (정적)</h4><ul><li>소스코드 분석, 실행 안 함(화이트박스)</li><li>개발 초기·CI에서 조기 발견</li><li>취약 위치를 바로 지목</li><li>오탐 많음·런타임 문제 못 봄</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">DAST (동적)</h4><ul><li>실행 중인 앱을 외부에서 공격(블랙박스)</li><li>스테이징·배포 후 단계</li><li>런타임·설정 취약점 포착, 소스 불필요</li><li>위치 짚기 어려움·시점 늦음</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>CI 파이프라인에 보안 스캔을 넣거나, 취약점 리포트에서 "SAST에서 뜬 게 오탐인지, DAST로 실제 익스플로잇이 되는지"를 가려 우선순위를 정할 때 마주친다. <span style="color:var(--blue)">[보안]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="red-use-method">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="red-use-method-h">RED · USE 메서드 <span class="sub">RED / USE Method</span></h2>
+    <div class="links"><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#percentile-latency">p95·p99</a><a class="link-tag" href="#error-budget">에러 버짓</a></div>
+  </div>
+</div>
+<p><strong>수많은 지표 중 "무엇을 모니터링할지" 정해 주는 두 가지 대표 방법론</strong>. <strong>RED</strong>는 요청을 처리하는 서비스(마이크로서비스·API)를 볼 때 <strong>Rate(초당 요청 수)·Errors(실패 수/율)·Duration(처리 시간·지연)</strong>을 본다 — "사용자가 겪는 서비스 품질" 관점. <strong>USE</strong>는 서버·디스크·네트워크 같은 자원을 볼 때 <strong>Utilization(사용률)·Saturation(대기·포화 정도)·Errors(에러)</strong>를 본다 — "자원이 병목인가" 관점. 둘을 합치면 "서비스가 느리다"(RED의 Duration↑)는 <strong>증상</strong>에서 "어느 자원이 포화"(USE의 Saturation↑)라는 <strong>원인</strong>까지 좁힐 수 있다. 구글 SRE의 <strong>4대 황금 지표</strong>(지연·트래픽·에러·포화)와도 겹치는, 지표 과잉 속에서 핵심만 추리는 틀이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--green)">RED (서비스)</h4><ul><li>요청 기반 서비스·API를 관측</li><li>Rate · Errors · Duration</li><li>사용자 체감 품질 관점</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">USE (자원)</h4><ul><li>CPU·메모리·디스크·네트워크 자원</li><li>Utilization · Saturation · Errors</li><li>병목·포화 진단 관점</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>대시보드·알림을 처음 설계하며 "무슨 지표를 봐야 하나"를 정하거나, 장애 때 "서비스 지표(RED)부터 볼지 자원 지표(USE)부터 볼지"를 논할 때 마주친다. <span style="color:var(--green)">[운영·관측성]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
