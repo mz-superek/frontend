@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#eni">탄력적 네트워크 인터페이스 (ENI)</a>
+    <a class="nav-item" href="#write-amplification">쓰기 증폭 (Write Amplification)</a>
+    <a class="nav-item" href="#bus-factor">버스 팩터 (Bus Factor)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="eni">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="eni-h">탄력적 네트워크 인터페이스 <span class="sub">Elastic Network Interface · ENI</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#availability-zone">가용 영역</a><a class="link-tag" href="#security-group">Security Group</a></div>
+  </div>
+</div>
+<p><strong>VPC 안에서 EC2 인스턴스에 붙는 '가상 랜카드(virtual network card)'</strong>. 사설 IP·MAC 주소·보안 그룹 같은 네트워크 속성을 담는 논리적 구성요소로, <strong>이 속성들이 ENI에 그대로 붙어 다닌다</strong>. 그래서 한 인스턴스에서 ENI를 떼어 같은 가용 영역의 다른 인스턴스에 붙이면 IP·보안 그룹이 통째로 따라가 트래픽이 새 인스턴스로 넘어가므로, <strong>고정 IP를 유지한 채 장애 인스턴스를 갈아끼우는 페일오버</strong>를 만들 수 있다. 인스턴스를 만들 때 생기는 <strong>기본(primary) ENI(eth0)는 분리할 수 없고</strong>, 추가로 붙이는 보조(secondary) ENI만 떼었다 붙일 수 있다. 붙일 수 있는 ENI 개수는 인스턴스 타입마다 정해져 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">기본 ENI (primary · eth0)</h4><ul><li>인스턴스 생성 시 자동으로 하나 생김</li><li>분리(detach) 불가</li><li>인스턴스와 생사를 같이함</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">보조 ENI (secondary)</h4><ul><li>필요 시 추가로 붙임</li><li>떼어 다른 인스턴스로 이동 가능</li><li>IP·보안그룹째로 페일오버에 활용</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>EC2에 네트워크 인터페이스를 추가로 붙여 관리용·서비스용 트래픽을 나누거나, 장애 시 ENI를 다른 인스턴스로 옮겨 사설 IP·보안 그룹을 그대로 승계하는 설계를 할 때, 또 "ENI 한도 초과"로 파드·인스턴스가 안 뜨는 문제를 볼 때 마주친다. <span style="color:var(--blue)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="write-amplification">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="write-amplification-h">쓰기 증폭 <span class="sub">Write Amplification · WA</span></h2>
+    <div class="links"><a class="link-tag" href="#write-ahead-log">WAL</a><a class="link-tag" href="#read-replica">Read Replica</a><a class="link-tag" href="#object-storage">Object Storage</a></div>
+  </div>
+</div>
+<p><strong>애플리케이션이 요청한 '논리적 쓰기'보다 저장장치에 실제로 기록되는 '물리적 쓰기'가 훨씬 많아지는 현상</strong>, 그리고 그 비율(실제 쓰기 ÷ 요청 쓰기)을 가리키는 말. 대표적으로 두 곳에서 생긴다. ① <strong>SSD</strong>: 낸드플래시는 페이지 단위로 쓰지만 지우기는 더 큰 '블록' 단위로만 가능해, 1바이트만 바꿔도 블록을 통째로 지우고 다시 써야 하고 가비지 컬렉션이 유효 데이터를 옮긴다. ② <strong>LSM 트리 기반 DB</strong>(카산드라·RocksDB 등): 백그라운드 병합(compaction)이 같은 데이터를 여러 단계에 걸쳐 반복해 다시 쓴다. 쓰기 증폭이 크면 <strong>SSD 수명이 빨리 닳고, 디스크 I/O·비용이 늘며, 실질 쓰기 처리량이 떨어진다</strong>.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">SSD 쓰기 증폭</h4><ul><li>지우기는 블록, 쓰기는 페이지 단위</li><li>작은 수정도 블록 재기록 유발</li><li>GC가 유효 데이터 이동 → 추가 쓰기</li></ul></div>
+  <div class="card"><h4 style="color:var(--purple)">LSM 쓰기 증폭</h4><ul><li>컴팩션이 데이터를 반복 재기록</li><li>쓰기 많은 NoSQL·시계열 DB에서 두드러짐</li><li>레벨 설계·튜닝으로 완화</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>카산드라·RocksDB·시계열 DB의 디스크 I/O·SSD 수명 문제를 보거나, "컴팩션 때문에 쓰기 증폭이 심하다"·클라우드에서 프로비저닝 IOPS·디스크 비용을 튜닝할 때 마주친다. <span style="color:var(--purple)">[백엔드·스토리지]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="bus-factor">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="bus-factor-h">버스 팩터 <span class="sub">Bus Factor · Truck Factor</span></h2>
+    <div class="links"><a class="link-tag" href="#runbook">Runbook</a><a class="link-tag" href="#adr">ADR</a><a class="link-tag" href="#postmortem">Postmortem</a></div>
+  </div>
+</div>
+<p><strong>"핵심 인원 몇 명이 갑자기 사라지면(버스에 치이면) 프로젝트가 멈추는가"를 나타내는 수</strong>. 특정 코드·시스템·접근 권한에 대한 지식이 몇 사람에게 쏠려 있는 정도를 가늠하는 지표로, <strong>버스 팩터가 1이면 그 한 사람이 곧 '사람 단일 장애점(SPOF)'</strong>이라는 뜻이다. 숫자가 낮을수록 이직·휴가·병가 한 번에 업무가 마비될 위험이 크다. 문서화·페어 프로그래밍·코드 리뷰·코드 오너 분산·온보딩 정비로 지식을 퍼뜨려 <strong>버스 팩터를 높이는 것</strong>이 조직 리스크 관리의 기본이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">버스 팩터 1 (위험)</h4><ul><li>한 사람만 아는 모듈·인프라</li><li>휴가·이직에 업무 마비</li><li>사람 단일 장애점(SPOF)</li></ul></div>
+  <div class="card"><h4 style="color:var(--green)">높은 버스 팩터 (안전)</h4><ul><li>지식이 문서·여러 사람에 분산</li><li>인원 공백에도 업무 지속 가능</li><li>문서화·페어·코드 오너로 달성</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"이 부분은 OO님만 안다"처럼 지식이 한 사람에게 쏠린 리스크를 지적하거나, 문서화·온보딩·코드 오너 분산으로 버스 팩터를 높이자는 회고·인수인계 논의에서 마주친다. <span style="color:var(--green)">[협업·문서]</span></div>
 </section><hr class="divider">
 
 
