@@ -210,6 +210,46 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-25">
+        <h2>2026-10-25 (일) · 디바운스(debounce) vs 쓰로틀(throttle) — 이벤트가 쏟아질 때 "몇 번 실행할지"를 정하는 두 가지 방법</h2>
+        <span class="topic-tag">프론트 심화 (React · 성능)</span>
+        <h3>핵심 개념</h3>
+        <p>검색창에 "react"를 치면 글자마다 onChange가 5번 터지고 API도 5번 나갑니다. 디바운스는 "마지막 이벤트 후 N ms 동안 조용하면 그때 한 번만 실행"으로, 엘리베이터에서 사람이 계속 타면 문을 안 닫고 기다리다 아무도 안 타면 닫는 것과 같습니다. 쓰로틀은 "N ms에 최대 한 번만 실행"이라 일정 간격으로 출발하는 셔틀버스 같습니다. 입력이 끝난 뒤의 값이 필요하면 디바운스(검색어, 자동저장), 입력 도중에도 주기적으로 반응해야 하면 쓰로틀(스크롤, 리사이즈, 드래그)입니다. 429(레이트 리밋)를 맞기 전에 클라이언트가 먼저 호출을 줄여 주는 방어선이기도 합니다.</p>
+        <pre><code>function useDebouncedValue&lt;T&gt;(value: T, delay = 300) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() =&gt; {
+    // value가 바뀔 때마다 "300ms 뒤에 반영" 예약
+    const id = setTimeout(() =&gt; setDebounced(value), delay);
+    // 다음 입력이 오면 이전 예약을 취소 → 디바운스의 핵심
+    return () =&gt; clearTimeout(id);
+  }, [value, delay]);
+
+  return debounced;
+}
+
+// 사용: 입력은 즉시 반응, API는 입력이 멈춘 뒤 1번만
+const [q, setQ] = useState('');
+const debouncedQ = useDebouncedValue(q, 300);
+const { data } = useQuery({
+  queryKey: ['search', debouncedQ],
+  queryFn: () =&gt; searchApi(debouncedQ),
+  enabled: debouncedQ.length &gt; 0,
+});</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>검색·필터·자동저장이 있는 화면은 거의 다 이 패턴이 필요하고, 안 걸면 서버 부하와 429, 화면 버벅임(INP)으로 돌아옵니다. 입력창(state)은 즉시, 서버 호출(debounced)은 늦게 — 이 "두 값 분리"가 포인트입니다.</p>
+        <p class="refs">더 보기: <a href="https://web.dev/articles/debounce-your-input-handlers">web.dev — Debounce your input handlers</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout">MDN — setTimeout</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) 사용자가 "react" 5글자를 글자 사이 100ms 간격으로 빠르게 입력했고, 디바운스는 300ms입니다. 입력이 끝난 뒤 API는 총 몇 번 호출될까요? ① 5번 ② 1번 ③ 0번 ④ 2번</p>
+          <p>Q2. (문제점 찾기) 아래 코드는 디바운스를 의도했는데 사실상 디바운스가 안 됩니다. 왜일까요?</p>
+          <pre><code>useEffect(() =&gt; {
+  setTimeout(() =&gt; setDebouncedQ(q), 300);
+}, [q]);</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1. ② 1번 — 글자 간격(100ms)이 디바운스 시간(300ms)보다 짧아 타이머가 계속 리셋되고, 마지막 글자 후 300ms가 지나서야 한 번 실행됩니다. Q2. cleanup(clearTimeout)이 없어 이전 타이머가 취소되지 않습니다. 글자마다 만든 타이머가 전부 살아남아 각각 실행되므로 "지연된 N번 호출"일 뿐 디바운스가 아닙니다.</p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-10-22">
         <h2>2026-10-22 (목) · 컨테이너 쿼리(@container) — 뷰포트가 아니라 "부모 박스 폭" 기준으로 반응하는 컴포넌트</h2>
         <span class="topic-tag">프론트 심화 (CSS · Tailwind)</span>
