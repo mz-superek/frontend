@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#ec2-instance-family">EC2 인스턴스 타입·패밀리</a>
+    <a class="nav-item" href="#query-execution-plan">쿼리 실행 계획 (EXPLAIN)</a>
+    <a class="nav-item" href="#content-visibility">content-visibility</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,54 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="ec2-instance-family">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="ec2-instance-family-h">EC2 인스턴스 타입·패밀리 <span class="sub">EC2 Instance Type · Family</span></h2>
+    <div class="links"><a class="link-tag" href="#auto-scaling">Auto Scaling</a><a class="link-tag" href="#spot-instance">Spot Instance</a><a class="link-tag" href="#reserved-instance-savings-plan">예약 인스턴스</a></div>
+  </div>
+</div>
+<p><strong>클라우드 가상 서버(인스턴스)의 "규격"을 vCPU·메모리·네트워크·스토리지 비율에 따라 미리 묶어 둔 분류</strong>. 이름만 뜯어도 용도를 알 수 있다 — 예: <code>m6i.large</code> = <strong>패밀리</strong>(m = 범용) + <strong>세대</strong>(6, 숫자가 클수록 최신·대개 가성비↑) + 추가 특성(i 등) + <strong>크기</strong>(large). 대표 분류는 <strong>범용</strong>(M·T, CPU·메모리 균형), <strong>컴퓨팅 최적화</strong>(C, 연산 집약), <strong>메모리 최적화</strong>(R·X, 인메모리 DB·캐시), <strong>스토리지 최적화</strong>(I·D, 로컬 디스크 I/O), <strong>가속 컴퓨팅</strong>(P·G, GPU). 특히 <strong>T 계열</strong>은 CPU "크레딧"을 쌓아 쓰는 <strong>버스터블</strong>이라 평소엔 저렴하지만 크레딧이 바닥나면 성능이 제한된다. 워크로드에 안 맞는 패밀리를 고르면 비싸거나 느리므로, 실제 사용량에 맞게 규격을 조정하는 <strong>라이트사이징(right-sizing)</strong>의 출발점이다. (AWS 예시지만 GCP·Azure도 같은 개념의 머신 타입 계열을 둔다.)</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">범용 (General Purpose)</h4><ul><li>M·T 계열, CPU·메모리 균형</li><li>웹서버·중소 앱의 무난한 기본값</li><li>T 계열은 크레딧 기반 버스터블</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">특화 (Specialized)</h4><ul><li>C(연산)·R/X(메모리)·I/D(스토리지)·P/G(GPU)</li><li>한쪽 자원에 치우친 워크로드용</li><li>맞게 고르면 같은 돈으로 더 빠름</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>EC2·EKS 노드·RDS 인스턴스를 띄우거나, "t 계열이 왜 가끔 느려지나(버스트 소진)"·"메모리 최적화로 바꾸자"처럼 비용 대비 성능 라이트사이징을 논할 때 마주친다. <span style="color:var(--teal)">[클라우드·컴퓨팅]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="query-execution-plan">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="query-execution-plan-h">쿼리 실행 계획 <span class="sub">Query Execution Plan · EXPLAIN</span></h2>
+    <div class="links"><a class="link-tag" href="#n-plus-one">N+1 쿼리</a><a class="link-tag" href="#orm">ORM</a><a class="link-tag" href="#read-replica">Read Replica</a></div>
+  </div>
+</div>
+<p><strong>DB 옵티마이저가 SQL 한 줄을 실제로 어떻게 처리할지 정한 단계별 작전</strong>. 어떤 <strong>인덱스를 탈지(혹은 테이블을 통째로 훑는 <code>Seq Scan</code>인지)</strong>, 테이블을 어떤 순서·방식으로 조인할지(<code>Nested Loop</code>·<code>Hash</code>·<code>Merge</code>), 예상 <strong>비용·행 수</strong>가 여기에 담긴다. 쿼리 앞에 <code>EXPLAIN</code>을 붙이면 이 계획을 <strong>실행 없이 미리</strong> 볼 수 있고, <code>EXPLAIN ANALYZE</code>는 <strong>실제로 돌려</strong> 예상 대 실제 행수·시간까지 보여준다. 느린 쿼리의 원인(인덱스 안 탐·풀스캔·N+1)을 찾는 <strong>1차 진단 도구</strong>다. 옵티마이저는 "비용"이 가장 낮다고 추정한 계획을 고르는데, 테이블 <strong>통계가 낡으면</strong> 엉뚱한 계획을 골라 느려지므로 통계 갱신(예: PostgreSQL <code>ANALYZE</code>)이 중요하다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">EXPLAIN</h4><ul><li>쿼리를 실행하지 않고 계획만 추정</li><li>예상 비용·행수·스캔/조인 방식</li><li>빠르고 안전(쓰기 쿼리도 OK)</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">EXPLAIN ANALYZE</h4><ul><li>실제로 실행 후 실측치까지 표시</li><li>예상 vs 실제 행수·시간 비교</li><li>통계 오차·병목을 정확히 짚음</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"쿼리가 느리다"의 원인을 분석하거나, 인덱스를 추가했는데 왜 안 타는지·예상 행수와 실제가 크게 어긋날 때(통계 문제) <code>EXPLAIN ANALYZE</code>로 들여다볼 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="content-visibility">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="content-visibility-h">content-visibility <span class="sub">CSS content-visibility</span></h2>
+    <div class="links"><a class="link-tag" href="#virtual-scrolling">가상 스크롤링</a><a class="link-tag" href="#web-vitals">Web Vitals</a><a class="link-tag" href="#crp">CRP</a></div>
+  </div>
+</div>
+<p><strong>화면 밖(뷰포트 바깥)에 있는 긴 콘텐츠의 렌더링(레이아웃·페인팅)을 브라우저가 건너뛰게 해 초기 렌더링을 빠르게 하는 CSS 속성</strong>. <code>content-visibility: auto</code>를 주면 그 요소가 <strong>화면에 가까워질 때까지 내부 렌더링을 미룬다</strong>(레이아웃·스타일·페인트 containment가 자동으로 켜진다). 핵심은 <code>display:none</code>이나 <code>hidden</code> 값과 달리, 건너뛴 콘텐츠도 <strong>페이지 내 찾기(Ctrl+F)·탭 이동·접근성 트리에는 그대로 남아</strong> 성능을 올리면서 접근성을 해치지 않는다는 점이다. 단 건너뛴 동안엔 요소 높이가 0으로 접혀 스크롤바가 널뛸 수 있으므로, <code>contain-intrinsic-size</code>로 예상 크기를 미리 잡아 <strong>레이아웃 시프트(CLS)</strong>를 막는다. 카드·댓글 수백~수천 개처럼 DOM이 긴 페이지에서 특히 효과가 크다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">content-visibility: auto</h4><ul><li>화면 밖 렌더링만 건너뜀(지연)</li><li>찾기·탭·접근성 트리엔 그대로 유지</li><li>가까워지면 알아서 렌더링</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">hidden / display:none</h4><ul><li>콘텐츠를 완전히 숨김</li><li>찾기·탭·접근성에서 제외</li><li>"안 보이고 못 찾는" 상태</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>무한 스크롤·긴 목록·대시보드에서 초기 로딩·스크롤이 버벅일 때 "화면 밖 요소까지 다 그리느라 느리다"를 개선하거나, Lighthouse 렌더링 지표를 손볼 때 마주친다. <span style="color:var(--blue)">[프론트엔드·성능]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
