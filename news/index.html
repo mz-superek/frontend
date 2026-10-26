@@ -83,6 +83,38 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-27">
+        <h2>📰 2026-10-27 (화)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI·프론트엔드·백엔드 각 1건 통과. HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 기능·Baseline 편입·스펙 변경이 없어 헤더째 생략(web.dev 최신 글 &quot;New to the web platform in September&quot;는 10/2로 시의성 미달, 9·10월 Baseline 월간 다이제스트는 아직 미게시). OpenAI·Google(Gemini 4) 신모델 동향은 openai.com 403 차단 및 공식 발표 미확인으로 접근 실패/상태 미확인 드롭. Next.js 16.4.3은 10/26 발송분과 중복, 16.5.0은 canary 프리뷰라 제외.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, SEC에 IPO용 Form S-1 제출 — 나스닥 상장 추진 (티커 &quot;ANT&quot;)</p>
+            <p class="item-meta">2026-10-26 · <a href="https://www.anthropic.com/news/s1-sec">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 Class A 보통주 공모를 위한 등록신고서(Form S-1)를 미국 증권거래위원회(SEC)에 정식 제출했다고 공식 발표했다. 나스닥 글로벌 셀렉트 마켓에 티커 &quot;ANT&quot;로 상장할 계획이며, 공모 주식 수와 가격 범위는 아직 확정되지 않았다. 약 4주 전 비공개(confidential) 초안 S-1을 낸 데 이은 공개 제출 단계로, 프론티어 AI 기업의 기업공개가 본격화됐다는 신호다. 생성형 AI 선두 기업의 재무·리스크가 공개 문서로 드러나기 시작한다는 점에서 업계 전반에 파급이 큰 사안.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드</h3>
+          <div class="news-item">
+            <p class="item-title">TypeScript 7.1 Beta 공개 — ES2026 타깃·source phase import·새 컴파일러 API (베타)</p>
+            <p class="item-meta">2026-10-20 · <a href="https://devblogs.microsoft.com/typescript/announcing-typescript-7-1-beta/">devblogs.microsoft.com</a></p>
+            <p class="item-summary">Go 네이티브 컴파일러인 TypeScript 7.0에 이은 첫 마이너 업데이트의 베타(<code>npm i -D typescript@beta</code>). <code>es2026</code>이 정식 <code>--target</code>/<code>--lib</code> 옵션으로 추가돼 <code>Array.fromAsync()</code>·<code>Math.sumPrecise()</code> 등이 포함되고, <code>import source</code>/<code>import.source()</code> 구문(WebAssembly 소스를 바로 <code>WebAssembly.instantiate</code>에 전달 가능), ambient 모듈에서 <code>type: &quot;css&quot;</code> 같은 import attribute 선언, Vue·Svelte·Astro가 임베디드 코드를 노출하는 content mapper 플러그인 API가 들어왔다. 공식 벤치 기준 7.0 대비 1.2~1.9배 빠르다. RC는 약 한 달 뒤, 정식은 그 직후 예정. (아직 안정판 아님 — 베타)</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Bun v1.4.4 — 내장 포매터 <code>bun fmt</code> 추가(Prettier 호환), <code>bun check</code> 최대 7.8배 가속</p>
+            <p class="item-meta">2026-10-22 · <a href="https://bun.sh/blog/bun-v1.4.4">bun.sh</a></p>
+            <p class="item-summary">Bun이 Prettier 호환 내장 포매터 <code>bun fmt</code>를 도입했다. 기존 Prettier·oxfmt 설정을 그대로 읽고, 공식 벤치에서 Prettier 저장소 자체를 포맷할 때 59.7ms로 Prettier(17.1s) 대비 약 286배 빠르며(oxfmt 대비 3~6배), Tailwind 클래스 정렬·<code>package.json</code> 키 정렬·Svelte 포맷을 플러그인 없이 내장했다(<code>--check</code>·<code>--staged</code>·<code>--changed</code> 지원). 타입체크 <code>bun check</code>는 대형 프로젝트에서 최대 7.8배(모노레포 <code>-b</code>는 15.7배) 빨라졌고, <code>bun install</code>은 Yarn Berry <code>yarn.lock</code> 마이그레이션·지수 백오프 재시도·<code>libc</code> 필드 존중 등이 추가됐다. JavaScriptCore(WebKit 커밋 1,013개) 업그레이드와 TLS·HTTP·WebSocket·DB 클라이언트 보안 수정도 포함.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
