@@ -210,6 +210,37 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-26">
+        <h2>2026-10-26 (월) · useId — 서버와 클라이언트가 "같은 id"를 만들어야 하는 이유 (label·aria 연결과 hydration 오류)</h2>
+        <span class="topic-tag">프론트 심화 (React · SSR · 접근성)</span>
+        <h3>핵심 개념</h3>
+        <p>퍼블리싱 때는 <code>&lt;label for="email"&gt;</code>과 <code>&lt;input id="email"&gt;</code>을 손으로 맞췄죠. 컴포넌트로 만들어 한 화면에 두 번 쓰는 순간 id="email"이 중복되고, 두 번째 라벨을 눌러도 첫 번째 입력창이 포커스되는 버그가 납니다. 그렇다고 <code>Math.random()</code>으로 id를 만들면, 서버가 그려 보낸 HTML의 id와 브라우저가 처음 그릴 때의 id가 달라져서 hydration 불일치 경고가 떠요(미리 인쇄해 보낸 번호표와 현장에서 새로 뽑은 번호표가 다른 상황). <code>useId</code>는 컴포넌트 트리 안에서의 "위치"를 기준으로 id를 만들기 때문에 서버와 클라이언트가 항상 같은 값을 얻고, 같은 컴포넌트를 여러 번 써도 서로 겹치지 않아요. 주의: 리스트의 <code>key</code>로 쓰면 안 되고(key는 데이터에서 와야 함), 특수문자가 섞인 값이라 CSS 선택자용 id로도 부적합합니다.</p>
+        <pre><code>// ❌ 하드코딩: 두 번 렌더하면 id 중복
+// ❌ Math.random(): 서버/클라이언트 값이 달라 hydration 경고
+// ✅ useId: 위치 기반이라 서버=클라이언트, 인스턴스마다 고유
+function Field({ label, hint }: { label: string; hint: string }) {
+  const id = useId();            // 고유 문자열
+  const hintId = `${id}-hint`;   // 하나 받아서 접미사로 여러 개 파생
+
+  return (
+    &lt;div&gt;
+      &lt;label htmlFor={id}&gt;{label}&lt;/label&gt;
+      &lt;input id={id} aria-describedby={hintId} /&gt;
+      &lt;p id={hintId}&gt;{hint}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>ShadCN의 Form·Input·Label 조합이 내부적으로 <code>useId</code>로 label/에러 메시지(<code>aria-describedby</code>)를 연결하고, Next.js SSR 환경에서 hydration 오류의 흔한 원인이 "렌더마다 달라지는 값(random, Date.now)"입니다. 접근성 있는 재사용 폼 컴포넌트의 기본기예요.</p>
+        <p class="refs">더 보기: <a href="https://react.dev/reference/react/useId">React Docs — useId</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label">MDN — label 요소</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) id를 "email"로 하드코딩한 &lt;Field&gt; 컴포넌트를 한 폼에 두 번 렌더했어요. 두 번째 필드의 라벨을 클릭하면? ① 두 번째 입력창에 포커스 ② 첫 번째 입력창에 포커스 ③ React가 빌드 에러를 냄 ④ React가 id를 자동으로 바꿔 줌</p>
+          <p>Q2. (문제점 찾기) Next.js(SSR)에서 <code>const id = Math.random().toString(36).slice(2); return &lt;input id={id} /&gt;;</code> 는 어떤 문제를 일으킬까요?</p>
+          <details><summary>정답·해설 보기</summary><p>Q1. ② — id는 문서 안에서 유일해야 하고, 중복되면 브라우저는 for="email"에 맞는 첫 번째 요소만 연결합니다. React는 id를 자동으로 바꿔주지 않아요. Q2. 서버에서 만든 id와 hydration 때 새로 만든 id가 달라 hydration 불일치 경고가 나고, 리렌더마다 id가 바뀌어 label/aria 연결도 불안정해집니다. useId()로 바꾸면 해결돼요.</p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-10-25">
         <h2>2026-10-25 (일) · 디바운스(debounce) vs 쓰로틀(throttle) — 이벤트가 쏟아질 때 "몇 번 실행할지"를 정하는 두 가지 방법</h2>
         <span class="topic-tag">프론트 심화 (React · 성능)</span>
