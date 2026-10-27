@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#mtu">MTU · 점보 프레임</a>
+    <a class="nav-item" href="#cve-cvss">CVE · CVSS</a>
+    <a class="nav-item" href="#etcd">etcd</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="mtu">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="mtu-h">MTU · 점보 프레임 <span class="sub">Maximum Transmission Unit · Jumbo Frames</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#cidr">CIDR</a><a class="link-tag" href="#anycast">Anycast</a></div>
+  </div>
+</div>
+<p><strong>한 번에 쪼개지 않고 전송할 수 있는 네트워크 패킷(페이로드)의 최대 크기(바이트)</strong>가 MTU다. 이더넷 표준 MTU는 <strong>1500바이트</strong>이고, 이보다 큰 프레임(대략 9000바이트, AWS VPC 내부는 9001바이트)을 <strong>점보 프레임</strong>이라 부른다. 보낼 데이터가 MTU보다 크면 여러 조각으로 나뉘는 <strong>단편화(fragmentation)</strong>가 일어나고, "쪼개지 말라(DF 비트)"가 붙은 패킷은 크기가 안 맞는 중간 장비에서 <strong>그냥 버려진다</strong>. 그래서 경로 중 가장 작은 MTU에 안 맞으면 작은 요청은 되는데 <strong>큰 전송만 멈추거나 느려지는</strong> 까다로운 증상이 생긴다. 반대로 서버·스토리지처럼 대용량을 주고받는 구간에서 점보 프레임을 켜면 같은 데이터를 더 적은 패킷으로 보내 <strong>처리량(throughput)과 CPU 효율이 올라간다</strong> — 단, 경로의 모든 장비가 같은 MTU를 지원해야 한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">표준 프레임 (1500B)</h4><ul><li>인터넷·대부분 경로의 기본값</li><li>어디서나 무난히 통과</li><li>대용량 전송 시 패킷 수 많음</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">점보 프레임 (~9000B)</h4><ul><li>패킷 수↓ → 처리량·효율↑</li><li>같은 VPC·데이터센터 내부에 적합</li><li>경로 전체가 지원해야 동작</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>VPN·터널·클라우드 VPC에서 "작은 요청은 되는데 큰 전송만 멈춘다"는 MTU·단편화 이슈를 진단하거나, 같은 VPC 안 노드 간 처리량을 높이려 점보 프레임을 켤지 논할 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="cve-cvss">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="cve-cvss-h">CVE · CVSS <span class="sub">Common Vulnerabilities and Exposures · Common Vulnerability Scoring System</span></h2>
+    <div class="links"><a class="link-tag" href="#zero-trust">제로 트러스트</a><a class="link-tag" href="#waf">WAF</a><a class="link-tag" href="#least-privilege">최소 권한</a></div>
+  </div>
+</div>
+<p><strong>CVE는 공개적으로 알려진 보안 취약점 하나하나에 붙는 전 세계 공통 식별 번호</strong>다(예: <code>CVE-2021-44228</code> = Log4Shell). 같은 취약점을 벤더·도구마다 다른 이름으로 부르는 혼란을 막으려고, 취약점마다 유일한 ID를 매겨 "어느 결함을 말하는지"를 모두가 같은 번호로 가리키게 한다. <strong>CVSS는 그 취약점이 얼마나 심각한지를 <code>0.0~10.0</code> 점수로 매기는 표준 평가 체계</strong>이고, 점수에 따라 None(0.0)·Low(0.1~3.9)·Medium(4.0~6.9)·High(7.0~8.9)·Critical(9.0~10.0)으로 등급이 갈린다(현재 최신은 CVSS v4.0, 2023년). 즉 <strong>CVE는 "무엇"을 가리키는 이름표, CVSS는 "얼마나 위험한가"를 나타내는 점수</strong>로 역할이 다르다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">CVE (식별자)</h4><ul><li>취약점마다 붙는 고유 번호</li><li>CVE-연도-일련번호 형식</li><li>"무엇"인지를 가리킴</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">CVSS (점수)</h4><ul><li>심각도 0.0~10.0 평가</li><li>None~Critical 등급</li><li>"얼마나 위험"한지를 나타냄</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div><code>npm audit</code>·Dependabot·컨테이너 이미지 스캔이 "Critical 취약점 N건"을 띄울 때, 어떤 CVE부터 고칠지 CVSS 점수·등급으로 우선순위를 정하는 보안 대응에서 마주친다. <span style="color:var(--blue)">[보안]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="etcd">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="etcd-h">etcd <span class="sub">분산 키-값 저장소 · 쿠버네티스의 상태 저장소</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#consensus">합의 알고리즘 (Raft)</a><a class="link-tag" href="#quorum">정족수 (Quorum)</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스 클러스터의 모든 상태 — 어떤 파드가 어디에 떠 있고 설정·시크릿·네트워크가 어떻게 돼 있는지 — 를 저장하는 분산 키-값 저장소이자 클러스터의 '단일 진실 공급원(single source of truth)'</strong>이다. API 서버는 이 etcd에만 상태를 읽고 쓰며, 스케줄러·컨트롤러가 "원하는 상태"와 "실제 상태"를 맞추는 모든 판단의 근거도 etcd에 담긴 데이터다. 여러 노드에 데이터를 복제하고 <strong>Raft 합의 알고리즘</strong>으로 노드 간 값을 일치시키므로, 쓰기가 안정적으로 되려면 과반(<strong>정족수·quorum</strong>)이 살아 있어야 한다 — 그래서 보통 3대·5대 홀수로 구성한다. etcd가 느리거나 정족수를 잃으면 <strong>클러스터 전체가 사실상 멈추기</strong> 때문에, 컨트롤 플레인에서 가장 민감한 부품으로 취급된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>쿠버네티스 컨트롤 플레인이 느리거나 먹통일 때 원인을 추적하면 대개 etcd(디스크 지연·정족수 상실)로 모이고, 클러스터 백업·복구가 사실상 "etcd 스냅숏을 뜨고 되돌리는" 작업일 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
 </section><hr class="divider">
 
 
