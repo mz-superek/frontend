@@ -210,6 +210,33 @@
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
 
+      <section class="study-day" data-date="2026-10-27">
+        <h2>2026-10-27 (화) · 커서 기반 페이지네이션 — "몇 번째 페이지"가 아니라 "마지막으로 본 항목 다음부터" 달라고 하기 (offset의 함정)</h2>
+        <span class="topic-tag">클라우드·백엔드 기초 (API · DB)</span>
+        <h3>핵심 개념</h3>
+        <p>목록 API의 가장 흔한 방식은 <code>?page=3</code> → <code>OFFSET 40 LIMIT 20</code>(앞 40개 건너뛰고 20개)이에요. 문제는 두 가지예요. 첫째, DB는 건너뛸 40줄도 실제로 읽고 버려서 뒤로 갈수록 느려져요(10만 번째면 10만 줄을 읽고 버림). 둘째, 보는 사이 새 글이 올라오면 목록이 한 칸씩 밀려 같은 글이 또 나오거나 빠져요. 책으로 치면 "펼친 페이지 번호"로 기억하는데 중간에 장이 끼어들어 번호가 바뀌는 셈이에요. 커서 방식은 "마지막으로 본 글의 id" 같은 책갈피를 들고 있다가 "이 id보다 오래된 20개 줘"(<code>WHERE id &lt; 마지막id ORDER BY id DESC LIMIT 20</code>)로 요청해요. 인덱스를 타서 몇 번째든 속도가 일정하고, 중간에 글이 추가돼도 흔들리지 않아요. 대신 "7페이지로 바로 점프"는 못 해요.</p>
+        <pre><code>// ❌ offset: 앞의 N줄을 읽고 버림 + 중간에 글이 추가되면 중복/누락
+await prisma.post.findMany({ take: 20, skip: page * 20, orderBy: { id: 'desc' } });
+
+// ✅ cursor: "마지막으로 본 id 다음부터"
+const posts = await prisma.post.findMany({
+  take: 20,
+  ...(cursor &amp;&amp; { cursor: { id: cursor }, skip: 1 }), // 커서 항목 자신은 건너뜀
+  orderBy: { id: 'desc' },
+});
+const nextCursor = posts.at(-1)?.id ?? null; // 프론트가 다음 요청에 그대로 돌려줌
+// 프론트: useInfiniteQuery의 getNextPageParam: (last) =&gt; last.nextCursor</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>무한 스크롤·피드·알림 목록은 거의 커서 방식이고, TanStack Query의 <code>useInfiniteQuery</code>도 "다음 페이지 파라미터(=커서)"를 전제로 설계돼 있어요. 풀스택으로 API를 만들 때 <code>page/offset</code>을 습관적으로 쓰면 데이터가 쌓인 뒤 느려지고 중복 노출 버그로 돌아와요.</p>
+        <p class="refs">더 보기: <a href="https://www.prisma.io/docs/orm/prisma-client/queries/pagination">Prisma Docs — Pagination</a> · <a href="https://use-the-index-luke.com/no-offset">Use The Index, Luke — No Offset</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) <code>OFFSET 100000 LIMIT 20</code>으로 10만 번째 이후 20개를 가져올 때 DB는 어떻게 동작할까요? ① 100001번째 줄로 바로 점프해서 20개만 읽는다 ② 앞의 10만 줄을 읽고 버린 뒤 20개를 돌려준다 ③ 인덱스가 있으면 항상 비용이 0이다 ④ 에러가 난다</p>
+          <p>Q2. (문제점 찾기) 최신순 목록(100번 글~)을 offset으로 페이지당 20개씩 보여주는 무한 스크롤이에요. 1페이지(100~81번)를 본 사이 새 글(101번)이 올라왔고, 2페이지를 <code>OFFSET 20 LIMIT 20</code>으로 요청했어요. 사용자 화면에는 어떤 문제가 생길까요?</p>
+          <details><summary>정답·해설 보기</summary><p>Q1. ② — OFFSET은 "점프"가 아니라 앞 줄을 실제로 읽고 버리는 방식이라, 뒤 페이지일수록 읽는 양이 늘어 느려져요. Q2. 2페이지 맨 위에 81번 글이 또 나옵니다(중복 노출). 새 글 101번이 맨 앞에 끼면서 전체가 한 칸씩 밀려 OFFSET 20이 81번을 가리키게 되기 때문이에요. 커서 방식(id &lt; 81)이면 "81번 다음부터"라서 중복·누락이 없어요.</p></details>
+        </div>
+      </section>
+
       <section class="study-day" data-date="2026-10-26">
         <h2>2026-10-26 (월) · useId — 서버와 클라이언트가 "같은 id"를 만들어야 하는 이유 (label·aria 연결과 hydration 오류)</h2>
         <span class="topic-tag">프론트 심화 (React · SSR · 접근성)</span>
