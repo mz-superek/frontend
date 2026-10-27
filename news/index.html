@@ -83,6 +83,29 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-10-28">
+        <h2>📰 2026-10-28 (수)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건·백엔드 1건 통과. 프론트엔드는 시의성 창(최근 1~2주) 안에 1차 소스로 확인되는 신규 소식이 없어 헤더째 생략(TypeScript 7.1 베타 10/20·Next.js 16.4.3 10/23은 10/27·10/26 발송분과 중복, React 19.3은 9/9로 시의성 미달, 7.1 RC는 아직 미공개). HTML &amp; CSS도 생략 — web.dev 최신 글 &apos;New to the web platform in September&apos;(10/2)이 2주를 넘겼고, 9·10월 Baseline 월간 다이제스트는 공개 확인 불가(접근 실패). OpenAI GPT-6.1 Terra 등은 openai.com 403 반복 차단으로 1차 소스 확인 불가(접근 실패)로 드롭.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Google DeepMind, &apos;Genie 4&apos; 공개 — 오디오를 네이티브로 생성하는 실시간 상호작용 월드 모델 (리서치 프리뷰)</p>
+            <p class="item-meta">2026-10-27 · <a href="https://deepmind.google/blog/genie-4-a-new-generation-of-world-simulation/">deepmind.google</a></p>
+            <p class="item-summary">Google DeepMind가 시뮬레이션 세계를 실시간으로 생성·탐험하는 월드 모델 Genie 4를 공식 블로그로 공개했다. 키보드 조작과 텍스트 프롬프트로 장면을 바꾸면 Gemini가 프롬프트를 주변 장면에 맞게 조정해 입력 사이의 일관성을 유지하고, 월드 모델로는 처음으로 주변음·효과음·상호작용 대화 같은 오디오를 네이티브로 생성한다고 밝혔다. 물리(공기역학·충돌)와 캐릭터 동작의 사실성이 개선됐고, Gemini 3.8 Flash가 단계 계획·진행 점검을 돕는 가이드 에이전트로 동작한다. 현재는 신뢰 테스터 대상 리서치 프리뷰로, Google AI Ultra(Project Genie)와 Gemini API·AI Studio에 순차 제공 예정이며 대기자를 받는다(해상도·프레임레이트·세션 길이 등 수치는 공식 미공개). 상호작용 월드 모델이 프론티어 경쟁의 새 축으로 떠오른 신호.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Deno v2.9.8 — 침해된 eMudhra 루트 CA 불신 등 보안·버그 패치</p>
+            <p class="item-meta">2026-10-21 · <a href="https://github.com/denoland/deno/releases/tag/v2.9.8">github.com/denoland/deno</a></p>
+            <p class="item-summary">Deno 2.9 LTS 라인의 패치 릴리스로, 신규 기능 없이 버그·보안 수정만 담았다. 공식 체인지로그(2.9.8 / 2026.10.21) 기준 핵심은 침해(compromised)된 eMudhra 인증기관(CA) 불신 처리(TLS)이며, 그 밖에 <code>deno compile</code>의 동적 로컬 import 권한 검사, N-API DataView 생성의 범위 초과 검사, coverage 수집 시 V8 코드 캐시 건너뛰기, fetch의 idle 커넥션 처리를 위한 hyper 라이브러리 업데이트, Node 호환성(<code>mock.reset()</code> 등) 개선, <code>rand</code> 의존성 보안 패치가 포함됐다. 기능 변화는 없지만 TLS·N-API 관련 보안 항목이 있어 업그레이드가 권장되는 정기 패치.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
