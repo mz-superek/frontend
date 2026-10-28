@@ -209,6 +209,38 @@
 
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="study-day" data-date="2026-10-28">
+        <h2>2026-10-28 (수) · CSS :has() — "부모 선택자"가 드디어 생겼다: 자식 상태를 보고 부모 스타일을 바꾸기 (Tailwind has-*)</h2>
+        <span class="topic-tag">프론트 심화 (CSS · Tailwind)</span>
+        <h3>핵심 개념</h3>
+        <p>CSS는 오래 "위에서 아래로만" 선택할 수 있었어요. <code>.card input</code>처럼 부모 → 자식 방향만 됐고, "체크된 input을 가진 카드"처럼 자식을 보고 부모를 고르는 건 불가능해서 JS로 클래스를 토글했죠. <code>:has()</code>는 "괄호 안 조건에 맞는 자손(또는 뒤따르는 형제)을 가진 요소"를 고르는 선택자예요. 퍼블리싱으로 치면 <code>.card--selected</code> 클래스를 JS가 붙여주던 걸, 브라우저가 상태를 보고 알아서 판단해 주는 셈이에요. <code>.card:has(input:checked)</code>는 "체크된 input을 품은 .card"이고, 지금은 주요 브라우저에서 모두 지원돼요. Tailwind에서는 <code>has-[:checked]:border-blue-500</code>처럼 쓰고, 부모 상태를 자식이 보는 <code>group-has-*</code>도 있어요.</p>
+        <pre><code>/* 순수 CSS: JS 없이 "선택된 카드" 강조 */
+.card { border: 1px solid #ddd; }
+.card:has(input:checked) { border-color: royalblue; }
+
+/* 폼에 에러 필드가 하나라도 있으면 제출 버튼 흐리게 */
+form:has(:user-invalid) button[type='submit'] { opacity: .5; }
+
+// Tailwind (React/TSX)
+&lt;label className="rounded border p-3 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50"&gt;
+  &lt;input type="checkbox" className="sr-only" /&gt;
+  옵션 A
+&lt;/label&gt;</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>ShadCN 스타일의 선택 카드, 라디오 카드, "내용이 있을 때만 보이는 영역" 같은 UI를 <code>useState</code> + 조건부 className 없이 만들 수 있어 리렌더링과 상태 코드가 줄어요. 다만 <code>:has()</code>는 DOM이 바뀔 때마다 다시 계산되니, <code>body:has(...)</code>처럼 범위가 큰 선택자는 피하고 가까운 부모에 쓰는 게 좋아요.</p>
+        <p class="refs">더 보기: <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:has">MDN — :has()</a> · <a href="https://tailwindcss.com/docs/hover-focus-and-other-states#has">Tailwind Docs — has-* variant</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) <code>.card:has(input:checked) { border-color: blue; }</code> 에서 파란 테두리가 적용되는 대상은? ① input 요소 ② 체크된 input을 자손으로 가진 .card ③ input 바로 뒤의 형제 요소 ④ 아무 요소도 선택되지 않는다</p>
+          <p>Q2. (문제점 찾기) 아래 코드는 체크 시 옆 label을 강조하려는데 적용되지 않아요. 왜일까요?</p>
+          <pre><code>&lt;input id="agree" type="checkbox" /&gt;
+&lt;label for="agree"&gt;동의합니다&lt;/label&gt;
+
+label:has(input:checked) { font-weight: bold; }</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1 정답 ②: :has()는 조건에 맞는 자손을 가진 요소 자신을 선택하므로, 테두리는 input이 아니라 그걸 품은 .card에 적용돼요. Q2: input과 label이 형제 관계라 label은 input을 자손으로 갖고 있지 않아요. <code>input:checked + label</code>(형제 선택자)로 쓰거나 input을 label 안으로 넣으면 <code>label:has(input:checked)</code>가 동작해요.</p></details>
+        </div>
+      </section>
+
 
       <section class="study-day" data-date="2026-10-27">
         <h2>2026-10-27 (화) · 커서 기반 페이지네이션 — "몇 번째 페이지"가 아니라 "마지막으로 본 항목 다음부터" 달라고 하기 (offset의 함정)</h2>
