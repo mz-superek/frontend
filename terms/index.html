@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#cluster-autoscaler">클러스터 오토스케일러 (CA)</a>
+    <a class="nav-item" href="#bgp">경계 경로 프로토콜 (BGP)</a>
+    <a class="nav-item" href="#data-lakehouse">데이터 레이크하우스</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="cluster-autoscaler">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="cluster-autoscaler-h">클러스터 오토스케일러 <span class="sub">Cluster Autoscaler · CA</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a><a class="link-tag" href="#rolling-deployment">롤링 배포</a></div>
+  </div>
+</div>
+<p><strong>파드가 얹힐 자리가 없어 Pending(대기) 상태에 걸리면 쿠버네티스 클러스터에 노드(서버) 자체를 자동으로 늘려 주고, 오래 비어 있는 노드는 파드를 다른 곳으로 옮긴 뒤 줄여 주는 컴포넌트</strong>다. 핵심은 <strong>CPU 사용률이 아니라 "스케줄 못 한 파드가 있느냐"를 보고 노드를 붙인다</strong>는 점. 흔히 헷갈리는 <strong>HPA(수평 파드 오토스케일러)</strong>와는 층이 다르다 — HPA는 <strong>파드 개수</strong>를 늘리고, CA는 그 파드를 <strong>얹을 노드</strong>를 늘린다. 그래서 트래픽이 몰리면 보통 HPA가 파드를 늘리고, 얹을 자리가 모자라면 CA가 뒤이어 노드를 붙이는 식으로 둘이 함께 돈다. (노드를 못 붙이는 원인이 Secret·설정 문제처럼 자원과 무관하면 CA로는 해결되지 않는다.)</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Cluster Autoscaler (노드)</h4><ul><li>Pending 파드를 보고 노드를 가감</li><li>스케일 단위 = 서버(노드)</li><li>클라우드 노드 그룹과 연동</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">HPA (파드)</h4><ul><li>CPU·메모리·지표로 파드 수 조절</li><li>스케일 단위 = 파드(복제본)</li><li>노드에 자리 있을 때만 효과</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>EKS·GKE 같은 매니지드 쿠버네티스에서 "트래픽 몰릴 때 파드는 떴는데 Pending으로 안 뜬다"를 디버깅하거나, 노드 비용·스케일 정책을 조율할 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="bgp">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="bgp-h">경계 경로 프로토콜 <span class="sub">BGP · Border Gateway Protocol</span></h2>
+    <div class="links"><a class="link-tag" href="#anycast">애니캐스트</a><a class="link-tag" href="#dns">DNS</a><a class="link-tag" href="#availability-zone">가용 영역</a></div>
+  </div>
+</div>
+<p><strong>인터넷을 이루는 거대한 네트워크 덩어리(AS, 자율 시스템)들이 "이 IP 대역은 나를 통해 갈 수 있다"를 서로 광고(advertise)하며 경로를 정하는, 인터넷의 기본이 되는 라우팅 프로토콜</strong>이다. 각 AS(통신사·대형 기업·클라우드 사업자 등)가 자기가 가진 주소 대역과 거쳐 온 경로를 이웃에게 알리고, 라우터는 그 정보를 모아 "어느 이웃으로 보내야 목적지에 닿는지"를 고른다(경로·정책 기반이라 꼭 물리적으로 최단은 아님). 애니캐스트로 같은 IP를 여러 곳에서 광고해 가까운 지점으로 트래픽을 흘리는 것도, 온프레미스↔클라우드 <strong>전용선(Direct Connect)·VPN의 동적 라우팅</strong>도 모두 이 BGP로 동작한다. 범위가 넓은 만큼 <strong>잘못된 경로 광고 하나가 대규모 장애·트래픽 탈취로 번질 수</strong> 있어, 대형 CDN·클라우드 장애의 원인으로 자주 등장한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">BGP (동적·AS 간)</h4><ul><li>경로를 서로 광고해 자동 학습</li><li>망 변화·장애에 자동 우회</li><li>하이브리드 연결·인터넷의 기반</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">정적 라우트 (수동)</h4><ul><li>경로를 사람이 직접 지정</li><li>소규모·단순망엔 간단·예측 가능</li><li>망이 바뀌면 직접 고쳐야 함</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>온프레미스↔클라우드 하이브리드 연결(Direct Connect·VPN)을 구성하거나, "특정 대역 경로가 광고가 안 돼 통신이 끊긴다", 애니캐스트·CDN 대형 장애 뉴스를 접할 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="data-lakehouse">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="data-lakehouse-h">데이터 레이크하우스 <span class="sub">Data Lakehouse</span></h2>
+    <div class="links"><a class="link-tag" href="#data-lake">데이터 레이크</a><a class="link-tag" href="#object-storage">오브젝트 스토리지</a><a class="link-tag" href="#oltp-olap">OLTP vs OLAP</a></div>
+  </div>
+</div>
+<p><strong>값싼 오브젝트 스토리지에 원본 데이터를 그대로 쌓는 '데이터 레이크'의 저비용·유연함에, 트랜잭션(ACID)·스키마 강제·빠른 조회라는 '데이터 웨어하우스'의 장점을 얹어 한 곳에서 둘 다 하려는 아키텍처</strong>다. 예전엔 원본은 레이크에 두고 분석용으로 다시 웨어하우스에 복사·정제해 넣느라 저장소가 두 벌로 갈렸는데, 레이크하우스는 <strong>레이크 한 곳 위에서 분석까지</strong> 처리하려 한다. 이걸 가능하게 한 핵심이 <strong>Delta Lake·Apache Iceberg·Hudi 같은 '오픈 테이블 포맷'</strong>으로, 그냥 파일 더미였던 레이크에 ACID 트랜잭션·스키마 관리·시간여행(과거 시점 조회)을 입혀 준다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">데이터 레이크</h4><ul><li>원본을 싸게·형식 자유롭게 저장</li><li>트랜잭션·스키마 보장 없음</li><li>그대로는 분석 품질 들쭉날쭉</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">데이터 웨어하우스</h4><ul><li>스키마·ACID·빠른 분석 질의</li><li>정제해 적재, 저장 비용 큼</li><li>원본·반정형 데이터엔 뻣뻣</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>분석·데이터 플랫폼을 설계하거나, "레이크 따로 웨어하우스 따로 두지 말고 레이크하우스로 합치자", Iceberg와 Delta 중 무엇을 쓸지 논할 때 마주친다. <span style="color:var(--amber)">[데이터·분석]</span></div>
 </section><hr class="divider">
 
 
