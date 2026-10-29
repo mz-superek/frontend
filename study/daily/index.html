@@ -209,6 +209,38 @@
 
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="study-day" data-date="2026-10-29">
+        <h2>2026-10-29 (목) · Promise.all vs Promise.allSettled — 요청 여러 개 중 하나만 실패해도 전부 날릴 것인가</h2>
+        <span class="topic-tag">프론트 심화 (JavaScript · 비동기)</span>
+        <h3>핵심 개념</h3>
+        <p>화면 하나를 그리려고 API를 3개 동시에 부를 때 <code>Promise.all([a, b, c])</code>를 많이 써요. 그런데 <code>all</code>은 "하나라도 실패하면 전체가 즉시 실패(reject)"라서, 부가 정보 API 하나가 죽었다고 멀쩡한 나머지 두 개의 결과까지 못 받아요. 퍼블리싱으로 치면 이미지 3장 중 1장이 깨졌다고 페이지 전체를 흰 화면으로 만드는 셈이죠. <code>Promise.allSettled</code>는 성공이든 실패든 전부 끝날 때까지 기다린 뒤, 각각의 결과를 <code>{ status: 'fulfilled', value }</code> 또는 <code>{ status: 'rejected', reason }</code> 모양으로 모아줘요. 그래서 "일부만 실패해도 되는 화면"에서는 성공한 것만 그리고 실패한 칸만 에러 UI로 대체할 수 있어요. 반대로 "전부 있어야 의미가 있는 작업"(결제 + 재고 차감 등)은 <code>all</code>이 맞아요.</p>
+        <pre><code>// ❌ all: 추천 API 하나 실패 → 프로필, 주문 내역까지 전부 못 받음
+const [profile, orders, recs] = await Promise.all([
+  getProfile(), getOrders(), getRecommendations(),
+]);
+
+// ✅ allSettled: 각각의 성공/실패를 따로 확인
+const results = await Promise.allSettled([
+  getProfile(), getOrders(), getRecommendations(),
+]);
+const [profile, orders, recs] = results.map((r) =&gt;
+  r.status === 'fulfilled' ? r.value : null // 실패한 칸은 null → 그 영역만 에러 UI
+);</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>대시보드처럼 위젯 여러 개가 각자 데이터를 가져오는 화면에서 <code>all</code>을 쓰면 위젯 하나의 장애가 화면 전체 장애로 번져요. 어떤 요청이 "필수"고 어떤 게 "있으면 좋은 것"인지 나눠서 <code>all</code>과 <code>allSettled</code>를 고르는 게 실무 설계 포인트예요.</p>
+        <p class="refs">더 보기: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled">MDN — Promise.allSettled()</a> · <a href="https://javascript.info/promise-api">javascript.info — Promise API</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) <code>Promise.all([ok1, fail, ok2])</code>에서 <code>fail</code>이 reject 되었을 때 결과는? ① <code>[ok1값, undefined, ok2값]</code> 반환 ② 전체 Promise가 reject 되고 첫 실패 이유를 받는다 ③ 성공한 것만 모아 반환 ④ 모든 Promise가 끝나길 기다린 뒤 에러를 던진다</p>
+          <p>Q2. (코드 출력 예측) 아래 코드의 <code>console.log</code> 결과는?</p>
+          <pre><code>const r = await Promise.allSettled([
+  Promise.resolve('A'),
+  Promise.reject(new Error('B')),
+]);
+console.log(r.map((x) =&gt; x.status));</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1 정답 ②: Promise.all은 하나라도 reject 되면 전체가 즉시 reject 되고 첫 번째 실패 이유만 전달돼요(나머지 성공 결과는 버려져요). Q2 정답 <code>['fulfilled', 'rejected']</code>: allSettled는 절대 reject 되지 않고, 각 Promise의 최종 상태를 입력 순서대로 담아 돌려줘요.</p></details>
+        </div>
+      </section>
       <section class="study-day" data-date="2026-10-28">
         <h2>2026-10-28 (수) · CSS :has() — "부모 선택자"가 드디어 생겼다: 자식 상태를 보고 부모 스타일을 바꾸기 (Tailwind has-*)</h2>
         <span class="topic-tag">프론트 심화 (CSS · Tailwind)</span>
