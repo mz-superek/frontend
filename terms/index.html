@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#subnet">서브넷</a>
+    <a class="nav-item" href="#api-versioning">API 버저닝</a>
+    <a class="nav-item" href="#pwa">PWA</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="subnet">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="subnet-h">서브넷 <span class="sub">Subnet · 퍼블릭/프라이빗 서브넷</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#cidr">CIDR</a><a class="link-tag" href="#nat-gateway">NAT Gateway</a></div>
+  </div>
+</div>
+<p><strong>VPC의 IP 대역(CIDR 블록)을 더 작게 쪼갠 구획</strong>으로, AWS에선 <strong>서브넷 하나가 하나의 가용영역(AZ)</strong>에 속한다. 서브넷의 성격은 연결된 <strong>라우팅 테이블</strong>이 결정한다 &mdash; 인터넷 게이트웨이(IGW)로 가는 경로가 있으면 <strong>퍼블릭 서브넷</strong>(외부에서 접근·외부로 직접 통신), 없으면 <strong>프라이빗 서브넷</strong>이다. 프라이빗 서브넷엔 DB·내부 서버처럼 직접 노출하면 안 되는 것을 두고, 바깥으로 나갈 일이 있으면 퍼블릭 서브넷의 <strong>NAT 게이트웨이</strong>를 거쳐 나간다. 이렇게 계층을 나누는 것이 VPC 네트워크 설계의 기본 뼈대다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">퍼블릭 서브넷</h4><ul><li>라우팅 테이블에 IGW 경로 있음</li><li>웹 서버·로드밸런서·NAT GW 배치</li><li>공인 IP로 외부와 직접 통신</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">프라이빗 서브넷</h4><ul><li>IGW 경로 없음 = 외부에서 못 들어옴</li><li>DB·내부 서버·배치 워커 배치</li><li>나갈 땐 NAT GW 경유</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>VPC를 설계하며 "웹 서버는 퍼블릭, DB는 프라이빗 서브넷에" 나누거나, "이 리소스가 왜 인터넷이 안 되지(라우팅·NAT 확인)", "서브넷이 AZ 하나에 묶이니 멀티 AZ로 여러 개 만들자"를 따질 때 마주친다. <span style="color:var(--teal)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="api-versioning">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="api-versioning-h">API 버저닝 <span class="sub">API Versioning</span></h2>
+    <div class="links"><a class="link-tag" href="#openapi">OpenAPI</a><a class="link-tag" href="#content-negotiation">콘텐츠 협상</a><a class="link-tag" href="#semver">SemVer</a></div>
+  </div>
+</div>
+<p><strong>이미 그 API를 쓰고 있는 클라이언트를 깨뜨리지 않으면서 API를 바꿔 나가기 위해 버전을 구분하는 방법</strong>. 응답 구조나 필드가 바뀌면 옛 버전을 그대로 쓰던 앱·서비스가 깨지므로, 새 동작은 새 버전으로 내보내고 구버전은 한동안 유지하다 <strong>폐기(deprecate)</strong>한다. 버전을 알리는 자리는 네 가지가 흔하다 &mdash; URL 경로(<code>/v1/</code>, <code>/v2/</code>), 쿼리스트링(<code>?version=2</code>), 커스텀 요청 헤더, 또는 <code>Accept</code> 헤더의 미디어 타입(콘텐츠 협상). 이 중 <strong>경로 방식이 가장 눈에 잘 띄고 캐시·로그·문서화가 쉬워 널리 쓰인다</strong>.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">URL 경로 (/v1/, /v2/)</h4><ul><li>눈에 보이고 테스트·공유 쉬움</li><li>캐시·라우팅·문서화에 유리</li><li>URL이 리소스 식별이란 원칙과는 어긋남</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">헤더·미디어 타입</h4><ul><li>URL은 그대로, 헤더로 버전 선택</li><li>REST 원칙엔 더 깔끔</li><li>브라우저·캐시에서 다루기 번거로움</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>외부에 공개한 API의 응답 구조를 바꿔야 할 때 "기존 앱 안 깨지게 v2로 나누자", "언제 v1을 폐기할까·얼마나 유지할까"를 논하거나, 프론트에서 "이 엔드포인트 버전이 뭐지"를 확인할 때 마주친다. <span style="color:var(--coral)">[백엔드·API]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="pwa">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="pwa-h">PWA <span class="sub">프로그레시브 웹 앱 · Progressive Web App</span></h2>
+    <div class="links"><a class="link-tag" href="#service-worker">Service Worker</a><a class="link-tag" href="#web-vitals">Web Vitals</a></div>
+  </div>
+</div>
+<p><strong>일반 웹사이트에 몇 가지 웹 표준 기술을 더해, 설치형 네이티브 앱처럼 동작하게 만든 웹 앱</strong>이다. 핵심 재료는 세 가지 &mdash; <strong>서비스 워커</strong>(네트워크 요청을 가로채 캐싱·오프라인 동작·푸시 알림 처리), <strong>웹 앱 매니페스트</strong>(앱 이름·아이콘·시작 URL·전체화면 모드를 적은 JSON, 홈 화면 설치를 가능하게 함), 그리고 <strong>HTTPS</strong>(서비스 워커의 필수 조건)다. 그 결과 사용자는 앱스토어 없이 홈 화면에 설치하고, 오프라인에서도 열고, 푸시 알림을 받을 수 있다. 이름이 비슷한 <strong>'점진적 향상(Progressive Enhancement)'과는 다른 개념</strong>이다 &mdash; 그쪽은 기본 기능을 모든 환경에서 보장하고 그 위에 기능을 얹는 설계 전략을 말한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">PWA</h4><ul><li>브라우저·URL 하나로 배포, 앱스토어 심사 없음</li><li>설치·오프라인·푸시 지원</li><li>기기 고유 기능 접근은 네이티브보다 제한적</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">네이티브 앱</h4><ul><li>스토어 배포·심사, 기기 기능 풀 접근</li><li>성능·OS 통합 유리</li><li>플랫폼별 개발·배포 비용 큼</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"네이티브 앱을 따로 만들지 말고 웹을 설치형·오프라인 지원되게 PWA로 가자"는 논의, 또는 매니페스트·서비스 워커·설치 배너(홈 화면 추가)를 붙이고 "왜 로컬에선 되는데 서비스 워커가 안 뜨지(HTTPS 확인)"를 디버깅할 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
 </section><hr class="divider">
 
 
