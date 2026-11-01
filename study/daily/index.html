@@ -209,6 +209,32 @@
 
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="study-day" data-date="2026-11-01">
+        <h2>2026-11-01 (일) · ShadCN 테마 = CSS 변수 토큰 — bg-primary는 어떻게 다크모드까지 따라 바뀔까</h2>
+        <span class="topic-tag">프론트 심화 (ShadCN · Tailwind · CSS 변수)</span>
+        <h3>핵심 개념</h3>
+        <p>ShadCN 컴포넌트에는 <code>bg-blue-500</code> 같은 "진짜 색"이 거의 없고 <code>bg-primary</code>, <code>text-foreground</code>처럼 역할 이름만 써요. 실제 색은 CSS 변수(<code>--primary</code>)에 있고, <code>:root</code>와 <code>.dark</code>가 같은 변수 이름에 다른 값을 넣어요. 그래서 <code>&lt;html&gt;</code>에 <code>dark</code> 클래스만 붙이면 변수 값이 통째로 바뀌고 컴포넌트 코드는 한 줄도 안 바뀌어요. 퍼블리싱으로 치면 Sass 변수($primary)의 "런타임 버전"이에요. Sass는 빌드할 때 값이 굳지만, CSS 변수는 브라우저에서 실시간으로 바뀌어요. Tailwind는 <code>@theme inline</code>으로 "<code>primary</code> 유틸리티는 <code>var(--primary)</code>를 읽어라"라고 연결해줘요.</p>
+        <pre><code>:root  { --background: oklch(1 0 0);    --primary: oklch(0.55 0.2 260); }
+.dark  { --background: oklch(0.15 0 0); --primary: oklch(0.7 0.15 260); }
+
+@theme inline {
+  --color-background: var(--background);
+  --color-primary: var(--primary);
+}
+
+// TSX: 역할 이름만 쓴다 → 라이트/다크/브랜드 테마 전부 자동 대응
+&lt;button className="bg-primary text-primary-foreground"&gt;저장&lt;/button&gt;</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>브랜드 컬러 변경이나 다크모드 추가 요청이 오면, 토큰을 쓴 화면은 변수 몇 줄만 고치면 끝나고 하드코딩한 화면은 전부 찾아 고쳐야 해요. ShadCN 컴포넌트를 커스텀할 때도 "새 색을 박기 전에 토큰이 있는지" 먼저 보는 게 기본이에요.</p>
+        <p class="refs">더 보기: <a href="https://ui.shadcn.com/docs/theming">ShadCN — Theming</a> · <a href="https://tailwindcss.com/docs/theme">Tailwind — Theme variables</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) <code>&lt;html class="dark"&gt;</code>로 바꿨을 때 <code>bg-background</code>의 색이 바뀌는 이유는? ① Tailwind가 클래스를 다시 컴파일해서 ② <code>.dark</code>가 <code>--background</code> 변수 값을 다른 값으로 덮어써서 ③ React가 리렌더링되어서 ④ 브라우저 <code>prefers-color-scheme</code>가 항상 우선해서</p>
+          <p>Q2. (문제점 찾기) 아래 코드의 유지보수 문제는?</p>
+          <pre><code>&lt;div className="bg-white dark:bg-zinc-900 text-black dark:text-white"&gt;...&lt;/div&gt;</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1 정답 ②: <code>bg-background</code>는 항상 <code>var(--background)</code>를 읽도록 연결돼 있고, <code>.dark</code>가 그 변수 값만 덮어써서 색이 바뀌어요. Q2: 색이 컴포넌트마다 흩어져 있어 다크모드·브랜드 컬러를 바꾸려면 모든 파일을 고쳐야 하고 <code>dark:</code> 접두사도 반복돼요. <code>bg-background text-foreground</code>로 바꾸면 변수 한 곳에서 라이트/다크가 같이 관리돼요.</p></details>
+        </div>
+      </section>
       <section class="study-day" data-date="2026-10-29">
         <h2>2026-10-29 (목) · Promise.all vs Promise.allSettled — 요청 여러 개 중 하나만 실패해도 전부 날릴 것인가</h2>
         <span class="topic-tag">프론트 심화 (JavaScript · 비동기)</span>
