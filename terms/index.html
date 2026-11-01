@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#hsts">HTTP 엄격 전송 보안 (HSTS)</a>
+    <a class="nav-item" href="#gslb">글로벌 서버 부하분산 (GSLB)</a>
+    <a class="nav-item" href="#message-ordering">메시지 순서 보장 (FIFO)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,47 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="hsts">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="hsts-h">HTTP 엄격 전송 보안 <span class="sub">HSTS · HTTP Strict Transport Security</span></h2>
+    <div class="links"><a class="link-tag" href="#tls-termination">TLS 종료</a><a class="link-tag" href="#csp">CSP</a><a class="link-tag" href="#cors">CORS</a></div>
+  </div>
+</div>
+<p><strong>서버가 응답 헤더(<code>Strict-Transport-Security</code>)로 "이 사이트는 앞으로 HTTPS로만 접속하라"고 브라우저에 선언하는 보안 메커니즘</strong>. 한 번 이 헤더를 받은 브라우저는 지정된 기간(<code>max-age</code>) 동안 그 도메인에 대한 <code>http://</code> 요청을 <strong>서버로 보내기 전에 브라우저 단에서 <code>https://</code>로 자동 치환</strong>하고, 인증서 오류가 나도 사용자가 "무시하고 접속"으로 넘어갈 수 없게 막는다. 핵심 목적은 중간자(MITM)가 최초의 평문 접속을 가로채 가짜 페이지로 돌리는 <strong>SSL 스트립 공격을 차단</strong>하는 것. <code>includeSubDomains</code>로 하위 도메인까지 적용하고, <code>preload</code>로 브라우저 내장 목록에 미리 등록하면 "첫 접속조차 http로 안 나가게" 만들 수 있다. 약점은 <strong>헤더를 한 번도 못 받은 최초 방문은 여전히 취약</strong>하다는 점(그래서 preload가 이를 보완). HTTP로 온 헤더는 변조 방지를 위해 무시된다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>사이트를 HTTPS 전용으로 강제하거나 보안 점검에서 "HSTS 헤더 없음"이 지적될 때, 또는 개발 중 HSTS 캐시 때문에 내부 도메인·localhost가 자꾸 https로 튀어 접속이 막힐 때 마주친다. <span style="color:var(--blue)">[프론트엔드·보안]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="gslb">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="gslb-h">글로벌 서버 부하분산 <span class="sub">GSLB · Global Server Load Balancing</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">Load Balancer</a><a class="link-tag" href="#dns">DNS</a><a class="link-tag" href="#anycast">Anycast</a></div>
+  </div>
+</div>
+<p><strong>여러 지역(리전·데이터센터)에 흩어진 서버들 사이로 사용자 트래픽을 DNS 단계에서 나눠 보내는 광역 부하분산 기법</strong>. 한 건물·한 리전 안의 서버들을 나누는 일반 로드밸런서(L4/L7)와 달리, GSLB는 <strong>권한 있는 DNS 서버처럼 동작</strong>해 사용자가 도메인을 질의하면 각 사이트의 상태(헬스체크)·지리적 근접성·지연시간·부하를 보고 <strong>가장 적합한 데이터센터의 IP를 응답으로 돌려준다</strong>. 그래서 평소엔 사용자를 가까운 리전으로 보내 지연을 줄이고(active-active), 한 리전이 통째로 죽으면 헬스체크가 실패를 감지해 <strong>살아있는 리전의 IP만 돌려줘 자동 장애 조치·재해 복구(active-standby)</strong>를 해준다. 빠른 전환을 위해 응답 TTL을 짧게 둬 리졸버가 금방 다시 질의하게 만드는 것이 보통이다. AWS Route 53의 지연시간·지리 기반 라우팅, Cloudflare·F5 등이 대표 구현.</p>
+<div class="tip"><div class="tip-l">실무에서</div>서비스를 여러 리전에 띄워 "사용자를 가까운 리전으로 보내고 한 리전 장애 시 자동으로 넘기자"는 멀티리전·DR(재해복구) 구성을 논하거나, "장애 때 왜 즉시 안 넘어가고 몇 초~몇 분 걸리나(DNS TTL)"를 따질 때 마주친다. <span style="color:var(--teal)">[클라우드·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="message-ordering">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="message-ordering-h">메시지 순서 보장 <span class="sub">Message Ordering · FIFO Queue</span></h2>
+    <div class="links"><a class="link-tag" href="#message-queue">Message Queue</a><a class="link-tag" href="#idempotency">멱등성</a><a class="link-tag" href="#dlq">DLQ</a></div>
+  </div>
+</div>
+<p><strong>메시지 큐에서 보낸 순서 그대로 소비되도록 보장하는 것</strong>. 일반(표준) 큐는 처리량을 극대화하려고 메시지를 여러 서버에 분산 저장하다 보니 <strong>순서가 뒤섞이고 드물게 중복 전달</strong>될 수 있다(at-least-once). 반면 <strong>FIFO(First-In-First-Out) 큐</strong>는 "같은 그룹(message group) 안에서는" 보낸 순서대로, 중복 없이 한 번만 전달되도록 보장한다. 핵심은 순서 보장의 범위가 큐 전체가 아니라 <strong>그룹 키 단위</strong>라는 점 — 예를 들어 '주문 ID'를 그룹 키로 주면 같은 주문의 이벤트(생성 &rarr; 결제 &rarr; 취소)는 순서가 지켜지고, 서로 다른 주문끼리는 병렬로 빠르게 처리된다. 대신 순서를 지키느라 <strong>한 그룹은 직렬 처리</strong>되므로 표준 큐보다 처리량이 낮다. AWS SQS FIFO, GCP Pub/Sub의 ordering key, Kafka의 파티션이 이 원리를 쓴다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">표준 큐 (Standard)</h4><ul><li>순서 보장 안 함 · 드물게 중복</li><li>처리량 거의 무제한</li><li>소비자의 멱등성 처리 필요</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">FIFO 큐</h4><ul><li>그룹 내 순서 + 중복 제거</li><li>그룹 단위 직렬 &rarr; 처리량 제한</li><li>순서가 중요한 작업에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>주문·결제·상태변경처럼 처리 순서가 중요한 이벤트를 큐로 넘길 때 "표준 큐로 충분한가, FIFO가 필요한가", "왜 메시지가 가끔 순서가 바뀌거나 두 번 처리되나"를 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·메시징]</span></div>
 </section><hr class="divider">
 
 
