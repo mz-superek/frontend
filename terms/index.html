@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#kubernetes-namespace">쿠버네티스 네임스페이스</a>
+    <a class="nav-item" href="#hexagonal-architecture">헥사고날 아키텍처</a>
+    <a class="nav-item" href="#abort-controller">AbortController (요청 취소)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="kubernetes-namespace">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="kubernetes-namespace-h">쿠버네티스 네임스페이스 <span class="sub">Kubernetes Namespace</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#dns">DNS</a></div>
+  </div>
+</div>
+<p><strong>하나의 쿠버네티스 클러스터 안을 여러 개의 논리적 구역으로 나눠, 리소스(파드·서비스 등)의 이름·권한·자원 할당량을 구역 단위로 분리하는 가상 공간</strong>. 이름이 네임스페이스별로 따로 관리되므로(이름 scope) 같은 이름의 리소스를 <code>dev</code>·<code>staging</code>·<code>prod</code> 구역에 각각 둘 수 있어 한 클러스터에서 여러 환경·팀을 나눠 운영한다. 네임스페이스마다 <strong>접근권한(RBAC)과 자원 쿼터</strong>를 걸 수 있고, 서비스 내부 주소도 <code>서비스명.네임스페이스.svc.cluster.local</code>로 구역이 구분된다. 단, 노드·스토리지클래스 같은 <strong>클러스터 전역 리소스는 네임스페이스에 속하지 않으며</strong>, 운영에서는 <code>default</code>를 그대로 쓰지 말고 환경·팀별 네임스페이스를 따로 만드는 것이 권장된다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">네임스페이스 (논리 분리)</h4><ul><li>한 클러스터 안을 구역으로 나눔</li><li>권한·쿼터·이름을 구역별 관리</li><li>클러스터 자원은 공유(물리 격리 아님)</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">별도 클러스터 (물리 분리)</h4><ul><li>환경마다 클러스터를 따로 운영</li><li>완전한 격리·독립 장애 경계</li><li>운영·비용 부담은 더 큼</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div><code>kubectl get pods -n &lt;네임스페이스&gt;</code>로 특정 환경의 리소스를 조회하거나, "dev·운영을 같은 클러스터에서 네임스페이스로 나누자"·"리소스가 왜 안 보이지(네임스페이스를 지정 안 함)"를 논할 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="hexagonal-architecture">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="hexagonal-architecture-h">헥사고날 아키텍처 <span class="sub">Hexagonal Architecture · Ports &amp; Adapters</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#bff">BFF</a><a class="link-tag" href="#api-gateway">API Gateway</a></div>
+  </div>
+</div>
+<p><strong>애플리케이션의 핵심 로직(도메인)을 UI·DB·외부 시스템 같은 바깥 기술로부터 떼어내고, 그 사이를 '포트(용도별 인터페이스)'와 '어댑터(기술별 구현)'로만 연결하는 설계</strong>. 핵심 로직은 "무엇을 주고받는다"는 <strong>포트라는 약속만 알 뿐</strong>, 상대가 MySQL인지 메모리 목(mock)인지는 모른다. 그래서 어댑터만 갈아끼우면 <strong>UI·DB 없이도 핵심 로직을 테스트</strong>하고, 저장소나 외부 연동 기술을 핵심 코드 변경 없이 교체할 수 있다. 바깥에서 핵심을 호출하는 쪽(사용자·테스트=주도 어댑터)과 핵심이 불러 쓰는 쪽(DB·외부 API=피주도 어댑터)을 같은 방식으로 다루는 <strong>대칭 구조</strong>가 특징이다(관련: 클린·어니언 아키텍처).</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">전통적 계층형</h4><ul><li>핵심 로직이 DB·프레임워크에 직접 의존</li><li>DB 없이는 테스트가 어려움</li><li>기술 교체 시 핵심까지 흔들림</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">헥사고날 (포트·어댑터)</h4><ul><li>핵심은 포트(인터페이스)에만 의존</li><li>목 어댑터로 핵심만 단독 테스트</li><li>DB·외부 연동을 끼워 교체</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"DB·외부 연동을 어댑터로 빼서 핵심 로직을 격리하자"·"포트 앤 어댑터로 가자"는 설계 논의를 하거나, 테스트에서 실제 DB 대신 목(mock)으로 바꿔 끼울 때 마주친다. <span style="color:var(--coral)">[백엔드·아키텍처]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="abort-controller">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="abort-controller-h">요청 취소 <span class="sub">AbortController · AbortSignal</span></h2>
+    <div class="links"><a class="link-tag" href="#react-query">React Query</a><a class="link-tag" href="#realtime">SSE · WS</a><a class="link-tag" href="#performance-api">Performance API</a></div>
+  </div>
+</div>
+<p><strong>진행 중인 <code>fetch</code> 같은 비동기 작업을 중간에 취소할 수 있게 해 주는 웹 표준 API</strong>. <code>AbortController</code>를 만들어 그 <code>signal</code>을 요청에 함께 넘겨 두고, 필요할 때 <code>controller.abort()</code>를 호출하면 그 요청이 중단되며 <code>AbortError</code>가 발생한다. 사용자가 화면을 벗어나거나, 검색어가 바뀌어 <strong>이전 요청을 버리고 최신 응답만 반영</strong>해야 하거나, 일정 시간이 지나면 <strong>타임아웃</strong>으로 끊고 싶을 때 쓴다. 2019년부터 모든 주요 브라우저에서 동작하는 <strong>Baseline(안정)</strong> 기능이며, 하나의 signal로 여러 작업을 한꺼번에 취소할 수도 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">취소 없이</h4><ul><li>이전 요청이 그대로 끝까지 진행</li><li>늦게 온 옛 응답이 최신 결과를 덮어씀</li><li>언마운트 후에도 응답 처리(누수·경고)</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">AbortController</h4><ul><li>이전 요청을 즉시 중단</li><li>최신 응답만 안전하게 반영</li><li>정리(cleanup)·타임아웃에 활용</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>검색 자동완성에서 이전 요청을 취소해 오래된 응답이 최신 결과를 덮어쓰지 않게 하거나, 리액트 컴포넌트 언마운트 시 <code>useEffect</code> 정리 함수에서 진행 중인 <code>fetch</code>를 끊을 때 마주친다. <span style="color:var(--blue)">[프론트엔드]</span></div>
 </section><hr class="divider">
 
 
