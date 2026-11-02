@@ -209,6 +209,30 @@
 
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="study-day" data-date="2026-11-02">
+        <h2>2026-11-02 (월) · XSS와 dangerouslySetInnerHTML — React가 기본으로 막아주는 것, 그리고 스위치를 켜는 순간 뚫리는 것</h2>
+        <span class="topic-tag">프론트 심화 (보안 · React)</span>
+        <h3>핵심 개념</h3>
+        <p>XSS(Cross-Site Scripting)는 사용자가 입력한 문자열이 "글자"가 아니라 "HTML/스크립트"로 해석되어 실행되는 공격이에요. 퍼블리싱으로 치면 <code>innerHTML</code>에 남이 쓴 댓글을 그대로 꽂는 상황이죠. React의 <code>{value}</code>는 값을 텍스트 노드로 넣어 <code>&lt;</code>를 <code>&amp;lt;</code>로 자동 이스케이프해 주기 때문에 기본은 안전해요. 문제는 <code>dangerouslySetInnerHTML</code> — 이 보호를 통째로 끄는 스위치예요. <code>href={user.url}</code>에 <code>javascript:</code> 스킴이 들어오는 것도 같은 계열의 구멍이에요.</p>
+        <pre><code>const comment = '&lt;img src=x onerror="alert(document.cookie)"&gt;';
+
+&lt;p&gt;{comment}&lt;/p&gt;                                      // 안전: 글자 그대로 출력
+&lt;p dangerouslySetInnerHTML={{ __html: comment }} /&gt;  // 위험: onerror 실행 → 쿠키 탈취 가능
+
+// HTML이 꼭 필요하면 정화(sanitize) 후에만
+import DOMPurify from 'dompurify';
+&lt;div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment) }} /&gt;</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>CMS 본문·마크다운 렌더링·에디터 결과물 때문에 <code>dangerouslySetInnerHTML</code>을 쓰는 순간이 실무에서 반드시 와요. 그때 "누가 쓴 HTML인가?"를 묻고 sanitize를 거는 습관이 계정 탈취 사고를 막아줘요.</p>
+        <p class="refs">더 보기: <a href="https://react.dev/reference/react-dom/components/common#dangerously-setting-the-inner-html">React — dangerouslySetInnerHTML</a> · <a href="https://owasp.org/www-community/attacks/xss/">OWASP — Cross Site Scripting</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) <code>comment</code>가 <code>"&lt;script&gt;alert(1)&lt;/script&gt;"</code>일 때 <code>&lt;p&gt;{comment}&lt;/p&gt;</code>의 결과는? ① 알림창이 뜬다 ② 태그가 글자 그대로 화면에 보인다 ③ 빌드 에러 ④ 빈 화면</p>
+          <p>Q2. (문제점 찾기) 아래 코드에서 <code>user.website</code>가 <code>"javascript:alert(1)"</code>이면 무슨 일이 생기고, 어떻게 막을까요?</p>
+          <pre><code>&lt;a href={user.website}&gt;내 사이트&lt;/a&gt;</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1 정답 ②: <code>{}</code>로 넣은 값은 텍스트 노드로 처리되고 <code>&lt;</code>가 이스케이프되어 태그가 글자 그대로 보여요. Q2: 클릭하면 <code>javascript:</code> 코드가 실행돼요(<code>{}</code>는 href의 스킴까지는 걸러주지 않음). <code>new URL()</code>로 파싱해 <code>http:</code>/<code>https:</code>만 허용하고, 아니면 <code>#</code>이나 렌더링 생략으로 처리하면 막을 수 있어요.</p></details>
+        </div>
+      </section>
       <section class="study-day" data-date="2026-11-01">
         <h2>2026-11-01 (일) · ShadCN 테마 = CSS 변수 토큰 — bg-primary는 어떻게 다크모드까지 따라 바뀔까</h2>
         <span class="topic-tag">프론트 심화 (ShadCN · Tailwind · CSS 변수)</span>
