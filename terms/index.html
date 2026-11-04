@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#rightsizing">적정 크기 조정</a>
+    <a class="nav-item" href="#clock-skew">클록 스큐 (NTP)</a>
+    <a class="nav-item" href="#negative-caching">네거티브 캐싱</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,42 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="rightsizing">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="rightsizing-h">적정 크기 조정 <span class="sub">Rightsizing</span></h2>
+    <div class="links"><a class="link-tag" href="#finops">FinOps</a><a class="link-tag" href="#auto-scaling">Auto Scaling</a><a class="link-tag" href="#spot-instance">Spot Instance</a></div>
+  </div>
+</div>
+<p><strong>실제 사용량(CPU·메모리·네트워크·디스크) 지표를 근거로, 필요 이상으로 크게 잡힌 인스턴스·리소스를 알맞은 크기로 줄여 성능은 유지하면서 낭비 비용을 없애는 작업</strong>. 클라우드에서는 "혹시 몰라 크게" 잡아둔 <strong>과다 프로비저닝(over-provisioning)</strong>이 비용이 새는 대표적 원인이라, <strong>AWS Compute Optimizer·Cost Explorer, Azure Advisor, GCP Recommender</strong> 같은 도구가 사용률을 분석해 더 작은(또는 다른 계열의) 권장 크기를 뽑아준다. <strong>대수를 수요에 따라 자동으로 늘렸다 줄이는 오토스케일링</strong>이 "몇 대로 돌릴까"를 조절하는 것이라면, 적정 크기 조정은 <strong>"한 대의 기준 크기 자체를 얼마로 잡을까"</strong>를 맞추는 것이라 둘은 보완 관계다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>클라우드 비용 최적화·유휴 리소스 정리를 하거나, 청구서를 보며 "이 서버 스펙이 과한데 한 단계 낮추자"·"쓰지도 않는데 왜 이렇게 큰 인스턴스냐"를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·비용]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="clock-skew">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="clock-skew-h">클록 스큐 · 시간 동기화 <span class="sub">Clock Skew · NTP</span></h2>
+    <div class="links"><a class="link-tag" href="#distributed-lock">분산 락</a><a class="link-tag" href="#mtls">mTLS</a><a class="link-tag" href="#observability">Observability</a></div>
+  </div>
+</div>
+<p><strong>여러 서버의 시계가 시간이 지나며 조금씩 서로 어긋나는 현상(스큐)과, 이를 기준 시각(표준시)에 맞추는 프로토콜 NTP(Network Time Protocol)</strong>를 함께 묶는 개념. 분산 시스템은 곳곳에서 "지금 시각"을 전제로 동작하기 때문에, 시계가 <strong>몇 분만 틀어져도</strong> <strong>TLS 인증서 유효기간(not-before/not-after) 검사, JWT 만료·발급시각(exp·nbf) 판정, 분산 락의 TTL·펜싱 토큰, MFA(TOTP) 코드, 서버 간 로그의 시간 순서</strong>가 한꺼번에 깨진다. 그 결과 <strong>"인증서가 아직 유효하지 않음"·"토큰이 만료됨"</strong> 같은 원인 모를 인증 오류나 로그 추적 꼬임이 생긴다. 그래서 실무에서는 모든 서버를 <strong>NTP(Amazon Time Sync Service·chrony·ntpd 등)</strong>로 상시 동기화해 스큐를 밀리초 수준으로 줄여 둔다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>인증서·토큰·MFA가 이유 없이 거부되거나, 여러 서버 로그의 타임스탬프가 안 맞아 장애 추적이 꼬일 때 "서버 시계(NTP) 동기 확인했냐"는 말을 들을 때 마주친다. <span style="color:var(--blue)">[인프라·운영]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="negative-caching">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="negative-caching-h">네거티브 캐싱 <span class="sub">Negative Caching</span></h2>
+    <div class="links"><a class="link-tag" href="#cache-stampede">Cache Stampede</a><a class="link-tag" href="#cache-invalidation">Cache Invalidation</a><a class="link-tag" href="#http-cache">HTTP Cache</a></div>
+  </div>
+</div>
+<p><strong>"결과 없음·실패" 같은 부정(negative) 응답 — DNS의 NXDOMAIN(도메인 없음), HTTP 404, DB의 빈 조회 결과 — 을 짧은 시간 동안 캐시해, 없는 것을 반복 조회해도 매번 원본·DB까지 가지 않게 하는 기법</strong>. 원래 DNS 표준(RFC 2308 &ldquo;Negative Caching of DNS Queries&rdquo;)에서 정립된 개념으로, 존재하지 않는 키를 계속 조회해 <strong>캐시를 그대로 통과(관통)해 DB를 때리는</strong> 부하나 공격(cache penetration)을 막아준다. 핵심 트레이드오프는 TTL &mdash; <strong>나중에 그 값이 실제로 생겼을 때 "없음"이라는 낡은 답이 오래 남지 않도록</strong> 보통 성공 응답보다 <strong>짧은 TTL</strong>을 준다. 일반 조회 결과를 캐시하는 <strong>캐시 어사이드</strong>, 캐시가 동시에 만료돼 재생성 요청이 몰리는 <strong>캐시 스탬피드</strong>와는 다루는 문제가 다른, 별개의 개념이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>DNS·CDN의 404·NXDOMAIN 캐싱을 다루거나, "존재하지 않는 ID를 계속 조회해 DB가 바쁘다/공격받는다"는 문제를 캐시로 막는 설계를 할 때 마주친다. <span style="color:var(--coral)">[백엔드·캐시]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
