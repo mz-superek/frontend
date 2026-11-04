@@ -209,6 +209,42 @@
 
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="study-day" data-date="2026-11-04">
+        <h2>2026-11-04 (수) · next/font — 웹폰트가 늦게 뜰 때 글자가 "깜빡"하고 레이아웃이 밀리는 문제를 빌드 단계에서 잡기</h2>
+        <span class="topic-tag">프론트 심화 (Next.js · 웹폰트 · CLS)</span>
+        <h3>핵심 개념</h3>
+        <p>웹폰트는 파일을 내려받는 동안 글자가 아예 안 보이다가 나타나는 FOIT, 기본 폰트로 보이다가 바뀌는 FOUT, 그리고 폰트가 바뀌면서 글자 폭이 달라져 레이아웃이 밀리는 CLS를 만들어요. 퍼블리싱으로 치면 <code>@font-face</code> + <code>font-display: swap</code>을 손으로 챙기던 일을 프레임워크가 대신해 주는 거예요. <code>next/font</code>는 빌드할 때 폰트 파일을 내려받아 내 도메인에서 직접 서빙(셀프 호스팅)하고, 대체 폰트의 크기를 원본에 맞춰 보정(<code>size-adjust</code>)한 CSS를 자동 생성해서 폰트가 교체돼도 줄바꿈 위치가 거의 안 움직이게 해줘요. 브라우저가 구글 폰트 서버까지 따로 다녀오는 요청도 사라져요.</p>
+        <pre><code>// app/layout.tsx
+import localFont from 'next/font/local';
+
+const pretendard = localFont({
+  src: './fonts/PretendardVariable.woff2',
+  display: 'swap',               // 폰트 로딩 전엔 대체 폰트로 먼저 보여주기
+  variable: '--font-pretendard', // CSS 변수로 노출 → Tailwind에서 사용
+  weight: '45 920',              // 가변 폰트의 굵기 범위
+});
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html lang="ko" className={pretendard.variable}&gt;
+      &lt;body className="font-sans"&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  );
+}
+// tailwind: fontFamily: { sans: ['var(--font-pretendard)', 'sans-serif'] }</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>폰트 때문에 생기는 CLS와 첫 글자 지연은 Lighthouse 점수와 체감 품질에 바로 찍혀요. 디자인 시스템(ShadCN + Tailwind)에서 폰트를 CSS 변수로 연결하는 표준 방식이기도 해요.</p>
+        <p class="refs">더 보기: <a href="https://nextjs.org/docs/app/getting-started/fonts">Next.js — Font Optimization</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display">MDN — font-display</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) <code>next/font</code>가 폰트 교체 시 레이아웃이 덜 밀리게 해주는 핵심 방법은? ① 폰트를 항상 CDN에서 가져온다 ② 대체 폰트의 크기를 원본에 맞춰 보정한 CSS를 자동 생성한다 ③ 폰트 로딩이 끝날 때까지 페이지 렌더링을 막는다 ④ 모든 글자를 이미지로 바꾼다</p>
+          <p>Q2. (문제점 찾기) 아래 코드에서 웹폰트 성능 면의 문제점과 개선 방향은?</p>
+          <pre><code>&lt;head&gt;
+  &lt;link href="https://fonts.googleapis.com/css2?family=Inter&amp;display=block" rel="stylesheet" /&gt;
+&lt;/head&gt;</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1 정답 ②: <code>next/font</code>는 빌드 시 폰트를 셀프 호스팅하고 대체 폰트에 <code>size-adjust</code> 같은 보정을 적용해 폰트가 교체돼도 글자 폭·줄바꿈 변화(CLS)를 최소화해요. Q2: 외부 구글 서버로 별도 요청(DNS·연결 추가)이 생기고, <code>display=block</code>이라 폰트가 올 때까지 글자가 안 보이는 FOIT가 길어져요. <code>next/font/google</code>이나 <code>next/font/local</code>로 셀프 호스팅하고 <code>display: 'swap'</code>을 쓰면 해결돼요.</p></details>
+        </div>
+      </section>
       <section class="study-day" data-date="2026-11-03">
         <h2>2026-11-03 (화) · 환경 변수와 NEXT_PUBLIC_ — "빌드 때 코드에 박히는 값"과 "서버에만 있는 값"을 가르는 접두사</h2>
         <span class="topic-tag">클라우드·백엔드 기초 (환경 변수 · 시크릿 · Next.js)</span>
