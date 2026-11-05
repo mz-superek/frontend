@@ -209,6 +209,34 @@
 
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="study-day" data-date="2026-11-05">
+        <h2>2026-11-05 (목) · 네이티브 &lt;dialog&gt; — 모달을 JS 없이 만들면 포커스 가두기·ESC 닫기·배경 딤이 공짜</h2>
+        <span class="topic-tag">프론트 심화 (HTML · 접근성 · 모달)</span>
+        <h3>핵심 개념</h3>
+        <p>&lt;dialog&gt;는 브라우저가 기본 제공하는 모달/팝업 태그예요. <code>showModal()</code>로 열면 브라우저가 알아서 (1) 화면 맨 위 레이어(top layer)에 올려 z-index 싸움이 없고, (2) 포커스를 모달 안에 가둬 Tab이 뒤쪽으로 새지 않고, (3) ESC로 닫히고, (4) 뒷배경은 <code>::backdrop</code>으로 딤 처리해 줘요. 퍼블리싱 때 <code>div.modal</code> + <code>.overlay</code> + z-index + 포커스 트랩 스크립트를 직접 짜던 걸 태그 하나가 대신하는 셈이에요. 반면 <code>open</code> 속성만 붙이거나 <code>show()</code>로 열면 모달이 아니라 일반 팝업이라 포커스 가두기와 backdrop이 없어요.</p>
+        <pre><code>const ref = useRef&lt;HTMLDialogElement&gt;(null);
+
+&lt;button onClick={() =&gt; ref.current?.showModal()}&gt;열기&lt;/button&gt;
+&lt;dialog ref={ref} className="rounded-lg p-6 backdrop:bg-black/50"
+        onClose={() =&gt; console.log('닫힘')}&gt;
+  &lt;p&gt;정말 삭제할까요?&lt;/p&gt;
+  &lt;form method="dialog"&gt;   {/* 제출하면 JS 없이 dialog가 닫힘 */}
+    &lt;button value="cancel"&gt;취소&lt;/button&gt;
+    &lt;button value="ok"&gt;확인&lt;/button&gt;
+  &lt;/form&gt;
+&lt;/dialog&gt;</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>ShadCN의 Dialog(Radix)가 내부에서 해주는 일(포커스 트랩, ESC, 스크롤 잠금, 접근성 속성)이 무엇인지 알아야, 가벼운 확인창은 네이티브로 끝낼지 / 복잡한 건 라이브러리를 쓸지 판단할 수 있어요.</p>
+        <p class="refs">더 보기: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog">MDN — &lt;dialog&gt;</a> · <a href="https://web.dev/articles/building-a-dialog-component">web.dev — Building a dialog component</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) <code>&lt;dialog&gt;</code>를 <code>showModal()</code>로 열었을 때 브라우저가 자동으로 해주는 것이 <em>아닌</em> 것은? ① 모달 바깥으로 Tab 포커스가 못 나가게 가둠 ② ESC 키로 닫힘 ③ <code>::backdrop</code> 배경 레이어 생성 ④ 열릴 때 부드러운 페이드 애니메이션 자동 적용</p>
+          <p>Q2. (문제점 찾기) 아래 코드는 "모달"을 의도했는데 사용 중 문제가 생겨요. 무엇이 문제일까요?</p>
+          <pre><code>&lt;dialog ref={ref} className="backdrop:bg-black/50"&gt;...&lt;/dialog&gt;
+&lt;button onClick={() =&gt; ref.current?.show()}&gt;열기&lt;/button&gt;</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1 정답 ④: 포커스 가두기, ESC 닫기, <code>::backdrop</code>은 브라우저가 자동 제공하지만 애니메이션은 CSS로 직접 만들어 해요. Q2: <code>show()</code>는 비모달(일반 팝업)로 열어서 <code>::backdrop</code>이 안 생기고 포커스도 안 갇히며 ESC로도 닫히지 않아요. 모달을 원하면 <code>showModal()</code>을 써야 해요.</p></details>
+        </div>
+      </section>
       <section class="study-day" data-date="2026-11-04">
         <h2>2026-11-04 (수) · next/font — 웹폰트가 늦게 뜰 때 글자가 "깜빡"하고 레이아웃이 밀리는 문제를 빌드 단계에서 잡기</h2>
         <span class="topic-tag">프론트 심화 (Next.js · 웹폰트 · CLS)</span>
