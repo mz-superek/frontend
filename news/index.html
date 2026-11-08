@@ -83,6 +83,34 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-11-09">
+        <h2>📰 2026-11-09 (월)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 2건·백엔드 1건 통과. 프론트엔드는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 소식이 없어 헤더째 생략(TypeScript 7.1은 10/20 베타로 창 초과, Next.js 16.4.5 보안 릴리스는 11/3·11/4 발송분과 중복, 16.5.0은 canary만). HTML &amp; CSS도 web.dev 블로그 피드가 10/2 이후 갱신이 없고 Chrome 155 안정판 릴리스 노트의 날짜·기능을 1차 소스로 확정하지 못해 생략. Google DeepMind Gemini Omni 1.2 Flash는 공식 블로그 개별 포스트가 404로 날짜·사양 확인 불가(접근 실패), OpenAI 소식은 openai.com 403 반복 차단으로 접근 실패, DeepSeek-v4-flash-0731은 신규 여부·사양을 1차 소스로 확정 못 해 드롭.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, &apos;Personal Finance&apos;(베타) 출시 — Claude에 은행·카드·대출·투자 계좌 연결</p>
+            <p class="item-meta">2026-11-05 · <a href="https://support.claude.com/en/articles/12138966-release-notes">support.claude.com</a></p>
+            <p class="item-summary">Anthropic이 Claude에 개인 금융(Personal Finance) 베타를 출시했다. 공식 릴리스 노트 기준 은행·신용카드·대출·투자 계좌를 연결하면 잔액과 지출을 한 화면에서 보고 Claude에게 재무 관련 질문을 할 수 있다. 미국의 Pro·Max·Ultra 플랜에 롤아웃되며, 접근은 읽기 전용이고 계좌 연결은 Plaid를 통해 본인이 직접 로그인해야 이뤄진다. 범용 챗봇이 개인 금융 데이터 허브로 영역을 넓히는 사례.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Anthropic, Claude Enterprise에 보안·관리 제어 강화 — 보안 센터·인퍼런스 훅·중앙 관리</p>
+            <p class="item-meta">2026-11-05 · <a href="https://support.claude.com/en/articles/12138966-release-notes">support.claude.com</a></p>
+            <p class="item-summary">Claude Enterprise 플랜에 보안 센터(security center), 인퍼런스 훅(inference hooks), 중앙 집중식 관리(centralized management)와 추가 접근 제어가 더해졌다(여러 기능이 베타). 공식 릴리스 노트에 따르면 조직 단위로 보안·거버넌스를 세밀하게 통제하려는 기업 수요를 겨냥한 업데이트로, 같은 주에는 프로젝트에 비용 코드 태그를 달아 태그별 지출을 집계하는 기능(11/6, 베타)도 추가됐다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">Node.js 27 알파, V8 엔진 14.6 → 15.6 업그레이드 (알파/프리뷰)</p>
+            <p class="item-meta">2026-11-05 · <a href="https://nodejs.org/en/blog/announcements/notable-v8-changes-from-node-js-26-to-27-alpha">nodejs.org</a></p>
+            <p class="item-summary">공식 블로그가 Node.js 27 알파의 V8 엔진 주요 변경을 정리했다(알파/프리뷰 — 정식 전 변경 가능). Node.js 26의 V8 14.6에서 15.6으로 올라가며 여러 JS 언어 기능·개선이 들어온다. <code>v8.serialize()</code>·<code>structuredClone()</code>·<code>postMessage</code>가 새 직렬화 포맷을 쓰는데, 구버전 Node.js는 이 데이터를 역직렬화하지 못하고 &quot;invalid or unsupported version&quot; 오류를 낸다(새 포맷은 4GB 초과 타입드 배열·리사이저블 ArrayBuffer를 <code>structuredClone()</code>·<code>postMessage()</code>에서 지원). 또 더 많은 치명적 V8 오류가 Node.js 핸들러를 먼저 거쳐 <code>--report-on-fatalerror</code>로 진단 리포트를 남길 수 있고, <code>import defer</code> 등 일부 기능은 플래그 뒤에서 제공된다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
