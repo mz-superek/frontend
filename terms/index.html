@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#dns-record-types">DNS 레코드 타입 (A·CNAME·ALIAS)</a>
+    <a class="nav-item" href="#image-layer-caching">컨테이너 이미지 레이어 캐싱</a>
+    <a class="nav-item" href="#connection-string">커넥션 문자열 (DSN)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,46 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="dns-record-types">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="dns-record-types-h">DNS 레코드 타입 <span class="sub">A · AAAA · CNAME · ALIAS/ANAME</span></h2>
+    <div class="links"><a class="link-tag" href="#dns">DNS</a><a class="link-tag" href="#http-cache">CDN</a><a class="link-tag" href="#tls-termination">TLS 종료</a></div>
+  </div>
+</div>
+<p><strong>"이 도메인 이름을 무엇에 연결할지"를 정하는 DNS 레코드의 종류</strong>. 가장 많이 쓰는 건 <strong>A(이름→IPv4 주소)</strong>, <strong>AAAA(이름→IPv6 주소)</strong>, 그리고 <strong>CNAME(이름→다른 도메인 이름, 즉 별칭)</strong>이다. CNAME은 "이 이름은 저 이름과 같다"고 넘기는 것이라 편하지만, 표준(RFC 1034 등)상 <strong>같은 이름에서 다른 레코드와 공존할 수 없다</strong>. 그래서 SOA·NS 레코드가 반드시 있어야 하는 <strong>루트 도메인(<code>example.com</code> 같은 zone apex)에는 CNAME을 걸 수 없다</strong>. 이 한계를 넘으려고 DNS 업체들이 <strong>ALIAS·ANAME</strong>(내부적으로는 <strong>CNAME 플래트닝</strong>)이라는 비표준 확장을 제공하는데, 업체 서버가 대상 이름을 대신 풀어 A/AAAA 응답으로 돌려주므로 루트에서도 CDN·호스트 이름을 가리키면서 MX 같은 다른 레코드도 함께 둘 수 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">CNAME</h4><ul><li>이름 → 다른 도메인 이름(별칭)</li><li>다른 레코드와 공존 불가 → 루트(apex) 불가</li><li>표준 레코드, 어디서나 동작</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">ALIAS/ANAME</h4><ul><li>루트에서도 호스트 이름을 가리킴</li><li>업체가 A/AAAA로 풀어 응답(플래트닝)</li><li>비표준 → 업체마다 구현·이름 다름</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>도메인을 CloudFront·Vercel·Netlify 같은 CDN·호스팅에 연결할 때 "루트 도메인은 CNAME이 안 되니 A나 ALIAS로 걸어라"는 안내를 듣거나, DNS 레코드를 직접 설정·이관할 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="image-layer-caching">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="image-layer-caching-h">컨테이너 이미지 레이어 캐싱 <span class="sub">Image Layer Caching</span></h2>
+    <div class="links"><a class="link-tag" href="#multi-stage-build">멀티스테이지 빌드</a><a class="link-tag" href="#cold-start">Cold Start</a><a class="link-tag" href="#immutable-infrastructure">Immutable Infra</a></div>
+  </div>
+</div>
+<p><strong>도커 이미지는 Dockerfile 명령 한 줄(<code>FROM</code>·<code>COPY</code>·<code>RUN</code> 등)마다 '레이어'로 쌓이고, 내용이 바뀌지 않은 레이어는 다음 빌드에서 그대로 재사용(캐시)하는 것</strong>. 핵심은 <strong>캐시가 위에서부터 순서대로 유효</strong>하다는 점이다 — 어떤 줄을 고치면 <strong>그 줄과 그 아래의 모든 레이어는 캐시가 깨져 다시 빌드</strong>되고, 그 위 레이어는 캐시를 쓴다. 그래서 <strong>잘 안 바뀌는 단계(베이스 이미지·의존성 설치)를 위에, 자주 바뀌는 소스 복사를 아래</strong>에 두는 순서가 빌드 속도를 좌우한다. 대표 패턴이 <strong>의존성 매니페스트만 먼저 복사</strong>해 설치하고(<code>COPY package.json</code>→<code>RUN install</code>) 그다음 나머지 소스를 <code>COPY</code>하는 것으로, 소스만 고쳤을 때 무거운 의존성 설치를 다시 하지 않게 해준다. 반대로 <code>COPY . .</code>를 설치보다 먼저 두면 코드 한 줄만 바꿔도 매번 재설치가 돈다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"CI 도커 빌드가 왜 매번 처음부터 다 도냐"·"Dockerfile 순서만 바꿨는데 빌드가 몇 분 빨라졌다" 같은 빌드 속도 최적화를 논하거나, 프론트엔드·Node 앱 이미지를 만들 때 마주친다. <span style="color:var(--blue)">[인프라·컨테이너]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="connection-string">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="connection-string-h">커넥션 문자열 <span class="sub">Connection String · DSN</span></h2>
+    <div class="links"><a class="link-tag" href="#connection-pool">커넥션 풀</a><a class="link-tag" href="#secrets-management">시크릿 관리</a><a class="link-tag" href="#orm">ORM</a></div>
+  </div>
+</div>
+<p><strong>DB·캐시 같은 외부 저장소에 "어디로·누구로·어떻게 접속할지"를 한 줄에 담아 둔 문자열</strong>(DSN = Data Source Name). 보통 <code>scheme://user:password@host:port/db?옵션</code> 형태로, <code>postgres://...</code>·<code>redis://...</code>·<code>mongodb://...</code> URL이 모두 이 꼴이다. 앞의 <strong>scheme</strong>이 접속할 드라이버(DB 종류)를, 그다음이 <strong>계정·호스트·포트·대상 DB 이름</strong>을, 끝의 <strong>쿼리스트링(<code>?sslmode=require&amp;pool_max=10</code> 등)</strong>이 TLS 사용·풀 크기·타임아웃 같은 세부 옵션을 나타낸다. 비밀번호가 그대로 들어 있으므로 <strong>소스 코드에 박지 않고 환경변수·시크릿으로 주입</strong>하는 것이 원칙이며, ORM·DB 클라이언트는 대개 이 한 줄만 받아 접속을 설정한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div><code>DATABASE_URL</code>·<code>REDIS_URL</code> 같은 환경변수를 배포 환경에 설정하거나, "DB 접속이 안 된다 — 커넥션 스트링에 <code>sslmode</code>·포트·풀 옵션이 빠졌거나 틀렸다"를 디버깅할 때 마주친다. <span style="color:var(--coral)">[백엔드·설정]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
