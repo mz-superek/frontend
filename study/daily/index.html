@@ -209,6 +209,65 @@
 
         <div class="slides">
       <!-- STUDY:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="study-day" data-date="2026-11-09">
+        <h2>2026-11-09 (월) · Next.js proxy(구 middleware) — 페이지가 그려지기 전에 요청을 먼저 가로채는 "건물 입구 경비실"</h2>
+        <span class="topic-tag">프론트 심화 (Next.js · 라우팅 · 인증 흐름)</span>
+        <h3>핵심 개념</h3>
+        <p><code>proxy.ts</code>(Next.js 15까지는 <code>middleware.ts</code>, 16에서 이름이 바뀜)는 요청이 페이지나 API에 도착하기 <em>전에</em> 먼저 실행되는 코드예요. 건물 로비의 경비실처럼 "출입증(쿠키) 없으면 로그인 창구로 안내", "한국어 브라우저면 /ko로 안내" 같은 일을 페이지 코드 실행 전에 처리해요. 결과는 <code>NextResponse.redirect</code>(다른 주소로 보내기), <code>rewrite</code>(주소는 그대로 두고 다른 페이지 보여주기), <code>next()</code>(그냥 통과) 중 하나예요. <code>matcher</code>로 "어떤 경로에서만 돌릴지" 지정하는데, 안 쓰면 이미지·정적 파일 요청까지 전부 지나가요. 쿠키가 "있는지"만 보는 건 1차 확인일 뿐이라, 토큰 유효성과 권한은 서버(API·서버 컴포넌트)에서 다시 검증해야 해요.</p>
+        <pre><code>// proxy.ts (프로젝트 루트 또는 src/)
+import { NextResponse, type NextRequest } from 'next/server';
+
+export function proxy(req: NextRequest) {
+  const hasToken = req.cookies.has('token');
+  if (!hasToken) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/settings/:path*'], // 이 경로에서만 실행
+};</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>"로그인 안 하면 /dashboard 접근 불가"를 페이지마다 if문으로 막으면 빠뜨리기 쉬운데, 한 곳에서 입구를 지키면 누락이 줄어요. 다만 "proxy가 있으니 안전하다"고 믿고 서버 검증을 생략하는 게 대표적인 보안 실수예요.</p>
+        <p class="refs">더 보기: <a href="https://nextjs.org/docs/app/api-reference/file-conventions/proxy">Next.js — proxy.js</a> · <a href="https://nextjs.org/docs/messages/middleware-to-proxy">Middleware → Proxy 이름 변경 안내</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) proxy(구 middleware)에 가장 알맞은 일은? ① 로그인 쿠키가 없으면 <code>/login</code>으로 리다이렉트 ② DB에서 주문 목록을 조인해 조회 ③ 컴포넌트의 useState 값 관리 ④ Tailwind CSS 번들 생성</p>
+          <p>Q2. (문제점 찾기) 아래 코드를 배포했더니 어떤 페이지를 열어도 "리다이렉션이 너무 많습니다" 에러가 떠요. 무엇이 문제일까요?</p>
+          <pre><code>export function proxy(req: NextRequest) {
+  if (!req.cookies.has('token')) {
+    return NextResponse.redirect(new URL('/login', req.url));
+  }
+  return NextResponse.next();
+}
+// config.matcher 없음</code></pre>
+          <details><summary>정답·해설 보기</summary><p>Q1 정답 ①: proxy는 요청 도착 전에 도는 가벼운 "입구 점검"이라 리다이렉트·rewrite 같은 라우팅 판단에 맞아요. DB 조회는 서버 컴포넌트/API, 상태 관리는 컴포넌트, CSS 번들은 빌드의 일이에요. Q2: <code>matcher</code>가 없어 <code>/login</code> 요청에도 proxy가 실행되는데, 로그인 전이라 토큰이 없으니 다시 <code>/login</code>으로 보내는 무한 리다이렉트가 돼요. <code>matcher</code>로 보호 경로만 지정하거나 <code>/login</code>이면 <code>next()</code>로 통과시켜야 해요.</p></details>
+        </div>
+      </section>
+      <section class="study-day" data-date="2026-11-08">
+        <h2>2026-11-08 (일) · CORS — 브라우저가 "다른 출처" 응답을 막는 이유와, 서버가 허락 헤더로 풀어주는 방법</h2>
+        <span class="topic-tag">클라우드·백엔드 기초 (HTTP · 브라우저 보안)</span>
+        <h3>핵심 개념</h3>
+        <p>CORS(Cross-Origin Resource Sharing)는 "출처(origin = 프로토콜+도메인+포트)가 다른 서버의 응답을 내 페이지 JS가 읽어도 되는가"를 정하는 브라우저의 보안 규칙이에요. <code>localhost:3000</code>(프론트)에서 <code>api.example.com</code>(백엔드)을 <code>fetch</code>하면 요청은 실제로 서버까지 가고 응답도 돌아오지만, 서버가 "저 출처는 읽어도 돼"라는 <code>Access-Control-Allow-Origin</code> 헤더를 안 주면 <em>브라우저가</em> 응답을 JS에 안 넘겨줘요. 퍼블리싱으로 치면 <code>iframe</code>에서 다른 사이트 내용은 보이지만 JS로는 못 건드리는 것과 같은 결의 규칙이에요. 그래서 CORS 에러는 프론트 코드 버그가 아니라 <em>서버(응답 헤더) 설정</em> 문제예요. <code>Content-Type: application/json</code>이나 <code>Authorization</code> 헤더가 붙은 요청은 본 요청 전에 브라우저가 <code>OPTIONS</code>로 "이거 보내도 돼?"라고 먼저 묻는데(preflight), 여기에도 서버가 허락 헤더로 답해야 해요.</p>
+        <pre><code>// 서버(Express) 응답 헤더 — 허용할 출처를 "명시"
+res.setHeader('Access-Control-Allow-Origin', 'https://app.example.com');
+res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+// 쿠키를 같이 보내려면: Allow-Credentials: true  (이때 Allow-Origin에 '*' 사용 불가)
+
+// 프론트 — 쿠키 포함 요청은 클라이언트도 옵션이 필요
+fetch('https://api.example.com/me', { credentials: 'include' });</code></pre>
+        <h3>왜 알아야 하나</h3>
+        <p>로컬 개발·스테이징·운영 도메인이 다 다르다 보니 "배포하니까 CORS 에러" 상황이 흔한데, 원인이 서버 헤더임을 알면 프론트에서 헤매지 않고 백엔드 담당자에게 정확히 요청할 수 있어요. 또 Next.js <code>rewrites</code>/Route Handler 프록시로 같은 출처처럼 우회하는 선택지도 이해할 수 있어요.</p>
+        <p class="refs">더 보기: <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">MDN — CORS</a> · <a href="https://web.dev/articles/cross-origin-resource-sharing">web.dev — Cross-Origin Resource Sharing</a></p>
+        <div class="quiz">
+          <h3>오늘의 퀴즈</h3>
+          <p>Q1. (객관식) 다음 중 서로 "다른 출처(origin)"인 쌍은? ① <code>https://a.com</code> ↔ <code>https://a.com/users</code> ② <code>https://a.com</code> ↔ <code>http://a.com</code> ③ <code>https://a.com/x</code> ↔ <code>https://a.com/y</code></p>
+          <p>Q2. (실전형) 프론트 개발자가 <code>localhost:3000</code>에서 <code>fetch('https://api.example.com/items')</code>를 호출했더니 콘솔에 CORS 에러가 났어요. 네트워크 탭을 보니 요청 자체는 서버에 도달해 200 응답이 왔습니다. 그런데 왜 에러일까요? 그리고 어디를 고쳐야 할까요? (프론트 코드 / 서버 응답 헤더 중 선택 + 한 줄 이유)</p>
+          <details><summary>정답·해설 보기</summary><p>Q1 정답 ②: 출처는 프로토콜+도메인+포트가 모두 같아야 같은 출처라서 https와 http는 다른 출처예요. (①③은 경로만 달라 같은 출처) Q2 정답 서버 응답 헤더: 요청은 서버에 도달해 200이 왔지만 응답에 <code>Access-Control-Allow-Origin</code>(허용 출처)이 없어서 브라우저가 JS로 응답을 넘기지 않은 것이라, 프론트 코드가 아니라 서버(또는 게이트웨이) 설정을 고쳐야 해요.</p></details>
+        </div>
+      </section>
       <section class="study-day" data-date="2026-11-05">
         <h2>2026-11-05 (목) · 네이티브 &lt;dialog&gt; — 모달을 JS 없이 만들면 포커스 가두기·ESC 닫기·배경 딤이 공짜</h2>
         <span class="topic-tag">프론트 심화 (HTML · 접근성 · 모달)</span>
