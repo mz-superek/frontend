@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#two-phase-commit">2단계 커밋 (2PC)</a>
+    <a class="nav-item" href="#k8s-operator">쿠버네티스 오퍼레이터</a>
+    <a class="nav-item" href="#hmr">핫 모듈 교체 (HMR)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="two-phase-commit">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="two-phase-commit-h">2단계 커밋 <span class="sub">Two-Phase Commit · 2PC</span></h2>
+    <div class="links"><a class="link-tag" href="#saga-pattern">Saga 패턴</a><a class="link-tag" href="#transactional-outbox">트랜잭셔널 아웃박스</a><a class="link-tag" href="#idempotency">멱등성</a></div>
+  </div>
+</div>
+<p><strong>여러 DB·서비스에 걸친 하나의 트랜잭션을 "전부 커밋 아니면 전부 롤백"으로 원자적으로 끝내기 위한 분산 트랜잭션 프로토콜</strong>. 코디네이터(조정자)가 ①<strong>prepare(준비) 단계</strong>에서 모든 참가자에게 "커밋 가능?"을 묻고, 각 참가자는 변경을 확정 직전까지 준비한 뒤 락을 잡은 채 yes/no를 투표한다 → ②<strong>commit 단계</strong>에서 모두 yes면 commit을, 하나라도 no면 abort를 전파한다. 전원 성공 또는 전원 실패를 보장하지만, 투표~커밋 사이 참가자가 <strong>락을 쥔 채 대기</strong>하고 그동안 코디네이터가 죽으면 참가자가 멈추는 <strong>블로킹</strong> 단점이 있다. 그래서 MSA에서는 서비스마다 로컬 트랜잭션을 이어 붙이고 보상 트랜잭션으로 되돌리는 Saga로 대체하는 경우가 많다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">2단계 커밋 (2PC)</h4><ul><li>강한 일관성·원자성 보장</li><li>동기·락·블로킹</li><li>코디네이터 장애에 취약</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">Saga</h4><ul><li>로컬 트랜잭션 + 보상으로 되돌림</li><li>비동기·느슨한 결합(MSA 친화)</li><li>결과적 일관성·보상 로직 필요</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>여러 DB·서비스에 걸친 정합성을 논하거나, "왜 MSA에선 2PC 대신 Saga를 쓰냐"를 설명할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="k8s-operator">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="k8s-operator-h">쿠버네티스 오퍼레이터 <span class="sub">Operator · CRD</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">Kubernetes</a><a class="link-tag" href="#iac">IaC</a><a class="link-tag" href="#sidecar-pattern">사이드카 패턴</a></div>
+  </div>
+</div>
+<p><strong>사람이 수동으로 하던 특정 앱의 운영 작업(설치·업그레이드·백업·장애복구)을 코드로 담아, 쿠버네티스가 자동으로 수행하게 만든 커스텀 컨트롤러</strong>. 핵심은 <strong>CRD(Custom Resource Definition)</strong>로 쿠버네티스 API에 <code>Kafka</code>·<code>PostgreSQL</code> 같은 새 리소스 타입을 추가하고, 오퍼레이터가 그 리소스에 선언된 <strong>"원하는 상태(desired state)"</strong>와 실제 상태를 끊임없이 비교해 맞추는(reconcile) 것이다. 쿠버네티스가 기본 제공하는 Deployment·Service만으로는 다루기 까다로운 <strong>복잡한 상태 저장(stateful) 앱</strong>을, 마치 숙련된 운영자(operator)가 상주하며 돌보듯 k8s 위에서 자동 운영하는 패턴이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>카프카·DB·모니터링 스택을 쿠버네티스에 올릴 때 "그 앱 오퍼레이터를 설치하라"는 말을 듣거나, <code>kubectl get</code>으로 표준에 없는 커스텀 리소스가 보일 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="hmr">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="hmr-h">핫 모듈 교체 <span class="sub">Hot Module Replacement · HMR</span></h2>
+    <div class="links"><a class="link-tag" href="#bundler">번들러</a><a class="link-tag" href="#module-federation">Module Federation</a><a class="link-tag" href="#code-splitting">Code Splitting</a></div>
+  </div>
+</div>
+<p><strong>개발 서버에서 코드를 고쳤을 때 페이지 전체를 새로고침하지 않고 바뀐 모듈만 실행 중인 앱에 바꿔 끼우는 기능</strong>. 전체 리로드와 달리 입력값·열린 모달·컴포넌트 state가 <strong>유지된 채</strong> 수정 결과가 즉시 반영돼 개발 피드백 루프가 빨라진다. Vite·webpack dev server·Turbopack 같은 번들러/dev 서버가 제공하며, 바뀐 모듈과 그것을 쓰는 상위 모듈이 교체를 <strong>수용(accept)</strong>하는 방식으로 동작한다. 수용하는 쪽이 없으면 전체 새로고침으로 떨어진다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">HMR (핫 모듈 교체)</h4><ul><li>바뀐 모듈만 교체</li><li>앱 상태 유지</li><li>개발 서버 전용</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">라이브 리로드</h4><ul><li>페이지 전체 새로고침</li><li>상태 초기화됨</li><li>구현은 단순</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div><code>npm run dev</code> 화면이 저장하자마자 상태를 유지한 채 갱신될 때, 혹은 "HMR이 안 먹어 매번 새로고침된다"를 디버깅할 때 마주친다. <span style="color:var(--blue)">[프론트엔드·빌드]</span></div>
 </section><hr class="divider">
 
 
