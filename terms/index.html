@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#l4-l7-load-balancing">L4·L7 로드밸런싱</a>
+    <a class="nav-item" href="#schema-registry">스키마 레지스트리</a>
+    <a class="nav-item" href="#shadow-deployment">섀도 배포 (Shadow)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,54 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="l4-l7-load-balancing">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="l4-l7-load-balancing-h">L4·L7 로드밸런싱 <span class="sub">L4 vs L7 Load Balancing · ALB vs NLB</span></h2>
+    <div class="links"><a class="link-tag" href="#load-balancer">로드 밸런서</a><a class="link-tag" href="#tls-termination">TLS 종료</a><a class="link-tag" href="#sticky-session">스티키 세션</a></div>
+  </div>
+</div>
+<p><strong>로드밸런서가 트래픽을 어느 OSI 계층에서 보고 분배하느냐에 따른 구분</strong>. <strong>L4(전송 계층)</strong>는 TCP/UDP 수준에서 <strong>출발·목적지 IP와 포트만 보고</strong> 그대로 전달한다 — 패킷 내용을 들여다보지 않아 <strong>빠르고 지연이 낮으며</strong> HTTP가 아닌 어떤 프로토콜(gRPC·WebSocket·DB 연결 등)도 그대로 흘려보낼 수 있지만, URL·헤더 기반 라우팅은 못 한다. <strong>L7(애플리케이션 계층)</strong>은 HTTP 요청 내용을 읽어 <strong>경로(<code>/api/*</code>)·호스트·헤더로 라우팅</strong>하고, <strong>TLS 종료·쿠키 기반 스티키 세션·요청 재작성</strong> 같은 똑똑한 처리를 할 수 있는 대신 약간의 오버헤드가 있다. AWS에서는 <strong>NLB가 L4, ALB가 L7</strong>에 해당한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">L4 (예: NLB)</h4><ul><li>IP·포트만 보고 전달</li><li>매우 빠름·초저지연, 모든 프로토콜</li><li>경로·헤더 라우팅·TLS 종료 불가</li></ul></div>
+  <div class="card"><h4 style="color:var(--blue)">L7 (예: ALB)</h4><ul><li>HTTP 내용 읽어 경로·호스트 라우팅</li><li>TLS 종료·쿠키 스티키 세션 가능</li><li>HTTP(S) 전용·약간의 오버헤드</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"ALB를 쓸까 NLB를 쓸까", 마이크로서비스를 경로별로 라우팅하거나 LB에서 TLS를 종료할지, gRPC·WebSocket·비 HTTP 트래픽을 어떤 LB로 받을지 설계할 때 마주친다. <span style="color:var(--blue)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="schema-registry">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="schema-registry-h">스키마 레지스트리 <span class="sub">Schema Registry · Avro/Protobuf 스키마 관리</span></h2>
+    <div class="links"><a class="link-tag" href="#message-queue">메시지 큐</a><a class="link-tag" href="#cdc">CDC</a><a class="link-tag" href="#grpc">gRPC</a></div>
+  </div>
+</div>
+<p><strong>Kafka 같은 이벤트 스트리밍에서 주고받는 메시지의 "형식(스키마)"을 메시지 본문과 분리해 중앙에서 저장·버전 관리하는 서비스</strong>. 프로듀서(보내는 쪽)가 필드를 바꾸면 컨슈머(받는 쪽)가 깨지기 쉬운데, 스키마 레지스트리에 <strong>Avro·Protobuf·JSON Schema</strong>를 등록해 두면 프로듀서는 실제 데이터에 <strong>스키마 ID와 압축된 바이너리만</strong> 실어 보내고, 컨슈머는 그 ID로 스키마를 받아 해석(역직렬화)한다. 핵심은 <strong>호환성 규칙(backward·forward·full)</strong>을 등록 시점에 강제한다는 점 — 컨슈머를 깨뜨릴 변경은 <strong>등록 단계에서 거부</strong>돼, 프로듀서와 컨슈머가 서로를 멈춰 세우지 않고 독립적으로 버전을 올릴 수 있다. Confluent Schema Registry가 대표적 구현체다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Backward 호환</h4><ul><li>새 스키마로 <strong>옛 데이터</strong>를 읽을 수 있음</li><li>컨슈머를 먼저 올릴 때 안전</li><li>필드 삭제·기본값 추가가 해당</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">Forward 호환</h4><ul><li>옛 스키마로 <strong>새 데이터</strong>를 읽을 수 있음</li><li>프로듀서를 먼저 올릴 때 안전</li><li>필드 추가가 해당</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>Kafka 기반 이벤트 파이프라인에서 "메시지 포맷을 바꿨더니 컨슈머가 깨졌다", Avro·Protobuf 도입, 스키마 호환성(backward/forward)을 지키며 이벤트를 진화시키는 논의를 할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="shadow-deployment">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="shadow-deployment-h">섀도 배포 <span class="sub">Shadow Deployment · 트래픽 미러링 · Dark Launch</span></h2>
+    <div class="links"><a class="link-tag" href="#canary-deployment">카나리 배포</a><a class="link-tag" href="#blue-green-deployment">블루-그린</a><a class="link-tag" href="#feature-flag">피처 플래그</a></div>
+  </div>
+</div>
+<p><strong>새 버전을 운영 환경에 띄워 두고 실제 운영 트래픽의 복사본을 그쪽으로도 흘려보내되, 새 버전의 응답은 버리고 사용자에게는 돌려주지 않는 배포 검증 기법</strong>. 덕분에 새 버전이 <strong>진짜 부하·진짜 데이터·진짜 엣지 케이스</strong>를 어떻게 처리하는지 사용자 영향 없이 관찰할 수 있다. 소수 실사용자에게 실제로 신버전 응답을 돌려주고 그 결과를 집계하는 <strong>카나리와 달리, 섀도 트래픽은 사용자 경험에 전혀 영향을 주지 않는다</strong>. 그래서 서비스 재작성·대규모 리팩터링·새 DB 경로처럼 위험한 변경을 실제 전환 전에 안전하게 검증하는 데 쓴다. 단, 복제된 요청이 <strong>DB에 중복 쓰기를 하거나 이메일·결제를 두 번 날리지 않도록 부수효과(side effect)를 반드시 차단</strong>해야 한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--amber)">섀도 (Shadow)</h4><ul><li>트래픽 복사본을 신버전에도 전달</li><li>응답은 버림 → 사용자 영향 0</li><li>부수효과(중복 쓰기 등) 차단이 관건</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">카나리 (Canary)</h4><ul><li>소수 실사용자를 신버전으로</li><li>실제 응답을 돌려줌 → 영향 있음</li><li>지표 보고 점진 확대</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>서비스 재작성이나 대규모 리팩터링을 실제 트래픽으로 미리 검증하거나, "카나리로 바로 노출하기 전에 섀도로 먼저 흘려보자" 같은 배포 전략을 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
