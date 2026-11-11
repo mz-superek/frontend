@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#c4-model">C4 모델</a>
+    <a class="nav-item" href="#pod-affinity">파드 어피니티·안티어피니티</a>
+    <a class="nav-item" href="#windowing">윈도우 집계</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,55 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="c4-model">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="c4-model-h">C4 모델 <span class="sub">C4 Model · 소프트웨어 아키텍처 다이어그램</span></h2>
+    <div class="links"><a class="link-tag" href="#adr">ADR</a><a class="link-tag" href="#rfc">RFC</a><a class="link-tag" href="#msa">MSA</a></div>
+  </div>
+</div>
+<p><strong>소프트웨어 구조를 지도처럼 &quot;줌 레벨&quot; 4단계로 나눠 그리는 표준 아키텍처 다이어그램 표기법</strong>(Simon Brown 제안). 위에서부터 ① <strong>System Context</strong>(이 시스템과 사용자·외부 시스템의 큰 그림), ② <strong>Container</strong>(웹앱·API·DB·메시지큐 같은 독립 실행·배포 단위), ③ <strong>Component</strong>(한 컨테이너 안의 주요 구성요소), ④ <strong>Code</strong>(클래스 수준, 보통 생략)로 내려간다. UML보다 가볍고 &quot;지금 어느 축척으로 보는 그림인지&quot;를 먼저 정해, 비개발자부터 개발자까지 같은 그림을 같은 뜻으로 읽게 해준다. ⚠️ 여기서 <strong>Container는 도커 컨테이너가 아니라</strong> &quot;따로 돌아가는 실행·배포 단위&quot;를 뜻한다(혼동 주의).</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--purple)">C4 모델</h4><ul><li>줌 레벨 4단계(Context→Code)</li><li>표기 규칙이 가벼워 배우기 쉬움</li><li>&quot;어느 축척의 그림인지&quot;가 명확</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">UML</h4><ul><li>다이어그램 종류가 많고 엄격</li><li>표현력은 크나 진입장벽·과설계 우려</li><li>세밀한 설계 명세에 적합</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>아키텍처 리뷰 문서·ADR에 시스템 구조를 그리거나, &quot;C4로 컨테이너 다이어그램 하나 그려 달라&quot;·&quot;이 그림은 몇 레벨이냐&quot; 같은 말을 들을 때 마주친다. <span style="color:var(--purple)">[협업·문서·아키텍처]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="pod-affinity">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="pod-affinity-h">파드 어피니티·안티어피니티 <span class="sub">Pod Affinity · Anti-Affinity</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">쿠버네티스</a><a class="link-tag" href="#availability-zone">가용 영역</a><a class="link-tag" href="#liveness-readiness-probe">Readiness Probe</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스 스케줄러에게 &quot;이 파드를 어떤 파드와 같은/다른 노드(또는 존)에 배치하라&quot;고 지시하는 배치 규칙</strong>. <strong>어피니티</strong>는 함께 모으기(예: 캐시와 앱을 같은 노드에 둬 지연 줄이기), <strong>안티어피니티</strong>는 흩어 놓기(같은 앱의 복제본을 서로 다른 노드·AZ에 분산해 한 노드·존이 죽어도 살아남게)다. &quot;같다/다르다&quot;의 기준은 <code>topologyKey</code>(노드 이름·가용 영역 라벨 등)로 정하고, 세기는 <code>requiredDuringScheduling…</code>(반드시 지킴, 못 지키면 미배치)과 <code>preferred…</code>(가능하면 선호)로 조절한다. 비슷한 노드 선택 규칙인 nodeAffinity(파드↔노드 라벨)와 달리, 파드 어피니티는 <strong>파드끼리의 관계</strong>를 본다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">어피니티 (Affinity)</h4><ul><li>지정한 파드와 &quot;같은 곳&quot;에 모음</li><li>캐시·앱 등 밀접한 짝을 근접 배치</li><li>통신 지연·네트워크 비용 절감</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">안티어피니티 (Anti-Affinity)</h4><ul><li>지정한 파드와 &quot;다른 곳&quot;에 흩음</li><li>복제본을 노드·AZ별로 분산</li><li>단일 장애점 제거(가용성↑)</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>&quot;복제본이 한 노드에 몰려 그 노드가 죽자 전부 내려갔다&quot;를 막거나, HA를 위해 파드를 AZ별로 고르게 분산 배치하는 설정을 논할 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="windowing">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="windowing-h">윈도우 집계 <span class="sub">Windowing · Tumbling · Sliding · Session</span></h2>
+    <div class="links"><a class="link-tag" href="#message-queue">메시지 큐</a><a class="link-tag" href="#backpressure">백프레셔</a><a class="link-tag" href="#idempotency">멱등성</a></div>
+  </div>
+</div>
+<p><strong>끝없이 흐르는 스트림 데이터를 &quot;시간·개수 구간(윈도우)&quot;으로 잘라, 그 구간 안에서만 합계·카운트·평균 같은 집계를 내게 해주는 개념</strong>. 스트림은 끝이 없어 &quot;전체 합계&quot;를 낼 수 없으니, 구간을 정해 &quot;분당 요청 수&quot;처럼 유한한 결과를 뽑는다. 대표 세 종류: ① <strong>텀블링(Tumbling)</strong> — 겹치지 않는 고정 구간(매 1분 딱딱 끊기), ② <strong>슬라이딩/호핑(Sliding)</strong> — 겹치는 구간(&quot;최근 5분&quot;을 1분마다 다시 계산), ③ <strong>세션(Session)</strong> — 활동이 끊긴 간격(gap)을 경계로 나눔(사용자 세션별 집계). 네트워크 탓에 <strong>늦게 도착한 이벤트</strong>를 언제까지 기다릴지 정하는 <strong>워터마크(watermark)</strong>와 함께 쓴다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">텀블링 (Tumbling)</h4><ul><li>겹치지 않는 고정 구간</li><li>&quot;매 1분&quot; 같은 주기 집계</li><li>한 이벤트는 한 윈도우에만</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">슬라이딩 (Sliding)</h4><ul><li>서로 겹치는 구간</li><li>&quot;최근 5분&quot; 이동 평균에 적합</li><li>한 이벤트가 여러 윈도우에 포함</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>Kafka Streams·Flink·스파크 스트리밍으로 &quot;분당 요청 수&quot;·&quot;5분 이동 평균&quot;·실시간 대시보드 지표를 만들거나, &quot;늦게 온 이벤트가 집계에서 빠진다&quot;를 디버깅할 때 마주친다. <span style="color:var(--coral)">[백엔드·스트리밍]</span></div>
 </section><hr class="divider">
 
 
