@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#opentelemetry">오픈텔레메트리 (OTel)</a>
+    <a class="nav-item" href="#pod-resource-requests-limits">파드 리소스 요청·제한</a>
+    <a class="nav-item" href="#polyfill-vs-transpile">폴리필 vs 트랜스파일</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3769,6 +3772,51 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--teal)">블루/그린 (Blue-Green)</h4><ul><li>새 환경 통째로 띄운 뒤 전환</li><li>즉시 전환·즉시 롤백</li><li>환경 두 벌 = 자원 2배</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
+</section><hr class="divider">
+
+
+<section class="term" id="opentelemetry">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="opentelemetry-h">오픈텔레메트리 <span class="sub">OpenTelemetry · OTel</span></h2>
+    <div class="links"><a class="link-tag" href="#open-tracing">Open Tracing</a><a class="link-tag" href="#observability">관측성</a><a class="link-tag" href="#rum">Datadog RUM</a></div>
+  </div>
+</div>
+<p><strong>로그·메트릭·트레이스 같은 관측(observability) 데이터를 "벤더에 묶이지 않는 표준 방식"으로 수집·전송하기 위한 오픈소스 프레임워크</strong>. CNCF 프로젝트로, 앞서 다룬 OpenTracing과 OpenCensus가 2019년 하나로 합쳐져 만들어졌다. 공통 API·SDK로 코드를 <strong>한 번만 계측(instrument)</strong>해 두면, <strong>OTLP</strong>라는 표준 프로토콜로 데이터를 내보내 Datadog·Jaeger·Prometheus·Grafana 등 원하는 백엔드 어디로든 보낼 수 있다. 중간에서 데이터를 받아 가공·분산 전송하는 <strong>Collector</strong>를 두면 애플리케이션 코드를 건드리지 않고 전송 대상을 바꿀 수 있어, 특정 모니터링 도구에 종속(lock-in)되는 것을 피한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>서비스에 분산 추적·메트릭을 붙이거나, "관측 데이터를 특정 벤더에 묶지 말고 OTel로 표준화하자"는 논의를 하거나, OTel Collector를 설치·설정할 때 마주친다. <span style="color:var(--green)">[백엔드·관측성]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="pod-resource-requests-limits">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="pod-resource-requests-limits-h">파드 리소스 요청·제한 <span class="sub">Resource Requests · Limits · QoS</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">쿠버네티스</a><a class="link-tag" href="#horizontal-vertical-scaling">HPA·스케일링</a><a class="link-tag" href="#graceful-shutdown">Graceful Shutdown</a></div>
+  </div>
+</div>
+<p><strong>쿠버네티스에서 컨테이너가 쓸 CPU·메모리를 <code>requests</code>(요청)와 <code>limits</code>(제한)로 선언하는 것</strong>. <strong>requests</strong>는 스케줄러가 "이만큼 여유 있는 노드"를 고르는 <strong>기준이자 최소 보장량</strong>이고, <strong>limits</strong>는 그 컨테이너가 넘을 수 없는 <strong>상한</strong>이다. 둘의 성격이 달라서, CPU는 상한을 넘으면 <strong>스로틀링</strong>(강제로 느려짐)되고 메모리는 상한을 넘으면 <strong>OOMKilled</strong>로 컨테이너가 강제 종료된다. requests·limits를 어떻게 줬느냐에 따라 파드의 <strong>QoS 클래스</strong>(Guaranteed·Burstable·BestEffort)가 정해지는데, 노드 자원이 모자라 파드를 쫓아내야(eviction) 할 때 이 등급이 "누구부터 내보낼지" 순서를 결정한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">requests (요청)</h4><ul><li>스케줄링 기준·최소 보장</li><li>노드 배치를 결정</li><li>맞는 노드 없으면 Pending</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">limits (제한)</h4><ul><li>사용 상한</li><li>CPU 초과 → 스로틀링</li><li>메모리 초과 → OOMKilled</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>파드가 OOMKilled되거나 CPU 스로틀링으로 느려진 원인을 찾거나, "requests/limits를 얼마로 잡을지"·"자원이 부족할 때 왜 이 파드가 먼저 내려갔나(QoS)"를 논할 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="polyfill-vs-transpile">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="polyfill-vs-transpile-h">폴리필 vs 트랜스파일 <span class="sub">Polyfill vs Transpile</span></h2>
+    <div class="links"><a class="link-tag" href="#bundler">번들러</a><a class="link-tag" href="#tree-shaking">Tree Shaking</a><a class="link-tag" href="#code-splitting">Code Splitting</a></div>
+  </div>
+</div>
+<p><strong>둘 다 "최신 문법·기능으로 짠 코드를 구형 브라우저에서도 돌아가게" 만드는 기법이지만, 다루는 대상이 다르다</strong>. <strong>트랜스파일(transpile)</strong>은 구형 브라우저가 모르는 새 <strong>문법</strong>(화살표 함수, 옵셔널 체이닝 <code>?.</code>, async/await 등)을 같은 동작을 하는 <strong>옛 문법으로 변환</strong>하는 것이다(Babel·TypeScript·SWC). <strong>폴리필(polyfill)</strong>은 변환으로는 해결되지 않는, 브라우저 런타임에 아예 <strong>없는 객체·API</strong>(<code>Promise</code>·<code>fetch</code>·<code>Array.prototype.flat</code> 등)를 직접 구현한 코드로 <strong>채워 넣는</strong> 것이다(core-js 등). 즉 <strong>문법 변환 = 트랜스파일, 없는 기능 채우기 = 폴리필</strong>. 무엇을 어느 수준까지 넣을지는 보통 지원 브라우저 목록(<code>browserslist</code>)을 기준으로 빌드 도구가 결정한다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--blue)">트랜스파일 (Transpile)</h4><ul><li>새 <strong>문법</strong>을 옛 문법으로 변환</li><li>화살표 함수·<code>?.</code>·클래스</li><li>Babel·TypeScript·SWC</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">폴리필 (Polyfill)</h4><ul><li>없는 <strong>기능·API</strong>를 구현 코드로 채움</li><li><code>Promise</code>·<code>fetch</code>·<code>flat()</code></li><li>core-js 등 라이브러리</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>"구형 브라우저·사파리에서 화면·기능이 깨진다"를 디버깅하거나, Babel·browserslist·core-js 설정을 맞추며 "이건 트랜스파일이면 되나, 폴리필이 필요한가"를 가릴 때 마주친다. <span style="color:var(--blue)">[프론트엔드·빌드]</span></div>
 </section><hr class="divider">
 
 
