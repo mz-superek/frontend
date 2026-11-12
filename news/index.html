@@ -83,6 +83,38 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-11-13">
+        <h2>📰 2026-11-13 (금)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건·프론트엔드 1건·HTML &amp; CSS 1건 통과. 백엔드는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 소식이 없어 헤더째 생략(Node.js 11월 보안 릴리스·Node 27 알파는 각각 11/11·11/9 발송분과 중복). OpenAI 소식은 openai.com 403 반복 차단으로 접근 실패 드롭.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Google DeepMind, &apos;Gemini 4 Carbon&apos; 정식 출시(GA) — API·Antigravity 제공</p>
+            <p class="item-meta">2026-11-10 · <a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/">blog.google</a></p>
+            <p class="item-summary">복잡·장기(long-horizon) 작업과 사이버보안에 특화된 차기 프론티어 모델 Gemini 4 Carbon이 정식 출시됐다. Google AI Studio와 Gemini for business API로 쓸 수 있고, 도입가는 Argon과 동일한 입력 100만 토큰당 $2·출력 $10(11/30까지, 이후 입력 $4·출력 $20). Google AI Ultra 구독자에게는 Google Antigravity·Gemini 앱·검색 AI Mode로도 순차 제공되며, 사이버 방어자용 Carbon은 Fairwind 프로그램, 연구자용 무료 접근은 Antigravity 최상위 티어로 신청받는다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.4.6 — 라우트 핸들러 응답 자동 압축 · Turbopack 개발 모드 GC 수정 (LTS 백포트)</p>
+            <p class="item-meta">2026-11-09 · <a href="https://github.com/vercel/next.js/releases/tag/v16.4.6">github.com</a></p>
+            <p class="item-summary">운영 LTS 라인(16.4.x)에 올리는 버그 수정·유지보수 릴리스. 라우트 핸들러(Route Handler) 응답이 이미 압축돼 있지 않으면 자동으로 압축되도록 런타임 동작이 바뀌었고, Turbopack 개발 서버의 가비지 컬렉션(GC) 문제를 고쳤다. create-next-app과 테스트 스위트의 Tailwind는 4.3.3으로 고정(pin)했다. 공식 릴리스 노트상 canary의 모든 기능이 포함되진 않은 백포트 릴리스다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">Chrome 159 베타 전환 — 단일 축 스크롤 컨테이너 scroll-snap · accent-color 시스템 색 연동</p>
+            <p class="item-meta">2026-11-11 베타(안정판 12/8 예정) · <a href="https://chromestatus.com/release-notes/159">chromestatus.com</a></p>
+            <p class="item-summary">공식 릴리스 노트 기준 Chrome 159가 Dev에서 Beta로 전환됐다(안정판은 12/8 예정). 세로/가로 한 축만 스크롤되는 컨테이너에서도 scroll-snap이 동작하고, 시스템 색 AccentColor·AccentColorText가 accent-color 값을 따르며, 배경 레이어 개수 독립·CSSImportRule.styleSheet 노출 등이 포함됐다. 베타 단계라 안정판 전까지 세부는 변동될 수 있다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
