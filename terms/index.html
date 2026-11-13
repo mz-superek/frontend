@@ -225,6 +225,9 @@
     <a class="nav-item" href="#multi-stage-build">멀티스테이지 빌드</a>
     <a class="nav-item" href="#cursor-pagination">커서 페이지네이션</a>
     <a class="nav-item" href="#rolling-deployment">롤링 배포</a>
+    <a class="nav-item" href="#sqs-visibility-timeout">가시성 타임아웃 (SQS)</a>
+    <a class="nav-item" href="#pkce">PKCE (코드 교환 증명 키)</a>
+    <a class="nav-item" href="#graviton-arm">Graviton·ARM 인스턴스</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3771,6 +3774,46 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>쿠버네티스·오토스케일링 그룹에 새 버전을 배포하거나, "무중단 배포를 롤링·블루그린·카나리 중 무엇으로 할까"·"배포 중 구·신 버전 호환" 이슈를 논할 때 마주친다. <span style="color:var(--amber)">[클라우드·배포]</span></div>
 </section><hr class="divider">
 
+
+<section class="term" id="sqs-visibility-timeout">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="sqs-visibility-timeout-h">가시성 타임아웃 <span class="sub">SQS Visibility Timeout</span></h2>
+    <div class="links"><a class="link-tag" href="#message-queue">메시지 큐</a><a class="link-tag" href="#dlq">DLQ</a><a class="link-tag" href="#idempotency">멱등성</a></div>
+  </div>
+</div>
+<p><strong>컨슈머가 SQS 큐에서 메시지를 받으면, 그 메시지는 삭제되지 않고 큐에 남아있되 일정 시간 동안 다른 컨슈머에게 "안 보이게" 숨겨지는데, 그 숨김 시간을 가시성 타임아웃이라 한다</strong>. 받은 쪽이 이 시간 안에 처리를 끝내고 <strong>명시적으로 삭제(<code>DeleteMessage</code>)</strong>하면 메시지는 사라지지만, 처리 도중 크래시·에러로 삭제하지 못하고 타임아웃이 지나면 메시지가 <strong>다시 보이게 되어 같은(또는 다른) 컨슈머가 재처리</strong>한다. 덕분에 처리 중 장애가 나도 메시지가 유실되지 않는다. 기본값은 <strong>30초, 최대 12시간</strong>(최초 수신 시점 기준이며 연장해도 12시간 한도는 리셋되지 않음)이고, 처리 시간이 들쭉날쭉하면 <code>ChangeMessageVisibility</code>로 동적으로 늘리거나(하트비트) <code>0</code>으로 즉시 반납할 수 있다. SQS는 <strong>'최소 한 번(at-least-once) 전달'</strong>이라 이 타임아웃이 실제 처리 시간보다 짧으면 같은 메시지가 <strong>중복 처리</strong>될 수 있으므로, 컨슈머는 멱등하게 만드는 것이 안전하다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>워커가 큐 메시지를 "왜 두 번 실행했지"(타임아웃이 짧아 중복), 처리가 오래 걸려 타임아웃 전에 못 끝낼 때 어떻게 연장할지, 반복 실패 메시지를 DLQ로 보낼지 논할 때 마주친다. <span style="color:var(--coral)">[백엔드·메시징]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="pkce">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="pkce-h">PKCE <span class="sub">Proof Key for Code Exchange · 코드 교환 증명 키</span></h2>
+    <div class="links"><a class="link-tag" href="#oauth">OAuth</a><a class="link-tag" href="#token">토큰 저장 전략</a><a class="link-tag" href="#csrf">CSRF</a></div>
+  </div>
+</div>
+<p><strong>OAuth 2.0 인가 코드(Authorization Code) 흐름에, 가로챈 인가 코드만으로는 토큰을 발급받지 못하게 막는 보안 확장</strong>(RFC 7636, "픽시"라고 읽음). 클라이언트가 흐름을 시작할 때 무작위 비밀값 <strong>코드 베리파이어(code verifier)</strong>를 만들고, 그것을 해시한 <strong>코드 챌린지(code challenge)</strong>를 인가 요청에 함께 보낸다. 나중에 인가 코드를 토큰으로 교환할 때 <strong>원본 베리파이어를 제시</strong>해야 하므로, "흐름을 시작한 바로 그 클라이언트"에게만 코드가 묶인다(code injection·가로채기 방어). 원래는 <strong>client secret을 안전하게 숨길 수 없는 모바일·네이티브·SPA 같은 퍼블릭 클라이언트</strong>를 위해 설계됐지만, 지금은 기밀 클라이언트를 포함한 <strong>모든 인가 코드 흐름에 권장</strong>된다. 단, PKCE는 <strong>클라이언트 인증 수단 자체는 아니며</strong>(= client secret을 대체하지 않음) 기존 클라이언트 인증과 함께 쓰는 것이다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>SPA·모바일 앱에 소셜 로그인·OAuth(인가 코드 흐름)를 붙일 때 "왜 client secret 없이 PKCE로 하라고 하지", Authorization Code + PKCE 설정을 맞출 때 마주친다. <span style="color:var(--blue)">[프론트엔드·인증·보안]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="graviton-arm">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--amber)"></div>
+  <div class="term-title">
+    <h2 id="graviton-arm-h">Graviton · ARM 인스턴스 <span class="sub">AWS Graviton · x86 vs ARM</span></h2>
+    <div class="links"><a class="link-tag" href="#spot-instance">스팟 인스턴스</a><a class="link-tag" href="#multi-stage-build">멀티스테이지 빌드</a><a class="link-tag" href="#immutable-infrastructure">불변 인프라</a></div>
+  </div>
+</div>
+<p><strong>AWS가 직접 설계한 ARM 기반 프로세서(그리고 그것을 쓰는 EC2 인스턴스)</strong>. 대부분의 서버·노트북이 쓰는 <strong>x86(Intel·AMD)</strong>과는 명령어 집합(ISA)이 다른 <strong>ARM 아키텍처</strong>라, AWS는 Graviton 인스턴스가 비교 대상 x86 인스턴스보다 <strong>비용은 최대 20% 저렴, 같은 성능에서 에너지는 최대 60% 적게</strong> 쓴다고 밝힌다(AWS 공식 수치). Amazon Aurora·RDS·EKS 같은 관리형 서비스에서도 선택할 수 있다. 다만 아키텍처가 다르기 때문에, 네이티브 코드·일부 의존성·도커 이미지는 <strong>x86용 그대로는 안 돌고 <code>arm64(aarch64)</code>용으로 다시 빌드</strong>해야 할 수 있다(그래서 멀티아키 이미지 빌드가 중요해진다). 순수 인터프리터·JIT 언어(JS·Python·Java 등) 워크로드는 대체로 재빌드 없이 잘 올라간다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">x86 (Intel·AMD)</h4><ul><li>가장 보편적·호환성 폭넓음</li><li>대부분의 바이너리·이미지가 기본 지원</li><li>상대적으로 비용·전력 높음</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">Graviton (ARM)</h4><ul><li>AWS 설계, 가격 대비 성능·전력 효율 유리</li><li>관리형 서비스에서도 선택 가능</li><li>arm64 재빌드·호환성 확인 필요</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>비용 절감을 위해 EC2·RDS·EKS를 Graviton으로 전환하자는 논의나, "arm64 이미지가 없어 컨테이너가 안 뜬다" 같은 멀티아키 빌드·호환성 이슈를 다룰 때 마주친다. <span style="color:var(--amber)">[인프라·컴퓨팅]</span></div>
+</section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
