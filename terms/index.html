@@ -228,6 +228,9 @@
     <a class="nav-item" href="#sqs-visibility-timeout">가시성 타임아웃 (SQS)</a>
     <a class="nav-item" href="#pkce">PKCE (코드 교환 증명 키)</a>
     <a class="nav-item" href="#graviton-arm">Graviton·ARM 인스턴스</a>
+    <a class="nav-item" href="#origin-shield">오리진 실드 (Origin Shield)</a>
+    <a class="nav-item" href="#k8s-job-cronjob">Job·CronJob</a>
+    <a class="nav-item" href="#crdt">CRDT (충돌 없는 복제 타입)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3813,6 +3816,42 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--amber)">Graviton (ARM)</h4><ul><li>AWS 설계, 가격 대비 성능·전력 효율 유리</li><li>관리형 서비스에서도 선택 가능</li><li>arm64 재빌드·호환성 확인 필요</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>비용 절감을 위해 EC2·RDS·EKS를 Graviton으로 전환하자는 논의나, "arm64 이미지가 없어 컨테이너가 안 뜬다" 같은 멀티아키 빌드·호환성 이슈를 다룰 때 마주친다. <span style="color:var(--amber)">[인프라·컴퓨팅]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="origin-shield">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="origin-shield-h">오리진 실드 <span class="sub">CloudFront Origin Shield</span></h2>
+    <div class="links"><a class="link-tag" href="#http-cache">HTTP 캐시</a><a class="link-tag" href="#cache-stampede">캐시 스탬피드</a><a class="link-tag" href="#reverse-proxy">리버스 프록시</a></div>
+  </div>
+</div>
+<p><strong>CDN(CloudFront)의 엣지/리전 캐시와 원본(origin) 서버 사이에 추가로 두는 "중앙 집중 캐시 한 겹"</strong>이다. Origin Shield를 켜면 <strong>모든 캐시 계층(엣지 로케이션·리전 엣지 캐시)에서 원본으로 가는 요청이 이 한 지점을 반드시 거친다</strong>. 그 결과 (1) 여러 지역에서 같은 콘텐츠를 각자 원본에 요청하던 것을 한 곳으로 모아 <strong>캐시 적중률이 올라가고</strong>, (2) 캐시에 없는 콘텐츠에 대한 동시 요청을 <strong>하나로 합쳐(request collapsing) 원본에는 사실상 요청 1건만 보내</strong> 원본 부하와 트래픽 급증 시 가용성 저하를 줄인다. AWS 공식 기능이며, 들어오는 요청 수에 따라 <strong>추가 요금</strong>이 붙는다. 다만 동적(비캐시) 콘텐츠나 거의 안 쓰이는 콘텐츠에는 이득이 적다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>사용자가 전 세계로 퍼져 있거나 용량·대역폭이 빠듯한 온프레미스 원본을 CDN 뒤에 둘 때, "트래픽이 몰리면 원본이 같은 파일을 수십 번 받아 터진다"를 완화하려고 Origin Shield를 켤지 논의할 때 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="k8s-job-cronjob">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="k8s-job-cronjob-h">쿠버네티스 Job · CronJob <span class="sub">Kubernetes Job · CronJob</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">쿠버네티스</a><a class="link-tag" href="#dlq">데드 레터 큐</a><a class="link-tag" href="#idempotency">멱등성</a></div>
+  </div>
+</div>
+<p><strong>Job은 "끝이 있는 작업(one-off/batch)"을 위한 쿠버네티스 리소스</strong>다. Pod를 띄워 <strong>정해진 횟수만큼 성공적으로 완료되면 종료</strong>하고, 실패하면(노드 장애 등) 지정한 한도(<code>backoffLimit</code>)까지 재시도한다 — 계속 떠 있어야 하는 웹 서버용 <strong>Deployment와는 정반대 성격</strong>이다. <strong>CronJob은 그 Job을 크론(cron) 형식 스케줄로 반복 생성</strong>하는, "crontab 한 줄"에 해당하는 리소스다. 스케줄 문법은 유닉스 크론과 같아서 <code>0 3 * * 1</code>은 "매주 월요일 새벽 3시", <code>* * * * *</code>는 "매 분"을 뜻하고, <code>@daily</code> 같은 매크로도 쓸 수 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>배치 마이그레이션·정산·백업·리포트 생성처럼 일회성 또는 정기 작업을 별도 서버 대신 클러스터에서 돌릴 때, "이 배치가 왜 안 돌았지 / 왜 중복으로 돌았지"를 들여다볼 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="crdt">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="crdt-h">CRDT <span class="sub">Conflict-free Replicated Data Type · 충돌 없는 복제 데이터 타입</span></h2>
+    <div class="links"><a class="link-tag" href="#eventual-consistency">결과적 일관성</a><a class="link-tag" href="#optimistic">낙관적 업데이트</a><a class="link-tag" href="#realtime">실시간 통신</a></div>
+  </div>
+</div>
+<p><strong>여러 복제본(기기·서버)이 서로 조율(coordination) 없이 각자 동시에 수정해도, 같은 수정들을 전달받은 복제본끼리는 수학적으로 항상 같은 상태로 "수렴(convergence)"하도록 설계된 데이터 타입</strong>이다. 즉 중앙의 잠금이나 합의 과정 없이도 최종적으로 모두가 동일한 결과에 도달하는 <strong>강한 최종 일관성(Strong Eventual Consistency, SEC)</strong>을 만족한다. 구현 방식은 크게 연산을 주고받는 <strong>연산 기반(CmRDT)</strong>과 전체 상태를 병합하는 <strong>상태 기반(CvRDT)</strong>으로 나뉘며, 병합 연산이 교환·결합·멱등 법칙을 만족해야 수렴이 보장된다. 실시간 공동 편집에서 <strong>OT(Operational Transformation)의 대안</strong>으로 많이 쓰인다(Yjs·Automerge 등). 단, CRDT는 "수렴"은 보장하지만 그 결과가 "사용자 의도대로"인지까지 보장하지는 않는다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>실시간 공동 편집, 오프라인 우선(offline-first) 앱, 여러 디바이스 간 동기화를 설계할 때 "중앙 서버의 잠금 없이 동시 수정 충돌을 어떻게 자동 병합하지"를 고민할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
