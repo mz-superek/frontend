@@ -83,6 +83,37 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-11-16">
+        <h2>📰 2026-11-16 (월)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). AI·프론트엔드·HTML &amp; CSS 각 1건 통과, 백엔드는 통과 0건으로 헤더째 생략. 백엔드 후보였던 Node.js 26.13.1/24.22.3/22.23.5 보안 릴리스(11/11)는 11/12 발송분과 중복, Node.js 27 첫 알파(10/29)·Bun 1.4.4(10/22)·Deno의 Cloudflare 합류(10/9)는 모두 시의성 창(최근 1~2주) 밖이라 제외. 검색 요약에 돈 &quot;Gemini 4 Hydrogen&quot;은 blog.google에 존재하지 않는 모델명(공식은 Argon/Carbon뿐)이라 드롭, Qwen4-Max Preview·Meta Muse Ember 등 오픈웨이트 후보는 Hugging Face 모델 카드로 확인되지 않아 제외.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, Claude Fable 5.2 · Mythos 5.2 공개 — 최상위 기술 작업용 모델</p>
+            <p class="item-meta">2026-11-09 · <a href="https://www.anthropic.com/news">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 Claude Fable 5.2와 Mythos 5.2를 공개했다. 공식 뉴스 페이지는 이들을 코딩·금융·과학 등 고난도 기술 작업을 위한 자사 최상위(most capable) 모델로 소개하며, 장시간 집중이 필요한 복잡한 작업에서의 역량 강화를 강조한다. 프론티어 모델 라인의 최신 세대로, 에이전트·장기(long-horizon) 작업 흐름에 초점을 맞춘 업데이트다.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>🎨 프론트엔드 (React · Next.js · TypeScript)</h3>
+          <div class="news-item">
+            <p class="item-title">Next.js 16.5 (canary) — Turbopack 개발 서버 GC 기본 활성화</p>
+            <p class="item-meta">2026-11-14 (canary) · <a href="https://github.com/vercel/next.js/releases/tag/v16.5.0-canary.50">github.com</a></p>
+            <p class="item-summary">아직 개발 중인 16.5 카나리 라인에서 Turbopack 가비지 컬렉션을 기본값으로 켜고(&quot;Enable Turbopack GC by default&quot;, #101591), 카나리 릴리스에 한해 청크 전 압축(turbopackMinifyBeforeChunking, #101113)도 기본 활성화했다. 개발 서버의 메모리 관리와 번들 동작을 개선하려는 변경으로, 안정판에 반영되기 전 미리보기 단계다(안정판 아님).</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>💄 HTML &amp; CSS</h3>
+          <div class="news-item">
+            <p class="item-title">Safari Technology Preview 256 — font-palette-mix() 등 CSS 신기능 추가</p>
+            <p class="item-meta">2026-11-04 (프리뷰) · <a href="https://developer.apple.com/documentation/safari-technology-preview-release-notes/stp-release-256">developer.apple.com</a></p>
+            <p class="item-summary">WebKit이 Safari Technology Preview 256 릴리스 노트에서 CSS 신기능 세 가지를 밝혔다. 폰트 색상 팔레트를 블렌딩하는 font-palette-mix()를 Cocoa 플랫폼에서 지원하고, line-clamp 단축속성이 continue: collapse 값을 적용하도록 했으며, ::marker 가상요소에서 text-combine-upright를 지원한다. 프리뷰(미리보기) 채널의 기능이라 안정판 Safari 반영 시점은 아직 공지되지 않았다.</p>
+          </div>
+        </div>
+      </section>
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
