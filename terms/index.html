@@ -231,6 +231,9 @@
     <a class="nav-item" href="#origin-shield">오리진 실드 (Origin Shield)</a>
     <a class="nav-item" href="#k8s-job-cronjob">Job·CronJob</a>
     <a class="nav-item" href="#crdt">CRDT (충돌 없는 복제 타입)</a>
+    <a class="nav-item" href="#ec2-placement-group">EC2 배치 그룹 (Placement Group)</a>
+    <a class="nav-item" href="#dynamodb-secondary-index">보조 인덱스 (GSI·LSI)</a>
+    <a class="nav-item" href="#spike">스파이크 (Spike)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3852,6 +3855,51 @@ export default function Error({ error, reset }) {
 </div>
 <p><strong>여러 복제본(기기·서버)이 서로 조율(coordination) 없이 각자 동시에 수정해도, 같은 수정들을 전달받은 복제본끼리는 수학적으로 항상 같은 상태로 "수렴(convergence)"하도록 설계된 데이터 타입</strong>이다. 즉 중앙의 잠금이나 합의 과정 없이도 최종적으로 모두가 동일한 결과에 도달하는 <strong>강한 최종 일관성(Strong Eventual Consistency, SEC)</strong>을 만족한다. 구현 방식은 크게 연산을 주고받는 <strong>연산 기반(CmRDT)</strong>과 전체 상태를 병합하는 <strong>상태 기반(CvRDT)</strong>으로 나뉘며, 병합 연산이 교환·결합·멱등 법칙을 만족해야 수렴이 보장된다. 실시간 공동 편집에서 <strong>OT(Operational Transformation)의 대안</strong>으로 많이 쓰인다(Yjs·Automerge 등). 단, CRDT는 "수렴"은 보장하지만 그 결과가 "사용자 의도대로"인지까지 보장하지는 않는다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>실시간 공동 편집, 오프라인 우선(offline-first) 앱, 여러 디바이스 간 동기화를 설계할 때 "중앙 서버의 잠금 없이 동시 수정 충돌을 어떻게 자동 병합하지"를 고민할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="ec2-placement-group">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="ec2-placement-group-h">EC2 배치 그룹 <span class="sub">EC2 Placement Group · 클러스터·파티션·스프레드</span></h2>
+    <div class="links"><a class="link-tag" href="#availability-zone">가용 영역</a><a class="link-tag" href="#blast-radius">폭발 반경</a><a class="link-tag" href="#spot-instance">스팟 인스턴스</a></div>
+  </div>
+</div>
+<p><strong>여러 EC2 인스턴스가 물리적으로 어느 하드웨어에 놓일지를 제어하기 위해 묶는 논리 그룹</strong>이다. 기본적으로 AWS는 인스턴스를 알아서 흩뿌려 배치하지만, 워크로드 성격에 따라 "<strong>가깝게 모을지</strong>" 또는 "<strong>일부러 떨어뜨릴지</strong>"를 직접 고르고 싶을 때 쓴다. 세 가지 전략이 있다 — <strong>클러스터(Cluster)</strong>는 한 가용 영역(AZ) 안에서 인스턴스를 물리적으로 가깝게 모아 노드 간 저지연·고대역폭 통신을 얻는다(HPC처럼 긴밀하게 통신하는 워크로드용, 대신 같은 영역에 몰려 상관 장애 위험↑). <strong>파티션(Partition)</strong>은 인스턴스를 여러 논리 파티션으로 나눠 서로 다른 파티션은 하드웨어(랙)를 공유하지 않게 해서, 한 랙 장애가 한 파티션에만 미치도록 한다(Hadoop·Cassandra·Kafka 같은 대규모 분산·복제 워크로드용). <strong>스프레드(Spread)</strong>는 소수의 인스턴스를 각각 서로 다른 하드웨어에 엄격히 분산해 동시(상관) 장애를 최소화한다(장애가 치명적인 핵심 소수 인스턴스용). 배치 그룹 생성 자체는 무료이고, 한 인스턴스는 한 번에 하나의 배치 그룹에만 속할 수 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">클러스터 (Cluster)</h4><ul><li>한 AZ 안에 가깝게 모음</li><li>저지연·고대역폭 통신</li><li>HPC·긴밀한 노드 간 통신</li></ul></div>
+  <div class="card"><h4 style="color:var(--amber)">파티션 (Partition)</h4><ul><li>파티션 간 하드웨어 분리</li><li>한 랙 장애 → 한 파티션만 영향</li><li>Hadoop·Cassandra·Kafka</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">스프레드 (Spread)</h4><ul><li>각 인스턴스를 다른 하드웨어에</li><li>동시 장애 최소화</li><li>핵심 소수 인스턴스</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>가용성·내결함성을 높이려고(스프레드·파티션) 또는 노드 간 통신 지연을 줄이려고(클러스터) 인스턴스 배치를 조정할 때, "같은 하드웨어에 몰려서 한 번에 죽지 않게 떨어뜨리자" 같은 논의에서 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="dynamodb-secondary-index">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="dynamodb-secondary-index-h">보조 인덱스 <span class="sub">Secondary Index · GSI·LSI (DynamoDB)</span></h2>
+    <div class="links"><a class="link-tag" href="#eventual-consistency">결과적 일관성</a><a class="link-tag" href="#materialized-view">구체화 뷰</a><a class="link-tag" href="#read-replica">읽기 복제본</a></div>
+  </div>
+</div>
+<p><strong>기본 키(primary key) 말고도 다른 속성으로 효율적으로 조회할 수 있게 해주는 "대체 키" 인덱스</strong>다(여기선 DynamoDB 기준). 기본 키가 <code>userId</code>인 테이블에서 "이메일로도 빠르게 찾고 싶다" 같은 추가 조회 패턴이 생길 때 만든다. DynamoDB에는 두 종류가 있다 — <strong>글로벌 보조 인덱스(GSI)</strong>는 파티션 키·정렬 키를 기본 테이블과 <strong>완전히 다르게</strong> 잡을 수 있고, 테이블을 만든 <strong>뒤에도 추가·삭제</strong>할 수 있으며, <strong>자체 읽기/쓰기 처리 용량</strong>을 따로 가진다. 단 GSI 조회는 <strong>결과적 일관성만</strong> 지원한다(강한 일관성 불가). <strong>로컬 보조 인덱스(LSI)</strong>는 파티션 키는 기본 테이블과 <strong>같고 정렬 키만</strong> 다르며, <strong>테이블 생성 시에만</strong> 만들 수 있고(이후 추가·삭제 불가) 기본 테이블의 처리 용량을 <strong>공유</strong>한다. 대신 LSI는 조회 시 <strong>강한 일관성도 선택</strong>할 수 있고, 파티션 키 값 하나당 항목 합계가 <strong>10GB 이하</strong>여야 한다는 제약이 있다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--coral)">GSI (글로벌)</h4><ul><li>파티션·정렬 키 자유롭게</li><li>테이블 생성 후에도 추가/삭제</li><li>자체 처리 용량 · 결과적 일관성만</li></ul></div>
+  <div class="card"><h4 style="color:var(--teal)">LSI (로컬)</h4><ul><li>파티션 키 동일, 정렬 키만 다름</li><li>테이블 생성 시에만 (추가 불가)</li><li>용량 공유 · 강한 일관성 가능 · 10GB 제한</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>DynamoDB에서 기본 키 외 조회 패턴이 필요해 GSI/LSI 중 뭘 쓸지 정할 때, "왜 이 인덱스로 조회하면 방금 쓴 데이터가 안 보이지(결과적 일관성)" 또는 "LSI는 왜 테이블 만들 때만 추가되지"를 따질 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="spike">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="spike-h">스파이크 <span class="sub">Spike · 시간제한 기술 검증 작업</span></h2>
+    <div class="links"><a class="link-tag" href="#adr">ADR</a><a class="link-tag" href="#rfc">RFC</a><a class="link-tag" href="#chaos-engineering">카오스 엔지니어링</a></div>
+  </div>
+</div>
+<p><strong>애자일·XP에서 나온 용어로, 불확실한 기술/설계 질문에 답하거나 작업 난이도·공수를 가늠하기 위해 수행하는 짧은 "시간제한(time-boxed) 조사·실험"</strong>이다. 핵심은 목표가 <strong>"배포 가능한 기능"이 아니라 "지식·결론"</strong>이라는 점 — 끝나면 보통 실험 코드는 버리고 배운 것(실현 가능한지, 어떤 방식이 나은지, 얼마나 걸릴지)만 남긴다. 그래서 스파이크에는 "<strong>2일</strong>" 같은 명확한 시간 상자를 두고, 그 안에 답을 내는 걸 목표로 한다. 흔히 <strong>기술 스파이크</strong>(특정 라이브러리·아키텍처가 실제로 되는지, 성능이 나오는지 확인)와 <strong>기능 스파이크</strong>(UX·요구사항을 프로토타입으로 명확히 함)로 나눈다. 추정이 불가능할 만큼 모르는 백로그 항목 앞에 스파이크를 먼저 끼워 넣어, 본작업 전에 리스크와 불확실성을 줄이는 용도다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"이건 바로 추정 못 하겠는데 스파이크 먼저 이틀만 잡고 조사하자", "이 라이브러리로 되는지 스파이크로 검증하고 도입 결정하자" 같이, 불확실한 작업을 착수 전에 시간을 정해 탐색할 때 마주친다. <span style="color:var(--coral)">[협업·프로세스]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
