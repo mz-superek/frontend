@@ -231,6 +231,9 @@
     <a class="nav-item" href="#origin-shield">오리진 실드 (Origin Shield)</a>
     <a class="nav-item" href="#k8s-job-cronjob">Job·CronJob</a>
     <a class="nav-item" href="#crdt">CRDT (충돌 없는 복제 타입)</a>
+    <a class="nav-item" href="#rds-multi-az">RDS 다중 AZ 배포</a>
+    <a class="nav-item" href="#covering-index">커버링 인덱스</a>
+    <a class="nav-item" href="#refresh-token-rotation">리프레시 토큰 로테이션</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3852,6 +3855,46 @@ export default function Error({ error, reset }) {
 </div>
 <p><strong>여러 복제본(기기·서버)이 서로 조율(coordination) 없이 각자 동시에 수정해도, 같은 수정들을 전달받은 복제본끼리는 수학적으로 항상 같은 상태로 "수렴(convergence)"하도록 설계된 데이터 타입</strong>이다. 즉 중앙의 잠금이나 합의 과정 없이도 최종적으로 모두가 동일한 결과에 도달하는 <strong>강한 최종 일관성(Strong Eventual Consistency, SEC)</strong>을 만족한다. 구현 방식은 크게 연산을 주고받는 <strong>연산 기반(CmRDT)</strong>과 전체 상태를 병합하는 <strong>상태 기반(CvRDT)</strong>으로 나뉘며, 병합 연산이 교환·결합·멱등 법칙을 만족해야 수렴이 보장된다. 실시간 공동 편집에서 <strong>OT(Operational Transformation)의 대안</strong>으로 많이 쓰인다(Yjs·Automerge 등). 단, CRDT는 "수렴"은 보장하지만 그 결과가 "사용자 의도대로"인지까지 보장하지는 않는다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>실시간 공동 편집, 오프라인 우선(offline-first) 앱, 여러 디바이스 간 동기화를 설계할 때 "중앙 서버의 잠금 없이 동시 수정 충돌을 어떻게 자동 병합하지"를 고민할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="rds-multi-az">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="rds-multi-az-h">RDS 다중 AZ 배포 <span class="sub">Multi-AZ Deployment</span></h2>
+    <div class="links"><a class="link-tag" href="#availability-zone">가용 영역</a><a class="link-tag" href="#read-replica">읽기 복제본</a></div>
+  </div>
+</div>
+<p><strong>관리형 데이터베이스(Amazon RDS)를 한 리전 안의 서로 다른 가용 영역(AZ)에 "주(primary) + 대기(standby)" 한 쌍으로 띄워, 주 인스턴스에 <em>동기</em>로 복제되는 대기본을 상시 준비해 두는 고가용성 옵션</strong>이다. 주 인스턴스나 그 AZ에 장애가 나거나 패치·재부팅이 필요할 때, RDS가 <strong>자동으로 대기본을 새 주 인스턴스로 승격(failover)</strong>하고 동일한 DNS 엔드포인트가 그쪽을 가리키도록 전환한다 — 그래서 애플리케이션은 접속 문자열을 바꾸지 않아도 된다. 핵심은 (기본형인 Multi-AZ <strong>instance</strong> 배포에서) <strong>대기본은 평소 읽기 트래픽을 받지 않는다</strong>는 점이다. 즉 Multi-AZ는 <strong>가용성·내구성 전용</strong>이지 읽기 성능을 올려 주는 기능이 아니며, 읽기 부하를 나누려면 별도의 <strong>읽기 복제본(Read Replica)</strong>을 써야 한다(그쪽은 <em>비동기</em> 복제·읽기 가능·수동 승격). 참고로 더 새로운 <strong>Multi-AZ DB 클러스터</strong> 배포는 읽기 가능한 대기본 2개를 두는 변형이라, "대기본은 못 읽는다"는 설명은 전통적인 instance 배포 기준이다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">Multi-AZ (대기본)</h4><ul><li>동기 복제, 다른 AZ에 대기본 1대</li><li>장애 시 자동 failover(엔드포인트 유지)</li><li>목적: 가용성·내구성 — 평소 읽기 불가</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">Read Replica (읽기 복제본)</h4><ul><li>비동기 복제, 복제 지연 가능</li><li>읽기 쿼리 분산용, 수동 승격 필요</li><li>목적: 읽기 확장(성능)</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>RDS 장애 복구를 설계하거나 "DB가 죽으면 서비스가 멈추나"를 점검할 때, 또 "읽기가 느린데 Multi-AZ를 켜면 분산되나?"(→ 아니오, 그건 Read Replica가 답)라는 흔한 오해를 풀 때 마주친다. <span style="color:var(--teal)">[클라우드·인프라]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="covering-index">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="covering-index-h">커버링 인덱스 <span class="sub">Covering Index</span></h2>
+    <div class="links"><a class="link-tag" href="#n-plus-one">N+1 쿼리</a><a class="link-tag" href="#materialized-view">구체화 뷰</a><a class="link-tag" href="#read-replica">읽기 복제본</a></div>
+  </div>
+</div>
+<p><strong>어떤 쿼리가 필요로 하는 컬럼을 인덱스가 "전부" 담고 있어서, 인덱스만 읽고 실제 테이블(행)을 추가로 조회하지 않고도 결과를 돌려줄 수 있는 인덱스</strong>를 말한다. 보통 DB는 인덱스에서 조건에 맞는 위치를 찾은 뒤, 나머지 컬럼을 읽으려고 <strong>테이블(또는 클러스터형 기본 키)로 한 번 더 가는 랜덤 I/O</strong>를 일으킨다. 그런데 <strong>조회(SELECT)·조건(WHERE)·정렬(ORDER BY)에 쓰는 컬럼이 모두 인덱스 안에 들어 있으면</strong> 그 추가 조회가 사라져, "쿼리가 인덱스로 커버된다(covered)"고 하고 읽기가 크게 빨라진다(실행계획에 흔히 <code>Using index</code>로 표시). 필요한 컬럼을 복합 인덱스 뒤에 붙이거나, PostgreSQL·SQL Server의 <code>INCLUDE</code> 절로 "조건엔 안 쓰지만 결과로만 돌려줄" 컬럼을 덧붙여 만든다. 대신 <strong>인덱스가 넓어져 저장 공간과 쓰기(INSERT·UPDATE) 비용이 늘어나는 트레이드오프</strong>가 있다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>특정 조회가 느려 인덱스를 손볼 때 "SELECT로 꺼내는 컬럼까지 인덱스에 넣어 커버링으로 만들자" 같은 튜닝 논의나, 실행계획(EXPLAIN)에서 테이블 조회 없이 인덱스만으로 끝나는지 확인할 때 마주친다. <span style="color:var(--coral)">[백엔드·데이터베이스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="refresh-token-rotation">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="refresh-token-rotation-h">리프레시 토큰 로테이션 <span class="sub">Refresh Token Rotation</span></h2>
+    <div class="links"><a class="link-tag" href="#oauth">OAuth</a><a class="link-tag" href="#pkce">PKCE</a><a class="link-tag" href="#token">토큰 저장 전략</a></div>
+  </div>
+</div>
+<p><strong>리프레시 토큰을 쓸 때마다 "새 리프레시 토큰을 발급하고 기존 것은 즉시 폐기"하는, 리프레시 토큰을 사실상 1회용으로 돌려 쓰는 방식</strong>이다. 리프레시 토큰은 짧게 사는 액세스 토큰을 재로그인 없이 갱신하는 데 쓰는데, 오래 유효하다 보니 탈취되면 피해가 크다. 로테이션을 켜면 <strong>액세스 토큰을 갱신할 때마다 리프레시 토큰도 함께 교체</strong>되고, 이미 교체돼 폐기된 <strong>옛 리프레시 토큰이 다시 들어오면(재사용 감지)</strong> 서버는 "토큰이 탈취돼 공격자와 정상 클라이언트가 동시에 쓰고 있다"는 신호로 보고 <strong>해당 토큰 계열(한 로그인 세션에서 파생된 토큰 전체)을 한꺼번에 무효화</strong>한다. 그래서 유출이 일어나도 피해 창(window)을 좁힐 수 있다. 특히 <strong>client secret을 안전하게 숨길 수 없는 SPA·모바일 같은 퍼블릭 클라이언트</strong>에 권장되며, OAuth 2.0 보안 모범사례(Security BCP)와 OAuth 2.1이 이 방식을 권장한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>SPA·모바일 앱에 로그인 유지(자동 토큰 갱신)를 붙일 때 "리프레시 토큰을 다시 썼더니 왜 전부 로그아웃되지"를 이해하거나, 토큰 저장·갱신 로직을 설계·점검할 때 마주친다. <span style="color:var(--blue)">[프론트엔드·인증·보안]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
