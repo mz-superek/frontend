@@ -234,6 +234,9 @@
     <a class="nav-item" href="#rds-multi-az">RDS 다중 AZ 배포</a>
     <a class="nav-item" href="#covering-index">커버링 인덱스</a>
     <a class="nav-item" href="#refresh-token-rotation">리프레시 토큰 로테이션</a>
+    <a class="nav-item" href="#transit-gateway">전송 게이트웨이 (Transit Gateway)</a>
+    <a class="nav-item" href="#k8s-service-type">Service 타입 (ClusterIP·NodePort)</a>
+    <a class="nav-item" href="#webhook-signature">웹훅 서명 검증 (HMAC)</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3895,6 +3898,42 @@ export default function Error({ error, reset }) {
 </div>
 <p><strong>리프레시 토큰을 쓸 때마다 "새 리프레시 토큰을 발급하고 기존 것은 즉시 폐기"하는, 리프레시 토큰을 사실상 1회용으로 돌려 쓰는 방식</strong>이다. 리프레시 토큰은 짧게 사는 액세스 토큰을 재로그인 없이 갱신하는 데 쓰는데, 오래 유효하다 보니 탈취되면 피해가 크다. 로테이션을 켜면 <strong>액세스 토큰을 갱신할 때마다 리프레시 토큰도 함께 교체</strong>되고, 이미 교체돼 폐기된 <strong>옛 리프레시 토큰이 다시 들어오면(재사용 감지)</strong> 서버는 "토큰이 탈취돼 공격자와 정상 클라이언트가 동시에 쓰고 있다"는 신호로 보고 <strong>해당 토큰 계열(한 로그인 세션에서 파생된 토큰 전체)을 한꺼번에 무효화</strong>한다. 그래서 유출이 일어나도 피해 창(window)을 좁힐 수 있다. 특히 <strong>client secret을 안전하게 숨길 수 없는 SPA·모바일 같은 퍼블릭 클라이언트</strong>에 권장되며, OAuth 2.0 보안 모범사례(Security BCP)와 OAuth 2.1이 이 방식을 권장한다.</p>
 <div class="tip"><div class="tip-l">실무에서</div>SPA·모바일 앱에 로그인 유지(자동 토큰 갱신)를 붙일 때 "리프레시 토큰을 다시 썼더니 왜 전부 로그아웃되지"를 이해하거나, 토큰 저장·갱신 로직을 설계·점검할 때 마주친다. <span style="color:var(--blue)">[프론트엔드·인증·보안]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="transit-gateway">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="transit-gateway-h">전송 게이트웨이 <span class="sub">AWS Transit Gateway</span></h2>
+    <div class="links"><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#vpc-endpoint">VPC 엔드포인트</a><a class="link-tag" href="#availability-zone">가용 영역</a></div>
+  </div>
+</div>
+<p><strong>여러 VPC와 온프레미스 네트워크(VPN·Direct Connect)를 중앙 허브 하나에 붙여 서로 연결하는, 리전 단위의 네트워크 라우터(허브)</strong>다. 원래 VPC끼리 직접 잇는 <strong>VPC 피어링</strong>은 두 가지 한계가 있다 — (1) <strong>전이(transitive)가 안 돼서</strong> A–B, B–C를 이어도 A는 C와 통신하지 못하고, (2) VPC 수가 늘면 연결이 <strong>그물(mesh)처럼 n² 개로 폭발</strong>한다. Transit Gateway는 모든 네트워크를 <strong>허브-스포크</strong> 구조로 이 허브 하나에 붙이고, 허브의 <strong>라우팅 테이블 한 곳에서 "누가 누구와 통신할 수 있는지"를 선언적으로 관리</strong>한다. VPC·VPN·Direct Connect 게이트웨이를 "어태치먼트(attachment)"로 연결하며, 다른 리전의 Transit Gateway와 피어링해 리전 간으로도 확장할 수 있다. 전송 데이터와 어태치먼트 수에 <strong>요금</strong>이 붙는다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>VPC가 수십 개로 늘어 피어링 관리가 감당이 안 될 때, 또는 여러 계정·VPC·온프레미스를 하나의 네트워크로 묶어 통신 경로를 정리·통제할 때 마주친다. <span style="color:var(--teal)">[클라우드·네트워킹]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="k8s-service-type">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="k8s-service-type-h">쿠버네티스 Service 타입 <span class="sub">ClusterIP · NodePort · LoadBalancer</span></h2>
+    <div class="links"><a class="link-tag" href="#kubernetes">쿠버네티스</a><a class="link-tag" href="#load-balancer">로드 밸런서</a><a class="link-tag" href="#service-discovery">서비스 디스커버리</a></div>
+  </div>
+</div>
+<p><strong>Pod는 수시로 뜨고 죽으면서 IP가 바뀌기 때문에, 그 앞에 "변하지 않는 고정 접점"을 두는 리소스가 Service</strong>다. 이 Service를 어떻게 노출하느냐를 정하는 것이 타입이고, 대표적으로 셋이 있다 — <strong>ClusterIP</strong>(기본값)는 클러스터 <strong>안에서만</strong> 닿는 가상 IP(내부 통신용)다. <strong>NodePort</strong>는 ClusterIP 위에, <strong>모든 노드의 특정 포트</strong>(기본 범위 30000–32767)를 열어 <code>&lt;노드IP&gt;:&lt;포트&gt;</code>로 <strong>클러스터 밖에서도</strong> 닿게 한다. <strong>LoadBalancer</strong>는 다시 그 위에, 클라우드 제공자의 <strong>외부 로드밸런서(AWS ELB 등)를 자동으로 띄워</strong> 외부 트래픽을 받아 Service로 넘긴다. 즉 <strong>뒤 타입이 앞 타입을 포함하며 바깥으로 한 단계씩 확장</strong>되는 구조다(이 밖에 외부 DNS 이름에 매핑하는 ExternalName도 있다). 참고로 HTTP 경로·호스트 기반 라우팅은 보통 Service가 아니라 <strong>Ingress</strong>가 맡는다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>앱을 클러스터에 올린 뒤 "이걸 밖에서 어떻게 접속하지"를 정할 때, 또 "왜 외부에서 안 열리지"(→ 기본값 ClusterIP라 내부 전용)를 들여다볼 때 마주친다. <span style="color:var(--teal)">[인프라·쿠버네티스]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="webhook-signature">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="webhook-signature-h">웹훅 서명 검증 <span class="sub">Webhook Signature · HMAC</span></h2>
+    <div class="links"><a class="link-tag" href="#webhook">웹훅</a><a class="link-tag" href="#secrets-management">시크릿 관리</a><a class="link-tag" href="#idempotency">멱등성</a></div>
+  </div>
+</div>
+<p><strong>웹훅(외부 서비스가 이벤트 발생 시 내 서버의 URL로 쏘아 주는 HTTP 콜백)이 "진짜 그 서비스가 보냈고 중간에 변조되지 않았음"을 확인하는 보안 절차</strong>다. 웹훅 URL은 알려지면 아무나 가짜 요청을 보낼 수 있으므로, 보내는 쪽이 <strong>미리 공유한 비밀키로 요청 본문(payload)의 해시(HMAC, 보통 HMAC-SHA256)를 계산해 헤더에 실어</strong> 보낸다(예: GitHub <code>X-Hub-Signature-256</code>, Slack <code>X-Slack-Signature</code>, Stripe <code>Stripe-Signature</code>). 받는 쪽은 <strong>같은 비밀키로 받은 원문(raw body)의 해시를 다시 계산해, 헤더의 값과 상수 시간(timing-safe)으로 비교</strong>한다. 비밀키를 모르면 올바른 서명을 만들 수 없으므로 위조가 걸러진다. 많은 서비스가 <strong>타임스탬프까지 함께 서명</strong>해, 오래된 요청을 가로채 다시 보내는 <strong>재전송(replay) 공격</strong>도 막는다. 핵심 주의점: 서명은 <strong>프레임워크가 JSON으로 파싱하기 전의 "원본 바이트"</strong>로 검증해야 한다(파싱·재직렬화로 바이트가 바뀌면 해시가 어긋난다).</p>
+<div class="tip"><div class="tip-l">실무에서</div>GitHub·Slack·결제(Stripe) 웹훅을 받는 엔드포인트를 만들 때 "서명 검증을 안 하면 누구나 위조 이벤트를 보낼 수 있다"는 보안 요구로, 또 "서명이 자꾸 불일치한다"(→ 보통 원본 바디가 아니라 파싱된 값으로 검증한 탓)를 디버깅할 때 마주친다. <span style="color:var(--coral)">[백엔드·보안]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
