@@ -237,6 +237,8 @@
     <a class="nav-item" href="#configuration-drift">구성 드리프트</a>
     <a class="nav-item" href="#hateoas">HATEOAS</a>
     <a class="nav-item" href="#container-queries">컨테이너 쿼리 (CSS)</a>
+    <a class="nav-item" href="#internet-gateway">인터넷 게이트웨이 (IGW)</a>
+    <a class="nav-item" href="#littles-law">리틀의 법칙</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3938,6 +3940,34 @@ export default function Error({ error, reset }) {
   <div class="card"><h4 style="color:var(--blue)">컨테이너 쿼리 <code>@container</code></h4><ul><li>기준: 부모 컨테이너 크기</li><li>컴포넌트가 "놓인 자리 폭"에 반응</li><li>사이드바/본문 어디에 넣든 알아서 맞춤</li></ul></div>
 </div>
 <div class="tip"><div class="tip-l">실무에서</div>같은 카드 컴포넌트를 사이드바·본문·그리드처럼 폭이 제각각인 자리에 재사용하면서, 화면이 아니라 "놓인 자리"의 크기에 맞춰 레이아웃을 바꾸고 싶을 때 마주친다. <span style="color:var(--blue)">[프론트엔드·CSS]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="internet-gateway">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--teal)"></div>
+  <div class="term-title">
+    <h2 id="internet-gateway-h">인터넷 게이트웨이 <span class="sub">Internet Gateway · IGW</span></h2>
+    <div class="links"><a class="link-tag" href="#nat-gateway">NAT 게이트웨이</a><a class="link-tag" href="#vpc">VPC</a><a class="link-tag" href="#availability-zone">가용 영역</a></div>
+  </div>
+</div>
+<p><strong>VPC를 인터넷에 연결해 주는, 수평 확장되는 고가용성(HA) VPC 구성요소</strong>다. 대역폭 제한이나 단일 장애점 없이 IPv4·IPv6 트래픽을 처리한다. 핵심은 두 가지 역할이다. 첫째, <strong>라우팅 테이블에서 '인터넷행 트래픽'의 목적지(target)</strong>가 된다 — 어떤 서브넷의 라우트 테이블에 <code>0.0.0.0/0 → IGW</code> 경로가 있으면 그 서브넷을 <strong>'퍼블릭 서브넷'</strong>, 없으면 <strong>'프라이빗 서브넷'</strong>이라 부른다. 둘째, IPv4에서는 <strong>1:1 NAT을 수행</strong>해 인스턴스가 내보내는 패킷의 출발지 주소를 그 인스턴스의 <strong>공인 IPv4 또는 Elastic IP</strong>로 바꾸고, 돌아오는 응답은 다시 내부(사설) IP로 변환해 전달한다. 그래서 인스턴스가 실제로 인터넷과 통신하려면 <strong>① IGW로 가는 라우트 ② 공인 IP(또는 EIP)</strong>가 모두 있어야 한다 — 공인 IP가 있어도 IGW 경로가 없으면 못 나간다. <strong>NAT 게이트웨이와 혼동하기 쉬운데</strong>, NAT 게이트웨이는 "프라이빗 서브넷의 인스턴스가 밖으로 나가기만(outbound)" 하도록 다대일(many-to-one) NAT을 해 주는 것이고, IGW는 공인 IP를 가진 리소스의 <strong>양방향 공개 연결</strong>을 여는 관문이라는 점이 다르다.</p>
+<div class="compare">
+  <div class="card"><h4 style="color:var(--teal)">인터넷 게이트웨이 (IGW)</h4><ul><li>퍼블릭 서브넷의 관문(양방향)</li><li>공인 IP/EIP의 1:1 NAT</li><li>인바운드·아웃바운드 모두 가능</li><li>요금 없음(데이터 전송비만)</li></ul></div>
+  <div class="card"><h4 style="color:var(--coral)">NAT 게이트웨이</h4><ul><li>프라이빗 서브넷의 아웃바운드 전용</li><li>다대일 NAT(밖에서 먼저 못 들어옴)</li><li>시간·데이터 처리 요금 발생</li></ul></div>
+</div>
+<div class="tip"><div class="tip-l">실무에서</div>VPC를 새로 만들고 "왜 인스턴스가 인터넷이 안 되지"를 디버깅할 때 — 라우트 테이블에 IGW 경로가 있는지, 공인 IP가 붙었는지, 퍼블릭/프라이빗 서브넷을 맞게 썼는지 점검할 때 마주친다. <span style="color:var(--teal)">[인프라·네트워크]</span></div>
+</section><hr class="divider">
+
+<section class="term" id="littles-law">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--green)"></div>
+  <div class="term-title">
+    <h2 id="littles-law-h">리틀의 법칙 <span class="sub">Little's Law</span></h2>
+    <div class="links"><a class="link-tag" href="#connection-pool">커넥션 풀</a><a class="link-tag" href="#backpressure">백프레셔</a><a class="link-tag" href="#auto-scaling">오토스케일링</a></div>
+  </div>
+</div>
+<p><strong>안정 상태(stable state)인 시스템에서 "시스템 안에 평균적으로 머무는 항목 수(L)는, 평균 도착률(λ)에 그 시스템에 머무는 평균 시간(W)을 곱한 값과 같다"는 대기행렬 이론의 법칙</strong>이다(수식: <strong>L = λ × W</strong>, John Little이 1961년 증명). 도착·서비스 시간이 어떤 분포를 따르든 상관없이 성립하는 아주 일반적인 관계라서, 성능·용량 분야의 기본 공식으로 널리 쓰인다. 소프트웨어 용어로 바꾸면 <strong>"동시 처리 수(동시성, concurrency) ≈ 처리량(throughput) × 응답시간(latency)"</strong>이 된다. 예를 들어 초당 200건을 처리(throughput)하는데 한 요청이 평균 0.5초(latency) 걸린다면, 어느 순간 시스템 안에는 평균 <code>200 × 0.5 = 100</code>건이 동시에 떠 있다는 뜻이다. 거꾸로 목표 처리량과 지연을 알면 필요한 <strong>동시 커넥션·스레드·워커 수</strong>를 역산할 수 있고, "지연이 2배가 되면 같은 처리량에서도 동시 점유가 2배로 쌓인다"는 직관도 여기서 나온다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>부하 테스트 결과를 해석하거나 용량을 산정할 때 — "목표 처리량을 내려면 커넥션 풀/스레드를 몇 개로 잡아야 하나", "응답이 느려지면 왜 커넥션이 금세 고갈되나"를 설명할 때 마주친다. <span style="color:var(--green)">[성능·용량]</span></div>
 </section><hr class="divider">
 
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
