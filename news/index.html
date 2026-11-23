@@ -83,6 +83,34 @@
       </div>
 
       <!-- NEWS:INSERT-AFTER (새 날짜 섹션은 이 주석 바로 아래에 추가) -->
+      <section class="news-day" data-date="2026-11-24">
+        <h2>📰 2026-11-24 (화)</h2>
+        <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건·백엔드 2건 통과. 프론트엔드는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js는 16.5.0-canary 계열만 있어 안정판 아님, 16.4.6은 11/9로 2주 초과; TypeScript 7.1은 10/20 베타로 시의성 미달·RC 미확인; React 신규 없음). HTML &amp; CSS도 1~2주 창 안에서 1차 소스로 확인되는 신규 편입이 없어 생략(web.dev &apos;New to the web platform&apos; 라운드업은 10/29 발행으로 2주 초과). GPT-6.2·Gemini 4 Neon(11/17~18)은 11/19 발송분과 중복, Claude Mythos·Fable 5.2(11/9)는 AI 시의성 창(수일) 초과로 제외.</p>
+
+        <div class="news-cat">
+          <h3>🤖 AI</h3>
+          <div class="news-item">
+            <p class="item-title">Anthropic, IPO 공식 종료 — Class A 11.27억 주를 주당 $83에 발행 완료</p>
+            <p class="item-meta">2026-11-20 · <a href="https://www.anthropic.com/news">anthropic.com</a></p>
+            <p class="item-summary">Anthropic이 Class A 보통주 기업공개(IPO)를 공식 종료했다고 뉴스룸을 통해 발표했다. 공식 발표 기준 언더라이터의 추가 배정 옵션 147,000,000주를 전량 포함해 총 1,127,000,000주를 주당 $83.00에 발행했다. 11/18 공모가 확정(priced)에 이어 실제 주식 발행·납입이 완료된 단계로, AI 업계 최대 규모의 상장이 마무리됐다. 프론티어 AI 기업의 자본조달·거버넌스 구조에 영향을 주는 대형 이슈.</p>
+          </div>
+        </div>
+
+        <div class="news-cat">
+          <h3>⚙️ 백엔드</h3>
+          <div class="news-item">
+            <p class="item-title">PostgreSQL 19 정식 출시 — REPACK CONCURRENTLY · pg_plan_advice · 시퀀스 논리 복제</p>
+            <p class="item-meta">2026-11-19 · <a href="https://www.postgresql.org/about/news/postgresql-19-released-3449/">postgresql.org</a></p>
+            <p class="item-summary">PostgreSQL Global Development Group이 메이저 버전 19를 정식 출시했다. 공식 발표 기준 핵심은 읽기/쓰기를 차단하지 않고 테이블을 재구성하는 새 <code>REPACK</code> 명령(<code>CONCURRENTLY</code> 옵션), 실행 계획 안정성을 돕는 <code>pg_plan_advice</code> 확장, 그리고 시퀀스 값의 논리 복제다. 또한 JIT 컴파일이 기본 비활성화로 바뀌었고, RADIUS 인증 지원이 제거됐으며, <code>INSERT ... ON CONFLICT DO SELECT</code> 형식이 추가됐다. 19.0은 2031-11-19까지 지원된다.</p>
+          </div>
+          <div class="news-item">
+            <p class="item-title">Node.js 보안 릴리스 — 16개 취약점 수정 (v22.23.5 · v24.22.3 · v26.13.1)</p>
+            <p class="item-meta">2026-11-11 · <a href="https://nodejs.org/en/blog/vulnerability/november-2026-security-releases">nodejs.org</a></p>
+            <p class="item-summary">Node.js가 22.x·24.x·26.x 세 라인에 걸쳐 16개 취약점을 수정한 보안 릴리스(v22.23.5·v24.22.3·v26.13.1)를 냈다. 공식 공지 기준 최고 등급은 High로, HTTP/2 세션의 use-after-free 및 원격 중단, 제로 길이 TLS 쓰기로 인한 힙 메모리 누출, TLS 1.2 재협상을 통한 클라이언트 인증서 인증 우회 등 HTTP/2·TLS 관련 결함이 다수를 차지한다. 운영 서버는 즉시 해당 패치 버전으로 업데이트할 것을 권장한다.</p>
+          </div>
+        </div>
+      </section>
+
       <section class="news-day" data-date="2026-08-10">
         <h2>📰 2026-08-10 (월)</h2>
         <p class="day-note">공식 1차 소스로 교차검증된 항목만 수록(fail-closed). 오늘은 AI 1건만 통과. 프론트엔드·백엔드·HTML &amp; CSS는 시의성 창(최근 1~2주) 안에서 1차 소스로 확인되는 신규 안정 릴리스가 없어 헤더째 생략(Next.js 16.3은 8/3 발송분과 중복, Deno 2.9는 6/25로 시의성 미달, Chrome 152 안정판은 8/25 예정·베타는 이미 다룸). TypeScript 7 네이티브 컴파일러와 Gemini 3.6 Flash 정식 전환(GA)은 1차 소스로 날짜·상태를 확정하지 못해 제외. 검색 요약에 돈 &quot;Kimi K3(2.8T)&quot;는 공식 저장소에서 확인되지 않는 버전이라 드롭.</p>
