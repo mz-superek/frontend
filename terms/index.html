@@ -239,6 +239,9 @@
     <a class="nav-item" href="#container-queries">컨테이너 쿼리 (CSS)</a>
     <a class="nav-item" href="#internet-gateway">인터넷 게이트웨이 (IGW)</a>
     <a class="nav-item" href="#littles-law">리틀의 법칙</a>
+    <a class="nav-item" href="#vector-clock">벡터 클록</a>
+    <a class="nav-item" href="#resource-vs-identity-policy">리소스/자격증명 정책</a>
+    <a class="nav-item" href="#conways-law">콘웨이의 법칙</a>
     <!-- TERMS:NAV-INSERT (새 용어 nav 링크는 이 주석 바로 위에 추가) -->
   </div>
 </nav>
@@ -3970,6 +3973,39 @@ export default function Error({ error, reset }) {
 <div class="tip"><div class="tip-l">실무에서</div>부하 테스트 결과를 해석하거나 용량을 산정할 때 — "목표 처리량을 내려면 커넥션 풀/스레드를 몇 개로 잡아야 하나", "응답이 느려지면 왜 커넥션이 금세 고갈되나"를 설명할 때 마주친다. <span style="color:var(--green)">[성능·용량]</span></div>
 </section><hr class="divider">
 
+<section class="term" id="vector-clock">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--coral)"></div>
+  <div class="term-title">
+    <h2 id="vector-clock-h">벡터 클록 <span class="sub">Vector Clock · 벡터 시계</span></h2>
+    <div class="links"><a class="link-tag" href="#crdt">CRDT</a><a class="link-tag" href="#eventual-consistency">결과적 일관성</a><a class="link-tag" href="#quorum">정족수</a></div>
+  </div>
+</div>
+<p><strong>분산 시스템에서 여러 서버(프로세스)에 흩어져 일어난 이벤트들의 "선후 관계(인과관계)"를 판별하기 위한 자료구조</strong>다. 각 프로세스가 '전체 프로세스 수만큼의 카운터 배열'을 들고 다니며, 자기 쪽 이벤트가 생기면 자기 칸을 하나 올리고, 메시지를 받으면 받은 배열과 내 배열을 <strong>칸별 최댓값</strong>으로 합친다. 두 이벤트의 배열을 비교해 한쪽이 모든 칸에서 작거나 같고 적어도 한 칸이 더 작으면 "먼저 일어난(happened-before)" 관계, 서로 앞서지도 뒤서지도 않으면 "<strong>동시(concurrent)</strong>에 일어나 충돌 가능"으로 본다. 물리적 시계(타임스탬프)는 서버마다 미세하게 어긋나 순서를 믿을 수 없지만, 벡터 클록은 통신으로 전파된 '논리적 순서'만 보기 때문에 인과관계를 정확히 잡아준다(Fidge·Mattern, 1988).</p>
+<div class="tip"><div class="tip-l">실무에서</div>분산 DB(DynamoDB·Cassandra 등)나 CRDT·오프라인 동기화에서 "같은 데이터를 두 곳에서 고쳤을 때 누가 최신인가, 아니면 충돌로 봐야 하나"를 판정하는 원리를 이해할 때 마주친다. <span style="color:var(--coral)">[백엔드·분산시스템]</span></div>
+</section><hr class="divider">
+<section class="term" id="resource-vs-identity-policy">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--blue)"></div>
+  <div class="term-title">
+    <h2 id="resource-vs-identity-policy-h">리소스 기반 정책 vs 자격증명 기반 정책 <span class="sub">Resource-based vs Identity-based Policy</span></h2>
+    <div class="links"><a class="link-tag" href="#iam">IAM</a><a class="link-tag" href="#least-privilege">최소 권한 원칙</a><a class="link-tag" href="#presigned-url">사전 서명 URL</a></div>
+  </div>
+</div>
+<p><strong>AWS에서 "누가 무엇을 할 수 있는가"를 정하는 권한 문서(정책)를 '어디에 붙이느냐'로 나눈 두 종류</strong>다. <strong>자격증명 기반 정책(identity-based)</strong>은 사용자·그룹·역할(IAM identity)에 붙여 "이 주체가 어떤 리소스에 무엇을 할 수 있다"를 정한다 — 붙은 주체가 곧 주어이므로 정책 안에 Principal(주체)을 쓰지 않는다. 반대로 <strong>리소스 기반 정책(resource-based)</strong>은 S3 버킷 정책이나 IAM 역할의 신뢰 정책(trust policy)처럼 <strong>리소스 쪽에 직접 붙이고</strong>, "누가(Principal) 이 리소스에 접근 가능한가"를 리소스가 스스로 선언한다. 리소스 기반 정책은 Principal을 반드시 명시하기 때문에 <strong>다른 계정(교차 계정)의 주체까지 접근을 열어줄 수 있다</strong>는 것이 결정적 차이다(AWS IAM 공식 문서 기준). 둘 중 어느 하나라도 명시적 거부(Deny)가 있으면 그게 우선한다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>"IAM 권한은 분명히 줬는데 S3 버킷 정책에서 막힌다", "다른 계정에 버킷·역할을 열어줘야 한다"처럼 접근 거부를 디버깅하거나 교차 계정 권한을 설계할 때 마주친다. <span style="color:var(--blue)">[보안·클라우드]</span></div>
+</section><hr class="divider">
+<section class="term" id="conways-law">
+<div class="term-header">
+  <div class="cat-dot" style="background:var(--purple)"></div>
+  <div class="term-title">
+    <h2 id="conways-law-h">콘웨이의 법칙 <span class="sub">Conway's Law</span></h2>
+    <div class="links"><a class="link-tag" href="#msa">MSA</a><a class="link-tag" href="#adr">ADR</a><a class="link-tag" href="#service-mesh">서비스 메시</a></div>
+  </div>
+</div>
+<p><strong>"시스템을 설계하는 조직은, 그 조직의 의사소통 구조를 그대로 닮은 설계를 내놓는다"는 경험 법칙</strong>이다(Melvin Conway, 1967). 즉 팀이 어떻게 나뉘고 서로 어떻게 소통하느냐가 소프트웨어의 모듈·서비스 경계에 거의 그대로 반영된다는 뜻이다. 팀이 3개면 시스템도 어쩐지 3덩어리로 갈라지고, 팀 간 소통이 느린 곳엔 서비스 간 인터페이스가 어색하게 생기기 쉽다. 그래서 마이크로서비스처럼 '원하는 아키텍처'가 먼저 있다면, 거꾸로 <strong>조직(팀 경계)을 그 아키텍처에 맞춰 짜는 '역(逆)콘웨이 전략(Inverse Conway Maneuver)'</strong>을 쓰기도 한다 — 구조를 바꾸려면 코드가 아니라 팀부터 바꾸라는 얘기다.</p>
+<div class="tip"><div class="tip-l">실무에서</div>서비스·모듈 경계가 자꾸 팀 경계와 얽혀 통합이 꼬일 때, 또는 MSA 전환·플랫폼 조직 개편을 논의할 때 "왜 아키텍처가 조직을 닮는가"를 설명하며 마주친다. <span style="color:var(--purple)">[협업·문서·아키텍처]</span></div>
+</section><hr class="divider">
 <!-- TERMS:INSERT-BEFORE (새 용어 섹션은 이 주석 바로 위에 추가) -->
 </main>
 
